@@ -9,7 +9,7 @@ import {
 } from "@shiksha/common-lib";
 import {
   NativeBaseProvider,
-  Box,
+  
   Stack,
   VStack,
   Text,
@@ -25,7 +25,10 @@ import Grid from '@mui/material/Grid';
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import Container from '@mui/material/Container';
-import BoxCard from "components/Card";
+import Box from '@mui/material/Box';
+import Search from "components/search";
+import data from "../../assets/framework.json"
+
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -46,7 +49,10 @@ theme.typography.h3 = {
   },
 };
 
+
+
 const DomainList = () => {
+  // console.log(data.result.categories.terms.category);
   const [search, setSearch] = React.useState(true);
   const [searchState, setSearchState] = React.useState(false);
 
@@ -138,26 +144,7 @@ const DomainList = () => {
 
         // ),
       }}
-      // subHeader={
-      //   <Link
-      //     to="/"
-      //     style={{ color: "rgb(63, 63, 70)", textDecoration: "none" }}
-      //   >
-      //     <HStack space="4" justifyContent="space-between">
-      //       <VStack>
-      //         <SearchLayout
-      //           {...{
-      //             search,
-      //             setSearch,
-      //             // minStringLenght: 3,
-      //             notFoundMessage: "TYPE_TO_START_SEARCHING_LEARNING",
-      //             onCloseSearch: setSearchState,
-      //           }}
-      //         ></SearchLayout>
-      //       </VStack>
-      //     </HStack>
-      //   </Link>
-      // }
+     
       _subHeader={{ bg: "rgb(248, 117, 88)" }}
       _footer={{
         menues: [
@@ -184,37 +171,33 @@ const DomainList = () => {
         ],
       }}
     >
+       <Box sx={{background:'#2D2D2D',padding:'20px'}}>
+          <p style={{fontSize:'20px',fontWeight:'700',color:'#fff',paddingBottom:'5px',margin:'0'}}>Explore content related to your domain. Learn from well curated courses and content.</p>
+          <p style={{fontSize:'16px',fontWeight:'700',color:'#C1C1C1',margin:'0',paddingBottom:'30px'}}>Learn from well curated courses and content.</p>
+          <Search></Search>
+        </Box>
+
+
       <Container>
-        <BoxCard></BoxCard>
-       <ThemeProvider theme={theme}>
-       <Typography variant="h3" sx={{ marginTop: '30px' }}>Filter by popular domain</Typography>
-    </ThemeProvider>
-      <Grid container spacing={2} style={{margin:'20px 0'}}>
-        <Grid item xs={12} md={6} lg={3} >
-        <Box style={{display:'flex', justifyContent:'space-between', flexDirection:'row'}}>
-        <Box style={{background:'#fff',padding:'10px',borderRadius:'10px',height:'60px',width:'90px',border:'solid 1px #E1E1E1'}}><img src={require("../../assets/logo.png")} style={{width:'100%'}} /></Box>
-           <h5 style={{fontSize:'16px',fontWeight:'500',paddingLeft:'10px',margin:'0'}}>Solid Waste Managment</h5>
+          <ThemeProvider theme={theme}>
+          <Typography variant="h3" sx={{ marginTop: '30px' }}>Filter by popular domain</Typography>
+          </ThemeProvider> 
+
+        <Box sx={{paddingTop:'30px'}}>
+        {data.result.framework.categories.map((faqIndex) => (
+            <Grid container spacing={2} style={{margin:'20px 0'}}  key={faqIndex} style={{marginBottom:'10px'}}>
+            {faqIndex.terms.map(term => (
+                <Grid item xs={12} md={6} lg={3}  style={{marginBottom:'10px'}}>
+
+                <Box style={{display:'flex', flexDirection:'row', alignItems:'center'}} key={faqIndex.id}>
+                <Box style={{background:'#fff',padding:'10px',borderRadius:'10px',height:'48px',width:'48px',border:'solid 1px #E1E1E1'}}><img src={require("../../assets/swm.png")} style={{width:'100%'}} /></Box>
+                <h5 style={{fontSize:'14px',fontWeight:'500',paddingLeft:'10px',margin:'0'}}>{term.name}</h5>
+                </Box>
+                </Grid>
+            ))}
+            </Grid>
+        ))}
         </Box>
-        </Grid>
-        <Grid item xs={12} md={6} lg={3}>
-        <Box style={{display:'flex', justifyContent:'space-between', flexDirection:'row'}}>
-           <Box style={{background:'#fff',padding:'10px',borderRadius:'10px',height:'60px',width:'90px',border:'solid 1px #E1E1E1'}}><img src={require("../../assets/logo.png")} style={{width:'100%'}} /></Box>
-           <h5 style={{fontSize:'16px',fontWeight:'500', paddingLeft:'10px',margin:'0'}}>Solid Waste Managment</h5>
-        </Box>
-        </Grid>
-        <Grid item xs={12} md={6} lg={3}>
-        <Box style={{display:'flex', justifyContent:'space-between', flexDirection:'row'}}>
-        <Box style={{background:'#fff',padding:'10px',borderRadius:'10px',height:'60px',width:'90px',border:'solid 1px #E1E1E1'}}><img src={require("../../assets/logo.png")} style={{width:'100%'}} /></Box>
-           <h5 style={{fontSize:'16px',fontWeight:'500', paddingLeft:'10px',margin:'0'}}>Solid Waste Managment</h5>
-        </Box>
-        </Grid>
-        <Grid item xs={12} md={6} lg={3}>
-        <Box style={{display:'flex', justifyContent:'space-between', flexDirection:'row'}}>
-        <Box style={{background:'#fff',padding:'10px',borderRadius:'10px',height:'60px',width:'90px',border:'solid 1px #E1E1E1'}}><img src={require("../../assets/logo.png")} style={{width:'100%'}} /></Box>
-           <h5 style={{fontSize:'16px',fontWeight:'500', paddingLeft:'10px',margin:'0'}}>Solid Waste Managment</h5>
-        </Box>
-        </Grid>
-    </Grid>
     </Container>
 
     </Layout>

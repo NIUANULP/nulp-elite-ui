@@ -1,0 +1,509 @@
+{
+  "id": "api.framework.read",
+  "ver": "1.0",
+  "ts": "2024-03-28T07:11:13.555Z",
+  "params": {
+    "resmsgid": "5c93ee30-ecd2-11ee-9b10-15a46535a710",
+    "msgid": "5c9303d0-ecd2-11ee-b326-8159da5f29a9",
+    "status": "successful",
+    "err": null,
+    "errmsg": null
+  },
+  "responseCode": "OK",
+  "result": {
+    "framework": {
+      "identifier": "nulp",
+      "code": "nulp",
+      "name": "Nulp",
+      "description": "NULP framework updated 2",
+      "categories": [
+        {
+          "identifier": "nulp_board",
+          "code": "board",
+          "terms": [
+            {
+              "identifier": "nulp_board_nulp",
+              "code": "nulp",
+              "translations": null,
+              "name": "Nulp",
+              "description": "Nulp",
+              "index": 1,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_finance",
+              "code": "finance",
+              "translations": null,
+              "name": "Municipal Finance",
+              "description": "Finance",
+              "index": 2,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_leadershippillar",
+              "code": "leadershippillar",
+              "translations": null,
+              "name": "Community Leadership",
+              "description": "Leadership",
+              "index": 3,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_mobilitybrts",
+              "code": "mobility/brts",
+              "translations": null,
+              "name": "Mobility/BRTS",
+              "description": "Mobility/BRTS",
+              "index": 4,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_water",
+              "code": "water",
+              "translations": null,
+              "name": "Water",
+              "description": "Water",
+              "index": 5,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_medical",
+              "code": "medical",
+              "translations": null,
+              "name": "Medical",
+              "description": "Medical",
+              "index": 6,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_environment_swm",
+              "code": "environment_swm",
+              "translations": null,
+              "name": "Environment/SWM",
+              "description": "Environment/SWM",
+              "index": 7,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_it",
+              "code": "it",
+              "translations": null,
+              "name": "IT",
+              "description": "IT",
+              "index": 8,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_health",
+              "code": "health",
+              "translations": null,
+              "name": "Health",
+              "description": "Health",
+              "index": 9,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_education",
+              "code": "education",
+              "translations": null,
+              "name": "Education",
+              "description": "Education",
+              "index": 10,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_sports",
+              "code": "sports",
+              "translations": null,
+              "name": "Sports",
+              "description": "Sports",
+              "index": 11,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_civil",
+              "code": "civil",
+              "translations": null,
+              "name": "Civil",
+              "description": "Civil",
+              "index": 12,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_electrical",
+              "code": "electrical",
+              "translations": null,
+              "name": "Electrical",
+              "description": "Electrical",
+              "index": 13,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_csrcell",
+              "code": "csrcell",
+              "translations": null,
+              "name": "CSR Cell",
+              "description": "CSR Cell",
+              "index": 14,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_citytransformationoffice",
+              "code": "citytransformationoffice",
+              "translations": null,
+              "name": "City Transformation  Office",
+              "description": "City Transformation  Office",
+              "index": 15,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_landandassets",
+              "code": "landandassets",
+              "translations": null,
+              "name": "Land and Assets",
+              "description": "Land and Assets",
+              "index": 16,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_townplan",
+              "code": "townplan",
+              "translations": null,
+              "name": "Town Plan",
+              "description": "Town Plan",
+              "index": 17,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_generaladministration",
+              "code": "generaladministration",
+              "translations": null,
+              "name": "General Administration",
+              "description": "General Administration",
+              "index": 18,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_audit",
+              "code": "audit",
+              "translations": null,
+              "name": "Audit",
+              "description": "Audit",
+              "index": 19,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_horticulture",
+              "code": "horticulture",
+              "translations": null,
+              "name": "Horticulture",
+              "description": "Horticulture",
+              "index": 20,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_ucd",
+              "code": "ucd",
+              "translations": null,
+              "name": "UCD",
+              "description": "UCD",
+              "index": 21,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_mechanical",
+              "code": "mechanical",
+              "translations": null,
+              "name": "Mechanical",
+              "description": "Mechanical",
+              "index": 22,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_csection",
+              "code": "csection",
+              "translations": null,
+              "name": "C Section",
+              "description": "C Section",
+              "index": 23,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_eoa",
+              "code": "eoa",
+              "translations": null,
+              "name": "EOA",
+              "description": "EOA",
+              "index": 24,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_accounts",
+              "code": "accounts",
+              "translations": null,
+              "name": "Accounts",
+              "description": "accounts",
+              "index": 25,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_revenue",
+              "code": "revenue",
+              "translations": null,
+              "name": "Revenue",
+              "description": "Revenue",
+              "index": 26,
+              "category": "board",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_board_accessibility",
+              "code": "accessibility",
+              "translations": null,
+              "name": "Accessibility",
+              "description": "accessibility",
+              "index": 27,
+              "category": "board",
+              "status": "Live"
+            }
+          ],
+          "translations": null,
+          "name": "Category",
+          "description": "Category",
+          "index": 1,
+          "status": "Live"
+        },
+        {
+          "identifier": "nulp_gradelevel",
+          "code": "gradeLevel",
+          "terms": [
+            {
+              "identifier": "nulp_gradelevel_mission",
+              "code": "mission",
+              "translations": null,
+              "name": "Mission",
+              "description": "Mission",
+              "index": 1,
+              "category": "gradeLevel",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_gradelevel_program",
+              "code": "program",
+              "translations": null,
+              "name": "Program",
+              "description": "Program",
+              "index": 2,
+              "category": "gradeLevel",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_gradelevel_solution",
+              "code": "solution",
+              "translations": null,
+              "name": "Solution",
+              "description": "Solution",
+              "index": 3,
+              "category": "gradeLevel",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_gradelevel_knowledge",
+              "code": "knowledge",
+              "translations": null,
+              "name": "Knowledge",
+              "description": "Knowledge",
+              "index": 4,
+              "category": "gradeLevel",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_gradelevel_process",
+              "code": "process",
+              "translations": null,
+              "name": "Process",
+              "description": "Process",
+              "index": 5,
+              "category": "gradeLevel",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_gradelevel_software",
+              "code": "software",
+              "translations": null,
+              "name": "Software",
+              "description": "Software",
+              "index": 6,
+              "category": "gradeLevel",
+              "status": "Live"
+            }
+          ],
+          "translations": null,
+          "name": "Sub-Category",
+          "description": "sub-category",
+          "index": 2,
+          "status": "Live"
+        },
+        {
+          "identifier": "nulp_subject",
+          "code": "subject",
+          "terms": [
+            {
+              "identifier": "nulp_subject_innovation",
+              "code": "innovation",
+              "translations": null,
+              "name": "Innovation",
+              "description": "Innovation",
+              "index": 1,
+              "category": "subject",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_subject_bestpractices",
+              "code": "bestpractices",
+              "translations": null,
+              "name": "Best Practices",
+              "description": "Best Practices",
+              "index": 2,
+              "category": "subject",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_subject_standardoperatingprocedure",
+              "code": "standardoperatingprocedure",
+              "translations": null,
+              "name": "Standard Operating Procedure",
+              "description": "Standard Operating Procedure",
+              "index": 3,
+              "category": "subject",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_subject_routinejobrequirement",
+              "code": "routinejobrequirement",
+              "translations": null,
+              "name": "Routine Job Requirement",
+              "description": "Routine Job Requirement",
+              "index": 4,
+              "category": "subject",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_subject_firefightingknowledge",
+              "code": "firefightingknowledge",
+              "translations": null,
+              "name": "Firefighting Knowledge",
+              "description": "Firefighting Knowledge",
+              "index": 5,
+              "category": "subject",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_subject_overview",
+              "code": "overview",
+              "translations": null,
+              "name": "Overview",
+              "description": "Overview",
+              "index": 6,
+              "category": "subject",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_subject_howto",
+              "code": "howto",
+              "translations": null,
+              "name": "How To",
+              "description": "How To",
+              "index": 7,
+              "category": "subject",
+              "status": "Live"
+            }
+          ],
+          "translations": null,
+          "name": "Topic",
+          "description": "Topic",
+          "index": 3,
+          "status": "Live"
+        },
+        {
+          "identifier": "nulp_medium",
+          "code": "medium",
+          "terms": [
+            {
+              "identifier": "nulp_medium_english",
+              "code": "english",
+              "translations": null,
+              "name": "English",
+              "description": "English",
+              "index": 1,
+              "category": "medium",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_medium_hindi",
+              "code": "hindi",
+              "translations": null,
+              "name": "Hindi",
+              "description": "Hindi",
+              "index": 2,
+              "category": "medium",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_medium_marathi",
+              "code": "marathi",
+              "translations": null,
+              "name": "Marathi",
+              "description": "Marathi",
+              "index": 3,
+              "category": "medium",
+              "status": "Live"
+            },
+            {
+              "identifier": "nulp_medium_telugu",
+              "code": "telugu",
+              "translations": null,
+              "name": "Telugu",
+              "description": "Telugu",
+              "index": 4,
+              "category": "medium",
+              "status": "Live"
+            }
+          ],
+          "translations": null,
+          "name": "Language",
+          "description": "Language",
+          "index": 4,
+          "status": "Live"
+        }
+      ],
+      "type": "K-12",
+      "objectType": "Framework"
+    }
+  }
+}

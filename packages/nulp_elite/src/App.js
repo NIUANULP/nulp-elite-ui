@@ -35,6 +35,9 @@ import Certificate from "pages/Certificate";
 import AddConnections from "pages/connections/AddConnections"; 
 import MyConnections from "pages/connections/MyConnections"; 
 import DomainList from "pages/search/DomainList";
+import ContentList from "pages/search/ContentList";
+
+
 
 function App() {
   // const [t] = useTranslation();
@@ -98,8 +101,13 @@ function App() {
     },
     {
       moduleName: "nulp_elite",
-      path: "/DomainList",
+      path: "search/domainList",
       component: DomainList,
+    },
+    {
+      moduleName: "nulp_elite",
+      path: "search/contentList",
+      component: ContentList,
     },
     {
       moduleName: "nulp_elite",

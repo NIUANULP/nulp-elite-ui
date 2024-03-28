@@ -11,3 +11,8 @@ body{
 .css-132u4s-MuiFormControl-root-MuiTextField-root{
   width: 100%;
 }
+.domain-active{
+  background: #95cee6;
+    padding: 3px;
+    border-radius: 8px;
+}

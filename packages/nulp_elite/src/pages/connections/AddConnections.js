@@ -30,6 +30,8 @@ import TextField from '@mui/material/TextField';
 import Divider from '@mui/material/Divider';
 
 import Search from "components/search"; 
+import Filter from "components/filter"; 
+
 
 // Define modal styles
 const useStyles = makeStyles((theme) => ({
@@ -256,12 +258,7 @@ const AddConnections = () => {
         </List>
         </TabPanel>
         <TabPanel value="2">
-        <Autocomplete
-  disablePortal
-  id="combo-box-demo"
-  sx={{ width: '100%', background:'#fff'}}
-  renderInput={(params) => <TextField {...params} label="Filter by Designation" />}
-/>
+        <Filter></Filter>
         <List>
           <ListItem>
             <ListItemText primary="Snehal patl" secondary="Designation" />

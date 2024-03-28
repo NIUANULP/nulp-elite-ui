@@ -6,32 +6,19 @@ import {
   Layout,
   IconByName,
   SearchLayout,
-  FilterButton,
-  overrideColorTheme,
 } from "@shiksha/common-lib";
 import {
-  NativeBaseProvider,
-  Box,
-  Stack,
   VStack,
-  Text,
   HStack,
   Button,
-  extendTheme,
-  Actionsheet,
-  ScrollView,
-  Heading,
-  useDisclose,
   Menu,
-  Image,
 } from "native-base";
-import { Link, useParams } from "react-router-dom";
-import Tab from '@mui/material/Tab';
-import TabContext from '@mui/lab/TabContext';
-import TabList from '@mui/lab/TabList';
-import TabPanel from '@mui/lab/TabPanel';
-
-
+import BoxCard from "components/Card";
+import Box from '@mui/material/Box';
+import Search from "components/search";
+import Filter from "components/filter"; 
+import data from "../../assets/contentSerach.json"
+import Grid from '@mui/material/Grid';
 
 
 const ContentList = (props) => {
@@ -126,26 +113,26 @@ const ContentList = (props) => {
 
         // ),
       }}
-      subHeader={
-        <Link
-          to="/"
-          style={{ color: "rgb(63, 63, 70)", textDecoration: "none" }}
-        >
-          <HStack space="4" justifyContent="space-between">
-            <VStack>
-              <SearchLayout
-                {...{
-                  search,
-                  setSearch,
-                  // minStringLenght: 3,
-                  notFoundMessage: "TYPE_TO_START_SEARCHING_LEARNING",
-                  onCloseSearch: setSearchState,
-                }}
-              ></SearchLayout>
-            </VStack>
-          </HStack>
-        </Link>
-      }
+      // subHeader={
+      //   <Link
+      //     to="/"
+      //     style={{ color: "rgb(63, 63, 70)", textDecoration: "none" }}
+      //   >
+      //     <HStack space="4" justifyContent="space-between">
+      //       <VStack>
+      //         <SearchLayout
+      //           {...{
+      //             search,
+      //             setSearch,
+      //             // minStringLenght: 3,
+      //             notFoundMessage: "TYPE_TO_START_SEARCHING_LEARNING",
+      //             onCloseSearch: setSearchState,
+      //           }}
+      //         ></SearchLayout>
+      //       </VStack>
+      //     </HStack>
+      //   </Link>
+      // }
       _subHeader={{ bg: "rgb(248, 117, 88)" }}
       _footer={{
         menues: [
@@ -173,22 +160,32 @@ const ContentList = (props) => {
       }}
       
     >
-     
-     <Box textAlign="center" padding="10">hh
-     {/* <Box sx={{ width: '100%', typography: 'body1' }}>
-      <TabContext value={value}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Item One" value="1" />
-            <Tab label="Item Two" value="2" />
-            <Tab label="Item Three" value="3" />
-          </TabList>
+      <Box sx={{background:'#2D2D2D',padding:'20px'}}>
+          <p style={{fontSize:'20px',fontWeight:'700',color:'#fff',paddingBottom:'5px',margin:'0'}}>Explore content related to your domain. Learn from well curated courses and content.</p>
+          <p style={{fontSize:'16px',fontWeight:'700',color:'#C1C1C1',margin:'0',paddingBottom:'30px'}}>Learn from well curated courses and content.</p>
+          <Search></Search>
+
         </Box>
-        <TabPanel value="1">Item One</TabPanel>
-        <TabPanel value="2">Item Two</TabPanel>
-        <TabPanel value="3">Item Three</TabPanel>
-      </TabContext>
-    </Box> */}
+        <Box style={{margin:'20px 0'}}>
+          <Filter></Filter>
+        </Box>
+
+     <Box textAlign="center" padding="10">
+     <Box sx={{paddingTop:'30px'}}>
+     <Grid container spacing={2} style={{margin:'20px 0'}}  style={{marginBottom:'10px'}}>
+
+        {data.result.content.map((items) => (
+                        // console.log(items),
+
+                <Grid item xs={12} md={6} lg={3}  style={{marginBottom:'10px'}}>
+                <BoxCard items ={items}></BoxCard>
+
+                </Grid>
+        ))}
+                    </Grid>
+
+        </Box>
+  
       </Box>
     </Layout>
   );
