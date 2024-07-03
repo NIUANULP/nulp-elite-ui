@@ -110,7 +110,7 @@ const EventList = (props) => {
   }, []);
   useEffect(() => {
     fetchAllData();
-  }, [subDomainFilter, endDateFilter, startDateFilter,searchQuery]);
+  }, [subDomainFilter, endDateFilter, startDateFilter, searchQuery]);
   useEffect(() => {
     fetchAllData();
   }, [currentPage]);
@@ -150,8 +150,8 @@ const EventList = (props) => {
     } || [];
 
   const fetchAllData = async () => {
-    console.log("search query--------",searchQuery);
-    console.log("selected Date----",startDateFilter,endDateFilter);
+    console.log("search query--------", searchQuery);
+    console.log("selected Date----", startDateFilter, endDateFilter);
     let filters = {};
     if (searchQuery && domainfilter && subDomainFilter) {
       filters = {
@@ -331,8 +331,9 @@ const EventList = (props) => {
         )}
       </Box>
       <Container
-        className="xs-pb-20 eventTab"
-        style={{ maxWidth: "100%", paddingRight: "14px", paddingLeft: "14px" }}
+        maxWidth="xl"
+        role="main"
+        className="xs-pr-0 xs-pb-20 lg-mt-12"
       >
         <Grid
           container

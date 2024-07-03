@@ -507,7 +507,10 @@ const EventDetails = () => {
               />
             </Grid>
             <Grid item xs={9} md={6} lg={6} className="lg-pl-60 xs-pl-30">
-              <Typography gutterBottom className="mt-10  h1-title mb-20">
+              <Typography
+                gutterBottom
+                className="mt-10  h1-title mb-20 xs-pl-15"
+              >
                 {detailData.name}
               </Typography>
               <Box
@@ -637,8 +640,13 @@ const EventDetails = () => {
                 </Box>
               )}
               {regEnd && (
-                <Box className="h5-title mb-20" style={{ fontWeight: "400" }}>
-                  Registration has ended
+                <Box
+                  className="h5-title mb-20 xs-hide"
+                  style={{ fontWeight: "400" }}
+                >
+                  <Alert severity="error">
+                    This Webinar has ended, you can access th recording link
+                  </Alert>
                 </Box>
               )}
               {!canEnroll && !canJoin && isRecorded && (
@@ -669,7 +677,7 @@ const EventDetails = () => {
               </Box>
               {creatorInfo &&
                 (creatorInfo.firstName || creatorInfo.lastName) && (
-                  <Box className="d-flex alignItems-center">
+                  <Box className="d-flex alignItems-center mb-20">
                     <Box className="h5-title">Organised By:</Box>
                     <Box className="d-flex alignItems-center pl-20">
                       <Box className="event-text-circle"></Box>
@@ -710,7 +718,7 @@ const EventDetails = () => {
               {canEnroll && !isEnrolled && (
                 <div>
                   {" "}
-                  <Box className="xs-hide">
+                  <Box className="lg-hide">
                     <Button
                       type="button"
                       className="custom-btn-success mb-20"
@@ -739,7 +747,7 @@ const EventDetails = () => {
                 </div>
               )}
               {canJoin && isEnrolled && (
-                <Box className="d-flex xs-hide">
+                <Box className="d-flex lg-hide">
                   <Button
                     type="button"
                     onClick={attendWebinar}
@@ -784,14 +792,17 @@ const EventDetails = () => {
                 </Box>
               )}
               {regEnd && (
-                <Box className="h5-title mb-20" style={{ fontWeight: "400" }}>
+                <Box
+                  className="h5-title mb-20 lg-hide"
+                  style={{ fontWeight: "400" }}
+                >
                   <Alert severity="error">
                     This Webinar has ended, you can access th recording link
                   </Alert>
                 </Box>
               )}
               {!canEnroll && !canJoin && isRecorded && (
-                <Box className="xs-hide">
+                <Box>
                   <Button
                     type="button"
                     className="custom-btn-success"
@@ -801,8 +812,8 @@ const EventDetails = () => {
                       padding: "10px 35px",
                       fontWeight: "500",
                       fontSize: "12px",
-                      border: "solid 1px #1976d2",
-                      background: "#1976d2",
+                      border: "solid 1px #0e7a9c",
+                      background: "#0e7a9c",
                       marginTop: "10px",
                     }}
                     startIcon={<AdjustOutlinedIcon />}

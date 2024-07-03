@@ -480,7 +480,6 @@ const JoinCourse = () => {
             onClick={handleJoinAndOpenModal}
             // onClick={handleOpenModal}
             disabled={isExpired || !activeBatch} // Only disable if expired (not on last day)
-
             className="custom-btn-primary"
             style={{
               background: isExpired ? "#ccc" : "#004367",
@@ -739,7 +738,7 @@ const JoinCourse = () => {
       </Modal>
 
       <Container
-        maxWidth="xxl"
+        maxWidth="xl"
         role="main"
         className="xs-pr-0 xs-pb-20 lg-mt-12"
       >

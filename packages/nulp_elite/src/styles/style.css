@@ -137,6 +137,13 @@ button {
   overflow: hidden !important;
 }
 @media (min-width: 320px) {
+  .css-u9086j {
+    width: 100% !important;
+  }
+  .addConnectChat .jss3 {
+    overflow-y: auto;
+    max-height: 440px;
+  }
   .domainHover {
     cursor: pointer;
     display: block;
@@ -188,7 +195,7 @@ button {
     box-shadow: 0 4px 4px 0 #00000040 !important;
     font-size: 10px !important;
   }
-  .notification-circle {
+  /* .notification-circle {
     align-items: center;
     border-radius: 100%;
     background: #fff;
@@ -200,9 +207,11 @@ button {
     line-height: 1 !important;
     width: 24px;
     padding: 5px;
-    /* box-shadow: 0 4px 4px 0 #00000040 !important; */
     font-size: 10px !important;
     margin: 0 10px;
+  } */
+  .notification-circle {
+    padding-right: 20px;
   }
   .notification-circle svg {
     font-size: 32px;
@@ -464,7 +473,13 @@ button {
     border: none !important;
     /* padding: 25px 0; */
     /* float: right; */
-    width: 94px;
+    width: 46px;
+  }
+  .sendTextBox textarea {
+    padding-top: 24px;
+  }
+  .sendTextBox .MuiInputBase-fullWidth {
+    padding: 0 !important;
   }
   .MuiDrawer-paperAnchorLeft .css-1hskriy {
     width: 381px !important;
@@ -543,6 +558,18 @@ button {
   }
 }
 @media (max-width: 768px) {
+  .profile-text-circle {
+    font-size: 17px !important;
+    height: 30px !important;
+    width: 30px !important;
+  }
+  .profile-btn {
+    margin-right: 10px !important;
+  }
+  .xs-py-3 {
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+  }
   .allContentlearning .custom-card {
     justify-content: inherit !important;
   }
@@ -559,8 +586,11 @@ button {
     border-radius: 3px;
     border: 1px solid #ddd !important;
     /* box-shadow: 0 4px 4px 0 #00000040!important; */
-    padding-bottom: 15px !important;
+    margin-bottom: 15px !important;
     box-shadow: none !important;
+  }
+  .translate {
+    width: 118px;
   }
   .xs-pl-17 {
     padding-left: 17px;
@@ -576,10 +606,14 @@ button {
   .d-flex.sendMessag {
     background: #fff;
   }
+  .xs-h-28 {
+    height: 28px;
+  }
   .logo {
     max-width: 100%;
     /* width: 200px; */
     padding-left: 0;
+    width: 180px;
   }
   .allContent .cardBox {
     height: 259px;
@@ -828,11 +862,13 @@ button {
   }
   .translate svg {
     font-size: 13px !important;
+    color: #fff;
   }
   .translate .MuiSelect-select {
     padding-left: 6px !important;
     padding-right: 14px !important;
     font-size: 11px;
+    color: #fff;
   }
   .profile-btn svg {
     font-size: 16px !important;
@@ -842,6 +878,20 @@ button {
   }
 }
 @media (min-width: 769px) {
+  .carousel-bx.scrolled {
+    width: 98% !important;
+  }
+  .scrolledTop {
+    position: fixed !important;
+    top: 0;
+    transition: #f4fbff 0.3s ease, top 0.3s ease;
+    width: 100%;
+    z-index: 999999 !important;
+  }
+  .my-class.carousel-active-ui .cursor-pointer {
+    width: 104px;
+    margin-bottom: -12px;
+  }
   .Menuactive.profile-btn {
     align-items: center;
     background: #0e7a9c !important;
@@ -905,7 +955,7 @@ button {
   } */
   .custom-card {
     display: grid !important;
-    grid-template-columns: repeat(5, 1fr) !important;
+    grid-template-columns: repeat(3, 1fr) !important;
     gap: 16px !important;
 
     /* grid-template-rows: 1fr 1fr !important; */
@@ -926,7 +976,7 @@ button {
     margin-right: 13px !important;
   }
   .mr-30 {
-    margin-right: 13px !important;
+    margin-right: 30px !important;
   }
   /* .all-card-list .custom-card {
     gap: 10px 35px;
@@ -941,8 +991,8 @@ button {
     padding: 0 6px;
     width: 210px !important;
   } */
-  .Mui-disabled {
-    background: #007b9d61 !important;
+  button.Mui-disabled {
+    background: #cacccc70 !important;
   }
   .domain-list .custom-card-box {
     padding: 0 6px;
@@ -986,11 +1036,11 @@ button {
     width: 247px !important;
     padding: 0 6px !important;
   }
-  .content-list .MuiGrid-grid-lg-9 {
+  /* .content-list .MuiGrid-grid-lg-9 {
     flex-basis: 75.7% !important;
     flex-grow: 0;
     max-width: 75.7% !important;
-  }
+  } */
   .eventImg {
     width: 100px;
     height: 100px;
@@ -1126,7 +1176,7 @@ button {
     transition-timing-function: ease;
   } */
   .carousel-bx {
-    height: 85px;
+    height: 126px;
     padding: 4px 14px 14px 14px !important;
   }
 
@@ -1259,17 +1309,20 @@ button {
   }
 }
 @media (min-width: 769px) {
+  .lg-pr-20 {
+    padding-right: 20px !important;
+  }
   .language .MuiSelect-select {
     font-size: 12px !important;
     color: #fff !important;
     padding-right: 27px;
     padding-left: 7px;
   }
-  .allContent .left-container {
+  /* .allContent .left-container {
     margin-left: 16px;
     max-width: 315px !important;
     margin-right: 18px;
-  }
+  } */
   .custom-card-box {
     width: 244px;
     padding: 0 6px;
@@ -1287,6 +1340,31 @@ button {
     background: #f9fafc;
   }
 }
+@media (min-width: 769px) and (max-width: 1366px) {
+  .custom-card {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 16px !important;
+  }
+}
+
+@media (min-width: 1377px) {
+  .allContentlearning .custom-card,
+  .allContentProfile .custom-card {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+  .allContentlearning .custom-card-box,
+  .allContentProfile .custom-card-box {
+    width: 214px !important;
+  }
+  .custom-card {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 16px !important;
+  }
+}
+
 /* @media (min-width: 1024px) {
   .custom-card-box {
     padding: 0 6px;
@@ -1332,7 +1410,6 @@ button {
 .carousel-bx {
   box-shadow: 0 4px 4px 0 #00000040;
   justify-content: center;
-  padding: 14px;
   /* padding-top: 15px !important; */
 }
 
@@ -1356,7 +1433,7 @@ button {
 
 .scrolled {
   position: fixed !important;
-  top: 85px;
+  top: 125px;
   width: 100%;
   z-index: 999999 !important;
   background: #065872;
@@ -1584,7 +1661,7 @@ Footer {
   background: #0e7a9c !important;
   border-radius: 10px !important;
   color: #fff !important;
-  padding: 10px 25px !important;
+  padding: 6px 25px !important;
   font-weight: 500 !important;
   font-size: 12px !important;
   border: solid 1px #0e7a9c;
@@ -1606,7 +1683,7 @@ Footer {
   background: #fff !important;
 }
 .custom-btn-danger {
-  border-radius: 30px !important;
+  border-radius: 10px !important;
   color: #fff !important;
   padding: 10px 25px !important;
   font-weight: 500 !important;
@@ -1620,7 +1697,7 @@ Footer {
   background: #e02f1d !important;
 }
 .custom-btn-success {
-  border-radius: 30px !important;
+  border-radius: 10px !important;
   color: #fff !important;
   padding: 10px 25px !important;
   font-weight: 500 !important;
@@ -1735,16 +1812,16 @@ button {
 .viewAll {
   border: none !important;
   border-radius: 10px !important;
-  color: #000 !important;
+  color: #fff !important;
   font-size: 12px !important;
   font-weight: 500 !important;
   padding: 9px 32px;
   text-align: center !important;
   text-decoration: none !important;
-  background: #d9d9d9 !important;
+  background: #057184 !important;
 }
 .viewAll:hover {
-  background: #d9d9d9 !important;
+  background: #057184 !important;
 }
 
 .textLeft {
@@ -1904,7 +1981,7 @@ tspan {
 }
 
 .scrolledTop .pos-fixed {
-  top: 0 !important;
+  top: 39px !important;
 }
 
 .language svg {
@@ -1948,7 +2025,7 @@ tspan {
 }
 .left-container {
   border-right: 1px solid #dddddd;
-  border-radius: 3px;
+  border-radius: 10px;
   box-shadow: 0px 4px 4px 0px #00000040 !important;
   background: #fff;
 
@@ -2417,7 +2494,7 @@ header .MuiContainer-maxWidthLg {
   overflow: inherit !important;
 }
 .contentdetail-bg {
-  height: 138px !important;
+  height: 178px !important;
   width: 100%;
   object-fit: cover;
   filter: grayscale(20%);
@@ -2441,9 +2518,7 @@ header .MuiContainer-maxWidthLg {
   font-size: 14px;
   text-shadow: 1px 1px 2px #666e70;
 }
-.carousel-bx.scrolled {
-  padding-top: 15px !important;
-}
 .my-class.carousel-active-ui .cursor-pointer {
   width: 104px;
+  margin-bottom:-12px;
 }

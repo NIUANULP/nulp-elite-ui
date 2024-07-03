@@ -211,7 +211,6 @@ export default function Footer() {
             </Link>
             <Link
               underline="none"
-              target="_blank"
               href="#"
               style={{ padding: "10px 0 2px", color: "#fff", margin: "0 8px" }}
             >
@@ -219,7 +218,6 @@ export default function Footer() {
             </Link>
             <Link
               underline="none"
-              target="_blank"
               href={routeConfig.ROUTES.HELP_PAGE.HELP}
               style={{ padding: "10px 0 2px", color: "#fff", margin: "0 8px" }}
             >
@@ -227,7 +225,6 @@ export default function Footer() {
             </Link>
             <Link
               underline="none"
-              target="_blank"
               href="/logout"
               style={{ padding: "10px 0 2px", color: "#fff", margin: "0 8px" }}
             >

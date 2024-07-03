@@ -188,55 +188,55 @@ export default function DomainCarousel({
         </>
       ) : (
         <>
-          <Box className="text-white h5-title pl-20 pt-10 pb-10">
-            Select your prefered domain :
-          </Box>
 
-          <Box
-            sx={{ display: "flex" }}
-            className={scrolled ? "carousel-bx scrolled" : "carousel-bx"}
-          >
-            {itemsArray &&
-              itemsArray?.slice(0, 10).map((domain, index) => (
-                <Box
-                  className={`my-class ${
-                    activeStates === index ? "carousel-active-ui" : ""
-                  }`}
-                  onClick={(e) =>
-                    handleDomainClick(domain.code, index, domain.name)
-                  }
-                  key={index}
-                  orientation="horizontal"
-                  size="sm"
-                  variant="outlined"
-                  style={{ display: "flex", margin: "0 4px" }}
-                  onMouseEnter={(event) => handleMouseEnter(index)}
-                  onMouseLeave={handleMouseLeave}
-                >
-                  <Box className=" cursor-pointer">
+          <Box className={scrolled ? "carousel-bx scrolled" : "carousel-bx"}>
+            <Box className="text-white h5-title pl-20 pb-10">
+              Select your prefered domain :
+            </Box>
+
+            <Box sx={{ display: "flex" }}>
+              {itemsArray &&
+                itemsArray?.slice(0, 10).map((domain, index) => (
+                  <Box
+                    className={`my-class ${
+                      activeStates === index ? "carousel-active-ui" : ""
+                    }`}
+                    onClick={(e) =>
+                      handleDomainClick(domain.code, index, domain.name)
+                    }
+                    key={index}
+                    orientation="horizontal"
+                    size="sm"
+                    variant="outlined"
+                    style={{ display: "flex", margin: "0 4px" }}
+                    onMouseEnter={(event) => handleMouseEnter(index)}
+                    onMouseLeave={handleMouseLeave}
+                  >
                     <Box className=" cursor-pointer">
-                      {/* {(domain.image != undefined) && <img src={require(baseImgUrl+domain.image)}  style={{width:'40px',objectFit:'contain'}} alt={domain.name} />}
+                      <Box className=" cursor-pointer">
+                        {/* {(domain.image != undefined) && <img src={require(baseImgUrl+domain.image)}  style={{width:'40px',objectFit:'contain'}} alt={domain.name} />}
                 {(domain.image == undefined)&& <img src={require("../assets/swm.png")}  style={{width:'40px',objectFit:'contain'}} alt={domain.name} />} */}
-                      {/* <Tooltip title={domain.description}> */}
-                      <img
-                        className="domainHover"
-                        src={require(`../assets/domainImgs${domain.image}`)}
-                        alt={domain.name}
-                      />
+                        {/* <Tooltip title={domain.description}> */}
+                        <img
+                          className="domainHover"
+                          src={require(`../assets/domainImgs${domain.image}`)}
+                          alt={domain.name}
+                        />
 
-                      {/* </Tooltip> */}
+                        {/* </Tooltip> */}
 
-                      {/* <img src={require("../assets/swm.png")}  style={{width:'40px',objectFit:'contain'}} alt={domain.name} /> */}
+                        {/* <img src={require("../assets/swm.png")}  style={{width:'40px',objectFit:'contain'}} alt={domain.name} /> */}
+                      </Box>
+
+                      {/* {(activeDomain === index || activeStates === index) && ( */}
+                      <span className=" cursor-pointer domainText">
+                        {domain.name}
+                      </span>
+                      {/* )} */}
                     </Box>
-
-                    {/* {(activeDomain === index || activeStates === index) && ( */}
-                    <span className=" cursor-pointer domainText">
-                      {domain.name}
-                    </span>
-                    {/* )} */}
                   </Box>
-                </Box>
-              ))}
+                ))}
+            </Box>
           </Box>
         </>
       )}

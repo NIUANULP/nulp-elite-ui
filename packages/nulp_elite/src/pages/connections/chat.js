@@ -638,7 +638,7 @@ const Chat = ({
                   name="customReason"
                   label={
                     <span>
-                      {t("PLEASE_SPECIFY")}
+                      {t("PLEASE_SPECIFY_REASON")}
                       <span style={{ color: "red", marginLeft: "2px" }}>*</span>
                     </span>
                   }
@@ -786,14 +786,17 @@ const Chat = ({
                   {t("SYSTEM_GENERATED_MESSAGE")}
                 </Alert>
               )}
-            <div className="d-flex sendMessag" style={{ position: "relative" }}>
+            <div
+              className="d-flex sendMessag sendTextBox"
+              style={{ position: "relative" }}
+            >
               {showEmojiPicker && (
                 <div
                   ref={emojiPickerRef}
                   style={{
                     position: "absolute",
                     bottom: "50px",
-                    right: "0px",
+                    left: "14px",
                     zIndex: 1,
                   }}
                 >
@@ -803,6 +806,12 @@ const Chat = ({
                   />
                 </div>
               )}
+              <Button
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                style={{ color: "#484848", cursor: "pointer" }}
+              >
+                <InsertEmoticonIcon />
+              </Button>
               <TextField
                 multiline
                 minRows={2}
@@ -815,12 +824,6 @@ const Chat = ({
                 sx={{ fontSize: "13px" }}
               />
 
-              <Button
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                style={{ color: "#484848", cursor: "pointer" }}
-              >
-                <InsertEmoticonIcon />
-              </Button>
               <Button
                 style={{ color: "#484848" }}
                 onClick={sendMessage}

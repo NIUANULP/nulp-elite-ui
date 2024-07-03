@@ -124,6 +124,7 @@ const AddConnections = () => {
   const [blockUserIds, setBlockUserIds] = useState([]);
   const [openBlock, setOpenBlock] = useState(null);
   const handleUnblockClose = () => setOpenBlock(false);
+  const [userIdToReject, setUserIdToReject] = useState(null);
 
   const showErrorMessage = (msg) => {
     setToasterMessage(msg);
@@ -868,6 +869,7 @@ const AddConnections = () => {
 
       const responseData = await response.json();
       console.log("rejectChatInvitation", responseData.result);
+      setUserIdToReject(null);
       onMyConnection();
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -1244,12 +1246,15 @@ const AddConnections = () => {
     }
   };
 
-  const handleRejectClick = () => {
+  const handleRejectClick = (userId) => {
+    setUserIdToReject(userId);
     setOpen(true);
   };
 
-  const handleConfirmReject = (userId) => {
-    rejectChat(userId);
+  const handleConfirmReject = () => {
+    if (userIdToReject) {
+      rejectChat(userIdToReject);
+    }
     setOpen(false);
   };
   const handleUnblockedClick = (userId) => {
@@ -1305,27 +1310,6 @@ const AddConnections = () => {
 
         <Box textAlign="center" padding="10">
           <Box>
-            {/* <input
-              label="Search for a user..."
-              type="text"
-              onChange={(e) => {
-                const value = e.target.value.trim();
-                setSearchQuery(value);
-                if (value.length >= 3) {
-                  handlePopoverClick(e);
-                }
-              }}
-              style={{
-                width: "99%",
-                margin: "20px 0",
-                marginRight: "0.5rem",
-                padding: "10px 0 10px 0",
-                borderRadius: "4px",
-                border: "1px solid #CACACA",
-              }}
-            />
-          </Box> */}
-
             <Grid container spacing={2} className="pt-8 xs-p-0">
               <Grid
                 item
@@ -1554,17 +1538,14 @@ const AddConnections = () => {
                       <TabPanel value="2">
                         <Box className="scroll">
                           {invitationReceiverByUser &&
-                            invitationReceiverByUser?.map((item) => (
+                            invitationReceiverByUser.map((item) => (
                               <List
-                                sx={{}}
+                                key={item.userId}
                                 style={{ color: "gray", cursor: "pointer" }}
                               >
-                                <ListItem
-                                  key={item.userId}
-                                  className="connection-tab"
-                                >
+                                <ListItem className="connection-tab">
                                   <ListItemText
-                                    style={{ fontSize: "14px", color: "#000" }}
+                                    style={{ color: "#000" }}
                                     primary={`${item.firstName}${
                                       item.lastName ? ` ${item.lastName}` : ""
                                     } | ${item.designation}`}
@@ -1595,7 +1576,6 @@ const AddConnections = () => {
                                               handleShowFullMessage(item.userId)
                                             }
                                           >
-                                            {" "}
                                             {expandedMessageId === item.userId
                                               ? "read less"
                                               : "read more"}
@@ -1632,7 +1612,9 @@ const AddConnections = () => {
                                       href="#"
                                       underline="none"
                                       color="#7d7a7a"
-                                      onClick={handleRejectClick}
+                                      onClick={() =>
+                                        handleRejectClick(item.userId)
+                                      }
                                     >
                                       <CancelOutlinedIcon
                                         style={{
@@ -1659,9 +1641,7 @@ const AddConnections = () => {
                                           {t("CANCEL")}
                                         </Button>
                                         <Button
-                                          onClick={() =>
-                                            handleConfirmReject(item.userId)
-                                          }
+                                          onClick={handleConfirmReject}
                                           type="button"
                                           className="custom-btn-primary"
                                           autoFocus
@@ -1672,7 +1652,6 @@ const AddConnections = () => {
                                     </Dialog>
                                   </div>
                                 </ListItem>
-
                                 <Divider />
                               </List>
                             ))}
@@ -1910,7 +1889,7 @@ const AddConnections = () => {
                 xs={12}
                 md={8}
                 lg={8}
-                className="pt-8 lg-mt-5 xs-hide addConnectChat pl-0 min-h-600"
+                className="pt-8 lg-mt-5 xs-hide addConnectChat pl-0"
               >
                 {!isMobile && (
                   <Box className="text-center">

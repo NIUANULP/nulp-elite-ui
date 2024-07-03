@@ -23,7 +23,7 @@ import { useNavigate } from "react-router-dom";
 import SearchBox from "components/search";
 import ContinueLearning from "./continueLearning";
 import SelectPreference from "pages/SelectPreference";
-import { Dialog, DialogTitle, DialogContent } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, Alert } from "@mui/material";
 import _ from "lodash";
 import Modal from "@mui/material/Modal";
 const designations = require("../../configs/designations.json");
@@ -125,6 +125,15 @@ const Profile = () => {
   const [showCertificate, setShowCertificate] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   // for bar charts
+  const defaultCertData = {
+    certificatesReceived: 0,
+    courseWithCertificate: 0,
+  };
+
+  const defaultCourseData = {
+    enrolledLastMonth: 0,
+    enrolledThisMonth: 0,
+  };
   const chartSettingsH1 = {
     dataset: [
       { high: 1, low: 2, order: "1" },
@@ -244,6 +253,7 @@ const Profile = () => {
   const [previewUrl, setPreviewUrl] = useState("");
   const [fileError, setFileError] = useState("");
   const [fileUploadMessage, setFileUploadMessage] = useState("");
+  const dummyData = [1, 1];
 
   const showErrorMessage = (msg) => {
     setToasterMessage(msg);
@@ -583,6 +593,25 @@ const Profile = () => {
     }
   };
 
+  // Use default data if certData or courseData is undefined or empty
+  const finalCertData =
+    certData &&
+    certData.certificatesReceived !== undefined &&
+    certData.courseWithCertificate !== undefined
+      ? certData
+      : defaultCertData;
+  const finalCourseData =
+    courseData &&
+    courseData.enrolledLastMonth !== undefined &&
+    courseData.enrolledThisMonth !== undefined
+      ? courseData
+      : defaultCourseData;
+  // Check if data is empty or zero
+  const isCertDataEmpty =
+    !finalCertData.certificatesReceived && !finalCertData.courseWithCertificate;
+  const isCourseDataEmpty =
+    !finalCourseData.enrolledThisMonth && !finalCourseData.enrolledLastMonth;
+
   return (
     <div>
       <Header />
@@ -695,70 +724,108 @@ const Profile = () => {
                       {t("PERFORMANCE")}
                     </Box>
                   </Box>
-
                   <Grid container spacing={2}>
                     <Grid item xs={6} md={6} className="chartOne">
-                      <Box className="h6-title pl-20">
-                        Certifications Received
-                      </Box>
-                      {certData &&
-                        certData.certificatesReceived !== undefined &&
-                        certData.courseWithCertificate !== undefined && (
+                      {!isCertDataEmpty ? (
+                        <>
+                          <Box className="h6-title pl-20">
+                            Certifications Received
+                          </Box>
                           <BarChart
                             yAxis={[
                               { scaleType: "band", data: ["certificate"] },
                             ]}
                             series={[
                               {
-                                data: [certData.courseWithCertificate],
+                                data: isCertDataEmpty
+                                  ? dummyData
+                                  : [finalCertData.certificatesReceived],
                                 stack: "A",
                                 layout: "horizontal",
-                                label: "No. of courses with certificate",
-                                color: "#065872",
+                                label: isCertDataEmpty
+                                  ? "Dummy data"
+                                  : "Certificate received",
+                                color: "#0e7a9c",
                               },
                               {
-                                data: [certData.certificatesReceived],
+                                data: isCertDataEmpty
+                                  ? dummyData
+                                  : [finalCertData.courseWithCertificate],
                                 stack: "B",
                                 layout: "horizontal",
-                                label: "Certificate received",
-                                color: "#0e7a9c",
+                                label: isCertDataEmpty
+                                  ? "Dummy data"
+                                  : "No. of courses with certificate",
+                                color: "#065872",
                               },
                             ]}
                             width={261}
                             height={200}
+                            options={
+                              isCertDataEmpty
+                                ? { hover: { enabled: false } }
+                                : {}
+                            }
                           />
-                        )}
+                        </>
+                      ) : (
+                        <Grid item xs={6} md={6} className="chartOne">
+                          <Box className="h6-title pl-20">
+                            Certifications Received
+                          </Box>
+                          <Alert
+                            severity="info"
+                            style={{ backgroundColor: "transparent" }}
+                          >
+                            No certificates found
+                          </Alert>
+                        </Grid>
+                      )}
                     </Grid>
 
                     <Grid item xs={12} md={6} className="chartTwo">
-                      <Box className="h6-title">
-                        Courses more than last month
-                      </Box>
-                      {courseData &&
-                        courseData.enrolledLastMonth !== undefined &&
-                        courseData.enrolledThisMonth !== undefined && (
+                      {!isCourseDataEmpty ? (
+                        <>
+                          <Box className="h6-title">
+                            Courses more than last month
+                          </Box>
                           <BarChart
                             yAxis={[{ scaleType: "band", data: ["courses"] }]}
                             series={[
                               {
-                                data: [courseData.enrolledLastMonth],
-                                stack: "A",
-                                label: "Enrolled courses prev month",
-                                color: "#065872",
-                                layout: "horizontal",
-                              },
-                              {
-                                data: [courseData.enrolledThisMonth],
+                                data: [finalCourseData.enrolledThisMonth],
                                 stack: "B",
                                 label: "Enrolled courses current month",
                                 color: "#0e7a9c",
                                 layout: "horizontal",
                               },
+                              {
+                                data: [finalCourseData.enrolledLastMonth],
+                                stack: "A",
+                                label: "Enrolled courses prev month",
+                                color: "#065872",
+                                layout: "horizontal",
+                              },
                             ]}
-                            width={221}
-                            height={285}
+                            width={261}
+                            height={200}
+                            options={{}}
                           />
-                        )}
+                        </>
+                      ) : (
+                        <>
+                          <Box className="h6-title">
+                            Courses more than last month
+                          </Box>
+
+                          <Alert
+                            severity="info"
+                            style={{ backgroundColor: "transparent" }}
+                          >
+                            You are not enrolled in any course. Enroll now!
+                          </Alert>
+                        </>
+                      )}
                     </Grid>
                   </Grid>
                 </Box>
