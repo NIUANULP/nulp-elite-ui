@@ -1,92 +1,43 @@
 pipeline {
-  agent any
-
-  stages {
-    // stage('Clean workspace') {
-    //   steps {
-    //     script {
-    //        Use 'dir' to change the workspace directory
-    //        dir('/var/lib/jenkins/workspace/prod-frontend') {
-    //         sh 'rm -rf *'
-    //       }
-    //     }
-    //   }
-    // }
-
-    stage('Checkout') {
-      steps {
-        cleanWs()
-        git branch: 'altv1', url: 'https://github.com/transform1234/alt-frontend.git'
-      }
-    }
-
-    stage('Building Code') {
-      steps {
-        dir('/var/lib/jenkins/workspace/prod-frontend') {
-          sh 'rm -rf node_modules'
-          sh 'rm -f package-lock.json' // Corrected to remove the file
-          sh 'ls'
-          sh 'yarn install'
-          sh 'yarn workspace @shiksha/common-lib build'
-          sh 'yarn install'
-          sh 'yarn build'
+    agent any
+    
+    stages {
+        stage('Clone Repository') {
+            steps {
+                // Clean workspace before cloning
+                deleteDir()
+                
+                // Clone repository
+                git branch: 'main', url: 'https://github.com/NIUANULP/nulp-elite-ui.git'
+            }
         }
-      }
-    }
-
-    stage('Copy Package') {
-      steps {
-        sh './scripts/pack-prod-build.sh'
-        // sh "rsync shiksha-ui.tar:/var/www/alt.uniteframework.io/shiksha-ui.tar"
-      }
-    }
-
-    stage('Deploy') {
-      steps {
-        script {
-          dir('/var/lib/jenkins/build') {
-            sh 'rm -rf *'
-            sh 'cp /var/lib/jenkins/workspace/prod-frontend/shiksha-ui.tar .'
-            sh 'tar -xvf shiksha-ui.tar'
-          }
-        }
-      }
-    }
-    stage('deployment on s3') {
-    steps {
-        dir('/var/lib/jenkins/build') {
-            script {
-                withAWS(region: 'ap-south-1', credentials: 'prasad-aws-id') {
-                    s3Delete(bucket: 'altprodfrontend', path: '**/*')
-                    s3Upload(bucket: 'altprodfrontend', workingDir: '.', includePathPattern: '**/*', excludePathPattern: '.git/*, **/node_modules/**')
-                }
+        stage('Build') {
+            environment {
+                // Define the Node.js version to use
+                NODE_VERSION = '18' // Adjust this to your desired Node.js version
+                NVM_DIR = '/var/lib/jenkins/.nvm'
+            }
+            steps {
+                // Install dependencies and build
+                sh '''
+                    #!/bin/bash
+                    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+                    export NVM_DIR="$HOME/.nvm"
+                    if [ -s "$NVM_DIR/nvm.sh" ]; then
+                        . "$NVM_DIR/nvm.sh"
+                    fi
+                    if [ -s "$NVM_DIR/bash_completion" ]; then
+                        . "$NVM_DIR/bash_completion"
+                    fi
+                    nvm install $NODE_VERSION
+                    nvm use $NODE_VERSION
+                    yarn install
+                    yarn build
+                    cp -r /var/lib/jenkins/workspace/Build/Core/dist /var/lib/jenkins/workspace/Build/Core/elite-ui/ 
+                    #mkdir /var/lib/jenkins/workspace/Build/Core/elite-ui/webapp/ 
+                    #cp -r /var/lib/jenkins/workspace/Build/Core/elite-ui/prod-build/* /var/lib/jenkins/workspace/Build/Core/elite-ui/webapp/
+                '''
             }
         }
     }
 }
-  
-    
-    // stage('Deployment') {
-    //   steps {
-    //     dir('/var/lib/jenkins/build') {
-    //       sh 'aws s3 ls'
-    //       sh "aws s3 cp . s3://altprodfrontend/ --recursive"
-    //       // script {
-    //       //   def awsCliCmd = 'aws'
-    //       //   //def bucketName = 'altfrontend'
-    //       //    sh "aws s3 cp . s3://altprodfrontend/ --recursive"
-    //       // }
-    //     }
-    //   }
-    // }
-        // New stage for executing ccs.sh script
-    stage('Execute Invalidation Script') {
-      steps {
-        dir('/var/lib/jenkins/workspace') {
-          sh 'sh frontend.sh'
-        }
-      }
-    }
-    }
-  }
-
