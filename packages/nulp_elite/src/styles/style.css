@@ -934,9 +934,9 @@ button {
     height: 30px !important;
     margin-top: 10px !important;
   }
-  .profile-card-view .custom-card-box .cardBox {
+  /* .profile-card-view .custom-card-box .cardBox {
     height: 234px;
-  }
+  } */
   .w-100 .MuiFormControl-root.mt-9,
   .w-100 .MuiFormControl-root {
     width: 100%;
@@ -2412,7 +2412,7 @@ custom-chip {
   color: #018acf !important;
 }
 .text-green a {
-  color: #3dbeff !important;
+  color: #018acf !important;
 }
 .text-green-shade0 {
   color: #579b00 !important;

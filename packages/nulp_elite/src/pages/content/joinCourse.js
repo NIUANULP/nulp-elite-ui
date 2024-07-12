@@ -849,7 +849,7 @@ const JoinCourse = () => {
                         style={{
                           color: "#424242",
                           fontSize: "10px",
-                          margin: "0 10px",
+                          margin: "0 10px 3px 6px",
                         }}
                         className="bg-blueShade3"
                       >
@@ -864,7 +864,7 @@ const JoinCourse = () => {
                         style={{
                           color: "#424242",
                           fontSize: "10px",
-                          margin: "0px 10px",
+                          margin: "0 10px 3px 6px",
                         }}
                         className="bg-blueShade3"
                       >
@@ -879,7 +879,7 @@ const JoinCourse = () => {
                         style={{
                           color: "#424242",
                           fontSize: "10px",
-                          margin: "0 10px",
+                          margin: "0 10px 3px 6px",
                         }}
                         className="bg-blueShade3"
                       >
@@ -895,7 +895,7 @@ const JoinCourse = () => {
                           style={{
                             color: "#424242",
                             fontSize: "10px",
-                            margin: "0 10px",
+                            margin: "0 10px 3px 6px",
                           }}
                           className="bg-blueShade3"
                         >

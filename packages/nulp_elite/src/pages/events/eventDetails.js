@@ -8,6 +8,7 @@ import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 
 import TodayOutlinedIcon from "@mui/icons-material/TodayOutlined";
 import AccessAlarmsOutlinedIcon from "@mui/icons-material/AccessAlarmsOutlined";
@@ -39,7 +40,7 @@ import {
   TwitterIcon,
 } from "react-share";
 import AddConnections from "pages/connections/AddConnections";
-import { Button } from "native-base";
+// import { Button } from "native-base";
 import { maxWidth } from "@shiksha/common-lib";
 const EventDetails = () => {
   // const { eventId } = useParams();
@@ -59,7 +60,10 @@ const EventDetails = () => {
   const [batchData, setBatchData] = useState();
   const [canEnroll, setCanEnroll] = useState(false);
   const [canJoin, setCanJoin] = useState();
+
   const [isRecorded, setIsRecorded] = useState();
+  const [eventEnded, setEventEnded] = useState();
+
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [showEnrollmentSnackbar, setShowEnrollmentSnackbar] = useState(false);
   const [isRegStart, setIsRegStart] = useState();
@@ -275,7 +279,6 @@ const EventDetails = () => {
   };
 
   const enrollEvent = async () => {
-    console.log("here----");
     try {
       const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.COURSE.ENROLL_USER_COURSE}`;
       const requestBody = {
@@ -386,7 +389,30 @@ const EventDetails = () => {
     console.log("endDateTime----", endDateTime);
 
     // Check if the current date and time is within the event period
-    if (startDateTime <= todayDate && endDateTime >= todayDate) {
+    // if (startDateTime <= todayDate && endDateTime >= todayDate) {
+    //   console.log("can Join");
+    //   setCanJoin(true);
+    // } else {
+    //   console.log("can not Join");
+    //   setCanJoin(false);
+    // }
+
+    const startDateTimeNew = new Date(
+      "Sat Jul 13 2024 16:50:10 GMT+0530"
+    ).getTime();
+    const endDateTimeNew = new Date(
+      "Sat Jul 13 2024 17:50:10 GMT+0530"
+    ).getTime(); // Assuming you have endDateTime
+    const todayDateNew = new Date().getTime();
+
+    const tenMinutesBeforeStart = startDateTimeNew - 10 * 60 * 1000;
+    console.log("tenMinutesBeforeStart-----", tenMinutesBeforeStart);
+    console.log("todayDateNew-----", todayDateNew);
+
+    if (
+      todayDateNew >= tenMinutesBeforeStart &&
+      todayDateNew <= endDateTimeNew
+    ) {
       console.log("can Join");
       setCanJoin(true);
     } else {
@@ -396,12 +422,14 @@ const EventDetails = () => {
 
     // Check if the event has ended
     if (endDateTime <= todayDate) {
+      setEventEnded(true);
       setIsRecorded(true);
     }
   };
 
   const attendWebinar = async () => {
     const url = detailData.onlineProviderData.meetingLink; // Replace with your URL
+    console.log("attend----", url, "  --   ", detailData);
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
@@ -454,6 +482,29 @@ const EventDetails = () => {
       console.log("%%%%%%%%%%", response);
     } catch (error) {
       // Handle the error if needed
+    }
+  };
+  const unEnroll = async (formData) => {
+    try {
+      const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.COURSE.UNENROLL_USER_COURSE}`;
+      const requestBody = {
+        request: {
+          courseId: detailData.identifier,
+          userId: _userId,
+          batchId: batchData?.batchId,
+        },
+      };
+      const response = await axios.post(url, requestBody);
+      if (response.status === 200) {
+        setIsEnrolled(false);
+        setShowEnrollmentSnackbar(true);
+        registerEvent(formData, detailData);
+      } else {
+        console.log("err-----", response);
+      }
+    } catch (error) {
+      console.error("Error enrolling in the course:", error);
+      showErrorMessage(t("FAILED_TO_ENROLL_INTO_COURSE"));
     }
   };
   return (
@@ -608,7 +659,7 @@ const EventDetails = () => {
                         background: "#0e7a9c",
                         marginTop: "10px",
                       }}
-                      onPress={handleOpenConsentModal}
+                      onClick={handleOpenConsentModal}
                     >
                       {t("REGISTER_WEBINAR")}
                     </Button>
@@ -616,11 +667,14 @@ const EventDetails = () => {
                 
                 </div>
               )}
-              {canJoin && isEnrolled && (
+              {isEnrolled && (
                 <Box className="d-flex xs-hide">
                   <Button
                     type="button"
-                    onClick={attendWebinar}
+                    onClick={() => {
+                      attendWebinar();
+                    }}
+                    // onClick={attendWebinar}
                     style={{
                       borderRadius: "10px",
                       color: "#fff",
@@ -632,12 +686,16 @@ const EventDetails = () => {
                       marginTop: "10px",
                     }}
                     className="custom-btn-primary mr-20"
+                    disabled={!canJoin} // Disable the button when canEnroll is true
                   >
                     {t("ATTEND_WEBINAR")}
                   </Button>
                   {canEnroll && (
                     <Button
                       type="button"
+                      onClick={() => {
+                        unEnroll();
+                      }}
                       style={{
                         borderRadius: "10px",
                         color: "#fff",
@@ -664,17 +722,17 @@ const EventDetails = () => {
                   {formatDate(detailData.registrationStartDate)}
                 </Box>
               )}
-              {regEnd && (
+              {regEnd && isRecorded && (
                 <Box
                   className="h5-title mb-20 xs-hide"
                   style={{ fontWeight: "400" }}
                 >
                   <Alert severity="error">
-                    {t("THIS_EVENT_HAS_ENDED_YOU_CAN_ACCESS")}
+                    The event has ended. registration is no longer available
                   </Alert>
                 </Box>
               )}
-              {!canEnroll && !canJoin && isRecorded && (
+              {isEnrolled && !canJoin && isRecorded && (
                 <Box className="xs-hide">
                   <Button
                     type="button"
@@ -690,11 +748,29 @@ const EventDetails = () => {
                       marginTop: "10px",
                     }}
                     startIcon={<AdjustOutlinedIcon />}
+                    disabled={true}
                   >
                     {t("VIEW_WEBINAR_RECORDING")}
                   </Button>
+                  {
+                    // detailData.recording == undefined &&
+                    <Box
+                      className="h5-title mb-20 xs-hide"
+                      style={{ fontWeight: "400" }}
+                    >
+                      Recording will be available soon
+                    </Box>
+                  }
                 </Box>
               )}
+              {/* {eventEnded && regEnd && (
+                <Box
+                  className="h5-title mb-20 xs-hide"
+                  style={{ fontWeight: "400" }}
+                >
+                  The event has ended. registration is no longer available
+                </Box>
+              )} */}
             </Grid>
             <Grid item xs={12} md={6} lg={6} className="lg-pl-60 lg-hide">
               <Box className="h5-title mb-20" style={{ fontWeight: "400" }}>
@@ -765,7 +841,7 @@ const EventDetails = () => {
                         background: "#0e7a9c",
                         marginTop: "10px",
                       }}
-                      onPress={handleOpenConsentModal}
+                      onClick={handleOpenConsentModal}
                       // onClick={handleOpenConsentModal}
                     >
                       {t("REGISTER_WEBINAR")}
@@ -774,11 +850,14 @@ const EventDetails = () => {
                  
                 </div>
               )}
-              {canJoin && isEnrolled && (
+              {isEnrolled && (
                 <Box className="d-flex lg-hide">
                   <Button
                     type="button"
-                    onClick={attendWebinar}
+                    onClick={() => {
+                      attendWebinar();
+                    }}
+                    // onClick={attendWebinar}
                     style={{
                       borderRadius: "10px",
                       color: "#fff",
@@ -790,12 +869,16 @@ const EventDetails = () => {
                       marginTop: "10px",
                     }}
                     className="custom-btn-primary mr-20"
+                    disabled={!canJoin} // Disable the button when canEnroll is true
                   >
                     {t("ATTEND_WEBINAR")}
                   </Button>
                   {canEnroll && (
                     <Button
                       type="button"
+                      onClick={() => {
+                        unEnroll();
+                      }}
                       style={{
                         borderRadius: "10px",
                         color: "#fff",
@@ -819,17 +902,17 @@ const EventDetails = () => {
                   {formatDate(detailData.registrationStartDate)}
                 </Box>
               )}
-              {regEnd && (
+              {regEnd && isRecorded && (
                 <Box
                   className="h5-title mb-20 lg-hide"
                   style={{ fontWeight: "400" }}
                 >
                   <Alert severity="error">
-                    {t("THIS_EVENT_HAS_ENDED_YOU_CAN_ACCESS")}
+                    The event has ended. registration is no longer available
                   </Alert>
                 </Box>
               )}
-              {!canEnroll && !canJoin && isRecorded && (
+              {isEnrolled && !canJoin && isRecorded && (
                 <Box>
                   <Button
                     type="button"
@@ -844,10 +927,20 @@ const EventDetails = () => {
                       background: "#0e7a9c",
                       marginTop: "10px",
                     }}
+                    disabled={true}
                     startIcon={<AdjustOutlinedIcon />}
                   >
                     {t("VIEW_WEBINAR_RECORDING")}
                   </Button>
+                  {
+                    // detailData.recording == undefined &&
+                    <Box
+                      className="h5-title mb-20 xs-hide"
+                      style={{ fontWeight: "400" }}
+                    >
+                      Recording will be available soon
+                    </Box>
+                  }
                 </Box>
               )}
             </Grid>
@@ -1037,13 +1130,13 @@ const EventDetails = () => {
           </Typography>
 
           <Box sx={{ mt: 2 }}>
-            <Button variant="contained" color="primary" onPress={handleSubmit}>
+            <Button variant="contained" color="primary" onClick={handleSubmit}>
               {t("AGREE")}
             </Button>
             <Button
               variant="outlined"
               color="secondary"
-              onPress={handleCloseConsentModal}
+              onClick={handleCloseConsentModal}
               sx={{ ml: 2 }}
             >
               {t("DISAGREE")}
