@@ -144,6 +144,8 @@ function Header({ globalSearchQuery }) {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+  const roleNames =
+    userData?.result?.response?.roles.map((role) => role.role) || [];
   return (
     <>
       <Box className="scrolledTop">
@@ -501,18 +503,24 @@ function Header({ globalSearchQuery }) {
                     {t("PROFILE")}
                   </Link>
                 </MenuItem>
-                <MenuItem>
-                  <Link
-                    href={routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}
-                    underline="none"
-                    textAlign="center"
-                  >
-                    {t("DASHBOARD")}
-                  </Link>
-                </MenuItem>
+                {roleNames.some((role) =>
+                  ["CONTENT_CREATOR"].includes(role)
+                ) && (
+                  <MenuItem>
+                    <Link
+                      href={routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}
+                      underline="none"
+                      textAlign="center"
+                    >
+                      {t("DASHBOARD")}
+                    </Link>
+                  </MenuItem>
+                )}
+
                 {/* Check if roles array is empty or contains "PUBLIC" */}
-                {(roles && roles.length === 0) ||
-                (roles.length === 1 && roles.includes("PUBLIC")) ? null : (
+                {(roleNames && roleNames.length === 0) ||
+                (roleNames.length === 1 &&
+                  roleNames.includes("PUBLIC")) ? null : (
                   <MenuItem>
                     <Link
                       target="_blank"
@@ -766,18 +774,47 @@ function Header({ globalSearchQuery }) {
                         {t("PROFILE")}
                       </Link>
                     </MenuItem>
-                    <MenuItem>
-                      <Link
-                        href={routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}
-                        underline="none"
-                        textAlign="center"
-                      >
-                        {t("DASHBOARD")}
-                      </Link>
-                    </MenuItem>
+                    {/* {userData &&
+                      userData?.result?.response?.roles?.length === 1 &&
+                      [
+                        "SYSTEM_ADMINISTRATION",
+                        "ORG_ADMIN",
+                        "CONTENT_CREATOR",
+                      ].some((role) =>
+                        userData?.result?.response?.roles?.includes(role)
+                      ) && (
+                        <MenuItem>
+                          <Link
+                            href={routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}
+                            underline="none"
+                            textAlign="center"
+                          >
+                            {t("DASHBOARD")}
+                          </Link>
+                        </MenuItem>
+                      )} */}
+                    {roleNames.some((role) =>
+                      [
+                        "SYSTEM_ADMINISTRATION",
+                        "ORG_ADMIN",
+                        "CONTENT_CREATOR",
+                      ].includes(role)
+                    ) && (
+                      <MenuItem>
+                        <Link
+                          href={routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}
+                          underline="none"
+                          textAlign="center"
+                        >
+                          {t("DASHBOARD")}
+                        </Link>
+                      </MenuItem>
+                    )}
+
                     {/* Check if roles array is empty or contains "PUBLIC" */}
-                    {(roles && roles.length === 0) ||
-                    (roles.length === 1 && roles.includes("PUBLIC")) ? null : (
+                    {(roleNames && roleNames?.length === 0) ||
+                    (roleNames.length === 1 &&
+                      roleNames.includes("PUBLIC")) ? null : (
                       <MenuItem>
                         <Link
                           target="_blank"
