@@ -115,8 +115,8 @@ const Dashboard = () => {
   const eventReports = async (event_id) => {
     try {
       const params = new URLSearchParams({ event_id: event_id });
-      const url = `${urlConfig.URLS.EVENT.REPORT}?${params.toString()}`;
-      // const url = `https://devnulp.niua.org/event/reports?${params.toString()}`;
+      // const url = `${urlConfig.URLS.EVENT.REPORT}?${params.toString()}`;
+      const url = `https://devnulp.niua.org/event/reports?${params.toString()}`;
 
       const response = await fetch(url, {
         method: "GET",
@@ -178,8 +178,8 @@ const Dashboard = () => {
       };
 
       try {
-        const url = `${urlConfig.URLS.EVENT.GET_LIST}`;
-        // const url = `https://devnulp.niua.org/event/list`;
+        // const url = `${urlConfig.URLS.EVENT.GET_LIST}`;
+        const url = `https://devnulp.niua.org/event/list`;
         const response = await fetch(url, {
           method: "POST",
           headers: {
@@ -218,8 +218,8 @@ const Dashboard = () => {
       };
 
       try {
-        const url = `${urlConfig.URLS.EVENT.GET_LIST}`;
-        // const url = `https://devnulp.niua.org/event/list`;
+        // const url = `${urlConfig.URLS.EVENT.GET_LIST}`;
+        const url = `https://devnulp.niua.org/event/list`;
         const response = await fetch(url, {
           method: "POST",
           headers: {
@@ -264,8 +264,8 @@ const Dashboard = () => {
       };
 
       try {
-        const url = `${urlConfig.URLS.EVENT.GET_COUNT}`;
-        // const url = `https://devnulp.niua.org/event/event_count`;
+        // const url = `${urlConfig.URLS.EVENT.GET_COUNT}`;
+        const url = `https://devnulp.niua.org/event/event_count`;
 
         const response = await fetch(url, {
           method: "POST",
@@ -297,10 +297,10 @@ const Dashboard = () => {
           params.append("toDate", dayjs(endDateFilter).format("YYYY-MM-DD"));
         }
 
-        const url = `${
-          urlConfig.URLS.EVENT.TOP_TRENDING_EVENT
-        }?${params.toString()}`;
-        // const url = `https://devnulp.niua.org/event/get_top_trending?${params.toString()}`;
+        // const url = `${
+        //   urlConfig.URLS.EVENT.TOP_TRENDING_EVENT
+        // }?${params.toString()}`;
+        const url = `https://devnulp.niua.org/event/get_top_trending?${params.toString()}`;
 
         const response = await fetch(url, {
           method: "GET",
@@ -335,10 +335,10 @@ const Dashboard = () => {
           );
         }
 
-        const url = `${
-          urlConfig.URLS.EVENT.TOP_TRENDING_EVENT
-        }?${params.toString()}`;
-        // const url = `https://devnulp.niua.org/event/get_top_trending?${params.toString()}`;
+        // const url = `${
+        //   urlConfig.URLS.EVENT.TOP_TRENDING_EVENT
+        // }?${params.toString()}`;
+        const url = `https://devnulp.niua.org/event/get_top_trending?${params.toString()}`;
         const response = await fetch(url, {
           method: "GET",
           headers: {
@@ -494,10 +494,8 @@ const Dashboard = () => {
       ),
     },
   ];
-  console.log("000000000000000000000000000000000000000000000", userData);
   const roleNames =
     userData?.result?.response?.roles.map((role) => role.role) || [];
-  console.log("1111111111111111111111111111", roleNames);
   // Check for admin roles
   const isAdmin =
     roleNames.includes("SYSTEM_ADMINISTRATION") ||
