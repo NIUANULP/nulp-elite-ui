@@ -2483,7 +2483,7 @@ Footer {
   background: #0e7a9c !important;
   border-radius: 10px !important;
   color: #fff !important;
-  padding: 10.5px 25px !important;
+  padding: 10px 25px !important;
   font-weight: 500 !important;
   font-size: 12px !important;
   border: solid 1px #0e7a9c !important;
@@ -3710,4 +3710,7 @@ input:required::after {
 } */
 .feedback-popup .MuiDialog-paper {
   width: 434px !important;
+}
+.recording .MuiDialog-paper {
+  width: 300px !important;
 }

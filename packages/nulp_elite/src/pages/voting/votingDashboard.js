@@ -1255,12 +1255,18 @@ const votingDashboard = () => {
                 <Box>
                   <Box className="mt-9 h5-title">
                     Poll Created On:
-                    <TodayOutlinedIcon className="fs-14 pr-5" />
+                    <TodayOutlinedIcon
+                      className="fs-14 pr-5"
+                      style={{ verticalAlign: "middle" }}
+                    />
                     {formatDate(signlePOll.created_at)}
                   </Box>
                   <Box className="mt-9 h5-title">
                     Poll Ended On:
-                    <TodayOutlinedIcon className="fs-14 pr-5" />{" "}
+                    <TodayOutlinedIcon
+                      className="fs-14 pr-5"
+                      style={{ verticalAlign: "middle" }}
+                    />{" "}
                     {formatDate(signlePOll.end_date)}
                   </Box>
                   <Box className="mt-9 h5-title">Total Votes: {totalVotes}</Box>
