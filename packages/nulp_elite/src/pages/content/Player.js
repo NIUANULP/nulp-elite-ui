@@ -63,7 +63,7 @@ const Player = () => {
 
   const handleTrackData = useCallback(
     ({ score, trackData, attempts, ...props }, playerType = "quml") => {
-      setOpenFeedBack(true);
+      CheckfeedBackSubmitted();
       if (
         playerType === "pdf-video" &&
         props.currentPage === props.totalPages
@@ -75,6 +75,30 @@ const Player = () => {
     },
     []
   );
+
+  const CheckfeedBackSubmitted =async()=>{
+    try{
+      const url = "/custom_feedback/list";
+      const RequestBody={
+        request:{
+          filters:{
+          content_id:contentId,
+          user_id:_userId,
+          }
+         
+        }
+      }
+      const response=await axios.post(url,RequestBody);
+      console.log(response.data);
+      if(response.data?.result?.totalCount===0){
+      setOpenFeedBack(true);
+      }else{
+       setOpenFeedBack(false);
+      }
+    }catch(error){
+      console.error("Error fetching course data:", error);
+    }
+  }
 
   const updateContentState = useCallback(
     async (status) => {
@@ -300,6 +324,7 @@ const Player = () => {
           open={openFeedBack}
           onClose={handleClose}
           className="feedback-popup"
+          contentId={contentId}
         />
       )}
       <FloatingChatIcon />

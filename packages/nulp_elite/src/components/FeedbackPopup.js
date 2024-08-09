@@ -16,13 +16,19 @@ import StarIcon from "@mui/icons-material/Star";
 import { styled } from "@mui/material/styles";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
+import * as util from "../../src/services/utilService";
+import axios from "axios";
 
-const FeedbackPopup = ({ open, onClose }) => {
+
+
+const FeedbackPopup = ({ open, onClose,contentId }) => {
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState("");
   const [additionalFeedback, setAdditionalFeedback] = useState("");
   const [showTextBox, setShowTextBox] = useState(false);
   const [checkboxes, setCheckboxes] = useState({});
+    const _userId = util.userId();
+
 
   const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialogContent-root": {
@@ -84,17 +90,40 @@ const FeedbackPopup = ({ open, onClose }) => {
     setAdditionalFeedback(event.target.value);
   };
 
-  const handleSubmit = () => {
-    console.log("Rating:", rating);
-    console.log("Selected Checkboxes:");
+ const handleSubmit = async () => {
+  try {
+    let selectedCheckboxes = [];
+
     Object.keys(checkboxes).forEach((key) => {
-      if (checkboxes[key]) {
-        console.log(checkboxLabels[key]);
+      if (checkboxes[key] && checkboxLabels[key] !== 'Other') {
+        selectedCheckboxes.push(checkboxLabels[key]);
       }
     });
+
+    const url = "/custom_feedback/create";
+    const request = {
+      content_id: contentId,
+      user_id: _userId,
+      rating: rating,
+      default_feedback: selectedCheckboxes, 
+      other_feedback: additionalFeedback,
+    };
+
+    const response = await axios.post(url, request);
+    console.log("response.data", response.data);
+
+    console.log("Rating:", rating);
+    console.log("Selected Checkboxes:", selectedCheckboxes);
     console.log("Additional Feedback:", additionalFeedback);
+
     onClose();
-  };
+  } catch (error) {
+    console.error("Error submitting feedback:", error);
+  }
+};
+
+
+
   const handleClose = () => {
     setOpen(false);
   };

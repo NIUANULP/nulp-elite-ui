@@ -628,7 +628,7 @@ const EventDetails = () => {
   const getEventRecording = async () => {
   try {
     const url = "/custom_event/fetch_recordings?event_id=" + eventId;
-    const response = await axios.get(url); // Use axios.get instead of axios.fetch
+    const response = await axios.get(url); 
     console.log("---------------Recording Link", response.data);
     console.log("Recording Hardcoded Data",recording);
   } catch (error) {
