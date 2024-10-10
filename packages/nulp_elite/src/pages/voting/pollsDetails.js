@@ -304,7 +304,7 @@ const pollsDetailes = () => {
                                     key={index}
                                     title={keyword}
                                     placement="right"
-                                    className="customlabeltwo cardLabelEllips"
+                                    className="customlabeltwo"
                                   >
                                     <Button className="d-inline-block">
                                     {index < 2
@@ -318,7 +318,7 @@ const pollsDetailes = () => {
                                   <Tooltip
                                     title={items.poll_keywords.slice(3).join(", ")}
                                     placement="right"
-                                    className="customlabeltwo cardLabelEllips"
+                                    className="customlabeltwo"
                                   >
                                     <Button className="d-inline-block">
                                       {items.poll_keywords[2]} + {items.poll_keywords.length - 3}

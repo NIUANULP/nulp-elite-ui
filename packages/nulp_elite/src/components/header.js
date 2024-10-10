@@ -216,9 +216,9 @@ function Header({ globalSearchQuery }) {
     boxShadow: searchQuery ? '0 2px 4px rgba(0, 0, 0, 0.2)' : 'none',
     color: searchQuery ? '#fff' : "#000"
   };
-const handleLogout =() => {
-  sessionStorage.setItem('isModalShown', 'false');
-}
+  const handleLogout = () => {
+    sessionStorage.setItem('isModalShown', 'false');
+  }
   return (
     <>
       <Box
@@ -615,9 +615,9 @@ const handleLogout =() => {
                 </MenuItem>
               </Link>
               <Link href="/logoff" underline="none" textAlign="center"
-               onClick={handleLogout}>
+                onClick={handleLogout}>
                 <MenuItem>
-                
+
 
                   {t("LOGOUT")}
 
@@ -738,6 +738,11 @@ const handleLogout =() => {
                     >
                       <MenuItem value="en">{t("ENGLISH")}</MenuItem>
                       <MenuItem value="hi">{t("HINDI")}</MenuItem>
+                      <MenuItem value="ma">{t("MARATHI")}</MenuItem>
+                      <MenuItem value="gg">{t("GUJARATI")}</MenuItem>
+                      <MenuItem value="ta">{t("TAMIL")}</MenuItem>
+                      <MenuItem value="be">{t("BENGALI")}</MenuItem>
+                      <MenuItem value="mal">{t("MALAYALAM")}</MenuItem>
                     </Select>
                   </FormControl>
                 </Box>
@@ -873,9 +878,9 @@ const handleLogout =() => {
                         className="ml-10"
                         onClick={() => {
                           sessionStorage.setItem("urlPath", "learningreport");
-                          window.open(routeConfig.ROUTES.LEARNING_REPORT, "_blank"); 
+                          window.open(routeConfig.ROUTES.LEARNING_REPORT, "_blank");
                         }}
-                        style={{color:'#1976d2'}}
+                        style={{ color: '#1976d2' }}
                       >
                         {t("LEARNING_REPORT")}
                       </MenuItem>

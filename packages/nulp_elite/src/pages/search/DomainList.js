@@ -402,6 +402,8 @@ const DomainList = ({ globalSearchQuery }) => {
       onMobileSearch();
     }
   };
+  console.log(lernUser, 'lernUser from dashboard');
+
 
   return (
     <div>
@@ -502,7 +504,6 @@ const DomainList = ({ globalSearchQuery }) => {
         >
 
           {error && <Alert severity="error">{error}</Alert>}
-          
           <Box textAlign="center">
             <p
               style={{

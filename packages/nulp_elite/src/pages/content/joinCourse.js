@@ -161,8 +161,12 @@ const JoinCourse = () => {
           console.log("here");
           setIsOwner(true);
         }
-        const identifiers =
-          data?.result?.content?.children[0]?.children[0]?.identifier;
+        let identifiers;
+        if(data?.result?.content?.children[0]?.children){
+          identifiers = data?.result?.content?.children[0]?.children[0]?.identifier;
+        }else{
+          identifiers = data?.result?.content?.children[0]?.identifier
+        }
         console.log(identifiers, "setChildNode");
         setChildNode(identifiers);
 
@@ -612,21 +616,20 @@ const JoinCourse = () => {
                   {t("BACK")}
                 </Button>
               </Box>
-              <Box>
-                {" "}
+
+              <Box> 
                 <Button
-                  onClick={() => handleLinkClick(childnode)}
-                  className="custom-btn-primary  mr-5"
-                >
-                  {t("START_LEARNING")}
-                </Button>
-                {!isCompleted && (
+                onClick={() => handleLinkClick(childnode)}
+                className="custom-btn-primary  mr-5"
+              >
+                {t("START_LEARNING")}
+              </Button>
+                {!isCompleted &&
                   <Button
                     onClick={handleLeaveCourseClick} // Open confirmation dialog
-                    className="custom-btn-danger"
-                  >
-                    {" "}
-                    {t("LEAVE_COURSE")}
+                    className="custom-btn-danger xs-mt-10"
+                  > {t("LEAVE_COURSE")}
+     
                   </Button>
                 )}
               </Box>
@@ -690,10 +693,8 @@ const JoinCourse = () => {
                   {!isCompleted && (
                     <Button
                       onClick={handleLeaveCourseClick} // Open confirmation dialog
-                      className="custom-btn-danger"
-                    >
-                      {" "}
-                      {t("LEAVE_COURSE")}
+                      className="custom-btn-danger xs-mt-10"
+                    > {t("LEAVE_COURSE")}
                     </Button>
                   )}{" "}
                 </Box>

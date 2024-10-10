@@ -109,8 +109,6 @@ const EventDetails = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [open, setOpen] = React.useState(false);
   const [recording, setRecording] = useState();
-  const [batchCertData,setBatchCertData] = useState();
-  const [isCertificateIssued , setIsCertificateIssued] = useState(true)
   const [isAllreadyFilledRegistation,setIsAlreadyFilledRegistration] = useState(true)
   const [isExpired , setIsExpired] = useState(false)
   const handleClickOpen = () => {
@@ -288,8 +286,6 @@ const formatTimeWithTimezone = (date) => {
     getUserData(_userId, "loggedIn");
     fetchMyEvents();
     getEventRecording();
-    fetchData();
-    checkCertificateAlreadyIssued();
     // checkEnrolledCourse();
   }, [_userId, eventId]);
 
@@ -312,7 +308,6 @@ const formatTimeWithTimezone = (date) => {
 
       const { result } = response.data;
       const { response: batchResponse } = result;
-      setBatchCertData(response.data.result)
 
       if (batchResponse && batchResponse.count === 0) {
         showErrorMessage(t("This course has no active Batches"));
@@ -459,83 +454,6 @@ const formatTimeWithTimezone = (date) => {
       year: "numeric",
     });
   };
-
-  const fetchData = async () => {
-    try {
-      const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.GET_PROFILE}${_userId}?fields=${urlConfig.params.userReadParam.fields}`;
-
-      const header = "application/json";
-      const response = await fetch(url, {
-        // headers: {
-        //   "Content-Type": "application/json",
-        // },
-      });
-      const data = await response.json();
-      setUserData(data);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      showErrorMessage(t("FAILED_TO_FETCH_DATA"));
-    }
-  };
-
-  const checkCertificateAlreadyIssued = async () => {
-    try{
-      const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.CERTIFICATE.CERTIF_SEARCH}`;
-    const requestBody = {
-      filters: {
-        recipient: {
-            id: {
-                eq: _userId
-            }
-          }
-      }
-    }
-    const resopnse = await axios.post(url, requestBody);
-     setIsCertificateIssued(resopnse.data.some((item) => item.training?.id === eventId));
-
-    }catch(error){
-      console.log("error While calling API ");
-    }
-    
-  }
-
- const generateCertificate = async () => {
-  const templateId = Object.keys(batchCertData?.response?.content[0]["certTemplates"])[0];
-  const certificateDetails = batchCertData?.response?.content[0]["certTemplates"][templateId];
-  try {
-    const url = `${urlConfig.URLS.CERTIFICATE.CUSTOM_CERTIFICATE_CREATE}`;
-    const requestBody = {
-      recipient: {
-        id: _userId, 
-        name: userData?.result?.response?.firstName + " " + userData?.result?.response?.lastName,
-        type: "user",
-      },
-      issuer: certificateDetails?.issuer,
-      training: {
-        id: detailData?.identifier,
-        name: detailData?.name,
-        type: "Event",
-        batchId: batchData?.batchId,
-      },
-      templateUrl:
-        certificateDetails?.url, 
-      status: "ACTIVE",
-      signatoryList:
-        certificateDetails?.signatoryList,
-      certificateLabel: "test",
-      issuedOn: new Date().toISOString(),
-    };
-    if(!isCertificateIssued){
-      const response = await axios.post(url, requestBody);
-      if(response.data.responseCode === "OK"){
-        setIsCertificateIssued(true)
-      }
-    }
-  } catch (error) {
-    console.error("Error creating certificate:", error);
-  }
-};
-
 
   const managePublicPrivateEvent = (button) => {
     if (eventVisibility && eventVisibility === "Public" && button === "reg") {
@@ -770,7 +688,7 @@ const formatTimeWithTimezone = (date) => {
     <div>
       <Header />
       {toasterMessage && <ToasterCommon response={toasterMessage} />}
-      <Box sx={{ height: 'calc(100vh - 210px)', overflowY:'auto' }}>
+      <Box>
       <Snackbar
         open={showEnrollmentSnackbar}
         autoHideDuration={6000}
@@ -838,7 +756,7 @@ const formatTimeWithTimezone = (date) => {
             spacing={2}
             className="bg-whitee custom-event-container mb-20 custom-container mb-38"
           >
-            <Grid item xs={3} md={6} lg={2}>
+            <Grid item xs={12} md={6} lg={2}>
               <img
                 src={
                   detailData.appIcon
@@ -849,10 +767,10 @@ const formatTimeWithTimezone = (date) => {
                 alt="App Icon"
               />
             </Grid>
-            <Grid item xs={9} md={6} lg={6} className="lg-pl-60 xs-pl-30">
+            <Grid item xs={12} md={6} lg={6} className="lg-pl-60">
               <Typography
                 gutterBottom
-                className="mt-10  h1-title mb-20 xs-pl-15"
+                className="mt-10  h1-title mb-20"
               >
                 {detailData.name}
               </Typography>
@@ -878,20 +796,20 @@ const formatTimeWithTimezone = (date) => {
               </Box>
 
               <Box className="d-flex mb-20 h3-custom-title xs-hide">
-                <Box className="d-flex jc-bw alignItems-center pr-5">
+                <Box className="d-flex alignItems-center pr-5">
                   <TodayOutlinedIcon className="h3-custom-title pr-5" />
                   {formatDate(detailData.startDate)}
                 </Box>
-                <Box className="d-flex jc-bw alignItems-center pl-10 pr-5">
+                <Box className="d-flex alignItems-center pl-10 pr-5">
                   <AccessAlarmsOutlinedIcon className="h3-custom-title pr-5" />
                   {formatTimeToIST(detailData.startTime)}
                 </Box>
                 <Box className="mx-10">To</Box>
-                <Box className="d-flex jc-bw alignItems-center pl-5 pr-5">
+                <Box className="d-flex alignItems-center pl-5 pr-5">
                   <TodayOutlinedIcon className="h3-custom-title pr-5" />
                   {formatDate(detailData.endDate)}
                 </Box>
-                <Box className="d-flex jc-bw alignItems-center pl-10 pr-5">
+                <Box className="d-flex alignItems-center pl-10 pr-5">
                   <AccessAlarmsOutlinedIcon className="h3-custom-title pr-5" />
                   {formatTimeToIST(detailData.endTime)}
                 </Box>
@@ -947,10 +865,6 @@ const formatTimeWithTimezone = (date) => {
                     type="button"
                     onClick={() => {
                       managePublicPrivateEvent("join");
-                      // generateCertificate();
-                      if(detailData.issueCerificate === "Yes"){
-                        generateCertificate();
-                      }
                     }}
                     // onClick={attendWebinar}
                     style={{
@@ -1341,7 +1255,6 @@ const formatTimeWithTimezone = (date) => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 1000,
             bgcolor: "background.paper",
             border: "2px solid #000",
             boxShadow: 24,
@@ -1431,14 +1344,14 @@ const formatTimeWithTimezone = (date) => {
           />
           <Box sx={{ mt: 2 }} style={{ textAlign: "right" }}>
             <Button
-              className="custom-btn-primary"
+              className="custom-btn-primary xs-mb-10"
               onClick={handleSubmit}
               disabled={!isChecked}
             >
               {t("SUBMIT")}
             </Button>
             <Button
-              className="custom-btn-default"
+              className="custom-btn-default "
               onClick={handleCloseConsentModal}
               sx={{ ml: 2 }}
             >

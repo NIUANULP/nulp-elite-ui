@@ -767,6 +767,12 @@ button {
 }
 
 @media (max-width: 768px) {
+  .xs-mt-10{
+    margin-top:10px;
+  }
+  .jc-bw{
+    margin-left: 0px!important;
+  }
   .searchField .MuiInputBase-input::placeholder {
     font-size: 12px;
   }
@@ -798,6 +804,7 @@ button {
   .h1-title {
     line-height: 30px;
     margin-bottom: 25px;
+    font-size: 18px !important;
   }
 
   .custom-btn-primary,
@@ -965,7 +972,8 @@ button {
   }
 
   .xss-pb-0 {
-    padding: 3px 0 5px 16px !important;
+    padding: 19% 0 5% 16px !important;
+  
   }
 
   .MuiDrawer-paper {
@@ -1151,7 +1159,7 @@ button {
   }
 
   .xs-mb-10 {
-    margin-bottom: 10px;
+    margin-bottom: 10px !important;
   }
 
   .xs-mb-20 {

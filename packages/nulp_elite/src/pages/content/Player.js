@@ -261,7 +261,7 @@ const updateContentStateForAssessment = async () => {
   return (
     <div>
       <Header />
-      <Box sx={{ height: 'calc(100vh - 210px)', overflowY:'auto' }}>
+      <Box>
       <Container maxWidth="xl" role="main" className="player mt-15">
         <Grid container spacing={2} className="mt-10 mb-30">
           <Grid item xs={12} md={12} lg={12}>
@@ -269,9 +269,12 @@ const updateContentStateForAssessment = async () => {
             className="d-flex mr-20 my-20 px-10"
             style={{ alignItems: "center",justifyContent:'space-between' }}
           >
-            <Link onClick={handleBackNavigation} className="viewAll mr-17 mt-10">
+            <Button
+            onClick={handleBackNavigation}
+              className="custom-btn-primary mr-17 mt-15"
+            >
               {t("BACK")}
-            </Link>
+            </Button>
           </Box>
           </Grid>
           <Grid item xs={12} md={9} lg={9}>

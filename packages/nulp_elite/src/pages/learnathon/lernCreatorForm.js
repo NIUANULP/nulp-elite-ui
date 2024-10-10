@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TextField,
   Button,
@@ -9,8 +9,16 @@ import {
   IconButton,
   Typography,
   Box,
+  Grid,
+  Paper,
+  Divider,
 } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import Footer from "components/Footer";
+import Header from "components/header";
+// const [globalSearchQuery, setGlobalSearchQuery] = useState();
+// // location.state?.globalSearchQuery || undefined
+// const [searchQuery, setSearchQuery] = useState(globalSearchQuery || "");
 
 const categories = [
   "State / UT / SPVs / ULBs / Any Other",
@@ -37,11 +45,11 @@ const LernCreatorForm = () => {
     userName: "",
     email: "",
     mobileNumber: "",
+    submissionIcon: "",
     category: "",
     organisation: "",
     department: "",
     theme: "",
-    otherTheme: "",
     title: "",
     description: "",
     file: null,
@@ -62,6 +70,12 @@ const LernCreatorForm = () => {
     setFormData({
       ...formData,
       file: e.target.files[0],
+    });
+  };
+  const handleIconChange = (e) => {
+    setFormData({
+      ...formData,
+      submissionIcon: e.target.files[0],
     });
   };
 
@@ -104,192 +118,250 @@ const LernCreatorForm = () => {
   };
 
   return (
-    <Box p={3} maxWidth={800} mx="auto">
-      <Typography variant="h4" gutterBottom>
-        Lern Creator Form
-      </Typography>
+    <>
+      <Header />
+      <Paper elevation={3} sx={{ padding: "20px", backgroundColor: "#f9f4eb" }}>
+        <Box p={3} maxWidth={800} mx="auto">
+          <Typography variant="h5" gutterBottom>
+            Upload Learnathon Submission
+          </Typography>
 
-      <form>
-        <TextField
-          fullWidth
-          margin="normal"
-          label="User Name*"
-          name="userName"
-          value={formData.userName}
-          onChange={handleChange}
-          required
-        />
+          <Box my={2}>
+            <Button
+              variant="contained"
+              onClick={() => (window.location.href = "/helpdesk")}
+              style={{ float: "right" }}
+            >
+              Need Help
+            </Button>
+          </Box>
 
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Email*"
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
+          <Typography variant="h6" gutterBottom>
+            Participant Details
+          </Typography>
+          <Divider sx={{ marginBottom: "20px" }} />
 
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Mobile Number*"
-          name="mobileNumber"
-          value={formData.mobileNumber}
-          onChange={handleChange}
-          required
-        />
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="User Name*"
+                name="userName"
+                value={formData.userName}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
 
-        <TextField
-          select
-          fullWidth
-          margin="normal"
-          label="Category of Participation*"
-          name="category"
-          value={formData.category}
-          onChange={handleCategoryChange}
-          required
-        >
-          {categories.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </TextField>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Email*"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
 
-        {guidelineLink && (
-          <a href={guidelineLink} target="_blank" rel="noopener noreferrer">
-            Link to Guidelines
-          </a>
-        )}
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Mobile Number*"
+                name="mobileNumber"
+                value={formData.mobileNumber}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+          </Grid>
 
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Name of Organisation*"
-          name="organisation"
-          value={formData.organisation}
-          onChange={handleChange}
-          required
-        />
+          <Typography variant="h6" gutterBottom style={{ marginTop: "30px" }}>
+            Submission Details
+          </Typography>
+          <Divider sx={{ marginBottom: "20px" }} />
+          <Grid item xs={12}>
+            <div>
+              <Tooltip title="Supported formats: MP4, PDF, HTML5, YouTube links">
+                <IconButton>
+                  <HelpOutlineIcon />
+                </IconButton>
+              </Tooltip>
+              <TextField
+                type="file"
+                fullWidth
+                onChange={handleIconChange}
+                inputProps={{
+                  accept: "jpg,png",
+                }}
+              />
+            </div>
+          </Grid>
 
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Name of Department/Group"
-          name="department"
-          value={formData.department}
-          onChange={handleChange}
-        />
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                margin="normal"
+                label="Category of Participation*"
+                name="category"
+                value={formData.category}
+                onChange={handleCategoryChange}
+                required
+              >
+                {categories.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
+              {guidelineLink && (
+                <a
+                  href={guidelineLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View and Download Guidelines
+                </a>
+              )}
+            </Grid>
 
-        <TextField
-          select
-          fullWidth
-          margin="normal"
-          label="Indicative Theme*"
-          name="theme"
-          value={formData.theme}
-          onChange={handleChange}
-          required
-        >
-          {themes.map((theme) => (
-            <MenuItem key={theme} value={theme}>
-              {theme}
-            </MenuItem>
-          ))}
-        </TextField>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Name of Organisation*"
+                name="organisation"
+                value={formData.organisation}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
 
-        {formData.theme === "Others" && (
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Other Theme"
-            name="otherTheme"
-            value={formData.otherTheme}
-            onChange={handleChange}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Name of Department/Group"
+                name="department"
+                value={formData.department}
+                onChange={handleChange}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                select
+                fullWidth
+                margin="normal"
+                label="Indicative Theme*"
+                name="theme"
+                value={formData.theme}
+                onChange={handleChange}
+                required
+              >
+                {themes.map((theme) => (
+                  <MenuItem key={theme} value={theme}>
+                    {theme}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Title of Submission*"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                inputProps={{ maxLength: 20 }}
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Description*"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                multiline
+                rows={3}
+                inputProps={{ maxLength: 100 }}
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <div>
+                <Tooltip title="Supported formats: MP4, PDF, HTML5, YouTube links">
+                  <IconButton>
+                    <HelpOutlineIcon />
+                  </IconButton>
+                </Tooltip>
+                <TextField
+                  type="file"
+                  fullWidth
+                  onChange={handleFileChange}
+                  inputProps={{
+                    accept: "video/mp4,application/pdf,text/html,video/youtube",
+                  }}
+                />
+              </div>
+            </Grid>
+          </Grid>
+
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={formData.consent}
+                onChange={handleCheckboxChange}
+                name="consent"
+              />
+            }
+            label="I accept the terms and conditions"
           />
-        )}
 
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Title of Submission*"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-          inputProps={{ maxLength: 20 }}
-          required
-        />
-
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Description*"
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          multiline
-          rows={3}
-          inputProps={{ maxLength: 100 }}
-          required
-        />
-
-        <div>
-          <Tooltip title="Supported formats: MP4, PDF, HTML5, YouTube links">
-            <IconButton>
-              <HelpOutlineIcon />
-            </IconButton>
-          </Tooltip>
-          <TextField
-            type="file"
-            onChange={handleFileChange}
-            inputProps={{
-              accept: "video/mp4,application/pdf,text/html,video/youtube",
-            }}
-          />
-        </div>
-
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={formData.consent}
-              onChange={handleCheckboxChange}
-              name="consent"
-            />
-          }
-          label="I accept the terms and conditions"
-        />
-
-        <Box mt={2}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => handleSubmit("draft")}
-            style={{ marginRight: 10 }}
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            gutterBottom
+            style={{ marginTop: "20px" }}
           >
-            Save as Draft
-          </Button>
+            Your submission will be used for NULP purposes only and your
+            personal details will not be disclosed to any entity.
+          </Typography>
 
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => handleSubmit("review")}
-          >
-            Send for Review
-          </Button>
+          <Box mt={3} display="flex" justifyContent="space-between">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => handleSubmit("draft")}
+            >
+              Save as Draft
+            </Button>
+
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => handleSubmit("review")}
+            >
+              Submit
+            </Button>
+          </Box>
         </Box>
-      </form>
-
-      <Box mt={4}>
-        <Button
-          variant="outlined"
-          onClick={() => (window.location.href = "/helpdesk")}
-        >
-          Need Help
-        </Button>
-      </Box>
-    </Box>
+      </Paper>
+      <Footer />
+    </>
   );
 };
 
