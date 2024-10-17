@@ -1321,7 +1321,7 @@ const JoinCourse = () => {
                   style={{
                     background: "#F9FAFC",
                     borderRadius: "10px",
-                    marginTop: "10px",
+                    margin: "10px",
                   }}
                 >
                   <AccordionSummary
@@ -1666,8 +1666,7 @@ const JoinCourse = () => {
                       </AccordionSummary>
 
                       <AccordionDetails
-                        style={{ paddingLeft: "35px" }}
-                        className="border-bottom"
+                        style={{ 'padding': '12px',margin: '-10px 0px'}}
                       >
                         {/* If it's not a content collection, render it like a clickable child */}
                         {faqIndex.mimeType !==
@@ -1698,7 +1697,7 @@ const JoinCourse = () => {
                             <AccordionDetails
                               key={faqIndexname.identifier || faqIndexname.name}
                               className="border-bottom"
-                              style={{ paddingLeft: "35px" }}
+                              style={{ 'padding': '12px',margin: '-10px 0px'}}
                             >
                               {faqIndexname.children &&
                               faqIndexname.children.length > 0 ? (
@@ -1741,7 +1740,7 @@ const JoinCourse = () => {
                                       <AccordionDetails
                                         key={child.identifier || child.name}
                                         className="border-bottom"
-                                        style={{ paddingLeft: "35px" }}
+                                        style={{ 'padding': '12px',margin: '-10px 0px'}}
                                       >
                                         {child.children &&
                                         child.children.length > 0 ? (
