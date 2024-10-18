@@ -328,5 +328,8 @@
   "VOTE_COUNT":"मतदान गणना",
   "VOTE_NOW":"अभी वोट करें",
   "SEARCH_SUBMISSION":"खोज सबमिशन",
-  "VIEW_SUBMISSIONS":"सबमिशन देखें"
+  "VIEW_SUBMISSIONS":"सबमिशन देखें",
+  "VOTIGN_DEADLINE":"मतदान की समय सीमा",
+  "VIEW_AND_VOTE":"देखें और वोट करें",
+  "VOTE_FOR_THIS_CONTENT":"इस सामग्री के लिए वोट करें"
 }

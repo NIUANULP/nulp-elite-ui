@@ -29,6 +29,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import md5 from 'md5';
+import { isEmpty } from "lodash";
 const urlConfig = require("../../configs/urlConfig.json");
 
 const Player = () => {
@@ -55,9 +56,12 @@ const Player = () => {
 const [assessEvents, setAssessEvents] =useState ([]);
 const [propLength, setPropLength] =useState();
   const _userId = util.userId();
-
+  const[isLearnathon,setIsLearnathon]=useState(false)
+  const[alreadyVoted,setAlreadyVoted] = useState(false)
+  const[pollId,setPollId] = useState()
   const queryString = location.search;
   let contentId = queryString.startsWith("?do_") ? queryString.slice(1) : null;
+  
   // Check if contentId ends with '=' and remove it
   if (contentId && contentId.endsWith("=")) {
     contentId = contentId.slice(0, -1);
@@ -170,6 +174,7 @@ const attemptid = ()=>{
        return hashValue;
 }
 
+
 const updateContentStateForAssessment = async () => {
     await updateContentState(2);
   try {
@@ -246,6 +251,8 @@ const updateContentStateForAssessment = async () => {
     fetchUserData();
   }, [contentId, consumedContent, fetchUserData, updateContentState]);
 
+
+
   useEffect(() => {
     if (isCompleted) {
       updateContentState(2);
@@ -256,6 +263,56 @@ const updateContentStateForAssessment = async () => {
   const handleGoBack = () => navigate(sessionStorage.getItem("previousRoutes"));
   const handleBackNavigation = () => {
     navigate(-1); // Navigate back in history
+  };
+
+  const CheckLearnathonContent=async()=>{
+  try{
+   const url = `${urlConfig.URLS.LEARNATHON.LIST}`;
+    const requestBody = {
+        request : {
+          filters : {
+            content_id :contentId,
+            status : "Live",
+            // start_date:start_date,
+            // end_date:end_date,
+
+          }
+        }
+    }
+
+    const response = await axios.post(url, requestBody);
+    if(response?.data?.result?.totalCount > 0){
+      setPollId(response?.data?.result?.data[0]?.poll_id)
+      setIsLearnathon(true)
+    }
+  }catch (error) {
+    console.error("Error fetching course data:", error);
+  }
+
+  }
+
+  const CheckAlreadyVoted=async()=>{
+  try{
+   const url = `${urlConfig.URLS.POLL.GET_USER_POLL}?poll_id=${pollId}&user_id=${_userId}`;
+    const response = await axios.get(url);
+    if(Array.isArray(response?.data?.result) && response?.data?.result.length !== 0){
+      setAlreadyVoted(true)
+    }
+  }catch (error) {
+    console.error("Error fetching course data:", error);
+  }
+
+  }
+
+    useEffect(() => {
+      CheckLearnathonContent();
+  },[contentId])
+  useEffect(() => {
+      CheckAlreadyVoted();
+  },[pollId])
+
+    const handleClick = (poll_id) => {
+    navigate(`/webapp/pollDetails?${poll_id}`);
   };
 
   return (
@@ -461,6 +518,25 @@ const updateContentStateForAssessment = async () => {
           paddingBottom: "2%",
           marginTop: '2%'
         }}>
+          {isLearnathon &&
+         <div className="vote-section">
+  <Button
+    type="button"
+    className="custom-btn-primary ml-20"
+    onClick={() => handleClick(pollId)}
+    disabled={alreadyVoted}  // Disable button if alreadyVoted is true
+  >
+    {t("VOTE_FOR_THIS_CONTENT")}
+  </Button>
+
+  {/* Conditionally render the message if alreadyVoted is true */}
+  {alreadyVoted && (
+    <Typography variant="body1" color="error" className="ml-20">
+      {t("You have already voted")}
+    </Typography>
+  )}
+</div>
+              }
           <Accordion defaultExpanded
           >
             <AccordionSummary

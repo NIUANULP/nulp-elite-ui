@@ -266,6 +266,15 @@ const VotingDetails = () => {
               {poll.title}
             </Link>
           </Breadcrumbs>
+          <Box>
+                <Button
+                  type="button"
+                  className="custom-btn-primary ml-20"
+                  onClick={handleGoBack}
+                >
+                  {t("BACK")}
+                </Button>
+              </Box>
           <Grid
             container
             spacing={2}
@@ -630,22 +639,6 @@ const VotingDetails = () => {
               className="event-h2-title  pl-20 mb-20"
               style={{ fontWeight: "400" }}
             >
-              {poll && poll.category === "Learnathon" && (
-                <Box>
-                  <Button
-                    type="button"
-                    className="custom-btn-primary"
-                    onClick={() =>
-                      window.open("/webapp/player?" + poll.content_id, "_blank")
-                    }
-                    sx={{ marginTop: "24px" }}
-
-                    // disabled={!selectedOption} // Disable the button if no option is selected
-                  >
-                    {t("VIEW_SUBMISSIONS")}
-                  </Button>
-                </Box>
-              )}
               <Box className="mt-20">
               {poll.description}
               </Box>

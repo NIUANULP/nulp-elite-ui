@@ -329,6 +329,9 @@
   "VOTE_COUNT":"मतांची संख्या",
   "VOTE_NOW":"आता मतदान करा",
   "SEARCH_SUBMISSION":"शोध सबमिशन",
-  "VIEW_SUBMISSIONS":"सबमिशन पहा"
+  "VIEW_SUBMISSIONS":"सबमिशन पहा",
+  "VOTIGN_DEADLINE":"मतदानाची अंतिम मुदत",
+  "VIEW_AND_VOTE":"पहा आणि मत द्या",
+  "VOTE_FOR_THIS_CONTENT":"या सामग्रीसाठी मत द्या"
 }
 

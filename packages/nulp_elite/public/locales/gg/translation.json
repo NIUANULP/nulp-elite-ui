@@ -337,5 +337,8 @@
   "VOTE_COUNT":"મત ગણતરી",
   "VOTE_NOW":"હવે મત આપો",
   "SEARCH_SUBMISSION":"સર્ચ સબમિશન",
-  "VIEW_SUBMISSIONS":"સબમિશન જુઓ"
+  "VIEW_SUBMISSIONS":"સબમિશન જુઓ",
+  "VOTIGN_DEADLINE":"મતદાનની અંતિમ તારીખ",
+  "VIEW_AND_VOTE":"જુઓ અને મત આપો",
+  "VOTE_FOR_THIS_CONTENT":"આ સામગ્રી માટે મત આપો"
 }

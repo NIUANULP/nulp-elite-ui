@@ -331,5 +331,8 @@
   "VOTE_COUNT":"Vote Count",
   "VOTE_NOW":"Vote Now",
   "SEARCH_SUBMISSION":"Search Submission",
-  "VIEW_SUBMISSIONS":"View Submissions"
+  "VIEW_SUBMISSIONS":"View Submissions",
+  "VOTIGN_DEADLINE":"Votting Deadline",
+  "VIEW_AND_VOTE":"View and vote",
+  "VOTE_FOR_THIS_CONTENT":"Vote for this content"
 }

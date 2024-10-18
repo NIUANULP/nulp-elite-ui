@@ -21,21 +21,25 @@ import Footer from "components/Footer";
 import Header from "components/header";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
+const routeConfig = require("../../configs/routeConfig.json");
+const urlConfig = require("../../configs/urlConfig.json");
 
 const LernVotingList = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
   const [search, setSearch] = useState("");
   const [pollData, setPollData] = useState([]);
   const [voteCounts, setVoteCounts] = useState({}); // Object to store vote counts
+  const[pageNumber,setPageNumber] = useState(1);
+  const[currentPage,setCurrentPage] = useState(1)
 
   useEffect(() => {
     fetchData();
-  }, [page, rowsPerPage, search]);
+  }, [currentPage, rowsPerPage, search]);
 
   const fetchData = async () => {
     const assetBody = {
@@ -46,12 +50,12 @@ const LernVotingList = () => {
         },
 
         limit: rowsPerPage,
-        offset: page * rowsPerPage,
+        offset: 10 * (currentPage-1),
         search: search,
       },
     };
     try {
-      const response = await fetch("/polls/list", {
+      const response = await fetch(`${urlConfig.URLS.POLL.LIST}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -67,7 +71,7 @@ const LernVotingList = () => {
       setData(result.result.data);
       const pollIds = result.result.data.map((poll) => poll.poll_id);
       setPollData(pollIds);
-      setTotalRows(result.result.totalCount);
+      setTotalRows(Math.ceil(result.result.totalCount / 10));
 
       // Fetch vote counts for each poll
       getVoteCounts(pollIds);
@@ -78,7 +82,7 @@ const LernVotingList = () => {
 
   const getVoteCounts = async (pollIds) => {
     try {
-      const url = "/polls/all/get_poll";
+      const url = `${urlConfig.URLS.POLL.GET_VOTTING_LIST}`;
       const body = {
         poll_ids: pollIds,
       };
@@ -102,17 +106,16 @@ const LernVotingList = () => {
     setPage(0); // Reset to first page on search
   };
 
-  const handlePageChange = (event, newPage) => {
-    setPage(newPage);
+  const handleClick = (contentId) => {
+    navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?${contentId}`);
   };
 
-  const handleRowsPerPageChange = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleClick = (poll_id) => {
-    navigate(`/webapp/pollDetails?${poll_id}`);
+    const handleChange = (event, value) => {
+    if (value !== pageNumber) {
+      setPageNumber(value);
+      setCurrentPage(value);
+      fetchData();
+    }
   };
 
   return (
@@ -164,16 +167,15 @@ const LernVotingList = () => {
                   </TableCell>
                   <TableCell>{voteCounts[row.poll_id] || 0}</TableCell>
                   <TableCell>
-                    <img
-                      src={require("assets/votting.png")}
-                      alt="Voting"
-                      style={{
-                        width: "100px",
-                        height: "40px",
-                        cursor: "pointer"
-                      }}
-                      onClick={() => handleClick(row.poll_id)}
-                    />
+                     <Box>
+                <Button
+                  type="button"
+                  className="custom-btn-primary ml-20"
+                  onClick={() => handleClick(row.content_id)}
+                >
+                  {t("VIEW_AND_VOTE")}
+                </Button>
+              </Box>
                   </TableCell>
                 </TableRow>
               ))} 
@@ -182,12 +184,9 @@ const LernVotingList = () => {
         </TableContainer>
 
         <Pagination
-          component="div"
           count={totalRows}
-          page={page}
-          onPageChange={handlePageChange}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleRowsPerPageChange}
+          page={pageNumber}
+          onChange={handleChange}
         />
       </Paper>
       <Footer />

@@ -293,5 +293,8 @@
   "VOTE_COUNT":"ఓట్ల లెక్కింపు",
   "VOTE_NOW":"ఇప్పుడే ఓటు వేయండి",
   "SEARCH_SUBMISSION":"శోధన సమర్పణ",
-  "VIEW_SUBMISSIONS":"సమర్పణలను వీక్షించండి"
+  "VIEW_SUBMISSIONS":"సమర్పణలను వీక్షించండి",
+  "VOTIGN_DEADLINE":"ఓటింగ్ గడువు",
+  "VIEW_AND_VOTE":"వీక్షించి ఓటు వేయండి",
+  "VOTE_FOR_THIS_CONTENT":"ఈ కంటెంట్ కోసం ఓటు వేయండి"
 }
