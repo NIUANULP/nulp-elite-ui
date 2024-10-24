@@ -30,14 +30,6 @@ import { Observable } from "rxjs";
 
 import { useTranslation } from "react-i18next";
 
-// import SunbirdFileUploadLib from "@project-sunbird/sunbird-file-upload-library/sunbird-file-upload-library";
-// import * as SunbirdFileUploadLib from "@project-sunbird/sunbird-file-upload-library/sunbird-file-upload-library";
-// import "@project-sunbird/sunbird-file-upload-library/sunbird-file-upload-library";
-// import "@project-sunbird/sunbird-file-upload-library";
-// const [globalSearchQuery, setGlobalSearchQuery] = useState();
-// location.state?.globalSearchQuery || undefined
-// const [searchQuery, setSearchQuery] = useState(globalSearchQuery || "");
-
 const categories = [
   "State / UT / SPVs / ULBs / Any Other",
   "Industry",
@@ -780,9 +772,9 @@ const LernCreatorForm = () => {
               </Grid>
               <Grid item xs={2}></Grid>
               <Grid item xs={10}>
-                {/* <Alert className="mt-9" everity="info">
-                  Supported formats: MP4, PDF, HTML5, YouTube links
-                </Alert> */}
+                <Alert className="mt-9" everity="info">
+                  Upload png, jpeg (Max File size: 1MB)
+                </Alert>
               </Grid>
             </Grid>
           </Grid>
@@ -963,7 +955,6 @@ const LernCreatorForm = () => {
                     </Grid>
                     <Grid item xs={10}>
                       <TextField
-                        select
                         fullWidth
                         margin="normal"
                         label="Other Indicative Theme"
@@ -973,13 +964,7 @@ const LernCreatorForm = () => {
                         error={!!errors.other_indicative_themes}
                         helperText={errors.other_indicative_themes}
                         required
-                      >
-                        {themes.map((theme) => (
-                          <MenuItem key={theme} value={theme}>
-                            {theme}
-                          </MenuItem>
-                        ))}
-                      </TextField>
+                      ></TextField>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -1130,39 +1115,44 @@ const LernCreatorForm = () => {
                   </Button>
                 </Box>
               </Grid>
-
-
               {openConfirmModal && (
                 <Modal
                   open={openConfirmModal}
-                  onClose={() => setOpenConfirmModal(false)}  
+                  onClose={() => setOpenConfirmModal(false)}
                   aria-labelledby="confirmation-modal-title"
                   aria-describedby="confirmation-modal-description"
                   style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
                   }}
                 >
                   <div
                     style={{
-                      backgroundColor: 'white',
-                      padding: '20px',
-                      borderRadius: '8px',
-                      boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px',
-                      width: '400px',
-                      textAlign: 'center',
+                      backgroundColor: "white",
+                      padding: "20px",
+                      borderRadius: "8px",
+                      boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                      width: "400px",
+                      textAlign: "center",
                     }}
                   >
-                    <Typography variant="h6" id="confirmation-modal-title" gutterBottom>
+                    <Typography
+                      variant="h6"
+                      id="confirmation-modal-title"
+                      gutterBottom
+                    >
                       {t("ARE_YOU_SURE")}
                     </Typography>
-                    <Typography id="confirmation-modal-description" color="textSecondary">
+                    <Typography
+                      id="confirmation-modal-description"
+                      color="textSecondary"
+                    >
                       {t("YOU_WILL_NOT_BE_ABLE_TO_UPDATE")}
                     </Typography>
 
                     {/* Modal Actions */}
-                    <div style={{ marginTop: '20px' }}>
+                    <div style={{ marginTop: "20px" }}>
                       <Button
                         variant="contained"
                         color="primary"
@@ -1170,23 +1160,21 @@ const LernCreatorForm = () => {
                           setOpenPersonalForm(true); // Proceed action
                           setOpenConfirmModal(false); // Close modal after proceeding
                         }}
-                        style={{ marginRight: '10px' }}
+                        style={{ marginRight: "10px" }}
                       >
                         {t("PROCEED")}
                       </Button>
                       <Button
                         variant="outlined"
                         color="secondary"
-                        onClick={() => setOpenConfirmModal(false)}  
+                        onClick={() => setOpenConfirmModal(false)}
                       >
-                        {("CANCEL")}
+                        {"CANCEL"}
                       </Button>
                     </div>
                   </div>
                 </Modal>
               )}
-
-
               {openPersonalForm && (
                 <>
                   <Grid container spacing={2}>
