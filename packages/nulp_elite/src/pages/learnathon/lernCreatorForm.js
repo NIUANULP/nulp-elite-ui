@@ -48,6 +48,38 @@ const themes = [
   "Governance and Urban Management",
   "Miscellaneous/ Others",
 ];
+const IndianStates = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  "Delhi",
+  "Jammu and Kashmir",
+];
 
 const LernCreatorForm = () => {
   const _userId = util.userId(); // Assuming util.userId() is defined
@@ -59,6 +91,16 @@ const LernCreatorForm = () => {
   const [openPersonalForm, setOpenPersonalForm] = useState(false);
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const { t } = useTranslation();
+
+  const [searchTerm, setSearchTerm] = useState("");
+  // const [errors, setErrors] = useState({});
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const filteredStates = IndianStates.filter((state) =>
+    state.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const [formData, setFormData] = useState({
     user_name: "",
@@ -980,7 +1022,6 @@ const LernCreatorForm = () => {
                     </Grid>
                     <Grid item xs={10}>
                       <TextField
-                        select
                         fullWidth
                         margin="normal"
                         label="Indicative SubTheme"
@@ -990,13 +1031,7 @@ const LernCreatorForm = () => {
                         error={!!errors.indicative_SubTheme}
                         helperText={errors.indicative_SubTheme}
                         required
-                      >
-                        {themes.map((theme) => (
-                          <MenuItem key={theme} value={theme}>
-                            {theme}
-                          </MenuItem>
-                        ))}
-                      </TextField>
+                      ></TextField>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -1020,10 +1055,11 @@ const LernCreatorForm = () => {
                       error={!!errors.state}
                       helperText={errors.state}
                       required
+                      onInput={handleSearchChange}
                     >
-                      {themes.map((theme) => (
-                        <MenuItem key={theme} value={theme}>
-                          {theme}
+                      {filteredStates.map((state) => (
+                        <MenuItem key={state} value={state}>
+                          {state}
                         </MenuItem>
                       ))}
                     </TextField>
@@ -1039,7 +1075,6 @@ const LernCreatorForm = () => {
                   </Grid>
                   <Grid item xs={10}>
                     <TextField
-                      select
                       fullWidth
                       margin="normal"
                       label="City"
@@ -1049,13 +1084,7 @@ const LernCreatorForm = () => {
                       error={!!errors.city}
                       helperText={errors.city}
                       required
-                    >
-                      {themes.map((theme) => (
-                        <MenuItem key={theme} value={theme}>
-                          {theme}
-                        </MenuItem>
-                      ))}
-                    </TextField>
+                    ></TextField>
                   </Grid>
                 </Grid>
               </Grid>
