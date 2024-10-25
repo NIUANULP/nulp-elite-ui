@@ -156,7 +156,7 @@ const LernCreatorForm = () => {
         });
 
         if (!response.ok) {
-          throw new Error("Failed to fetch polls");
+          throw new Error("Something went wrong");
         }
 
         const result = await response.json();
@@ -236,6 +236,11 @@ const LernCreatorForm = () => {
     if (!formData.consent_checkbox)
       tempErrors.consent_checkbox = "You must accept the terms and conditions";
 
+    if (!formData.consent_checkbox) {
+      alert("You must accept the terms and conditions.");
+      return;
+    }
+
     setErrors(tempErrors);
     console.log(tempErrors);
     return Object.keys(tempErrors).length === 0;
@@ -290,7 +295,7 @@ const LernCreatorForm = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch polls");
+        throw new Error("Something went wrong");
       }
 
       const result = await response.json();
@@ -317,7 +322,7 @@ const LernCreatorForm = () => {
         );
 
         if (!response.ok) {
-          throw new Error("Failed to fetch polls");
+          throw new Error("Something went wrong");
         }
 
         const uploadResult = await response.json();
@@ -346,7 +351,7 @@ const LernCreatorForm = () => {
           );
 
           if (!response.ok) {
-            throw new Error("Failed to fetch polls");
+            throw new Error("Something went wrong");
           }
 
           const uploadResult = await response.json();
@@ -416,7 +421,7 @@ const LernCreatorForm = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch polls");
+        throw new Error("Something went wrong");
       }
 
       const result = await response.json();
@@ -442,7 +447,7 @@ const LernCreatorForm = () => {
         );
 
         if (!response.ok) {
-          throw new Error("Failed to fetch polls");
+          throw new Error("Something went wrong");
         }
 
         const uploadResult = await response.json();
@@ -493,7 +498,7 @@ const LernCreatorForm = () => {
               );
 
               if (!response.ok) {
-                throw new Error("Failed to fetch polls");
+                throw new Error("Something went wrong");
               }
 
               const uploadResult = await response.json();
@@ -603,11 +608,6 @@ const LernCreatorForm = () => {
     setOpenConfirmModal();
   };
   const handleSubmit = async (action) => {
-    // if (!formData.consent_checkbox) {
-    //   alert("You must accept the terms and conditions.");
-    //   return;
-    // }
-
     formData.created_by = _userId;
     // Handle form submission (draft or review)
     console.log("Form submitted:", formData);
@@ -629,7 +629,7 @@ const LernCreatorForm = () => {
           });
 
           if (!response.ok) {
-            throw new Error("Failed to fetch polls");
+            throw new Error("Something went wrong");
           }
 
           const result = await response.json();
@@ -659,7 +659,7 @@ const LernCreatorForm = () => {
           );
 
           if (!response.ok) {
-            throw new Error("Failed to fetch polls");
+            throw new Error("Something went wrong");
           }
 
           const result = await response.json();
@@ -696,7 +696,7 @@ const LernCreatorForm = () => {
           });
 
           if (!response.ok) {
-            throw new Error("Failed to fetch polls");
+            throw new Error("Something went wrong");
           }
 
           const result = await response.json();
@@ -725,7 +725,7 @@ const LernCreatorForm = () => {
           );
 
           if (!response.ok) {
-            throw new Error("Failed to fetch polls");
+            throw new Error("Something went wrong");
           }
 
           const result = await response.json();
@@ -740,7 +740,6 @@ const LernCreatorForm = () => {
           // setIsLoading(false);
         }
       }
-
       console.log("Sent for review");
     }
   };
