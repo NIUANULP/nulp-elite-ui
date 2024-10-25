@@ -288,6 +288,9 @@ const Player = () => {
           console.log("suceesss----", result);
           console.log(result.result);
           contentId = result.result.data.content_id;
+
+          setLearnathonDetails(result.result.data[0]);
+
           // setPlayerContent(result.result.data.content_id);
           setPlayerContent("do_1141679594120396801562");
 
@@ -409,7 +412,7 @@ const Player = () => {
         visibility: "PublicToAll",
         poll_options: ["I would like to vote this submission"],
         poll_type: "Polls",
-        start_date: "2024-10-25T13:15:09.754Z",
+        start_date: "2024-10-25T09:15:09.754Z",
         end_date: "2024-11-22T12:21:09.754Z",
         is_live_poll_result: true,
         content_id: courseId,
@@ -426,6 +429,41 @@ const Player = () => {
 
         if (response.ok) {
           const responseData = await response.json();
+          console.log("responseData----", learnathonDetails);
+
+          const formData = {
+            poll_id: responseData.result.data[0].poll_id,
+            status: "Live",
+            created_by: learnathonDetails.created_by,
+            title_of_submission: learnathonDetails.title_of_submission,
+          };
+
+          try {
+            const response = await fetch(
+              `${urlConfig.URLS.LEARNATHON.UPDATE}?id=${contentId}`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+              }
+            );
+
+            if (!response.ok) {
+              throw new Error("Something went wrong");
+            }
+
+            const result = await response.json();
+            console.log("suceesss");
+            navigate("/webapp/mylernsubmissions");
+            // setData(result.result.data);
+            // setTotalPages(Math.ceil(result.result.totalCount / 10));
+          } catch (error) {
+            // setError(error.message);
+          } finally {
+            // setIsLoading(false);
+          }
           // setToasterMessage("Poll created successfully!");
           // setToasterOpen(true);
           // navigate("/webapp/pollDashboard"); // Redirect to success page
