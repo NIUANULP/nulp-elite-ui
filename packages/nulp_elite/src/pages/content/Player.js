@@ -261,7 +261,7 @@ const Player = () => {
       };
 
       if (pageParam == "review" || pageParam == "lern") {
-        setIsLearnathonContent(true)
+        setIsLearnathon(true)
         const assetBody = {
           request: {
             filters: {
@@ -345,7 +345,7 @@ const Player = () => {
   };
 
   const CheckAlreadyVoted = async () => {
-    try {
+   if(learnathonDetails?.status === "Live"){ try {
       const url = `${urlConfig.URLS.POLL.GET_USER_POLL}?poll_id=${pollId}&user_id=${_userId}`;
       const response = await axios.get(url);
       if (
@@ -356,7 +356,7 @@ const Player = () => {
       }
     } catch (error) {
       console.error("Error fetching course data:", error);
-    }
+    }}
   };
 
   useEffect(() => {
@@ -704,7 +704,7 @@ const Player = () => {
               marginTop: "2%",
             }}
           >
-            {isLearnathon && learnathonDetails.status === "Live" && (
+            {isLearnathon && learnathonDetails?.status === "Live" && (
               <div className="vote-section">
                 <Button
                   type="button"
