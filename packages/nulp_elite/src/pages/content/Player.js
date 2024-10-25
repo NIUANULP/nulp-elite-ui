@@ -57,15 +57,16 @@ const Player = () => {
   const [propLength, setPropLength] = useState();
   const _userId = util.userId();
   const [isLearnathon, setIsLearnathon] = useState(false);
-  const [isLearnathonContent, setIsLearnathonContent] = useState(false)
+  const [isLearnathonContent, setIsLearnathonContent] = useState(false);
   const [alreadyVoted, setAlreadyVoted] = useState(false);
   const [pollId, setPollId] = useState();
-  const [learnathonDetails,setLearnathonDetails] = useState();
+  const [learnathonDetails, setLearnathonDetails] = useState();
   const [isPublished, setIsPublished] = useState(false);
   const params = new URLSearchParams(window.location.search);
   const idParam = params.get("id");
   const pageParam = params.get("page");
   let contentId = params.get("id");
+  const [playerContent, setPlayerContent] = useState(false);
   let extractedRoles;
   if (contentId && contentId.endsWith("=")) {
     contentId = contentId.slice(0, -1);
@@ -262,6 +263,7 @@ const Player = () => {
 
       if (pageParam == "review" || pageParam == "lern") {
         setIsLearnathon(true)
+
         const assetBody = {
           request: {
             filters: {
@@ -279,13 +281,16 @@ const Player = () => {
           });
 
           if (!response.ok) {
-            throw new Error("Failed to fetch polls");
+            throw new Error("Something went wrong");
           }
 
           const result = await response.json();
           console.log("suceesss----", result);
           console.log(result.result);
           contentId = result.result.data.content_id;
+          // setPlayerContent(result.result.data.content_id);
+          setPlayerContent("do_1141679594120396801562");
+
           // fetchData(result.result.data.content_id);
           fetchData("do_1141679594120396801562");
         } catch (error) {
@@ -335,7 +340,7 @@ const Player = () => {
 
       const response = await axios.post(url, requestBody);
       if (response?.data?.result?.totalCount > 0) {
-        setLearnathonDetails(response?.data?.result?.data[0])
+        setLearnathonDetails(response?.data?.result?.data[0]);
         setPollId(response?.data?.result?.data[0]?.poll_id);
         setIsLearnathon(true);
       }
@@ -379,7 +384,7 @@ const Player = () => {
     };
     try {
       const response = await fetch(
-        `${urlConfig.URLS.LEARNATHON.PUBLISH}/${contentId}`,
+        `${urlConfig.URLS.LEARNATHON.PUBLISH}/${playerContent}`,
         {
           method: "POST",
           headers: {
@@ -404,7 +409,7 @@ const Player = () => {
         visibility: "PublicToAll",
         poll_options: ["I would like to vote this submission"],
         poll_type: "Polls",
-        start_date: "2024-10-23T13:15:09.754Z",
+        start_date: "2024-10-25T13:15:09.754Z",
         end_date: "2024-11-22T12:21:09.754Z",
         is_live_poll_result: true,
         content_id: courseId,
@@ -453,7 +458,7 @@ const Player = () => {
     };
     try {
       const response = await fetch(
-        `${urlConfig.URLS.LEARNATHON.REJECT}/${contentId}`,
+        `${urlConfig.URLS.LEARNATHON.REJECT}/${playerContent}`,
         {
           method: "POST",
           headers: {
@@ -752,86 +757,105 @@ const Player = () => {
                 <Typography fontWeight={"700"}>{t("DESCRIPTION")}</Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <Typography>{isLearnathon ? learnathonDetails?.description : lesson?.description}</Typography>
+                <Typography>
+                  {isLearnathon
+                    ? learnathonDetails?.description
+                    : lesson?.description}
+                </Typography>
                 {isLearnathon && (
                   <div>
                     <AccordionSummary
-                     
                       aria-controls="panel1-content"
                       id="panel1-header"
                     >
-                      <Typography marginLeft={"-22px"} fontWeight={"700"}>{t("CATEGORY_OF_PARTICIPATION")}</Typography>
+                      <Typography marginLeft={"-22px"} fontWeight={"700"}>
+                        {t("CATEGORY_OF_PARTICIPATION")}
+                      </Typography>
                     </AccordionSummary>
-                    <Typography marginLeft={"0px"}>{learnathonDetails?.category_of_participation}</Typography>
+                    <Typography marginLeft={"0px"}>
+                      {learnathonDetails?.category_of_participation}
+                    </Typography>
                     <AccordionSummary
-                      
                       aria-controls="panel1-content"
                       id="panel1-header"
                     >
-                      <Typography marginLeft={"-22px"} fontWeight={"700"}>{t("NAME_OF_ORGANISATION")}</Typography>
+                      <Typography marginLeft={"-22px"} fontWeight={"700"}>
+                        {t("NAME_OF_ORGANISATION")}
+                      </Typography>
                     </AccordionSummary>
-                    <Typography marginLeft={"0px"}>{learnathonDetails?.name_of_organisation}</Typography>
+                    <Typography marginLeft={"0px"}>
+                      {learnathonDetails?.name_of_organisation}
+                    </Typography>
                     <AccordionSummary
-                      
                       aria-controls="panel1-content"
                       id="panel1-header"
                     >
-                      <Typography marginLeft={"-22px"} fontWeight={"700"}>{t("NAME_OF_DEPARTMENT_GROUP")}</Typography>
+                      <Typography marginLeft={"-22px"} fontWeight={"700"}>
+                        {t("NAME_OF_DEPARTMENT_GROUP")}
+                      </Typography>
                     </AccordionSummary>
-                    <Typography marginLeft={"0px"}>{learnathonDetails?.name_of_department_group}</Typography>
+                    <Typography marginLeft={"0px"}>
+                      {learnathonDetails?.name_of_department_group}
+                    </Typography>
                     <AccordionSummary
-                      
                       aria-controls="panel1-content"
                       id="panel1-header"
                     >
-                      <Typography marginLeft={"-22px"} fontWeight={"700"}>{t("INDICATIVE_THEME")}</Typography>
+                      <Typography marginLeft={"-22px"} fontWeight={"700"}>
+                        {t("INDICATIVE_THEME")}
+                      </Typography>
                     </AccordionSummary>
-                    <Typography marginLeft={"0px"}>{learnathonDetails?.indicative_theme}</Typography>
+                    <Typography marginLeft={"0px"}>
+                      {learnathonDetails?.indicative_theme}
+                    </Typography>
                   </div>
                 )}
               </AccordionDetails>
             </Accordion>
             {!isLearnathon && (
-            <Accordion>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel2-content"
-                id="panel2-header"
-              >
-                <Typography>{t("ABOUTTHECONTENT")}</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                {lesson?.attributions && (
-                  <>
-                    <Box sx={{ fontWeight: "bold" }}>{t("ATTRIBUTIONS")}</Box>
-                    <Box>{lesson?.attributions.join(", ")}</Box>
-                  </>
-                )}
-                <Box sx={{ fontWeight: "bold" }}>{t("LICENSEDETAILS")} : </Box>
-                {lesson?.licenseDetails && (
-                  <Typography className="mb-10">
-                    <Box>
-                      {lesson?.licenseDetails.name} -{" "}
-                      {lesson?.licenseDetails.description}
-                    </Box>
-                    <Box className="url-class">
-                      <a
-                        href={lesson?.licenseDetails.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {lesson?.licenseDetails.url}
-                      </a>
-                    </Box>
-                  </Typography>
-                )}
+              <Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel2-content"
+                  id="panel2-header"
+                >
+                  <Typography>{t("ABOUTTHECONTENT")}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  {lesson?.attributions && (
+                    <>
+                      <Box sx={{ fontWeight: "bold" }}>{t("ATTRIBUTIONS")}</Box>
+                      <Box>{lesson?.attributions.join(", ")}</Box>
+                    </>
+                  )}
+                  <Box sx={{ fontWeight: "bold" }}>
+                    {t("LICENSEDETAILS")} :{" "}
+                  </Box>
+                  {lesson?.licenseDetails && (
+                    <Typography className="mb-10">
+                      <Box>
+                        {lesson?.licenseDetails.name} -{" "}
+                        {lesson?.licenseDetails.description}
+                      </Box>
+                      <Box className="url-class">
+                        <a
+                          href={lesson?.licenseDetails.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {lesson?.licenseDetails.url}
+                        </a>
+                      </Box>
+                    </Typography>
+                  )}
 
-                <Typography className="mb-10">
-                  <Box sx={{ fontWeight: "bold" }}>{t("COPYRIGHT")} :</Box>
-                  <Box>{lesson?.copyright}</Box>
-                </Typography>
-              </AccordionDetails>
-            </Accordion>)}
+                  <Typography className="mb-10">
+                    <Box sx={{ fontWeight: "bold" }}>{t("COPYRIGHT")} :</Box>
+                    <Box>{lesson?.copyright}</Box>
+                  </Typography>
+                </AccordionDetails>
+              </Accordion>
+            )}
           </Box>
           <Box></Box>
         </Container>

@@ -76,7 +76,7 @@ const LernSubmissionTable = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch polls");
+        throw new Error("Something went wrong");
       }
 
       const result = await response.json();
@@ -123,7 +123,7 @@ const LernSubmissionTable = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch polls");
+        throw new Error("Something went wrong");
       }
 
       const result = await response.json();
