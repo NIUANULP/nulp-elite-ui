@@ -406,6 +406,10 @@ const Player = () => {
       console.log("suceesss----", result);
       console.log(result.result);
       alert("Published successfully");
+      const currentDateTime = new Date();
+      currentDateTime.setMinutes(currentDateTime.getMinutes() + 2);
+      const updatedDateTime = currentDateTime.toISOString();
+      console.log(updatedDateTime,"currentDateAndTime");
 
       const data = {
         title: lesson.name,
@@ -413,7 +417,7 @@ const Player = () => {
         visibility: "PublicToAll",
         poll_options: ["I would like to vote this content"],
         poll_type: "Polls",
-        start_date: "2024-10-25T09:15:09.754Z",
+        start_date: updatedDateTime,
         end_date: "2024-11-22T12:21:09.754Z",
         is_live_poll_result: true,
         content_id: courseId,
