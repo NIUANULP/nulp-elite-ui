@@ -13,6 +13,7 @@ import {
   Paper,
   Divider,
   Modal,
+  Autocomplete,
 } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import Footer from "components/Footer";
@@ -23,7 +24,8 @@ import { v4 as uuidv4 } from "uuid";
 import { useNavigate, useLocation } from "react-router-dom";
 import Container from "@mui/material/Container";
 import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
+import stateguideline from "../../assets/state-guidelines.pdf";
+import statetnc from "../../assets/state-tnc.pdf";
 import Alert from "@mui/material/Alert";
 
 import { Observable } from "rxjs";
@@ -81,6 +83,35 @@ const IndianStates = [
   "Jammu and Kashmir",
 ];
 
+// List of some popular cities in India
+const citiesInIndia = [
+  "Mumbai",
+  "Delhi",
+  "Bangalore",
+  "Hyderabad",
+  "Ahmedabad",
+  "Chennai",
+  "Kolkata",
+  "Pune",
+  "Jaipur",
+  "Surat",
+  "Lucknow",
+  "Kanpur",
+  "Nagpur",
+  "Visakhapatnam",
+  "Bhopal",
+  "Patna",
+  "Ludhiana",
+  "Agra",
+  "Nashik",
+  "Faridabad",
+  "Meerut",
+  "Rajkot",
+  "Kalyan-Dombivli",
+  "Vasai-Virar",
+  "Varanasi",
+  // Add more cities as needed
+];
 const LernCreatorForm = () => {
   const _userId = util.userId(); // Assuming util.userId() is defined
   const [isEdit, setIsEdit] = useState(false);
@@ -91,7 +122,7 @@ const LernCreatorForm = () => {
   const [openPersonalForm, setOpenPersonalForm] = useState(false);
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const { t } = useTranslation();
-
+  const [city, setCity] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   // const [errors, setErrors] = useState({});
   const handleSearchChange = (event) => {
@@ -125,6 +156,7 @@ const LernCreatorForm = () => {
     // "link_to_guidelines": "https://demo.com/guideline",
   });
   const [guidelineLink, setGuidelineLink] = useState("");
+  const [TNCLink, setTNCLink] = useState("");
   const location = useLocation();
   const queryString = location.search;
   let contentId = queryString.startsWith("?do_")
@@ -198,7 +230,12 @@ const LernCreatorForm = () => {
       }
     }
   };
-
+  const handleCityChange = (event, newValue) => {
+    setFormData({
+      ...formData,
+      city: newValue || event.target.value,
+    });
+  };
   const validate = () => {
     let tempErrors = {};
 
@@ -612,13 +649,17 @@ const LernCreatorForm = () => {
     setErrors({ ...errors, category_of_participation: "" });
     // Set appropriate guideline link based on category_of_participation
     if (category_of_participation === "State / UT / SPVs / ULBs / Any Other") {
-      setGuidelineLink("link-to-state-guidelines.pdf");
+      setGuidelineLink(stateguideline);
+      setTNCLink(statetnc);
     } else if (category_of_participation === "Industry") {
-      setGuidelineLink("link-to-industry-guidelines.pdf");
+      setGuidelineLink("../../assets/industry-guidelines.pdf");
+      setTNCLink("../../assets/industry-tnc.pdf");
     } else if (category_of_participation === "Academia") {
-      setGuidelineLink("link-to-academia-guidelines.pdf");
+      setGuidelineLink("../../assets/academia-guidelines.pdf");
+      setTNCLink("../../assets/academia-tnc.pdf");
     } else {
       setGuidelineLink("");
+      setTNCLink("");
     }
   };
 
@@ -1098,18 +1139,27 @@ const LernCreatorForm = () => {
                       City <span className="mandatory-symbol"> *</span>
                     </InputLabel>
                   </Grid>
+
                   <Grid item xs={10}>
-                    <TextField
-                      fullWidth
-                      margin="normal"
-                      label="City"
-                      name="city"
+                    <Autocomplete
+                      freeSolo
+                      options={citiesInIndia}
                       value={formData.city}
-                      onChange={handleChange}
-                      error={!!errors.city}
-                      helperText={errors.city}
-                      required
-                    ></TextField>
+                      onChange={handleCityChange}
+                      onInputChange={handleCityChange}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          fullWidth
+                          margin="normal"
+                          label="City"
+                          name="city"
+                          error={!!errors.city}
+                          helperText={errors.city}
+                          required
+                        />
+                      )}
+                    />
                   </Grid>
                 </Grid>
               </Grid>
@@ -1342,8 +1392,10 @@ const LernCreatorForm = () => {
                           name="consent_checkbox"
                         />
                       }
-                      label="Terms and conditions"
                     />
+                    <a href={TNCLink} target="_blank" rel="noopener noreferrer">
+                      View and Download Guidelines
+                    </a>
                   </Grid>
                   <Grid
                     container
