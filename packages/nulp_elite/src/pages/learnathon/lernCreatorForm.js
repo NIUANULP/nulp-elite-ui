@@ -192,6 +192,8 @@ const LernCreatorForm = () => {
         }
 
         const result = await response.json();
+        fetchIconData(result.result.data[0].icon);
+        fetchContentData(result.result.data[0].content_id);
         setIsEdit(true);
         const readResponse = result.result.data[0];
         if (result.result.data[0].status != "draft") {
@@ -224,10 +226,40 @@ const LernCreatorForm = () => {
         }));
       } catch (error) {
         console.log("error---", error);
-        // setError(error.message);
       } finally {
-        // setIsLoading(false);
       }
+    }
+  };
+  const fetchIconData = async (icon) => {
+    try {
+      const response = await fetch(
+        `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CONTENT.GET}/${content_Id}?fields=transcripts,ageGroup,appIcon,artifactUrl,attributions,attributions,audience,author,badgeAssertions,board,body,channel,code,concepts,contentCredits,contentType,contributors,copyright,copyrightYear,createdBy,createdOn,creator,creators,description,displayScore,domain,editorState,flagReasons,flaggedBy,flags,framework,gradeLevel,identifier,itemSetPreviewUrl,keywords,language,languageCode,lastUpdatedOn,license,mediaType,medium,mimeType,name,originData,osId,owner,pkgVersion,publisher,questions,resourceType,scoreDisplayConfig,status,streamingUrl,subject,template,templateId,totalQuestions,totalScore,versionKey,visibility,year,primaryCategory,additionalCategories,interceptionPoints,interceptionType&orgdetails=orgName,email&licenseDetails=name,description,url`,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (!response.ok) throw new Error("Failed to fetch course data");
+      const data = await response.json();
+      console.log("data.result.content", data.result.content);
+      setLesson(data.result.content);
+    } catch (error) {
+      console.error("Error fetching course data:", error);
+    }
+  };
+  const fetchContentData = async (content_Id) => {
+    try {
+      const response = await fetch(
+        `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CONTENT.GET}/${content_Id}?fields=transcripts,ageGroup,appIcon,artifactUrl,attributions,attributions,audience,author,badgeAssertions,board,body,channel,code,concepts,contentCredits,contentType,contributors,copyright,copyrightYear,createdBy,createdOn,creator,creators,description,displayScore,domain,editorState,flagReasons,flaggedBy,flags,framework,gradeLevel,identifier,itemSetPreviewUrl,keywords,language,languageCode,lastUpdatedOn,license,mediaType,medium,mimeType,name,originData,osId,owner,pkgVersion,publisher,questions,resourceType,scoreDisplayConfig,status,streamingUrl,subject,template,templateId,totalQuestions,totalScore,versionKey,visibility,year,primaryCategory,additionalCategories,interceptionPoints,interceptionType&orgdetails=orgName,email&licenseDetails=name,description,url`,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (!response.ok) throw new Error("Failed to fetch course data");
+      const data = await response.json();
+      console.log("data.result.content", data.result.content);
+      setLesson(data.result.content);
+    } catch (error) {
+      console.error("Error fetching course data:", error);
     }
   };
   const handleCityChange = (event, newValue) => {
@@ -381,40 +413,29 @@ const LernCreatorForm = () => {
           }
 
           const uploadResult = await response.json();
-          console.log("upload suceesss------", uploadResult);
           setFormData({
             ...formData,
             icon: uploadResult.result.identifier,
           });
-          setErrors({ ...errors, icon: "" });
 
-          // setData(result.result.data);
-          // setTotalPages(Math.ceil(result.result.totalCount / 10));
+          setErrors({ ...errors, icon: "" });
         } catch (error) {
           console.log("error---", error);
-          // setError(error.message);
         } finally {
-          // setIsLoading(false);
         }
         setFormData({
           ...formData,
           icon: uploadResult.result.identifier,
         });
         setErrors({ ...errors, icon: "" });
-
-        // setData(result.result.data);
-        // setTotalPages(Math.ceil(result.result.totalCount / 10));
       } catch (error) {
         console.log("error---", error);
-        // setError(error.message);
       } finally {
-        // setIsLoading(false);
       }
     } catch (error) {
       console.log("error---", error);
       // setError(error.message);
     } finally {
-      // setIsLoading(false);
     }
   };
   const handleFileChange = async (e) => {
@@ -476,43 +497,7 @@ const LernCreatorForm = () => {
         }
 
         const uploadResult = await response.json();
-        // const result = {
-        //   id: "api.content.create",
-        //   ver: "3.0",
-        //   ts: "2024-10-28T05:38:58ZZ",
-        //   params: {
-        //     resmsgid: "6bc1f805-0d14-4093-8947-0c1481da6945",
-        //     msgid: null,
-        //     err: null,
-        //     status: "successful",
-        //     errmsg: null,
-        //   },
-        //   responseCode: "OK",
-        //   result: {
-        //     identifier: "do_1141729295413821441662",
-        //     node_id: "do_1141729295413821441662",
-        //     versionKey: "1730093938169",
-        //   },
-        // };
-        // const uploadResult = {
-        //   id: "api.content.upload.url",
-        //   ver: "3.0",
-        //   ts: "2024-10-28T05:22:19ZZ",
-        //   params: {
-        //     resmsgid: "b68ea763-dbde-4901-b8c9-3f8cb581a591",
-        //     msgid: null,
-        //     err: null,
-        //     status: "successful",
-        //     errmsg: null,
-        //   },
-        //   responseCode: "OK",
-        //   result: {
-        //     identifier: "do_1141729213564026881661",
-        //     url_expiry: "54000",
-        //     pre_signed_url:
-        //       "https://devnewnulp.blob.core.windows.net/contents/content/assets/do_1141729213564026881661/sample-video-file-for-testing.mp4?sv=2017-04-17&se=2024-10-28T20%3A22%3A19Z&sr=b&sp=w&sig=bNLAQABxL%2BFA33XZ9ShmCszkxwfozUxCJfoxFLWarMo%3D",
-        //   },
-        // };
+
         console.log("upload suceesss------", uploadResult);
         const imgId = result.result.identifier;
 
@@ -573,14 +558,12 @@ const LernCreatorForm = () => {
               console.log("upload suceesss------", uploadResult);
               setFormData({
                 ...formData,
-                icon: uploadResult.result.identifier,
+                content_id: uploadResult.result.identifier,
               });
               setErrors({ ...errors, icon: "" });
             } catch (error) {
               console.log("error---", error);
-              // setError(error.message);
             } finally {
-              // setIsLoading(false);
             }
           });
 
@@ -615,7 +598,6 @@ const LernCreatorForm = () => {
       console.log("error---", error);
       // setError(error.message);
     } finally {
-      // setIsLoading(false);
     }
   };
 
@@ -707,9 +689,7 @@ const LernCreatorForm = () => {
         } catch (error) {
           console.log("error---", error.message);
           alert(error.message);
-          // setError(error.message);
         } finally {
-          // setIsLoading(false);
         }
       } else if (isEdit == true) {
         console.log("formData----", formData);
@@ -737,9 +717,7 @@ const LernCreatorForm = () => {
         } catch (error) {
           console.log("error---", error.message);
           alert(error.message);
-          // setError(error.message);
         } finally {
-          // setIsLoading(false);
         }
       }
 
@@ -772,9 +750,7 @@ const LernCreatorForm = () => {
           // setTotalPages(Math.ceil(result.result.totalCount / 10));
         } catch (error) {
           console.log("error---", error);
-          // setError(error.message);
         } finally {
-          // setIsLoading(false);
         }
       } else {
         console.log("ggggg");
@@ -802,9 +778,7 @@ const LernCreatorForm = () => {
           // setTotalPages(Math.ceil(result.result.totalCount / 10));
         } catch (error) {
           console.log("error---", error);
-          // setError(error.message);
         } finally {
-          // setIsLoading(false);
         }
       }
       console.log("Sent for review");
