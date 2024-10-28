@@ -13,6 +13,7 @@ import {
   Paper,
   Divider,
   Modal,
+  Autocomplete,
 } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import Footer from "components/Footer";
@@ -23,7 +24,8 @@ import { v4 as uuidv4 } from "uuid";
 import { useNavigate, useLocation } from "react-router-dom";
 import Container from "@mui/material/Container";
 import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
+import stateguideline from "../../assets/state-guidelines.pdf";
+import statetnc from "../../assets/state-tnc.pdf";
 import Alert from "@mui/material/Alert";
 
 import { Observable } from "rxjs";
@@ -81,6 +83,35 @@ const IndianStates = [
   "Jammu and Kashmir",
 ];
 
+// List of some popular cities in India
+const citiesInIndia = [
+  "Mumbai",
+  "Delhi",
+  "Bangalore",
+  "Hyderabad",
+  "Ahmedabad",
+  "Chennai",
+  "Kolkata",
+  "Pune",
+  "Jaipur",
+  "Surat",
+  "Lucknow",
+  "Kanpur",
+  "Nagpur",
+  "Visakhapatnam",
+  "Bhopal",
+  "Patna",
+  "Ludhiana",
+  "Agra",
+  "Nashik",
+  "Faridabad",
+  "Meerut",
+  "Rajkot",
+  "Kalyan-Dombivli",
+  "Vasai-Virar",
+  "Varanasi",
+  // Add more cities as needed
+];
 const LernCreatorForm = () => {
   const _userId = util.userId(); // Assuming util.userId() is defined
   const [isEdit, setIsEdit] = useState(false);
@@ -93,7 +124,7 @@ const LernCreatorForm = () => {
   const [indicativeThemes, setIndicativeThemes] = useState([])
   const [indicativeSubThemes, setIndicativeSubThemes] = useState([])
   const { t } = useTranslation();
-
+  const [city, setCity] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   // const [errors, setErrors] = useState({});
   const handleSearchChange = (event) => {
@@ -127,6 +158,7 @@ const LernCreatorForm = () => {
     // "link_to_guidelines": "https://demo.com/guideline",
   });
   const [guidelineLink, setGuidelineLink] = useState("");
+  const [TNCLink, setTNCLink] = useState("");
   const location = useLocation();
   const queryString = location.search;
   let contentId = queryString.startsWith("?do_")
@@ -162,6 +194,8 @@ const LernCreatorForm = () => {
         }
 
         const result = await response.json();
+        fetchIconData(result.result.data[0].icon);
+        fetchContentData(result.result.data[0].content_id);
         setIsEdit(true);
         const readResponse = result.result.data[0];
         if (result.result.data[0].status != "draft") {
@@ -194,13 +228,48 @@ const LernCreatorForm = () => {
         }));
       } catch (error) {
         console.log("error---", error);
-        // setError(error.message);
       } finally {
-        // setIsLoading(false);
       }
     }
   };
-
+  const fetchIconData = async (icon) => {
+    try {
+      const response = await fetch(
+        `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CONTENT.GET}/${content_Id}?fields=transcripts,ageGroup,appIcon,artifactUrl,attributions,attributions,audience,author,badgeAssertions,board,body,channel,code,concepts,contentCredits,contentType,contributors,copyright,copyrightYear,createdBy,createdOn,creator,creators,description,displayScore,domain,editorState,flagReasons,flaggedBy,flags,framework,gradeLevel,identifier,itemSetPreviewUrl,keywords,language,languageCode,lastUpdatedOn,license,mediaType,medium,mimeType,name,originData,osId,owner,pkgVersion,publisher,questions,resourceType,scoreDisplayConfig,status,streamingUrl,subject,template,templateId,totalQuestions,totalScore,versionKey,visibility,year,primaryCategory,additionalCategories,interceptionPoints,interceptionType&orgdetails=orgName,email&licenseDetails=name,description,url`,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (!response.ok) throw new Error("Failed to fetch course data");
+      const data = await response.json();
+      console.log("data.result.content", data.result.content);
+      setLesson(data.result.content);
+    } catch (error) {
+      console.error("Error fetching course data:", error);
+    }
+  };
+  const fetchContentData = async (content_Id) => {
+    try {
+      const response = await fetch(
+        `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CONTENT.GET}/${content_Id}?fields=transcripts,ageGroup,appIcon,artifactUrl,attributions,attributions,audience,author,badgeAssertions,board,body,channel,code,concepts,contentCredits,contentType,contributors,copyright,copyrightYear,createdBy,createdOn,creator,creators,description,displayScore,domain,editorState,flagReasons,flaggedBy,flags,framework,gradeLevel,identifier,itemSetPreviewUrl,keywords,language,languageCode,lastUpdatedOn,license,mediaType,medium,mimeType,name,originData,osId,owner,pkgVersion,publisher,questions,resourceType,scoreDisplayConfig,status,streamingUrl,subject,template,templateId,totalQuestions,totalScore,versionKey,visibility,year,primaryCategory,additionalCategories,interceptionPoints,interceptionType&orgdetails=orgName,email&licenseDetails=name,description,url`,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (!response.ok) throw new Error("Failed to fetch course data");
+      const data = await response.json();
+      console.log("data.result.content", data.result.content);
+      setLesson(data.result.content);
+    } catch (error) {
+      console.error("Error fetching course data:", error);
+    }
+  };
+  const handleCityChange = (event, newValue) => {
+    setFormData({
+      ...formData,
+      city: newValue || event.target.value,
+    });
+  };
   const validate = () => {
     let tempErrors = {};
 
@@ -356,40 +425,29 @@ const LernCreatorForm = () => {
           }
 
           const uploadResult = await response.json();
-          console.log("upload suceesss------", uploadResult);
           setFormData({
             ...formData,
             icon: uploadResult.result.identifier,
           });
-          setErrors({ ...errors, icon: "" });
 
-          // setData(result.result.data);
-          // setTotalPages(Math.ceil(result.result.totalCount / 10));
+          setErrors({ ...errors, icon: "" });
         } catch (error) {
           console.log("error---", error);
-          // setError(error.message);
         } finally {
-          // setIsLoading(false);
         }
         setFormData({
           ...formData,
           icon: uploadResult.result.identifier,
         });
         setErrors({ ...errors, icon: "" });
-
-        // setData(result.result.data);
-        // setTotalPages(Math.ceil(result.result.totalCount / 10));
       } catch (error) {
         console.log("error---", error);
-        // setError(error.message);
       } finally {
-        // setIsLoading(false);
       }
     } catch (error) {
       console.log("error---", error);
       // setError(error.message);
     } finally {
-      // setIsLoading(false);
     }
   };
   const handleFileChange = async (e) => {
@@ -451,43 +509,7 @@ const LernCreatorForm = () => {
         }
 
         const uploadResult = await response.json();
-        // const result = {
-        //   id: "api.content.create",
-        //   ver: "3.0",
-        //   ts: "2024-10-28T05:38:58ZZ",
-        //   params: {
-        //     resmsgid: "6bc1f805-0d14-4093-8947-0c1481da6945",
-        //     msgid: null,
-        //     err: null,
-        //     status: "successful",
-        //     errmsg: null,
-        //   },
-        //   responseCode: "OK",
-        //   result: {
-        //     identifier: "do_1141729295413821441662",
-        //     node_id: "do_1141729295413821441662",
-        //     versionKey: "1730093938169",
-        //   },
-        // };
-        // const uploadResult = {
-        //   id: "api.content.upload.url",
-        //   ver: "3.0",
-        //   ts: "2024-10-28T05:22:19ZZ",
-        //   params: {
-        //     resmsgid: "b68ea763-dbde-4901-b8c9-3f8cb581a591",
-        //     msgid: null,
-        //     err: null,
-        //     status: "successful",
-        //     errmsg: null,
-        //   },
-        //   responseCode: "OK",
-        //   result: {
-        //     identifier: "do_1141729213564026881661",
-        //     url_expiry: "54000",
-        //     pre_signed_url:
-        //       "https://devnewnulp.blob.core.windows.net/contents/content/assets/do_1141729213564026881661/sample-video-file-for-testing.mp4?sv=2017-04-17&se=2024-10-28T20%3A22%3A19Z&sr=b&sp=w&sig=bNLAQABxL%2BFA33XZ9ShmCszkxwfozUxCJfoxFLWarMo%3D",
-        //   },
-        // };
+
         console.log("upload suceesss------", uploadResult);
         const imgId = result.result.identifier;
 
@@ -548,14 +570,12 @@ const LernCreatorForm = () => {
               console.log("upload suceesss------", uploadResult);
               setFormData({
                 ...formData,
-                icon: uploadResult.result.identifier,
+                content_id: uploadResult.result.identifier,
               });
               setErrors({ ...errors, icon: "" });
             } catch (error) {
               console.log("error---", error);
-              // setError(error.message);
             } finally {
-              // setIsLoading(false);
             }
           });
 
@@ -590,7 +610,6 @@ const LernCreatorForm = () => {
       console.log("error---", error);
       // setError(error.message);
     } finally {
-      // setIsLoading(false);
     }
   };
 
@@ -624,13 +643,17 @@ const LernCreatorForm = () => {
     setErrors({ ...errors, category_of_participation: "" });
     // Set appropriate guideline link based on category_of_participation
     if (category_of_participation === "State / UT / SPVs / ULBs / Any Other") {
-      setGuidelineLink("link-to-state-guidelines.pdf");
+      setGuidelineLink(stateguideline);
+      setTNCLink(statetnc);
     } else if (category_of_participation === "Industry") {
-      setGuidelineLink("link-to-industry-guidelines.pdf");
+      setGuidelineLink("../../assets/industry-guidelines.pdf");
+      setTNCLink("../../assets/industry-tnc.pdf");
     } else if (category_of_participation === "Academia") {
-      setGuidelineLink("link-to-academia-guidelines.pdf");
+      setGuidelineLink("../../assets/academia-guidelines.pdf");
+      setTNCLink("../../assets/academia-tnc.pdf");
     } else {
       setGuidelineLink("");
+      setTNCLink("");
     }
   };
 
@@ -678,9 +701,7 @@ const LernCreatorForm = () => {
         } catch (error) {
           console.log("error---", error.message);
           alert(error.message);
-          // setError(error.message);
         } finally {
-          // setIsLoading(false);
         }
       } else if (isEdit == true) {
         console.log("formData----", formData);
@@ -708,9 +729,7 @@ const LernCreatorForm = () => {
         } catch (error) {
           console.log("error---", error.message);
           alert(error.message);
-          // setError(error.message);
         } finally {
-          // setIsLoading(false);
         }
       }
 
@@ -743,9 +762,7 @@ const LernCreatorForm = () => {
           // setTotalPages(Math.ceil(result.result.totalCount / 10));
         } catch (error) {
           console.log("error---", error);
-          // setError(error.message);
         } finally {
-          // setIsLoading(false);
         }
       } else {
         console.log("ggggg");
@@ -773,9 +790,7 @@ const LernCreatorForm = () => {
           // setTotalPages(Math.ceil(result.result.totalCount / 10));
         } catch (error) {
           console.log("error---", error);
-          // setError(error.message);
         } finally {
-          // setIsLoading(false);
         }
       }
       console.log("Sent for review");
@@ -1154,18 +1169,27 @@ const LernCreatorForm = () => {
                       City <span className="mandatory-symbol"> *</span>
                     </InputLabel>
                   </Grid>
+
                   <Grid item xs={10}>
-                    <TextField
-                      fullWidth
-                      margin="normal"
-                      label="City"
-                      name="city"
+                    <Autocomplete
+                      freeSolo
+                      options={citiesInIndia}
                       value={formData.city}
-                      onChange={handleChange}
-                      error={!!errors.city}
-                      helperText={errors.city}
-                      required
-                    ></TextField>
+                      onChange={handleCityChange}
+                      onInputChange={handleCityChange}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          fullWidth
+                          margin="normal"
+                          label="City"
+                          name="city"
+                          error={!!errors.city}
+                          helperText={errors.city}
+                          required
+                        />
+                      )}
+                    />
                   </Grid>
                 </Grid>
               </Grid>
@@ -1398,8 +1422,10 @@ const LernCreatorForm = () => {
                           name="consent_checkbox"
                         />
                       }
-                      label="Terms and conditions"
                     />
+                    <a href={TNCLink} target="_blank" rel="noopener noreferrer">
+                      View and Download Guidelines
+                    </a>
                   </Grid>
                   <Grid
                     container
