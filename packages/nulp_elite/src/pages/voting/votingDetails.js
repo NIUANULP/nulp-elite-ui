@@ -266,7 +266,8 @@ const VotingDetails = () => {
               {poll.title}
             </Link>
           </Breadcrumbs>
-          <Box>
+         {poll?.category === "Learnathon" && ( 
+         <Box>
                 <Button
                   type="button"
                   className="custom-btn-primary ml-20"
@@ -274,7 +275,7 @@ const VotingDetails = () => {
                 >
                   {t("BACK")}
                 </Button>
-              </Box>
+              </Box>)}
           <Grid
             container
             spacing={2}
@@ -390,7 +391,7 @@ const VotingDetails = () => {
                 </Box>
 
                 <Box className="pr-5">
-                  {userVote?.length > 0 && timeDifference <= 15 && (
+                  {userVote?.length > 0 && timeDifference <= 15 && poll?.category !== "Learnathon" && (
                     <>
                       <span className=" h3-custom-title">
                         <Alert severity="info">

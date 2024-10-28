@@ -41,6 +41,7 @@ const LernSubmissionTable = () => {
   const _userId = util.userId(); // Assuming util.userId() is defined
   const urlConfig = require("../../configs/urlConfig.json");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [emptySubmission , setEmptySubmission] = useState(false)
 
   const handleDialogOpen = () => {
     setDialogOpen(true);
@@ -83,6 +84,9 @@ const LernSubmissionTable = () => {
       console.log("suceesss----", result);
       console.log(result.result);
       setData(result.result.data);
+      if(result.result.totalCount == 0){
+        setEmptySubmission(true)
+      }
       setTotalRows(result.result.totalCount / 10);
     } catch (error) {
       console.log("error---", error);
@@ -270,6 +274,24 @@ const LernSubmissionTable = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        {emptySubmission && (
+          <Box marginLeft={"730px"} padding={"32px"}>
+          <Box>
+            No Submissions yet please submit content
+          </Box>
+          <Button
+            className="viewAll"
+            onClick={() =>
+              (window.location.href =
+                routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT)
+            }
+            sx={{ padding: "7px 45px", borderRadius: "90px !important",marginLeft: "58px", marginTop: "23px" }}
+          >
+            Upload Submission
+          </Button>
+          </Box>
+        )
+        }
 
         <Pagination
           component="div"

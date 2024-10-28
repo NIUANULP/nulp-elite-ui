@@ -376,6 +376,7 @@ const Player = () => {
 
   const handleClick = (poll_id) => {
     navigate(`/webapp/pollDetails?${poll_id}`);
+    window.location.reload();
   };
   const Publish = async () => {
     const reqBody = {
@@ -410,7 +411,7 @@ const Player = () => {
         title: lesson.name,
         description: lesson,
         visibility: "PublicToAll",
-        poll_options: ["I would like to vote this submission"],
+        poll_options: ["I would like to vote this content"],
         poll_type: "Polls",
         start_date: "2024-10-25T09:15:09.754Z",
         end_date: "2024-11-22T12:21:09.754Z",
@@ -452,6 +453,8 @@ const Player = () => {
 
             if (!response.ok) {
               throw new Error("Something went wrong");
+            }else{
+              navigate("/webapp/lernreviewlist")
             }
 
             const result = await response.json();
@@ -568,7 +571,9 @@ const Player = () => {
                     </Link>
                   </Breadcrumbs>
                 )}
-                <Box className="h3-title">{lesson?.name}</Box>
+                <Box className="h3-title">
+                  {isLearnathon ? learnathonDetails.title_of_submission : lesson?.name}
+                </Box>
               </Box>
               <Box>
                 {lesson && (
@@ -582,7 +587,7 @@ const Player = () => {
                     >
                       {t("CONTENT_TAGS")}:{" "}
                     </Typography>
-                    {lesson.board && (
+                    {isLearnathon ? (
                       <Button
                         key={`board`}
                         size="small"
@@ -594,10 +599,27 @@ const Player = () => {
                         }}
                         className="bg-blueShade3"
                       >
-                        {lesson.board}
+                        {learnathonDetails.indicative_theme}
                       </Button>
+                    ) : (
+                      lesson.board && (
+                        <Button
+                          key={`board`}
+                          size="small"
+                          style={{
+                            color: "#424242",
+                            fontSize: "10px",
+                            margin: "0 10px 3px 6px",
+                            cursor: "auto",
+                          }}
+                          className="bg-blueShade3"
+                        >
+                          {lesson.board}
+                        </Button>
+                      )
                     )}
-                    {!lesson.board &&
+
+                    {!isLearnathon && !lesson.board &&
                       lesson.se_boards &&
                       lesson.se_boards.map((item, index) => (
                         <Button
@@ -614,7 +636,23 @@ const Player = () => {
                           {item}
                         </Button>
                       ))}
-                    {lesson.gradeLevel &&
+                   
+                      {isLearnathon ? (
+                        <Button
+                          key={`board`}
+                          size="small"
+                          style={{
+                            color: "#424242",
+                            fontSize: "10px",
+                            margin: "0 10px 3px 6px",
+                            cursor: "auto",
+                          }}
+                          className="bg-blueShade3"
+                        >
+                          {learnathonDetails.indicative_sub_theme}
+                        </Button>
+                      ) : (
+                        lesson.gradeLevel &&
                       lesson.gradeLevel.map((item, index) => (
                         <Button
                           key={`gradeLevel-${index}`}
@@ -629,8 +667,11 @@ const Player = () => {
                         >
                           {item}
                         </Button>
-                      ))}
-                    {!lesson.gradeLevel &&
+                        ))
+                      )}
+                    
+
+                    {!isLearnathon && !lesson.gradeLevel &&
                       lesson.se_gradeLevels &&
                       lesson.se_gradeLevels.map((item, index) => (
                         <Button
