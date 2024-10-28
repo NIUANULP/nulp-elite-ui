@@ -439,7 +439,6 @@ const LernCreatorForm = () => {
         }
 
         const uploadResult = await response.json();
-        console.log("upload suceesss------", uploadResult);
         // const result = {
         //   id: "api.content.create",
         //   ver: "3.0",
