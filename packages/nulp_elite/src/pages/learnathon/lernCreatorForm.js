@@ -66,6 +66,8 @@ const LernCreatorForm = () => {
   const [errors, setErrors] = useState({});
   const [openPersonalForm, setOpenPersonalForm] = useState(false);
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
+  const [indicativeThemes, setIndicativeThemes] = useState([])
+  const [indicativeSubThemes, setIndicativeSubThemes] = useState([])
   const { t } = useTranslation();
 
   const [formData, setFormData] = useState({
@@ -221,6 +223,16 @@ const LernCreatorForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    const selectedBoard = e.target.value;
+    console.log(selectedBoard,"selectedBoard");
+    const selectedIndex = indicativeThemes.findIndex(
+      (category) => category.name === selectedBoard
+    );
+      if (selectedIndex !== -1) {
+      setIndicativeSubThemes(indicativeThemes[selectedIndex]?.associations || []);
+    } else {
+      setIndicativeSubThemes([]);
+    }
     setFormData({
       ...formData,
       [name]: value,
@@ -711,6 +723,38 @@ const LernCreatorForm = () => {
     }
   };
 
+    const getFramework = async (defaultFramework) => {
+
+    try {
+      const url = `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.FRAMEWORK.READ}/nulp-domain`;
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        showErrorMessage(t("FAILED_TO_FETCH_DATA"));
+        throw new Error(t("FAILED_TO_FETCH_DATA"));
+      }
+
+      const data = await response.json();
+      const Categoryindex = data?.result?.framework?.categories.findIndex(
+  (category) => category.code === "board"
+);
+      setIndicativeThemes(data?.result?.framework?.categories[Categoryindex]?.terms);
+     
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      showErrorMessage(t("FAILED_TO_FETCH_DATA"));
+    } 
+  };
+
+  useEffect(() => {
+    getFramework();
+  }, []);
+
   return (
     <>
       <Header />
@@ -922,48 +966,54 @@ const LernCreatorForm = () => {
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item xs={12}>
-                <Grid container>
-                  <Grid item xs={2} className="center-align">
-                    <InputLabel htmlFor="Indicative Theme">
-                      Indicative Theme{" "}
-                      <span className="mandatory-symbol"> *</span>
-                    </InputLabel>
-                  </Grid>
-                  <Grid item xs={10}>
-                    <TextField
-                      select
-                      fullWidth
-                      margin="normal"
-                      label="Indicative Theme"
-                      name="indicative_theme"
-                      value={formData.indicative_theme}
-                      onChange={handleChange}
-                      error={!!errors.indicative_theme}
-                      helperText={errors.indicative_theme}
-                      required
-                    >
-                      {themes.map((theme) => (
-                        <MenuItem key={theme} value={theme}>
-                          {theme}
+             <Grid item xs={12}>
+              <Grid container>
+                <Grid item xs={2} className="center-align">
+                  <InputLabel htmlFor="indicative_theme">
+                    Indicative Theme
+                    <span className="mandatory-symbol"> *</span>
+                  </InputLabel>
+                </Grid>
+                <Grid item xs={10}>
+                  <TextField
+                    select
+                    fullWidth
+                    margin="normal"
+                    label="Indicative Theme"
+                    name="indicative_theme"
+                    value={formData.indicative_theme}
+                    onChange={handleChange}
+                    error={!!errors.indicative_theme}
+                    helperText={errors.indicative_theme}
+                    required
+                  >
+                    {indicativeThemes.length > 0 ? (
+                      indicativeThemes.map((indicativeThemes, index) => (
+                        <MenuItem key={indicativeThemes?.name} value={indicativeThemes?.name}>
+                          {indicativeThemes?.name}
                         </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
+                      ))
+                    ) : (
+                      <MenuItem disabled value="">
+                        No options available
+                      </MenuItem>
+                    )}
+                  </TextField>
                 </Grid>
               </Grid>
-              {formData.indicative_theme == "Miscellaneous/ Others" && (
+            </Grid>
+
+             {formData.indicative_theme === "Miscellaneous/ Others" && (
                 <Grid item xs={12}>
                   <Grid container>
                     <Grid item xs={2} className="center-align">
-                      <InputLabel htmlFor="Other Indicative Theme">
+                      <InputLabel htmlFor="other_indicative_themes">
                         Other Indicative Theme{" "}
                         <span className="mandatory-symbol"> *</span>
                       </InputLabel>
                     </Grid>
                     <Grid item xs={10}>
                       <TextField
-                        select
                         fullWidth
                         margin="normal"
                         label="Other Indicative Theme"
@@ -973,17 +1023,12 @@ const LernCreatorForm = () => {
                         error={!!errors.other_indicative_themes}
                         helperText={errors.other_indicative_themes}
                         required
-                      >
-                        {themes.map((theme) => (
-                          <MenuItem key={theme} value={theme}>
-                            {theme}
-                          </MenuItem>
-                        ))}
-                      </TextField>
+                      />
                     </Grid>
                   </Grid>
                 </Grid>
               )}
+
               {formData.indicative_theme != "Miscellaneous/ Others" && (
                 <Grid item xs={12}>
                   <Grid container>
@@ -1006,9 +1051,9 @@ const LernCreatorForm = () => {
                         helperText={errors.indicative_SubTheme}
                         required
                       >
-                        {themes.map((theme) => (
-                          <MenuItem key={theme} value={theme}>
-                            {theme}
+                        {indicativeSubThemes.map((theme) => (
+                          <MenuItem key={theme?.name} value={theme?.name}>
+                            {theme?.name}
                           </MenuItem>
                         ))}
                       </TextField>
