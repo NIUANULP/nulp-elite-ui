@@ -14,6 +14,7 @@ import {
   Box,
   DialogActions,
   Grid,
+  Container,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
@@ -153,29 +154,21 @@ const LernSubmissionTable = () => {
   return (
     <>
       <Header />
-      <Paper sx={{ padding: "20px", backgroundColor: "#f9f4eb" }}>
+      <Container
+        maxWidth="xl"
+        className="pb-30 allContent xs-pb-80 all-card-list mt-180"
+      >
         <Box
           display="flex"
           justifyContent="space-between"
           alignItems="center"
-          mb={2}
         >
-          <Typography variant="h6" gutterBottom className="fw-600 mt-20">
+          <Typography variant="h6" gutterBottom className="fw-600 mt-20" color={'#484848'}>
             Learnathon Submissions List
           </Typography>
-          <Button
-            className="viewAll"
-            onClick={() =>
-              (window.location.href =
-                routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT)
-            }
-            sx={{ padding: "7px 45px", borderRadius: "90px !important" }}
-          >
-            Upload Submission
-          </Button>
         </Box>
         <Grid container>
-          <Grid item xs={6}>
+          <Grid item xs={5}>
             <Box display="flex" alignItems="center" mb={2}>
               <TextField
                 variant="outlined"
@@ -190,8 +183,21 @@ const LernSubmissionTable = () => {
               />
             </Box>
           </Grid>
-        </Grid>
+          <Grid item xs={5}></Grid>
+          <Grid item xs={2}>
+            <Button
+              className="viewAll"
+              onClick={() =>
+              (window.location.href =
+                routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT)
+              }
+              sx={{ padding: "7px 45px", borderRadius: "90px !important" }}
+            >
+              Upload Submission
+            </Button>
+          </Grid>
 
+        </Grid>
         <TableContainer component={Paper}>
           <Table aria-label="simple table">
             <TableHead sx={{ background: "#D8F6FF" }}>
@@ -203,6 +209,7 @@ const LernSubmissionTable = () => {
               </TableRow>
             </TableHead>
             <TableBody>
+
               {data.map((row) => (
                 <TableRow key={row.id}>
                   <TableCell>{row.title_of_submission}</TableCell>
@@ -215,8 +222,8 @@ const LernSubmissionTable = () => {
                         row.status === "live"
                           ? "green"
                           : row.status === "review"
-                          ? "orange"
-                          : "red",
+                            ? "orange"
+                            : "red",
                       textTransform: "capitalize",
                     }}
                   >
@@ -227,10 +234,10 @@ const LernSubmissionTable = () => {
                       <IconButton
                         color="primary"
                         onClick={() =>
-                          (window.location.href =
-                            routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT +
-                            "?" +
-                            row.learnathon_content_id)
+                        (window.location.href =
+                          routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT +
+                          "?" +
+                          row.learnathon_content_id)
                         }
                         sx={{ color: "#057184" }}
                         className="table-icon"
@@ -242,11 +249,11 @@ const LernSubmissionTable = () => {
                       <IconButton
                         color="primary"
                         onClick={() =>
-                          (window.location.href =
-                            routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
-                            "?id=" +
-                            row.learnathon_content_id +
-                            "&page=lern")
+                        (window.location.href =
+                          routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
+                          "?id=" +
+                          row.learnathon_content_id +
+                          "&page=lern")
                         }
                         sx={{ color: "#054753" }}
                         className="table-icon"
@@ -270,7 +277,6 @@ const LernSubmissionTable = () => {
             </TableBody>
           </Table>
         </TableContainer>
-
         <Pagination
           component="div"
           count={totalRows}
@@ -279,25 +285,25 @@ const LernSubmissionTable = () => {
           rowsPerPage={rowsPerPage}
           onRowsPerPageChange={handleRowsPerPageChange}
         />
-      </Paper>
-      <Dialog open={dialogOpen} onClose={handleDialogClose}>
-        <DialogContent>
-          <Box className="h5-title">
-            Are you sure you want to delete this submission
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose} className="custom-btn-default">
-            {t("NO")}
-          </Button>
-          <Button
-            onClick={(event) => handleDeletePollConfirmed(row.content_id)}
-            className="custom-btn-primary"
-          >
-            {t("YES")}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        <Dialog open={dialogOpen} onClose={handleDialogClose}>
+          <DialogContent>
+            <Box className="h5-title">
+              Are you sure you want to delete this submission
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose} className="custom-btn-default">
+              {t("NO")}
+            </Button>
+            <Button
+              onClick={(event) => handleDeletePollConfirmed(row.content_id)}
+              className="custom-btn-primary"
+            >
+              {t("YES")}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Container>
       <Footer />
     </>
   );
