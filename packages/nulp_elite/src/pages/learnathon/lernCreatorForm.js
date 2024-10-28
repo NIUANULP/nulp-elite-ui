@@ -1003,8 +1003,7 @@ const LernCreatorForm = () => {
               <Grid container>
                 <Grid item xs={2} className="center-align">
                   <InputLabel htmlFor="indicative_theme">
-                    Indicative Theme
-                    <span className="mandatory-symbol"> *</span>
+                    Indicative Theme <span className="mandatory-symbol"> *</span>
                   </InputLabel>
                 </Grid>
                 <Grid item xs={10}>
@@ -1021,9 +1020,9 @@ const LernCreatorForm = () => {
                     required
                   >
                     {indicativeThemes.length > 0 ? (
-                      indicativeThemes.map((indicativeThemes, index) => (
-                        <MenuItem key={indicativeThemes?.name} value={indicativeThemes?.name}>
-                          {indicativeThemes?.name}
+                      indicativeThemes.map((theme, index) => (
+                        <MenuItem key={theme?.name} value={theme?.name}>
+                          {theme?.name}
                         </MenuItem>
                       ))
                     ) : (
@@ -1041,8 +1040,7 @@ const LernCreatorForm = () => {
                   <Grid container>
                     <Grid item xs={2} className="center-align">
                       <InputLabel htmlFor="other_indicative_themes">
-                        Other Indicative Theme{" "}
-                        <span className="mandatory-symbol"> *</span>
+                        Other Indicative Theme <span className="mandatory-symbol"> *</span>
                       </InputLabel>
                     </Grid>
                     <Grid item xs={10}>
@@ -1056,23 +1054,23 @@ const LernCreatorForm = () => {
                         error={!!errors.other_indicative_themes}
                         helperText={errors.other_indicative_themes}
                         required
-                      ></TextField>
+                      />
                     </Grid>
                   </Grid>
                 </Grid>
               )}
 
-              {formData.indicative_theme != "Miscellaneous/ Others" && (
+              {formData.indicative_theme !== "Miscellaneous/ Others" && (
                 <Grid item xs={12}>
                   <Grid container>
                     <Grid item xs={2} className="center-align">
-                      <InputLabel htmlFor="Indicative Theme">
-                        Indicative SubTheme{" "}
-                        <span className="mandatory-symbol"> *</span>
+                      <InputLabel htmlFor="indicative_SubTheme">
+                        Indicative SubTheme <span className="mandatory-symbol"> *</span>
                       </InputLabel>
                     </Grid>
                     <Grid item xs={10}>
                       <TextField
+                        select
                         fullWidth
                         margin="normal"
                         label="Indicative SubTheme"
