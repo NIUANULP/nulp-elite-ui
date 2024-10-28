@@ -252,6 +252,7 @@ const LernCreatorForm = () => {
 
       const response = await fetch(url);
       const data = await response.json();
+      console.log("userInfo---", data.result.response);
       setUserInfo(data.result.response);
     } catch (error) {
       console.error("Error while getting user data:", error);
@@ -299,7 +300,6 @@ const LernCreatorForm = () => {
       }
 
       const result = await response.json();
-      console.log("suceesss----", result);
 
       const uploadUrlBody = {
         request: {
@@ -326,31 +326,20 @@ const LernCreatorForm = () => {
         }
 
         const uploadResult = await response.json();
-        console.log("upload suceesss------", uploadResult);
-        const formData = new FormData();
-        formData.append("file", e.target.files[0]);
+        const uploadBody = new FormData();
+        uploadBody.append("file", e.target.files[0]);
+        uploadBody.append("mimeType", "image/png");
 
-        const uploadBody = {
-          request: {
-            content: {
-              file: formData,
-              mimeType: "image/png",
-            },
-          },
-        };
         try {
           const response = await fetch(
-            `${urlConfig.URLS.ICON.UPLOAD}/${result.result.identifier}?enctype=multipart/form-data&processData=false&contentType=false&cache=false`,
+            `${urlConfig.URLS.ICON.UPLOAD}${result.result.identifier}?enctype=multipart/form-data&processData=false&contentType=false&cache=false`,
             {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(uploadBody),
+              body: uploadBody,
             }
           );
-
           if (!response.ok) {
+            alert("Something went wrong while uploading Image");
             throw new Error("Something went wrong");
           }
 
@@ -392,7 +381,6 @@ const LernCreatorForm = () => {
     }
   };
   const handleFileChange = async (e) => {
-    console.log("e.target.files[0]----", e.target.files[0]);
     const mimeType = e.target.files[0].type;
     const _uuid = uuidv4();
     const assetBody = {
@@ -452,6 +440,45 @@ const LernCreatorForm = () => {
 
         const uploadResult = await response.json();
         console.log("upload suceesss------", uploadResult);
+        // const result = {
+        //   id: "api.content.create",
+        //   ver: "3.0",
+        //   ts: "2024-10-28T05:38:58ZZ",
+        //   params: {
+        //     resmsgid: "6bc1f805-0d14-4093-8947-0c1481da6945",
+        //     msgid: null,
+        //     err: null,
+        //     status: "successful",
+        //     errmsg: null,
+        //   },
+        //   responseCode: "OK",
+        //   result: {
+        //     identifier: "do_1141729295413821441662",
+        //     node_id: "do_1141729295413821441662",
+        //     versionKey: "1730093938169",
+        //   },
+        // };
+        // const uploadResult = {
+        //   id: "api.content.upload.url",
+        //   ver: "3.0",
+        //   ts: "2024-10-28T05:22:19ZZ",
+        //   params: {
+        //     resmsgid: "b68ea763-dbde-4901-b8c9-3f8cb581a591",
+        //     msgid: null,
+        //     err: null,
+        //     status: "successful",
+        //     errmsg: null,
+        //   },
+        //   responseCode: "OK",
+        //   result: {
+        //     identifier: "do_1141729213564026881661",
+        //     url_expiry: "54000",
+        //     pre_signed_url:
+        //       "https://devnewnulp.blob.core.windows.net/contents/content/assets/do_1141729213564026881661/sample-video-file-for-testing.mp4?sv=2017-04-17&se=2024-10-28T20%3A22%3A19Z&sr=b&sp=w&sig=bNLAQABxL%2BFA33XZ9ShmCszkxwfozUxCJfoxFLWarMo%3D",
+        //   },
+        // };
+        console.log("upload suceesss------", uploadResult);
+        const imgId = result.result.identifier;
 
         const url = uploadResult.result.pre_signed_url;
         const file = e.target.files[0];
@@ -471,10 +498,18 @@ const LernCreatorForm = () => {
           .on("completed", async (completed) => {
             console.log("1111", completed);
 
+            console.log("url", url);
+            console.log("mimeType", mimeType);
+
             const fileURL = url.split("?")[0];
+            console.log("fileUrl", fileURL);
             const data = new FormData();
             data.append("fileUrl", fileURL);
             data.append("mimeType", mimeType);
+
+            data.forEach((value, key) => {
+              console.log(`${key}:`, value);
+            });
             // const config1 = {
             //   enctype: "multipart/form-data",
             //   processData: false,
@@ -490,9 +525,6 @@ const LernCreatorForm = () => {
                 `${urlConfig.URLS.ASSET.UPLOAD}/${imgId}`,
                 {
                   method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
                   body: data,
                 }
               );
@@ -516,37 +548,32 @@ const LernCreatorForm = () => {
             }
           });
 
-        try {
-          const subscription = uploadToBlob(url, file, csp).subscribe({
-            next: (completed) => {
-              console.log("Upload completed successfully!");
-            },
-            error: (error) => {
-              console.log(`Upload failed: ${error.message}`);
-            },
-            complete: () => {
-              console.log("Upload process completed.");
-            },
-          });
+        // try {
+        //   const subscription = uploadToBlob(url, file, csp).subscribe({
+        //     next: (completed) => {
+        //       console.log("Upload completed successfully!");
+        //     },
+        //     error: (error) => {
+        //       console.log(`Upload failed: ${error.message}`);
+        //     },
+        //     complete: () => {
+        //       console.log("Upload process completed.");
+        //     },
+        //   });
 
-          // Clean up subscription on unmount
-          return () => subscription.unsubscribe();
-        } catch (err) {
-          console.log(err);
-        }
+        //   // Clean up subscription on unmount
+        //   return () => subscription.unsubscribe();
+        // } catch (err) {
+        //   console.log(err);
+        // }
         setFormData({
           ...formData,
           content_id: uploadResult.result.identifier,
         });
         setErrors({ ...errors, content_id: "" });
-
-        // setData(result.result.data);
-        // setTotalPages(Math.ceil(result.result.totalCount / 10));
       } catch (error) {
         console.log("error---", error);
-        // setError(error.message);
       } finally {
-        // setIsLoading(false);
       }
     } catch (error) {
       console.log("error---", error);
@@ -1226,7 +1253,7 @@ const LernCreatorForm = () => {
                       <Grid container>
                         <Grid item xs={2} className="center-align">
                           <InputLabel htmlFor="User Name">
-                            User Name{" "}
+                            Participant Name{" "}
                             <span className="mandatory-symbol"> *</span>
                           </InputLabel>
                         </Grid>
