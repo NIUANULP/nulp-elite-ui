@@ -192,7 +192,7 @@ const LernCreatorForm = () => {
         }
 
         const result = await response.json();
-        fetchIconData(result.result.data[0].icon);
+        // fetchIconData(result.result.data[0].icon);
         fetchContentData(result.result.data[0].content_id);
         setIsEdit(true);
         const readResponse = result.result.data[0];
@@ -240,8 +240,7 @@ const LernCreatorForm = () => {
       );
       if (!response.ok) throw new Error("Failed to fetch course data");
       const data = await response.json();
-      console.log("data.result.content", data.result.content);
-      setLesson(data.result.content);
+      console.log("uploadedeeee content -------", data.result.content);
     } catch (error) {
       console.error("Error fetching course data:", error);
     }
@@ -256,8 +255,7 @@ const LernCreatorForm = () => {
       );
       if (!response.ok) throw new Error("Failed to fetch course data");
       const data = await response.json();
-      console.log("data.result.content", data.result.content);
-      setLesson(data.result.content);
+      console.log("content readddd-----", data.result.content);
     } catch (error) {
       console.error("Error fetching course data:", error);
     }
@@ -415,7 +413,7 @@ const LernCreatorForm = () => {
           const uploadResult = await response.json();
           setFormData({
             ...formData,
-            icon: uploadResult.result.identifier,
+            icon: uploadResult.result.artifactUrl,
           });
 
           setErrors({ ...errors, icon: "" });
@@ -425,7 +423,7 @@ const LernCreatorForm = () => {
         }
         setFormData({
           ...formData,
-          icon: uploadResult.result.identifier,
+          icon: uploadResult.result.artifactUrl,
         });
         setErrors({ ...errors, icon: "" });
       } catch (error) {
@@ -723,14 +721,10 @@ const LernCreatorForm = () => {
 
       console.log("Saved as draft");
     } else if (action === "review") {
-      console.log("hrtrrrrrr");
-
       formData.status = "review";
       if (!validate()) return;
 
       if (isEdit == false) {
-        console.log("dddd");
-
         try {
           const response = await fetch(`${urlConfig.URLS.LEARNATHON.CREATE}`, {
             method: "POST",
@@ -842,7 +836,7 @@ const LernCreatorForm = () => {
                 </InputLabel>
               </Grid>
 
-              <Grid item xs={10}>
+              <Grid item xs={7}>
                 <TextField
                   type="file"
                   fullWidth
@@ -852,7 +846,18 @@ const LernCreatorForm = () => {
                   }}
                 />
               </Grid>
-              <Grid item xs={2}></Grid>
+              <Grid item xs={3}>
+                {" "}
+                {isEdit && formData.icon && (
+                  <a
+                    href={formData.icon}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Preview
+                  </a>
+                )}
+              </Grid>
               <Grid item xs={10}>
                 <Alert className="mt-9" everity="info">
                   Upload png, jpeg (Max File size: 1MB)
