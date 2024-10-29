@@ -14,7 +14,10 @@ import {
   Divider,
   Modal,
   Autocomplete,
+  Radio,
+  RadioGroup,
 } from "@mui/material";
+
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import Footer from "components/Footer";
 import Header from "components/header";
@@ -121,12 +124,18 @@ const LernCreatorForm = () => {
   const [errors, setErrors] = useState({});
   const [openPersonalForm, setOpenPersonalForm] = useState(false);
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
-  const [indicativeThemes, setIndicativeThemes] = useState([])
-  const [indicativeSubThemes, setIndicativeSubThemes] = useState([])
+  const [indicativeThemes, setIndicativeThemes] = useState([]);
+  const [indicativeSubThemes, setIndicativeSubThemes] = useState([]);
   const { t } = useTranslation();
   const [city, setCity] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  // const [errors, setErrors] = useState({});
+  const [uploadType, setUploadType] = useState("file");
+
+  const handleUploadTypeChange = (event) => {
+    console.log(event.target.value);
+    setUploadType(event.target.value);
+  };
+
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
@@ -232,21 +241,21 @@ const LernCreatorForm = () => {
       }
     }
   };
-  const fetchIconData = async (icon) => {
-    try {
-      const response = await fetch(
-        `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CONTENT.GET}/${content_Id}?fields=transcripts,ageGroup,appIcon,artifactUrl,attributions,attributions,audience,author,badgeAssertions,board,body,channel,code,concepts,contentCredits,contentType,contributors,copyright,copyrightYear,createdBy,createdOn,creator,creators,description,displayScore,domain,editorState,flagReasons,flaggedBy,flags,framework,gradeLevel,identifier,itemSetPreviewUrl,keywords,language,languageCode,lastUpdatedOn,license,mediaType,medium,mimeType,name,originData,osId,owner,pkgVersion,publisher,questions,resourceType,scoreDisplayConfig,status,streamingUrl,subject,template,templateId,totalQuestions,totalScore,versionKey,visibility,year,primaryCategory,additionalCategories,interceptionPoints,interceptionType&orgdetails=orgName,email&licenseDetails=name,description,url`,
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-      if (!response.ok) throw new Error("Failed to fetch course data");
-      const data = await response.json();
-      console.log("uploadedeeee content -------", data.result.content);
-    } catch (error) {
-      console.error("Error fetching course data:", error);
-    }
-  };
+  // const fetchIconData = async (icon) => {
+  //   try {
+  //     const response = await fetch(
+  //       `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CONTENT.GET}/${content_Id}?fields=transcripts,ageGroup,appIcon,artifactUrl,attributions,attributions,audience,author,badgeAssertions,board,body,channel,code,concepts,contentCredits,contentType,contributors,copyright,copyrightYear,createdBy,createdOn,creator,creators,description,displayScore,domain,editorState,flagReasons,flaggedBy,flags,framework,gradeLevel,identifier,itemSetPreviewUrl,keywords,language,languageCode,lastUpdatedOn,license,mediaType,medium,mimeType,name,originData,osId,owner,pkgVersion,publisher,questions,resourceType,scoreDisplayConfig,status,streamingUrl,subject,template,templateId,totalQuestions,totalScore,versionKey,visibility,year,primaryCategory,additionalCategories,interceptionPoints,interceptionType&orgdetails=orgName,email&licenseDetails=name,description,url`,
+  //       {
+  //         headers: { "Content-Type": "application/json" },
+  //       }
+  //     );
+  //     if (!response.ok) throw new Error("Failed to fetch course data");
+  //     const data = await response.json();
+  //     console.log("uploadedeeee content -------", data.result.content);
+  //   } catch (error) {
+  //     console.error("Error fetching course data:", error);
+  //   }
+  // };
   const fetchContentData = async (content_Id) => {
     try {
       const response = await fetch(
@@ -331,12 +340,14 @@ const LernCreatorForm = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     const selectedBoard = e.target.value;
-    console.log(selectedBoard,"selectedBoard");
+    console.log(selectedBoard, "selectedBoard");
     const selectedIndex = indicativeThemes.findIndex(
       (category) => category.name === selectedBoard
     );
-      if (selectedIndex !== -1) {
-      setIndicativeSubThemes(indicativeThemes[selectedIndex]?.associations || []);
+    if (selectedIndex !== -1) {
+      setIndicativeSubThemes(
+        indicativeThemes[selectedIndex]?.associations || []
+      );
     } else {
       setIndicativeSubThemes([]);
     }
@@ -347,10 +358,10 @@ const LernCreatorForm = () => {
     setErrors({ ...errors, [name]: "" });
   };
 
-    const handlesubthemeChange = (e) => {
+  const handlesubthemeChange = (e) => {
     const { name, value } = e.target;
     const selectedsubBoard = e.target.value;
-    console.log(selectedsubBoard,"selectedsubBoard");
+    console.log(selectedsubBoard, "selectedsubBoard");
     setFormData({
       ...formData,
       [name]: value,
@@ -464,166 +475,247 @@ const LernCreatorForm = () => {
     //   icon: "https://devnewnulp.blob.core.windows.net/contents/content/do_1141731824771481601676/artifact/do_1141731824771481601676_1730124815972_samplejpgimage_2mbmb.jpg",
     // });
   };
-  const handleFileChange = async (e) => {
-    const mimeType = e.target.files[0].type;
-    const _uuid = uuidv4();
-    const assetBody = {
-      request: {
-        content: {
-          primaryCategory: "Good Practices",
-          contentType: "Resource",
-          language: ["English"],
-          code: _uuid,
-          name: e.target.files[0].name,
-          framework: "nulp-learn",
-          mimeType: mimeType,
-          createdBy: _userId,
-          organisation: [userInfo.rootOrg.channel],
-          createdFor: [userInfo.rootOrg.id],
-        },
-      },
-    };
-    try {
-      const response = await fetch(`${urlConfig.URLS.ASSET.CREATE}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(assetBody),
-      });
-
-      if (!response.ok) {
-        throw new Error("Something went wrong");
-      }
-
-      const result = await response.json();
-      console.log("suceesss----", result);
-      const imgId = result.result.identifier;
-      const uploadBody = {
+  const handleFileChange = async (e, type) => {
+    if (type == "file") {
+      const mimeType = e.target.files[0].type;
+      const _uuid = uuidv4();
+      const assetBody = {
         request: {
           content: {
-            fileName: e.target.files[0].name,
+            primaryCategory: "Good Practices",
+            contentType: "Resource",
+            language: ["English"],
+            code: _uuid,
+            name: e.target.files[0].name,
+            framework: "nulp-learn",
+            mimeType: mimeType,
+            createdBy: _userId,
+            organisation: [userInfo.rootOrg.channel],
+            createdFor: [userInfo.rootOrg.id],
           },
         },
       };
       try {
-        const response = await fetch(
-          `${urlConfig.URLS.ASSET.UPLOADURL}/${result.result.identifier}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(uploadBody),
-          }
-        );
+        const response = await fetch(`${urlConfig.URLS.ASSET.CREATE}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(assetBody),
+        });
 
         if (!response.ok) {
           throw new Error("Something went wrong");
         }
 
-        const uploadResult = await response.json();
-
-        console.log("upload suceesss------", uploadResult);
+        const result = await response.json();
+        console.log("suceesss----", result);
         const imgId = result.result.identifier;
-
-        const url = uploadResult.result.pre_signed_url;
-        const file = e.target.files[0];
-        const csp = "azure"; // Cloud provider (azure, aws, etc.)
-
-        const uploader = new SunbirdFileUploadLib.FileUploader();
-
-        uploader
-          .upload({
-            file: file,
-            url: url,
-            csp: "azure",
-          })
-          .on("error", (error) => {
-            console.log("0000", error);
-          })
-          .on("completed", async (completed) => {
-            console.log("1111", completed);
-
-            console.log("url", url);
-            console.log("mimeType", mimeType);
-
-            const fileURL = url.split("?")[0];
-            console.log("fileUrl", fileURL);
-            const data = new FormData();
-            data.append("fileUrl", fileURL);
-            data.append("mimeType", mimeType);
-
-            data.forEach((value, key) => {
-              console.log(`${key}:`, value);
-            });
-            // const config1 = {
-            //   enctype: "multipart/form-data",
-            //   processData: false,
-            //   contentType: false,
-            //   cache: false,
-            // };
-            // const uploadMediaConfig = {
-            //   data,
-            //   param: config1,
-            // };
-            try {
-              const response = await fetch(
-                `${urlConfig.URLS.ASSET.UPLOAD}/${imgId}`,
-                {
-                  method: "POST",
-                  body: data,
-                }
-              );
-
-              if (!response.ok) {
-                throw new Error("Something went wrong");
-              }
-
-              const uploadResult = await response.json();
-              console.log("upload suceesss------", uploadResult);
-              setFormData({
-                ...formData,
-                content_id: uploadResult.result.identifier,
-              });
-              setErrors({ ...errors, icon: "" });
-            } catch (error) {
-              console.log("error---", error);
-            } finally {
+        const uploadBody = {
+          request: {
+            content: {
+              fileName: e.target.files[0].name,
+            },
+          },
+        };
+        try {
+          const response = await fetch(
+            `${urlConfig.URLS.ASSET.UPLOADURL}/${result.result.identifier}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(uploadBody),
             }
+          );
+
+          if (!response.ok) {
+            throw new Error("Something went wrong");
+          }
+
+          const uploadResult = await response.json();
+          console.log("upload suceesss------", uploadResult);
+          const imgId = result.result.identifier;
+          const url = uploadResult.result.pre_signed_url;
+          const file = e.target.files[0];
+          const csp = "azure"; // Cloud provider (azure, aws, etc.)
+
+          const uploader = new SunbirdFileUploadLib.FileUploader();
+
+          uploader
+            .upload({
+              file: file,
+              url: url,
+              csp: "azure",
+            })
+            .on("error", (error) => {
+              console.log("0000", error);
+            })
+            .on("completed", async (completed) => {
+              console.log("1111", completed);
+
+              console.log("url", url);
+              console.log("mimeType", mimeType);
+
+              const fileURL = url.split("?")[0];
+              console.log("fileUrl", fileURL);
+              const data = new FormData();
+              data.append("fileUrl", fileURL);
+              data.append("mimeType", mimeType);
+
+              data.forEach((value, key) => {
+                console.log(`${key}:`, value);
+              });
+              // const config1 = {
+              //   enctype: "multipart/form-data",
+              //   processData: false,
+              //   contentType: false,
+              //   cache: false,
+              // };
+              // const uploadMediaConfig = {
+              //   data,
+              //   param: config1,
+              // };
+              try {
+                const response = await fetch(
+                  `${urlConfig.URLS.ASSET.UPLOAD}/${imgId}`,
+                  {
+                    method: "POST",
+                    body: data,
+                  }
+                );
+
+                if (!response.ok) {
+                  throw new Error("Something went wrong");
+                }
+
+                const uploadResult = await response.json();
+                console.log("upload suceesss------", uploadResult);
+                setFormData({
+                  ...formData,
+                  content_id: uploadResult.result.identifier,
+                });
+                setErrors({ ...errors, icon: "" });
+              } catch (error) {
+                console.log("error---", error);
+              } finally {
+              }
+            });
+
+          // try {
+          //   const subscription = uploadToBlob(url, file, csp).subscribe({
+          //     next: (completed) => {
+          //       console.log("Upload completed successfully!");
+          //     },
+          //     error: (error) => {
+          //       console.log(`Upload failed: ${error.message}`);
+          //     },
+          //     complete: () => {
+          //       console.log("Upload process completed.");
+          //     },
+          //   });
+
+          //   // Clean up subscription on unmount
+          //   return () => subscription.unsubscribe();
+          // } catch (err) {
+          //   console.log(err);
+          // }
+          console.log("file uploaded---");
+          setFormData({
+            ...formData,
+            content_id: uploadResult.result.identifier,
           });
-
-        // try {
-        //   const subscription = uploadToBlob(url, file, csp).subscribe({
-        //     next: (completed) => {
-        //       console.log("Upload completed successfully!");
-        //     },
-        //     error: (error) => {
-        //       console.log(`Upload failed: ${error.message}`);
-        //     },
-        //     complete: () => {
-        //       console.log("Upload process completed.");
-        //     },
-        //   });
-
-        //   // Clean up subscription on unmount
-        //   return () => subscription.unsubscribe();
-        // } catch (err) {
-        //   console.log(err);
-        // }
-        setFormData({
-          ...formData,
-          content_id: uploadResult.result.identifier,
-        });
-        setErrors({ ...errors, content_id: "" });
+          setErrors({ ...errors, content_id: "" });
+        } catch (error) {
+          console.log("error---", error);
+        } finally {
+        }
       } catch (error) {
         console.log("error---", error);
+        // setError(error.message);
       } finally {
       }
-    } catch (error) {
-      console.log("error---", error);
-      // setError(error.message);
-    } finally {
+    } else if (type == "url") {
+      console.log("------------------", event.target.value);
+
+      const _uuid = uuidv4();
+      const assetBody = {
+        request: {
+          content: {
+            primaryCategory: "Good Practices",
+            contentType: "Resource",
+            language: ["English"],
+            code: _uuid,
+            name: formData.title_of_submission
+              ? formData.title_of_submission
+              : "Untitled Content",
+            framework: "nulp-learn",
+            mimeType: "video/x-youtube",
+            createdBy: _userId,
+            organisation: [userInfo.rootOrg.channel],
+            createdFor: [userInfo.rootOrg.id],
+          },
+        },
+      };
+      try {
+        const response = await fetch(`${urlConfig.URLS.ASSET.CREATE}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(assetBody),
+        });
+
+        if (!response.ok) {
+          throw new Error("Something went wrong");
+        }
+
+        const result = await response.json();
+        console.log("suceesss----", result);
+        const cont_id = result.result.identifier;
+        const data = new FormData();
+        data.append(
+          "fileUrl",
+          event.target.value
+            ? event.target.value
+            : "https://www.youtube.com/watch?v=dz458ZkBMak"
+        );
+        data.append("mimeType", "video/x-youtube");
+
+        data.forEach((value, key) => {
+          console.log(`${key}:`, value);
+        });
+
+        try {
+          const response = await fetch(
+            `${urlConfig.URLS.ASSET.UPLOAD}/${cont_id}`,
+            {
+              method: "POST",
+              body: data,
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Something went wrong");
+          }
+
+          const uploadResult = await response.json();
+          console.log("upload suceesss------", uploadResult);
+          setFormData({
+            ...formData,
+            content_id: uploadResult.result.identifier,
+          });
+          setErrors({ ...errors, icon: "" });
+        } catch (error) {
+          console.log("error---", error);
+        } finally {
+        }
+      } catch (error) {
+        console.log("error---", error);
+        // setError(error.message);
+      } finally {
+      }
     }
   };
 
@@ -660,7 +752,7 @@ const LernCreatorForm = () => {
       setGuidelineLink(stateguideline);
       setTNCLink(statetnc);
     } else if (category_of_participation === "Industry") {
-      setGuidelineLink("/assets/industry-guidelines.pdf");;
+      setGuidelineLink("/assets/industry-guidelines.pdf");
       setTNCLink("../../assets/industry-tnc.pdf");
     } else if (category_of_participation === "Academia") {
       setGuidelineLink("../../assets/academia-guidelines.pdf");
@@ -807,8 +899,7 @@ const LernCreatorForm = () => {
     }
   };
 
-    const getFramework = async (defaultFramework) => {
-
+  const getFramework = async (defaultFramework) => {
     try {
       const url = `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.FRAMEWORK.READ}/nulp-domain`;
       const response = await fetch(url, {
@@ -825,14 +916,15 @@ const LernCreatorForm = () => {
 
       const data = await response.json();
       const Categoryindex = data?.result?.framework?.categories.findIndex(
-  (category) => category.code === "board"
-);
-      setIndicativeThemes(data?.result?.framework?.categories[Categoryindex]?.terms);
-     
+        (category) => category.code === "board"
+      );
+      setIndicativeThemes(
+        data?.result?.framework?.categories[Categoryindex]?.terms
+      );
     } catch (error) {
       console.error("Error fetching data:", error);
       showErrorMessage(t("FAILED_TO_FETCH_DATA"));
-    } 
+    }
   };
 
   useEffect(() => {
@@ -1061,48 +1153,49 @@ const LernCreatorForm = () => {
                   </Grid>
                 </Grid>
               </Grid>
-             <Grid item xs={12}>
-              <Grid container>
-                <Grid item xs={2} className="center-align">
-                  <InputLabel htmlFor="indicative_theme">
-                    Indicative Theme <span className="mandatory-symbol"> *</span>
-                  </InputLabel>
-                </Grid>
-                <Grid item xs={10}>
-                  <TextField
-                    select
-                    fullWidth
-                    margin="normal"
-                    label="Indicative Theme"
-                    name="indicative_theme"
-                    value={formData.indicative_theme}
-                    onChange={handleChange}
-                    error={!!errors.indicative_theme}
-                    helperText={errors.indicative_theme}
-                    required
-                  >
-                    {indicativeThemes.length > 0 ? (
-                      indicativeThemes.map((theme, index) => (
-                        <MenuItem key={theme?.name} value={theme?.name}>
-                          {theme?.name}
+              <Grid item xs={12}>
+                <Grid container>
+                  <Grid item xs={2} className="center-align">
+                    <InputLabel htmlFor="indicative_theme">
+                      Indicative Theme{" "}
+                      <span className="mandatory-symbol"> *</span>
+                    </InputLabel>
+                  </Grid>
+                  <Grid item xs={10}>
+                    <TextField
+                      select
+                      fullWidth
+                      margin="normal"
+                      label="Indicative Theme"
+                      name="indicative_theme"
+                      value={formData.indicative_theme}
+                      onChange={handleChange}
+                      error={!!errors.indicative_theme}
+                      helperText={errors.indicative_theme}
+                      required
+                    >
+                      {indicativeThemes.length > 0 ? (
+                        indicativeThemes.map((theme, index) => (
+                          <MenuItem key={theme?.name} value={theme?.name}>
+                            {theme?.name}
+                          </MenuItem>
+                        ))
+                      ) : (
+                        <MenuItem disabled value="">
+                          No options available
                         </MenuItem>
-                      ))
-                    ) : (
-                      <MenuItem disabled value="">
-                        No options available
-                      </MenuItem>
-                    )}
-                  </TextField>
+                      )}
+                    </TextField>
+                  </Grid>
                 </Grid>
               </Grid>
-            </Grid>
-
-             {formData.indicative_theme === "Miscellaneous/ Others" && (
+              {formData.indicative_theme === "Miscellaneous/ Others" && (
                 <Grid item xs={12}>
                   <Grid container>
                     <Grid item xs={2} className="center-align">
                       <InputLabel htmlFor="other_indicative_themes">
-                        Other Indicative Theme <span className="mandatory-symbol"> *</span>
+                        Other Indicative Theme{" "}
+                        <span className="mandatory-symbol"> *</span>
                       </InputLabel>
                     </Grid>
                     <Grid item xs={10}>
@@ -1121,13 +1214,13 @@ const LernCreatorForm = () => {
                   </Grid>
                 </Grid>
               )}
-
               {formData.indicative_theme !== "Miscellaneous/ Others" && (
                 <Grid item xs={12}>
                   <Grid container>
                     <Grid item xs={2} className="center-align">
                       <InputLabel htmlFor="indicative_sub_theme">
-                        Indicative SubTheme <span className="mandatory-symbol"> *</span>
+                        Indicative SubTheme{" "}
+                        <span className="mandatory-symbol"> *</span>
                       </InputLabel>
                     </Grid>
                     <Grid item xs={10}>
@@ -1214,7 +1307,7 @@ const LernCreatorForm = () => {
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item xs={12}>
+              {/* <Grid item xs={12}>
                 <Grid container>
                   <Grid item xs={2} className="center-align">
                     <InputLabel htmlFor="File Upload">
@@ -1236,6 +1329,69 @@ const LernCreatorForm = () => {
                   <Grid item xs={2}></Grid>
                   <Grid item xs={10}>
                     <Alert className="mt-9" everity="info">
+                      Supported formats: MP4, PDF, HTML5, YouTube links
+                    </Alert>
+                  </Grid>
+                </Grid>
+              </Grid> */}
+              <Grid item xs={12}>
+                <Grid container spacing={2}>
+                  {/* Toggle between URL and File */}
+                  <Grid item xs={12}>
+                    <RadioGroup
+                      row
+                      value={uploadType}
+                      onChange={handleUploadTypeChange}
+                      aria-label="Upload Type"
+                    >
+                      <FormControlLabel
+                        value="file"
+                        control={<Radio />}
+                        label="File Upload"
+                      />
+                      <FormControlLabel
+                        value="url"
+                        control={<Radio />}
+                        label="URL Upload"
+                      />
+                    </RadioGroup>
+                  </Grid>
+
+                  {/* Conditional Fields Based on Selection */}
+                  <Grid item xs={2} className="center-align">
+                    <InputLabel htmlFor="upload">
+                      {uploadType === "file" ? "File Upload" : "URL Upload"}
+                      <span className="mandatory-symbol"> *</span>
+                    </InputLabel>
+                  </Grid>
+
+                  {uploadType === "file" ? (
+                    <Grid item xs={10}>
+                      <TextField
+                        type="file"
+                        fullWidth
+                        onChange={(event) => handleFileChange(event, "file")}
+                        inputProps={{
+                          accept:
+                            "video/mp4,application/pdf,text/html,video/youtube",
+                        }}
+                        sx={{ border: "1px dashed" }}
+                      />
+                    </Grid>
+                  ) : (
+                    <Grid item xs={10}>
+                      <TextField
+                        type="url"
+                        fullWidth
+                        placeholder="Enter URL"
+                        onChange={(event) => handleFileChange(event, "url")}
+                      />
+                    </Grid>
+                  )}
+
+                  <Grid item xs={2}></Grid>
+                  <Grid item xs={10}>
+                    <Alert className="mt-9" severity="info">
                       Supported formats: MP4, PDF, HTML5, YouTube links
                     </Alert>
                   </Grid>
