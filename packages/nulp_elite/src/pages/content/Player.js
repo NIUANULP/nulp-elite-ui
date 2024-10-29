@@ -334,7 +334,7 @@ const Player = () => {
       const requestBody = {
         request: {
           filters: {
-            content_id: contentId,
+            learnathon_content_id: contentId,
             status: "Live",
             // start_date:start_date,
             // end_date:end_date,
@@ -428,7 +428,7 @@ const Player = () => {
         start_date: updatedDateTime,
         end_date: "2024-11-22T12:21:09.754Z",
         is_live_poll_result: true,
-        content_id: learnathonDetails?.content_id,
+        content_id: learnathonDetails?.learnathon_content_id,
         category: "Learnathon",
       };
       try {
