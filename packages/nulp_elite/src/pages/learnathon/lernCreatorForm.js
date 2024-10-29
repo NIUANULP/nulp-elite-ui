@@ -145,7 +145,7 @@ const LernCreatorForm = () => {
     name_of_department_group: "",
     indicative_theme: "",
     other_indicative_themes: "",
-    indicative_SubTheme: "",
+    indicative_sub_theme: "",
     state: "",
     city: "",
     title_of_submission: "",
@@ -214,7 +214,7 @@ const LernCreatorForm = () => {
           name_of_department_group: readResponse.name_of_department_group || "",
           indicative_theme: readResponse.indicative_theme || "",
           other_indicative_themes: readResponse.other_indicative_themes || "",
-          indicative_SubTheme: readResponse.indicative_SubTheme || "",
+          indicative_sub_theme: readResponse.indicative_sub_theme || "",
           state: readResponse.state || "",
           city: readResponse.city || "",
           title_of_submission: readResponse.title_of_submission || "",
@@ -342,6 +342,17 @@ const LernCreatorForm = () => {
     } else {
       setIndicativeSubThemes([]);
     }
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+    setErrors({ ...errors, [name]: "" });
+  };
+
+    const handlesubthemeChange = (e) => {
+    const { name, value } = e.target;
+    const selectedsubBoard = e.target.value;
+    console.log(selectedsubBoard,"selectedsubBoard");
     setFormData({
       ...formData,
       [name]: value,
@@ -646,7 +657,7 @@ const LernCreatorForm = () => {
       setGuidelineLink(stateguideline);
       setTNCLink(statetnc);
     } else if (category_of_participation === "Industry") {
-      setGuidelineLink("../../assets/industry-guidelines.pdf");
+      setGuidelineLink("/assets/industry-guidelines.pdf");;
       setTNCLink("../../assets/industry-tnc.pdf");
     } else if (category_of_participation === "Academia") {
       setGuidelineLink("../../assets/academia-guidelines.pdf");
@@ -991,7 +1002,7 @@ const LernCreatorForm = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          View and Download Guidelines
+                          View and Download Guidelines {guidelineLink}
                         </a>
                       )}
                     </Box>
@@ -1105,7 +1116,7 @@ const LernCreatorForm = () => {
                 <Grid item xs={12}>
                   <Grid container>
                     <Grid item xs={2} className="center-align">
-                      <InputLabel htmlFor="indicative_SubTheme">
+                      <InputLabel htmlFor="indicative_sub_theme">
                         Indicative SubTheme <span className="mandatory-symbol"> *</span>
                       </InputLabel>
                     </Grid>
@@ -1115,11 +1126,11 @@ const LernCreatorForm = () => {
                         fullWidth
                         margin="normal"
                         label="Indicative SubTheme"
-                        name="indicative_SubTheme"
-                        value={formData.indicative_SubTheme}
-                        onChange={handleChange}
-                        error={!!errors.indicative_SubTheme}
-                        helperText={errors.indicative_SubTheme}
+                        name="indicative_sub_theme"
+                        value={formData.indicative_sub_theme}
+                        onChange={handlesubthemeChange}
+                        error={!!errors.indicative_sub_theme}
+                        helperText={errors.indicative_sub_theme}
                         required
                       >
                         {indicativeSubThemes.map((theme) => (
