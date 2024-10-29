@@ -759,10 +759,8 @@ const LernCreatorForm = () => {
       setGuidelineLink(stateguideline);
       setTNCLink(statetnc);
     } else if (category_of_participation === "Industry") {
-
-      setGuidelineLink(industryguideline);;
+      setGuidelineLink(industryguideline);
       setTNCLink(industrytnc);
-
     } else if (category_of_participation === "Academia") {
       setGuidelineLink(acdemiaguideline);
       setTNCLink(acdemiatnc);
@@ -1334,7 +1332,7 @@ const LernCreatorForm = () => {
                       <FormControlLabel
                         value="url"
                         control={<Radio />}
-                        label="URL Upload"
+                        label="Youtube URL Upload"
                       />
                     </RadioGroup>
                   </Grid>
@@ -1342,7 +1340,9 @@ const LernCreatorForm = () => {
                   {/* Conditional Fields Based on Selection */}
                   <Grid item xs={2} className="center-align">
                     <InputLabel htmlFor="upload">
-                      {uploadType === "file" ? "File Upload" : "URL Upload"}
+                      {uploadType === "file"
+                        ? "File Upload"
+                        : "Youtube URL Upload"}
                       <span className="mandatory-symbol"> *</span>
                     </InputLabel>
                   </Grid>

@@ -244,72 +244,74 @@ const Player = () => {
   useEffect(
     async () => {
       setPreviousRoute(sessionStorage.getItem("previousRoutes"));
-      const fetchData = async (content_Id) => {
-        try {
-          const response = await fetch(
-            `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CONTENT.GET}/${content_Id}?fields=transcripts,ageGroup,appIcon,artifactUrl,attributions,attributions,audience,author,badgeAssertions,board,body,channel,code,concepts,contentCredits,contentType,contributors,copyright,copyrightYear,createdBy,createdOn,creator,creators,description,displayScore,domain,editorState,flagReasons,flaggedBy,flags,framework,gradeLevel,identifier,itemSetPreviewUrl,keywords,language,languageCode,lastUpdatedOn,license,mediaType,medium,mimeType,name,originData,osId,owner,pkgVersion,publisher,questions,resourceType,scoreDisplayConfig,status,streamingUrl,subject,template,templateId,totalQuestions,totalScore,versionKey,visibility,year,primaryCategory,additionalCategories,interceptionPoints,interceptionType&orgdetails=orgName,email&licenseDetails=name,description,url`,
-            {
-              headers: { "Content-Type": "application/json" },
-            }
-          );
-          if (!response.ok) throw new Error("Failed to fetch course data");
-          const data = await response.json();
-          console.log("data.result.content", data.result.content);
-          setLesson(data.result.content);
-        } catch (error) {
-          console.error("Error fetching course data:", error);
-        }
-      };
-
-      if (pageParam == "review" || pageParam == "lern") {
-        setIsLearnathon(true);
-
-        const assetBody = {
-          request: {
-            filters: {
-              learnathon_content_id: contentId,
-            },
-          },
+      if (pageParam != "vote") {
+        const fetchData = async (content_Id) => {
+          try {
+            const response = await fetch(
+              `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CONTENT.GET}/${content_Id}?fields=transcripts,ageGroup,appIcon,artifactUrl,attributions,attributions,audience,author,badgeAssertions,board,body,channel,code,concepts,contentCredits,contentType,contributors,copyright,copyrightYear,createdBy,createdOn,creator,creators,description,displayScore,domain,editorState,flagReasons,flaggedBy,flags,framework,gradeLevel,identifier,itemSetPreviewUrl,keywords,language,languageCode,lastUpdatedOn,license,mediaType,medium,mimeType,name,originData,osId,owner,pkgVersion,publisher,questions,resourceType,scoreDisplayConfig,status,streamingUrl,subject,template,templateId,totalQuestions,totalScore,versionKey,visibility,year,primaryCategory,additionalCategories,interceptionPoints,interceptionType&orgdetails=orgName,email&licenseDetails=name,description,url`,
+              {
+                headers: { "Content-Type": "application/json" },
+              }
+            );
+            if (!response.ok) throw new Error("Failed to fetch course data");
+            const data = await response.json();
+            console.log("data.result.content", data.result.content);
+            setLesson(data.result.content);
+          } catch (error) {
+            console.error("Error fetching course data:", error);
+          }
         };
-        try {
-          const response = await fetch(`${urlConfig.URLS.LEARNATHON.LIST}`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
+
+        if (pageParam == "review" || pageParam == "lern") {
+          setIsLearnathon(true);
+
+          const assetBody = {
+            request: {
+              filters: {
+                learnathon_content_id: contentId,
+              },
             },
-            body: JSON.stringify(assetBody),
-          });
+          };
+          try {
+            const response = await fetch(`${urlConfig.URLS.LEARNATHON.LIST}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(assetBody),
+            });
 
-          setLearnathonDetails(response?.data?.result?.data[0]);
+            setLearnathonDetails(response?.data?.result?.data[0]);
 
-          if (!response.ok) {
-            throw new Error("Something went wrong");
+            if (!response.ok) {
+              throw new Error("Something went wrong");
+            }
+
+            const result = await response.json();
+            console.log("suceesss----", result);
+            console.log(result.result);
+
+            setLearnathonDetails(result.result.data[0]);
+
+            setPlayerContent(result.result.data[0].content_id);
+
+            if (result.result.data[0].content_id === null || undefined) {
+              setNoPreviewAvailable(true);
+            } else {
+              fetchData(result.result.data[0].content_id);
+            }
+          } catch (error) {
+            console.log("error---", error);
+          } finally {
           }
-
-          const result = await response.json();
-          console.log("suceesss----", result);
-          console.log(result.result);
-
-          setLearnathonDetails(result.result.data[0]);
-
-          setPlayerContent(result.result.data[0].content_id);
-
-          if (result.result.data[0].content_id === null || undefined) {
-            setNoPreviewAvailable(true);
-          } else {
-            fetchData(result.result.data[0].content_id);
-          }
-        } catch (error) {
-          console.log("error---", error);
-        } finally {
+        } else {
+          fetchData(contentId);
         }
-      } else {
-        fetchData(contentId);
-      }
 
-      fetchUserData();
-      if (!consumedContent.includes(contentId)) {
-        updateContentState(2);
+        fetchUserData();
+        if (!consumedContent.includes(contentId)) {
+          updateContentState(2);
+        }
       }
     },
     [contentId, consumedContent, fetchUserData, updateContentState],
@@ -326,6 +328,23 @@ const Player = () => {
   const handleGoBack = () => navigate(sessionStorage.getItem("previousRoutes"));
   const handleBackNavigation = () => {
     navigate(-1); // Navigate back in history
+  };
+
+  const fetchData = async (content_Id) => {
+    try {
+      const response = await fetch(
+        `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CONTENT.GET}/${content_Id}?fields=transcripts,ageGroup,appIcon,artifactUrl,attributions,audience,author,badgeAssertions,board,body,channel,code,concepts,contentCredits,contentType,contributors,copyright,createdBy,description,displayScore,domain,keywords,language,name,subject&orgdetails=orgName,email&licenseDetails=name,description,url`,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (!response.ok) throw new Error("Failed to fetch course data");
+      const data = await response.json();
+      console.log("data.result.content", data.result.content);
+      setLesson(data.result.content);
+    } catch (error) {
+      console.error("Error fetching course data:", error);
+    }
   };
 
   const CheckLearnathonContent = async () => {
@@ -348,6 +367,7 @@ const Player = () => {
 
       const response = await axios.post(url, requestBody);
       if (response?.data?.result?.totalCount > 0) {
+        fetchData(response?.data?.result?.data[0]?.content_id);
         setLearnathonDetails(response?.data?.result?.data[0]);
         setPollId(response?.data?.result?.data[0]?.poll_id);
         setIsLearnathon(true);
@@ -375,13 +395,12 @@ const Player = () => {
   };
 
   useEffect(() => {
-    if(pageParam == "vote"){
+    if (pageParam == "vote") {
       CheckLearnathonContent();
     }
-    
   }, [contentId]);
   useEffect(() => {
-    if(pageParam == "vote"){
+    if (pageParam == "vote") {
       CheckAlreadyVoted();
     }
   }, [pollId]);
