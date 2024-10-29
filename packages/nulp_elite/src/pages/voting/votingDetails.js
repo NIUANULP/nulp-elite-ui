@@ -177,6 +177,7 @@ const VotingDetails = () => {
         setToasterOpen(true);
 
         }else{
+          navigate("/webapp/lernvotinglist")
           setToasterMessage(
           "Vote submitted successfully"
         );
@@ -454,11 +455,12 @@ const VotingDetails = () => {
                           placeholder={t("Enter your remark")}
                           value={enteredRemark || remark}
                           onChange={handleRemarkChange}
+                          disabled={userVote?.length > 0}
                         />
                       </Box>
                     )}
                     <Box>
-                      {userVote?.length > 0 ? (
+                      {userVote?.length > 0 && poll.category !== "Learnathon" ? (
                         <Button
                           type="button"
                           className="custom-btn-primary"
