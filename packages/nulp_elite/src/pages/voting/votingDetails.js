@@ -170,10 +170,20 @@ const VotingDetails = () => {
 
       try {
         await axios.post(`${urlConfig.URLS.POLL.USER_CREATE}`, data);
-        setToasterMessage(
+        if(poll?.category !== "Learnathon"){
+          setToasterMessage(
           "Vote submitted successfully, You can update your vote within next 15 minutes"
         );
         setToasterOpen(true);
+
+        }else{
+          setToasterMessage(
+          "Vote submitted successfully"
+        );
+        setToasterOpen(true);
+
+        }
+        
         fetchUserVote(pollId);
       } catch (error) {
         console.error("Error submitting vote", error);

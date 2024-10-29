@@ -423,8 +423,8 @@ const Player = () => {
       console.log(updatedDateTime,"currentDateAndTime");
 
       const data = {
-        title: lesson.name,
-        description: lesson,
+        title: learnathonDetails?.title_of_submission,
+        description: learnathonDetails?.description,
         visibility: "PublicToAll",
         poll_options: ["I would like to vote this content"],
         poll_type: "Polls",

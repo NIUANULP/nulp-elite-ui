@@ -24,8 +24,13 @@ import { v4 as uuidv4 } from "uuid";
 import { useNavigate, useLocation } from "react-router-dom";
 import Container from "@mui/material/Container";
 import InputLabel from "@mui/material/InputLabel";
+import acdemiaguideline from "../../assets/academia-guidelines.pdf";
 import stateguideline from "../../assets/state-guidelines.pdf";
+import industryguideline from "../../assets/industry-guidelines.pdf";
+import industrytnc from "../../assets/industry-tnc.pdf";
+import acdemiatnc from "../../assets/academia-tnc.pdf";
 import statetnc from "../../assets/state-tnc.pdf";
+
 import Alert from "@mui/material/Alert";
 
 import { Observable } from "rxjs";
@@ -657,11 +662,11 @@ const LernCreatorForm = () => {
       setGuidelineLink(stateguideline);
       setTNCLink(statetnc);
     } else if (category_of_participation === "Industry") {
-      setGuidelineLink("/assets/industry-guidelines.pdf");;
-      setTNCLink("../../assets/industry-tnc.pdf");
+      setGuidelineLink(industryguideline);;
+      setTNCLink(industrytnc);
     } else if (category_of_participation === "Academia") {
-      setGuidelineLink("../../assets/academia-guidelines.pdf");
-      setTNCLink("../../assets/academia-tnc.pdf");
+      setGuidelineLink(acdemiaguideline);
+      setTNCLink(acdemiatnc);
     } else {
       setGuidelineLink("");
       setTNCLink("");
@@ -1002,7 +1007,7 @@ const LernCreatorForm = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          View and Download Guidelines {guidelineLink}
+                          View and Download Guidelines
                         </a>
                       )}
                     </Box>
