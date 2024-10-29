@@ -434,6 +434,7 @@ const LernCreatorForm = () => {
           }
 
           const uploadResult = await response.json();
+          console.log(uploadResult.result.artifactUrl);
           setFormData({
             ...formData,
             icon: uploadResult.result.artifactUrl,
@@ -458,6 +459,10 @@ const LernCreatorForm = () => {
       // setError(error.message);
     } finally {
     }
+    // setFormData({
+    //   ...formData,
+    //   icon: "https://devnewnulp.blob.core.windows.net/contents/content/do_1141731824771481601676/artifact/do_1141731824771481601676_1730124815972_samplejpgimage_2mbmb.jpg",
+    // });
   };
   const handleFileChange = async (e) => {
     const mimeType = e.target.files[0].type;
@@ -1440,7 +1445,7 @@ const LernCreatorForm = () => {
                       }
                     />
                     <a href={TNCLink} target="_blank" rel="noopener noreferrer">
-                      View and Download Guidelines
+                      Accept terms and conditions
                     </a>
                   </Grid>
                   <Grid
