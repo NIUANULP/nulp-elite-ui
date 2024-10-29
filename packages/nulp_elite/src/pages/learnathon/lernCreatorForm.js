@@ -30,6 +30,7 @@ import InputLabel from "@mui/material/InputLabel";
 import stateguideline from "../../assets/state-guidelines.pdf";
 import statetnc from "../../assets/state-tnc.pdf";
 import Alert from "@mui/material/Alert";
+const routeConfig = require("../../configs/routeConfig.json");
 
 import { Observable } from "rxjs";
 
@@ -130,6 +131,8 @@ const LernCreatorForm = () => {
   const [city, setCity] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [uploadType, setUploadType] = useState("file");
+  const [previewPlayerPage, setPreviewPlayerPage] = useState();
+  const [iconPreviewPage, setIconPreviewPage] = useState();
 
   const handleUploadTypeChange = (event) => {
     console.log(event.target.value);
@@ -203,6 +206,8 @@ const LernCreatorForm = () => {
         }
 
         const result = await response.json();
+        setPreviewPlayerPage(result.result.data[0].content_id);
+        setIconPreviewPage(result.result.data[0].icon);
         // fetchIconData(result.result.data[0].icon);
         fetchContentData(result.result.data[0].content_id);
         setIsEdit(true);
@@ -456,10 +461,7 @@ const LernCreatorForm = () => {
           console.log("error---", error);
         } finally {
         }
-        setFormData({
-          ...formData,
-          icon: uploadResult.result.artifactUrl,
-        });
+
         setErrors({ ...errors, icon: "" });
       } catch (error) {
         console.log("error---", error);
@@ -1372,14 +1374,13 @@ const LernCreatorForm = () => {
                         fullWidth
                         onChange={(event) => handleFileChange(event, "file")}
                         inputProps={{
-                          accept:
-                            "video/mp4,application/pdf,text/html,video/youtube",
+                          accept: "video/mp4,application/pdf,text/html",
                         }}
                         sx={{ border: "1px dashed" }}
                       />
                     </Grid>
                   ) : (
-                    <Grid item xs={10}>
+                    <Grid item xs={6}>
                       <TextField
                         type="url"
                         fullWidth
@@ -1389,7 +1390,22 @@ const LernCreatorForm = () => {
                     </Grid>
                   )}
 
-                  <Grid item xs={2}></Grid>
+                  <Grid item xs={3}>
+                    {" "}
+                    {isEdit && formData.content_id && (
+                      <a
+                        href="#"
+                        onClick={(e) => {
+                          window.open(
+                            `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${previewPlayerPage}`,
+                            "_blank"
+                          );
+                        }}
+                      >
+                        Preview
+                      </a>
+                    )}
+                  </Grid>
                   <Grid item xs={10}>
                     <Alert className="mt-9" severity="info">
                       Supported formats: MP4, PDF, HTML5, YouTube links
