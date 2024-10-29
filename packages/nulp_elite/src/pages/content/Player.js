@@ -374,10 +374,15 @@ const Player = () => {
   };
 
   useEffect(() => {
-    CheckLearnathonContent();
+    if(pageParam == "vote"){
+      CheckLearnathonContent();
+    }
+    
   }, [contentId]);
   useEffect(() => {
-    CheckAlreadyVoted();
+    if(pageParam == "vote"){
+      CheckAlreadyVoted();
+    }
   }, [pollId]);
 
   const handleClick = (poll_id) => {

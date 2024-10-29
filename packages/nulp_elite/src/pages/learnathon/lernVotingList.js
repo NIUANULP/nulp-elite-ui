@@ -106,7 +106,7 @@ const LernVotingList = () => {
   };
 
   const handleClick = (contentId) => {
-    navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${contentId}`);
+    navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${contentId}&page=vote`);
   };
 
   const handleChange = (event, value) => {
