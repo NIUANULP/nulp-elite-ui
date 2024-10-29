@@ -1316,33 +1316,6 @@ const LernCreatorForm = () => {
                   </Grid>
                 </Grid>
               </Grid>
-              {/* <Grid item xs={12}>
-                <Grid container>
-                  <Grid item xs={2} className="center-align">
-                    <InputLabel htmlFor="File Upload">
-                      File Upload <span className="mandatory-symbol"> *</span>
-                    </InputLabel>
-                  </Grid>
-                  <Grid item xs={10}>
-                    <TextField
-                      type="file"
-                      fullWidth
-                      onChange={handleFileChange}
-                      inputProps={{
-                        accept:
-                          "video/mp4,application/pdf,text/html,video/youtube",
-                      }}
-                      sx={{ border: "1px dashed" }}
-                    />
-                  </Grid>
-                  <Grid item xs={2}></Grid>
-                  <Grid item xs={10}>
-                    <Alert className="mt-9" everity="info">
-                      Supported formats: MP4, PDF, HTML5, YouTube links
-                    </Alert>
-                  </Grid>
-                </Grid>
-              </Grid> */}
               <Grid item xs={12}>
                 <Grid container spacing={2}>
                   {/* Toggle between URL and File */}
@@ -1375,7 +1348,7 @@ const LernCreatorForm = () => {
                   </Grid>
 
                   {uploadType === "file" ? (
-                    <Grid item xs={10}>
+                    <Grid item xs={7}>
                       <TextField
                         type="file"
                         fullWidth
@@ -1387,7 +1360,7 @@ const LernCreatorForm = () => {
                       />
                     </Grid>
                   ) : (
-                    <Grid item xs={6}>
+                    <Grid item xs={7}>
                       <TextField
                         type="url"
                         fullWidth
