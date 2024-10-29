@@ -262,7 +262,7 @@ const Player = () => {
       };
 
       if (pageParam == "review" || pageParam == "lern") {
-        setIsLearnathon(true)
+        setIsLearnathon(true);
 
         const assetBody = {
           request: {
@@ -289,7 +289,7 @@ const Player = () => {
           const result = await response.json();
           console.log("suceesss----", result);
           console.log(result.result);
-          contentId = result.result.data.content_id;
+          // contentId = result.result.data.content_id;
 
           setLearnathonDetails(result.result.data[0]);
 
@@ -297,7 +297,7 @@ const Player = () => {
           setPlayerContent("do_1141679594120396801562");
 
           // fetchData(result.result.data.content_id);
-          fetchData("do_1141679594120396801562");
+          fetchData(result.result.data.content_id);
         } catch (error) {
           console.log("error---", error);
           // setError(error.message);
@@ -331,9 +331,9 @@ const Player = () => {
 
   const CheckLearnathonContent = async () => {
     const currentDateTime = new Date();
-      currentDateTime.setMinutes(currentDateTime.getMinutes() + 2);
-      const updatedDateTime = currentDateTime.toISOString();
-      console.log(updatedDateTime,"currentDateAndTime");
+    currentDateTime.setMinutes(currentDateTime.getMinutes() + 2);
+    const updatedDateTime = currentDateTime.toISOString();
+    console.log(updatedDateTime, "currentDateAndTime");
     try {
       const url = `${urlConfig.URLS.LEARNATHON.LIST}`;
       const requestBody = {
@@ -359,18 +359,20 @@ const Player = () => {
   };
 
   const CheckAlreadyVoted = async () => {
-   if(learnathonDetails?.status === "Live"){ try {
-      const url = `${urlConfig.URLS.POLL.GET_USER_POLL}?poll_id=${pollId}&user_id=${_userId}`;
-      const response = await axios.get(url);
-      if (
-        Array.isArray(response?.data?.result) &&
-        response?.data?.result.length !== 0
-      ) {
-        setAlreadyVoted(true);
+    if (learnathonDetails?.status === "Live") {
+      try {
+        const url = `${urlConfig.URLS.POLL.GET_USER_POLL}?poll_id=${pollId}&user_id=${_userId}`;
+        const response = await axios.get(url);
+        if (
+          Array.isArray(response?.data?.result) &&
+          response?.data?.result.length !== 0
+        ) {
+          setAlreadyVoted(true);
+        }
+      } catch (error) {
+        console.error("Error fetching course data:", error);
       }
-    } catch (error) {
-      console.error("Error fetching course data:", error);
-    }}
+    }
   };
 
   useEffect(() => {
@@ -415,7 +417,7 @@ const Player = () => {
       const currentDateTime = new Date();
       currentDateTime.setMinutes(currentDateTime.getMinutes() + 2);
       const updatedDateTime = currentDateTime.toISOString();
-      console.log(updatedDateTime,"currentDateAndTime");
+      console.log(updatedDateTime, "currentDateAndTime");
 
       const data = {
         title: lesson.name,
@@ -463,8 +465,8 @@ const Player = () => {
 
             if (!response.ok) {
               throw new Error("Something went wrong");
-            }else{
-              navigate("/webapp/lernreviewlist")
+            } else {
+              navigate("/webapp/lernreviewlist");
             }
 
             const result = await response.json();
@@ -582,7 +584,9 @@ const Player = () => {
                   </Breadcrumbs>
                 )}
                 <Box className="h3-title">
-                  {isLearnathon ? learnathonDetails?.title_of_submission : lesson?.name}
+                  {isLearnathon
+                    ? learnathonDetails?.title_of_submission
+                    : lesson?.name}
                 </Box>
               </Box>
               <Box>
@@ -629,7 +633,8 @@ const Player = () => {
                       )
                     )}
 
-                    {!isLearnathon && !lesson.board &&
+                    {!isLearnathon &&
+                      !lesson.board &&
                       lesson.se_boards &&
                       lesson.se_boards.map((item, index) => (
                         <Button
@@ -646,23 +651,23 @@ const Player = () => {
                           {item}
                         </Button>
                       ))}
-                   
-                      {isLearnathon ? (
-                        <Button
-                          key={`board`}
-                          size="small"
-                          style={{
-                            color: "#424242",
-                            fontSize: "10px",
-                            margin: "0 10px 3px 6px",
-                            cursor: "auto",
-                          }}
-                          className="bg-blueShade3"
-                        >
-                          {learnathonDetails.indicative_sub_theme}
-                        </Button>
-                      ) : (
-                        lesson.gradeLevel &&
+
+                    {isLearnathon ? (
+                      <Button
+                        key={`board`}
+                        size="small"
+                        style={{
+                          color: "#424242",
+                          fontSize: "10px",
+                          margin: "0 10px 3px 6px",
+                          cursor: "auto",
+                        }}
+                        className="bg-blueShade3"
+                      >
+                        {learnathonDetails.indicative_sub_theme}
+                      </Button>
+                    ) : (
+                      lesson.gradeLevel &&
                       lesson.gradeLevel.map((item, index) => (
                         <Button
                           key={`gradeLevel-${index}`}
@@ -677,11 +682,11 @@ const Player = () => {
                         >
                           {item}
                         </Button>
-                        ))
-                      )}
-                    
+                      ))
+                    )}
 
-                    {!isLearnathon && !lesson.gradeLevel &&
+                    {!isLearnathon &&
+                      !lesson.gradeLevel &&
                       lesson.se_gradeLevels &&
                       lesson.se_gradeLevels.map((item, index) => (
                         <Button
