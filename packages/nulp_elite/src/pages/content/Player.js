@@ -244,7 +244,8 @@ const Player = () => {
   useEffect(
     async () => {
       setPreviousRoute(sessionStorage.getItem("previousRoutes"));
-      const fetchData = async (content_Id) => {
+      if(pageParam != "vote"){
+        const fetchData = async (content_Id) => {
         try {
           const response = await fetch(
             `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CONTENT.GET}/${content_Id}?fields=transcripts,ageGroup,appIcon,artifactUrl,attributions,attributions,audience,author,badgeAssertions,board,body,channel,code,concepts,contentCredits,contentType,contributors,copyright,copyrightYear,createdBy,createdOn,creator,creators,description,displayScore,domain,editorState,flagReasons,flaggedBy,flags,framework,gradeLevel,identifier,itemSetPreviewUrl,keywords,language,languageCode,lastUpdatedOn,license,mediaType,medium,mimeType,name,originData,osId,owner,pkgVersion,publisher,questions,resourceType,scoreDisplayConfig,status,streamingUrl,subject,template,templateId,totalQuestions,totalScore,versionKey,visibility,year,primaryCategory,additionalCategories,interceptionPoints,interceptionType&orgdetails=orgName,email&licenseDetails=name,description,url`,
@@ -261,7 +262,7 @@ const Player = () => {
         }
       };
 
-      if (pageParam == "review" || pageParam == "lern") {
+       if (pageParam == "review" || pageParam == "lern") {
         setIsLearnathon(true);
 
         const assetBody = {
@@ -294,6 +295,7 @@ const Player = () => {
 
           setPlayerContent(result.result.data[0].content_id);
 
+
           fetchData(result.result.data[0].content_id);
         } catch (error) {
           console.log("error---", error);
@@ -307,6 +309,9 @@ const Player = () => {
       if (!consumedContent.includes(contentId)) {
         updateContentState(2);
       }
+    }
+
+     
     },
     [contentId, consumedContent, fetchUserData, updateContentState],
     pageParam
@@ -322,6 +327,23 @@ const Player = () => {
   const handleGoBack = () => navigate(sessionStorage.getItem("previousRoutes"));
   const handleBackNavigation = () => {
     navigate(-1); // Navigate back in history
+  };
+
+  const fetchData = async (content_Id) => {
+    try {
+      const response = await fetch(
+        `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CONTENT.GET}/${content_Id}?fields=transcripts,ageGroup,appIcon,artifactUrl,attributions,audience,author,badgeAssertions,board,body,channel,code,concepts,contentCredits,contentType,contributors,copyright,createdBy,description,displayScore,domain,keywords,language,name,subject&orgdetails=orgName,email&licenseDetails=name,description,url`,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (!response.ok) throw new Error("Failed to fetch course data");
+      const data = await response.json();
+      console.log("data.result.content", data.result.content);
+      setLesson(data.result.content);
+    } catch (error) {
+      console.error("Error fetching course data:", error);
+    }
   };
 
   const CheckLearnathonContent = async () => {
@@ -344,9 +366,11 @@ const Player = () => {
 
       const response = await axios.post(url, requestBody);
       if (response?.data?.result?.totalCount > 0) {
+        fetchData(response?.data?.result?.data[0]?.content_id);
         setLearnathonDetails(response?.data?.result?.data[0]);
         setPollId(response?.data?.result?.data[0]?.poll_id);
         setIsLearnathon(true);
+        
       }
     } catch (error) {
       console.error("Error fetching course data:", error);
