@@ -431,7 +431,7 @@ const Player = () => {
         start_date: updatedDateTime,
         end_date: "2024-11-22T12:21:09.754Z",
         is_live_poll_result: true,
-        content_id: courseId,
+        content_id: learnathonDetails?.content_id,
         category: "Learnathon",
       };
       try {
