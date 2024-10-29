@@ -29,7 +29,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import md5 from "md5";
-import { isEmpty } from "lodash";
+import { isEmpty, set } from "lodash";
 const urlConfig = require("../../configs/urlConfig.json");
 const routeConfig = require("../../configs/routeConfig.json");
 const Player = () => {
@@ -63,10 +63,10 @@ const Player = () => {
   const [learnathonDetails, setLearnathonDetails] = useState();
   const [isPublished, setIsPublished] = useState(false);
   const params = new URLSearchParams(window.location.search);
-  const idParam = params.get("id");
   const pageParam = params.get("page");
   let contentId = params.get("id");
   const [playerContent, setPlayerContent] = useState(false);
+  const [noPreviewAvailable, setNoPreviewAvailable] = useState(false);
   let extractedRoles;
   if (contentId && contentId.endsWith("=")) {
     contentId = contentId.slice(0, -1);
@@ -294,7 +294,11 @@ const Player = () => {
 
           setPlayerContent(result.result.data[0].content_id);
 
-          fetchData(result.result.data[0].content_id);
+          if (result.result.data[0].content_id === null || undefined) {
+            setNoPreviewAvailable(true);
+          } else {
+            fetchData(result.result.data[0].content_id);
+          }
         } catch (error) {
           console.log("error---", error);
         } finally {
@@ -725,7 +729,7 @@ const Player = () => {
               maxWidth: "100%",
             }}
           >
-            {lesson && (
+            {lesson ? (
               <SunbirdPlayer
                 {...lesson}
                 userData={{
@@ -783,6 +787,8 @@ const Player = () => {
                 }}
                 public_url="https://nulp.niua.org/newplayer"
               />
+            ) : (
+              <Box>No content available to play</Box>
             )}
           </Box>
           <Box
