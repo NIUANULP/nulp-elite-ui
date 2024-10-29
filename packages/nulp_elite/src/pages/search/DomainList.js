@@ -84,8 +84,13 @@ const DomainList = ({ globalSearchQuery }) => {
       const data = await response.json();
       const rolesData = data.result.response.channel;
       const roles = data.result.response.roles;
-      const organizationId = roles[0]?.scope[0]?.organisationId;
-      const extractedRoles = roles.map((roleObj) => roleObj.role);
+      let organizationId;
+
+      if (roles[0]?.scope[0]?.organisationId) {
+        organizationId = roles[0].scope[0].organisationId;
+      } else {
+          organizationId = data?.result?.response?.organisations[0]?.organisationId;
+        }      const extractedRoles = roles.map((roleObj) => roleObj.role);
       setRoleList(extractedRoles);
       setOrgId(organizationId);
       setLernUser(rolesData);
