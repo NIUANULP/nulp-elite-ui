@@ -582,7 +582,7 @@ const Player = () => {
                   </Breadcrumbs>
                 )}
                 <Box className="h3-title">
-                  {isLearnathon ? learnathonDetails.title_of_submission : lesson?.name}
+                  {isLearnathon ? learnathonDetails?.title_of_submission : lesson?.name}
                 </Box>
               </Box>
               <Box>
