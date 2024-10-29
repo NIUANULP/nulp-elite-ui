@@ -280,6 +280,8 @@ const Player = () => {
             body: JSON.stringify(assetBody),
           });
 
+          setLearnathonDetails(response?.data?.result?.data[0]);
+
           if (!response.ok) {
             throw new Error("Something went wrong");
           }
@@ -328,6 +330,10 @@ const Player = () => {
   };
 
   const CheckLearnathonContent = async () => {
+    const currentDateTime = new Date();
+      currentDateTime.setMinutes(currentDateTime.getMinutes() + 2);
+      const updatedDateTime = currentDateTime.toISOString();
+      console.log(updatedDateTime,"currentDateAndTime");
     try {
       const url = `${urlConfig.URLS.LEARNATHON.LIST}`;
       const requestBody = {
@@ -576,7 +582,7 @@ const Player = () => {
                   </Breadcrumbs>
                 )}
                 <Box className="h3-title">
-                  {isLearnathon ? learnathonDetails.title_of_submission : lesson?.name}
+                  {isLearnathon ? learnathonDetails?.title_of_submission : lesson?.name}
                 </Box>
               </Box>
               <Box>
