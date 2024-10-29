@@ -150,10 +150,9 @@ const DomainList = ({ globalSearchQuery }) => {
       const result = data.result.data.responseCode;
 
       responsecode = result;
-      setResponseCode(result);
 
       if (result === "OK") {
-        navigate("webapp/mylernsubmissions");
+        navigate("/webapp/mylernsubmissions");
         setIsModalOpen(false);
       } else {
         setToasterMessage("Something went wrong! Please try again later");

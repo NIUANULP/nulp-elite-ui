@@ -338,7 +338,7 @@ const Player = () => {
       const requestBody = {
         request: {
           filters: {
-            content_id: contentId,
+            learnathon_content_id: contentId,
             status: "Live",
             // start_date:start_date,
             // end_date:end_date,
@@ -375,10 +375,15 @@ const Player = () => {
   };
 
   useEffect(() => {
-    CheckLearnathonContent();
+    if(pageParam == "vote"){
+      CheckLearnathonContent();
+    }
+    
   }, [contentId]);
   useEffect(() => {
-    CheckAlreadyVoted();
+    if(pageParam == "vote"){
+      CheckAlreadyVoted();
+    }
   }, [pollId]);
 
   const handleClick = (poll_id) => {
@@ -419,15 +424,15 @@ const Player = () => {
       console.log(updatedDateTime, "currentDateAndTime");
 
       const data = {
-        title: lesson.name,
-        description: lesson,
+        title: learnathonDetails?.title_of_submission,
+        description: learnathonDetails?.description,
         visibility: "PublicToAll",
         poll_options: ["I would like to vote this content"],
         poll_type: "Polls",
         start_date: updatedDateTime,
         end_date: "2024-11-22T12:21:09.754Z",
         is_live_poll_result: true,
-        content_id: courseId,
+        content_id: learnathonDetails?.learnathon_content_id,
         category: "Learnathon",
       };
       try {
