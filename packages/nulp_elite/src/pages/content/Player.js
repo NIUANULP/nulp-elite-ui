@@ -289,20 +289,15 @@ const Player = () => {
           const result = await response.json();
           console.log("suceesss----", result);
           console.log(result.result);
-          // contentId = result.result.data.content_id;
 
           setLearnathonDetails(result.result.data[0]);
 
-          // setPlayerContent(result.result.data.content_id);
-          setPlayerContent("do_1141679594120396801562");
+          setPlayerContent(result.result.data[0].content_id);
 
-          // fetchData(result.result.data.content_id);
-          fetchData(result.result.data.content_id);
+          fetchData(result.result.data[0].content_id);
         } catch (error) {
           console.log("error---", error);
-          // setError(error.message);
         } finally {
-          // setIsLoading(false);
         }
       } else {
         fetchData(contentId);
@@ -472,16 +467,9 @@ const Player = () => {
             const result = await response.json();
             console.log("suceesss");
             navigate("/webapp/mylernsubmissions");
-            // setData(result.result.data);
-            // setTotalPages(Math.ceil(result.result.totalCount / 10));
           } catch (error) {
-            // setError(error.message);
           } finally {
-            // setIsLoading(false);
           }
-          // setToasterMessage("Poll created successfully!");
-          // setToasterOpen(true);
-          // navigate("/webapp/pollDashboard"); // Redirect to success page
         } else {
           throw new Error("Failed to create poll");
         }
