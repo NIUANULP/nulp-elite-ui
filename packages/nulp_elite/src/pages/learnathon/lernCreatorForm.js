@@ -139,6 +139,7 @@ const LernCreatorForm = () => {
   const [previewPlayerPage, setPreviewPlayerPage] = useState();
   const [iconPreviewPage, setIconPreviewPage] = useState();
   const [youtubeUrl, setyoutubeURL] = useState();
+  const [preIndicativeTheme, setPreIndicativeThemes] = useState();
 
   const handleUploadTypeChange = (event) => {
     console.log(event.target.value);
@@ -220,6 +221,10 @@ const LernCreatorForm = () => {
         const readResponse = result.result.data[0];
         if (result.result.data[0].status != "draft") {
           setIsNotDraft(true);
+        }
+        if(readResponse.indicative_theme){
+          setPreIndicativeThemes(readResponse.indicative_theme)
+
         }
         // Update formData with the response data
         setFormData((prevFormData) => ({
@@ -349,6 +354,15 @@ const LernCreatorForm = () => {
   };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+    setErrors({ ...errors, [name]: "" });
+  };
+
+  const handleThemeChange = (e) => {
     const { name, value } = e.target;
     const selectedBoard = e.target.value;
     console.log(selectedBoard, "selectedBoard");
@@ -920,6 +934,21 @@ const LernCreatorForm = () => {
       setIndicativeThemes(
         data?.result?.framework?.categories[Categoryindex]?.terms
       );
+      if(preIndicativeTheme){
+        const selectedBoard = preIndicativeTheme;
+    console.log(data?.result?.framework?.categories[Categoryindex]?.terms,"indicativeThemes--------");
+    const selectedIndex = data?.result?.framework?.categories[Categoryindex]?.terms.findIndex(
+      (category) => category.name === selectedBoard
+    );
+    if (selectedIndex !== -1) {
+      setIndicativeSubThemes(
+        indicativeThemes[selectedIndex]?.associations || []
+      );
+    } else {
+      setIndicativeSubThemes([]);
+
+      }
+    }
     } catch (error) {
       console.error("Error fetching data:", error);
       showErrorMessage(t("FAILED_TO_FETCH_DATA"));
@@ -928,7 +957,7 @@ const LernCreatorForm = () => {
 
   useEffect(() => {
     getFramework();
-  }, []);
+  }, [preIndicativeTheme]);
 
   return (
     <>
@@ -1167,7 +1196,7 @@ const LernCreatorForm = () => {
                       label="Indicative Theme"
                       name="indicative_theme"
                       value={formData.indicative_theme}
-                      onChange={handleChange}
+                      onChange={handleThemeChange}
                       error={!!errors.indicative_theme}
                       helperText={errors.indicative_theme}
                       required
