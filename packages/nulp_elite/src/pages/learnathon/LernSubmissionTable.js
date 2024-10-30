@@ -35,7 +35,8 @@ const LernSubmissionTable = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [data, setData] = useState([]);
-  const [page, setPage] = useState(0);
+  const [pageNumber, setPageNumber] = useState(1);
+
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
   const [search, setSearch] = useState("");
@@ -43,6 +44,7 @@ const LernSubmissionTable = () => {
   const urlConfig = require("../../configs/urlConfig.json");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [emptySubmission, setEmptySubmission] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [lernId, setLernId] = useState();
   const [contId, setcontId] = useState();
   const handleDialogOpen = (learnathon_content_id, content_id) => {
@@ -55,7 +57,7 @@ const LernSubmissionTable = () => {
 
   useEffect(() => {
     fetchData();
-  }, [page, rowsPerPage, search]);
+  }, [currentPage, rowsPerPage, search]);
 
   const fetchData = async () => {
     const assetBody = {
@@ -67,7 +69,7 @@ const LernSubmissionTable = () => {
           created_on: "desc",
         },
         limit: rowsPerPage,
-        offset: page * rowsPerPage,
+        offset: 10 * (currentPage - 1),
         search: search,
       },
     };
@@ -102,7 +104,7 @@ const LernSubmissionTable = () => {
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
-    setPage(0); // Reset to first page on search
+    setCurrentPage(0); // Reset to first page on search
   };
 
   const handleDialogClose = () => {
@@ -133,13 +135,12 @@ const LernSubmissionTable = () => {
     }
   };
 
-  const handlePageChange = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleRowsPerPageChange = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+  const handleChange = (event, value) => {
+    if (value !== pageNumber) {
+      setPageNumber(value);
+      setCurrentPage(value);
+      fetchData();
+    }
   };
 
   return (
@@ -294,12 +295,9 @@ const LernSubmissionTable = () => {
         )}
 
         <Pagination
-          component="div"
           count={totalRows}
-          page={page}
-          onPageChange={handlePageChange}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleRowsPerPageChange}
+          page={pageNumber}
+          onChange={handleChange}
         />
         <Dialog open={dialogOpen} onClose={handleDialogClose}>
           <DialogContent>
