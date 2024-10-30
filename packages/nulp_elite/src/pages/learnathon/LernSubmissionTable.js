@@ -93,7 +93,7 @@ const LernSubmissionTable = () => {
       if (result.result.totalCount == 0) {
         setEmptySubmission(true);
       }
-      setTotalRows(result.result.totalCount / 10);
+      setTotalRows(Math.ceil(result.result.totalCount / 10));
     } catch (error) {
       console.log("error---", error);
       // setError(error.message);
