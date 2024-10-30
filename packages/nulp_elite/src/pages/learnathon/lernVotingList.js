@@ -120,7 +120,7 @@ const LernVotingList = () => {
   return (
     <>
       <Header />
-      <Paper sx={{ padding: "20px", backgroundColor: "#f9f4eb" }}>
+      <Box sx={{ padding: "20px" }}>
         <Box
           display="flex"
           justifyContent="space-between"
@@ -189,7 +189,7 @@ const LernVotingList = () => {
           page={pageNumber}
           onChange={handleChange}
         />
-      </Paper>
+      </Box>
       <Footer />
     </>
   );
