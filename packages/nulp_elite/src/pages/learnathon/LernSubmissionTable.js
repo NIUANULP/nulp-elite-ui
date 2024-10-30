@@ -37,7 +37,7 @@ const LernSubmissionTable = () => {
   const [data, setData] = useState([]);
   const [pageNumber, setPageNumber] = useState(1);
 
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(20);
   const [totalRows, setTotalRows] = useState(0);
   const [search, setSearch] = useState("");
   const _userId = util.userId(); // Assuming util.userId() is defined
@@ -69,7 +69,7 @@ const LernSubmissionTable = () => {
           created_on: "desc",
         },
         limit: rowsPerPage,
-        offset: 10 * (currentPage - 1),
+        offset: 20 * (currentPage - 1),
         search: search,
       },
     };

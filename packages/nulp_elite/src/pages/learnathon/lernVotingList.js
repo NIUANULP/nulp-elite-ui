@@ -28,7 +28,7 @@ const LernVotingList = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(20);
   const [totalRows, setTotalRows] = useState(0);
   const [search, setSearch] = useState("");
   const [pollData, setPollData] = useState([]);
@@ -49,7 +49,7 @@ const LernVotingList = () => {
         },
 
         limit: rowsPerPage,
-        offset: 10 * (currentPage - 1),
+        offset: 20 * (currentPage - 1),
         search: search,
       },
     };
@@ -106,7 +106,9 @@ const LernVotingList = () => {
   };
 
   const handleClick = (contentId) => {
-    navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${contentId}&page=vote`);
+    navigate(
+      `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${contentId}&page=vote`
+    );
   };
 
   const handleChange = (event, value) => {
