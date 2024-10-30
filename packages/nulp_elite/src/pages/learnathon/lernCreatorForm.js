@@ -138,6 +138,7 @@ const LernCreatorForm = () => {
   const [uploadType, setUploadType] = useState("file");
   const [previewPlayerPage, setPreviewPlayerPage] = useState();
   const [iconPreviewPage, setIconPreviewPage] = useState();
+  const [youtubeUrl, setyoutubeURL] = useState();
 
   const handleUploadTypeChange = (event) => {
     console.log(event.target.value);
@@ -610,24 +611,6 @@ const LernCreatorForm = () => {
               }
             });
 
-          // try {
-          //   const subscription = uploadToBlob(url, file, csp).subscribe({
-          //     next: (completed) => {
-          //       console.log("Upload completed successfully!");
-          //     },
-          //     error: (error) => {
-          //       console.log(`Upload failed: ${error.message}`);
-          //     },
-          //     complete: () => {
-          //       console.log("Upload process completed.");
-          //     },
-          //   });
-
-          //   // Clean up subscription on unmount
-          //   return () => subscription.unsubscribe();
-          // } catch (err) {
-          //   console.log(err);
-          // }
           console.log("file uploaded---");
           setFormData({
             ...formData,
@@ -644,84 +627,88 @@ const LernCreatorForm = () => {
       } finally {
       }
     } else if (type == "url") {
-      console.log("------------------", event.target.value);
+      console.log("------------------", youtubeUrl);
+      const youtubeRegex =
+        /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
 
-      const _uuid = uuidv4();
-      const assetBody = {
-        request: {
-          content: {
-            primaryCategory: "Good Practices",
-            contentType: "Resource",
-            language: ["English"],
-            code: _uuid,
-            name: formData.title_of_submission
-              ? formData.title_of_submission
-              : "Untitled Content",
-            framework: "nulp-learn",
-            mimeType: "video/x-youtube",
-            createdBy: _userId,
-            organisation: [userInfo.rootOrg.channel],
-            createdFor: [userInfo.rootOrg.id],
+      if (youtubeUrl === "" || youtubeRegex.test(youtubeUrl)) {
+        const _uuid = uuidv4();
+        const assetBody = {
+          request: {
+            content: {
+              primaryCategory: "Good Practices",
+              contentType: "Resource",
+              language: ["English"],
+              code: _uuid,
+              name: formData.title_of_submission
+                ? formData.title_of_submission
+                : "Untitled Content",
+              framework: "nulp-learn",
+              mimeType: "video/x-youtube",
+              createdBy: _userId,
+              organisation: [userInfo.rootOrg.channel],
+              createdFor: [userInfo.rootOrg.id],
+            },
           },
-        },
-      };
-      try {
-        const response = await fetch(`${urlConfig.URLS.ASSET.CREATE}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(assetBody),
-        });
-
-        if (!response.ok) {
-          throw new Error("Something went wrong");
-        }
-
-        const result = await response.json();
-        console.log("suceesss----", result);
-        const cont_id = result.result.identifier;
-        const data = new FormData();
-        data.append(
-          "fileUrl",
-          event.target.value
-            ? event.target.value
-            : "https://www.youtube.com/watch?v=dz458ZkBMak"
-        );
-        data.append("mimeType", "video/x-youtube");
-
-        data.forEach((value, key) => {
-          console.log(`${key}:`, value);
-        });
-
+        };
         try {
-          const response = await fetch(
-            `${urlConfig.URLS.ASSET.UPLOAD}/${cont_id}`,
-            {
-              method: "POST",
-              body: data,
-            }
-          );
+          const response = await fetch(`${urlConfig.URLS.ASSET.CREATE}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(assetBody),
+          });
 
           if (!response.ok) {
             throw new Error("Something went wrong");
           }
 
-          const uploadResult = await response.json();
-          console.log("upload suceesss------", uploadResult);
-          setFormData({
-            ...formData,
-            content_id: uploadResult.result.identifier,
+          const result = await response.json();
+          console.log("suceesss----", result);
+          const cont_id = result.result.identifier;
+          const data = new FormData();
+          data.append("fileUrl", youtubeUrl);
+          data.append("mimeType", "video/x-youtube");
+
+          data.forEach((value, key) => {
+            console.log(`${key}:`, value);
           });
-          setErrors({ ...errors, icon: "" });
+
+          try {
+            const response = await fetch(
+              `${urlConfig.URLS.ASSET.UPLOAD}/${cont_id}`,
+              {
+                method: "POST",
+                body: data,
+              }
+            );
+
+            if (!response.ok) {
+              throw new Error("Something went wrong");
+            }
+
+            const uploadResult = await response.json();
+            console.log("upload suceesss------", uploadResult);
+            setFormData({
+              ...formData,
+              content_id: uploadResult.result.identifier,
+            });
+            setErrors({ ...errors, icon: "" });
+          } catch (error) {
+            console.log("error---", error);
+          } finally {
+          }
         } catch (error) {
           console.log("error---", error);
+          // setError(error.message);
         } finally {
         }
-      } catch (error) {
-        console.log("error---", error);
-        // setError(error.message);
-      } finally {
+      } else {
+        let tempErrors = {};
+        tempErrors.youtube = "Add youtube URL correctly";
+        setErrors(tempErrors);
+        return Object.keys(tempErrors).length === 0;
       }
     }
   };
@@ -768,6 +755,10 @@ const LernCreatorForm = () => {
       setGuidelineLink("");
       setTNCLink("");
     }
+  };
+  const handleUrlChange = (event) => {
+    console.log(event.target.value);
+    setyoutubeURL(event.target.value);
   };
 
   const checkDraftValidations = () => {
@@ -1040,9 +1031,8 @@ const LernCreatorForm = () => {
                   name="title_of_submission"
                   value={formData.title_of_submission}
                   onChange={handleChange}
-                  inputProps={{ maxLength: 20 }}
+                  inputProps={{ maxLength: 150 }}
                   error={!!errors.title_of_submission}
-                  helperText={errors.title_of_submission}
                   required
                 />
               </Grid>
@@ -1065,7 +1055,7 @@ const LernCreatorForm = () => {
                   onChange={handleChange}
                   multiline
                   rows={3}
-                  inputProps={{ maxLength: 100 }}
+                  inputProps={{ maxLength: 500 }}
                   error={!!errors.description}
                   helperText={errors.description}
                   required
@@ -1365,13 +1355,28 @@ const LernCreatorForm = () => {
                         type="url"
                         fullWidth
                         placeholder="Enter URL"
-                        onChange={(event) => handleFileChange(event, "url")}
+                        onChange={(event) => handleUrlChange(event)}
+                        error={!!errors.youtube}
+                        helperText={
+                          !!errors.youtube
+                            ? "Please enter a valid YouTube URL."
+                            : ""
+                        }
                       />
                     </Grid>
                   )}
 
                   <Grid item xs={3}>
                     {" "}
+                    {uploadType === "url" && (
+                      <Button
+                        //  disabled={!formda}
+                        className="custom-btn-default"
+                        onClick={() => handleFileChange(youtubeUrl, "url")}
+                      >
+                        upload
+                      </Button>
+                    )}
                     {isEdit && formData.content_id && (
                       <a
                         href="#"
