@@ -87,24 +87,13 @@ const LernReviewList = () => {
       console.log("suceesss----", result);
       console.log(result.result);
       setData(result.result.data);
-      setTotalRows(result.result.totalCount);
+      setTotalRows(Math.ceil(result.result.totalCount / 10));
     } catch (error) {
       console.log("error---", error);
       // setError(error.message);
     } finally {
       // setIsLoading(false);
     }
-
-    // Example API endpoint with limit, offset, and search params
-    // const apiUrl = `https://api.example.com/submissions?limit=${rowsPerPage}&offset=${
-    //   page * rowsPerPage
-    // }&search=${search}`;
-    // const response = await fetch(apiUrl);
-
-    // const result = await response.json();
-    // console.log(submissions);
-    // setData(submissions.result.data);
-    // setTotalRows(result.totalCount);
   };
 
   const fetchUserData = async () => {
@@ -177,10 +166,6 @@ const LernReviewList = () => {
     setPage(newPage);
   };
 
-  const handleRowsPerPageChange = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
   const handleCardClick = async () => {
     navigate("/webapp/mylernsubmissions");
   };
