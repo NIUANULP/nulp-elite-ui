@@ -757,13 +757,13 @@ const LernCreatorForm = () => {
     // Set appropriate guideline link based on category_of_participation
     if (category_of_participation === "State / UT / SPVs / ULBs / Any Other") {
       setGuidelineLink(stateguideline);
-      setTNCLink(statetnc);
+      setTNCLink(stateguideline);
     } else if (category_of_participation === "Industry") {
       setGuidelineLink(industryguideline);
-      setTNCLink(industrytnc);
+      setTNCLink(industryguideline);
     } else if (category_of_participation === "Academia") {
       setGuidelineLink(acdemiaguideline);
-      setTNCLink(acdemiatnc);
+      setTNCLink(acdemiaguideline);
     } else {
       setGuidelineLink("");
       setTNCLink("");
@@ -1504,8 +1504,9 @@ const LernCreatorForm = () => {
                     <Grid item xs={12} sm={6}>
                       <Grid container>
                         <Grid item xs={2} className="center-align">
-                          <InputLabel htmlFor="User Name">
-                            Participant Name{" "}
+                          <InputLabel htmlFor="Participant Name">
+                            Participant <br /> Name
+                            <span className="red"> *</span>
                             <span className="mandatory-symbol"> *</span>
                           </InputLabel>
                         </Grid>
