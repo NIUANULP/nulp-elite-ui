@@ -1350,7 +1350,7 @@ const LernCreatorForm = () => {
                       />
                     </Grid>
                   ) : (
-                    <Grid item xs={7}>
+                    <Grid item xs={6}>
                       <TextField
                         type="url"
                         fullWidth
@@ -1366,29 +1366,33 @@ const LernCreatorForm = () => {
                     </Grid>
                   )}
 
-                  <Grid item xs={3}>
+                  <Grid item xs={4}>
                     {" "}
                     {uploadType === "url" && (
-                      <Button
-                        //  disabled={!formda}
-                        className="custom-btn-default"
-                        onClick={() => handleFileChange(youtubeUrl, "url")}
-                      >
-                        upload
-                      </Button>
+                      <Grid item xs={2}>
+                        <Button
+                          //  disabled={!formda}
+                          className="custom-btn-default"
+                          onClick={() => handleFileChange(youtubeUrl, "url")}
+                        >
+                          upload
+                        </Button>
+                      </Grid>
                     )}
                     {isEdit && formData.content_id && (
-                      <a
-                        href="#"
-                        onClick={(e) => {
-                          window.open(
-                            `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${previewPlayerPage}`,
-                            "_blank"
-                          );
-                        }}
-                      >
-                        Preview
-                      </a>
+                      <Grid item xs={2}>
+                        <a
+                          href="#"
+                          onClick={(e) => {
+                            window.open(
+                              `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${previewPlayerPage}`,
+                              "_blank"
+                            );
+                          }}
+                        >
+                          Preview
+                        </a>
+                      </Grid>
                     )}
                   </Grid>
                   <Grid item xs={10}>

@@ -42,10 +42,13 @@ const LernSubmissionTable = () => {
   const _userId = util.userId(); // Assuming util.userId() is defined
   const urlConfig = require("../../configs/urlConfig.json");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [emptySubmission, setEmptySubmission] = useState(false)
-
-  const handleDialogOpen = () => {
+  const [emptySubmission, setEmptySubmission] = useState(false);
+  const [lernId, setLernId] = useState();
+  const [contId, setcontId] = useState();
+  const handleDialogOpen = (learnathon_content_id, content_id) => {
     setDialogOpen(true);
+    setLernId(learnathon_content_id);
+    setcontId(content_id);
   };
 
   const routeConfig = require("../../configs/routeConfig.json");
@@ -86,7 +89,7 @@ const LernSubmissionTable = () => {
       console.log(result.result);
       setData(result.result.data);
       if (result.result.totalCount == 0) {
-        setEmptySubmission(true)
+        setEmptySubmission(true);
       }
       setTotalRows(result.result.totalCount / 10);
     } catch (error) {
@@ -95,17 +98,6 @@ const LernSubmissionTable = () => {
     } finally {
       // setIsLoading(false);
     }
-
-    // Example API endpoint with limit, offset, and search params
-    // const apiUrl = `https://api.example.com/submissions?limit=${rowsPerPage}&offset=${
-    //   page * rowsPerPage
-    // }&search=${search}`;
-    // const response = await fetch(apiUrl);
-
-    // const result = await response.json();
-    // console.log(submissions);
-    // setData(submissions.result.data);
-    // setTotalRows(result.totalCount);
   };
 
   const handleSearchChange = (e) => {
@@ -117,11 +109,11 @@ const LernSubmissionTable = () => {
     setDialogOpen(false);
   };
 
-  const handleDeletePollConfirmed = async (id) => {
+  const handleDeletePollConfirmed = async () => {
     event.stopPropagation();
     try {
       const response = await fetch(
-        `${urlConfig.URLS.LEARNATHON.DELETE}?id=${id}`,
+        `${urlConfig.URLS.LEARNATHON.DELETE}?id=${lernId}`,
         {
           method: "DELETE",
         }
@@ -130,7 +122,6 @@ const LernSubmissionTable = () => {
       if (!response.ok) {
         throw new Error("Something went wrong");
       }
-
       const result = await response.json();
       console.log("suceesss----", result);
       setDialogOpen(false);
@@ -140,10 +131,6 @@ const LernSubmissionTable = () => {
     } finally {
       // setIsLoading(false);
     }
-  };
-
-  const deleteContent = async (id) => {
-    // show confirmation popup
   };
 
   const handlePageChange = (event, newPage) => {
@@ -162,12 +149,13 @@ const LernSubmissionTable = () => {
         maxWidth="xl"
         className="pb-30 allContent xs-pb-80 all-card-list mt-180"
       >
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Typography variant="h6" gutterBottom className="fw-600 mt-20" color={'#484848'}>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography
+            variant="h6"
+            gutterBottom
+            className="fw-600 mt-20"
+            color={"#484848"}
+          >
             Learnathon Submissions List
           </Typography>
         </Box>
@@ -192,15 +180,14 @@ const LernSubmissionTable = () => {
             <Button
               className="viewAll"
               onClick={() =>
-              (window.location.href =
-                routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT)
+                (window.location.href =
+                  routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT)
               }
               sx={{ padding: "7px 45px", borderRadius: "90px !important" }}
             >
               Upload Submission
             </Button>
           </Grid>
-
         </Grid>
         <TableContainer component={Paper}>
           <Table aria-label="simple table">
@@ -213,7 +200,6 @@ const LernSubmissionTable = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-
               {data.map((row) => (
                 <TableRow key={row.id}>
                   <TableCell>{row.title_of_submission}</TableCell>
@@ -226,8 +212,8 @@ const LernSubmissionTable = () => {
                         row.status === "live"
                           ? "green"
                           : row.status === "review"
-                            ? "orange"
-                            : "red",
+                          ? "orange"
+                          : "red",
                       textTransform: "capitalize",
                     }}
                   >
@@ -238,10 +224,10 @@ const LernSubmissionTable = () => {
                       <IconButton
                         color="primary"
                         onClick={() =>
-                        (window.location.href =
-                          routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT +
-                          "?" +
-                          row.learnathon_content_id)
+                          (window.location.href =
+                            routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT +
+                            "?" +
+                            row.learnathon_content_id)
                         }
                         sx={{ color: "#057184" }}
                         className="table-icon"
@@ -253,11 +239,11 @@ const LernSubmissionTable = () => {
                       <IconButton
                         color="primary"
                         onClick={() =>
-                        (window.location.href =
-                          routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
-                          "?id=" +
-                          row.learnathon_content_id +
-                          "&page=lern")
+                          (window.location.href =
+                            routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
+                            "?id=" +
+                            row.learnathon_content_id +
+                            "&page=lern")
                         }
                         sx={{ color: "#054753" }}
                         className="table-icon"
@@ -268,7 +254,12 @@ const LernSubmissionTable = () => {
                     {(row.status == "draft" || row.status == "review") && (
                       <IconButton
                         color="secondary"
-                        onClick={() => handleDialogOpen()}
+                        onClick={() =>
+                          handleDialogOpen(
+                            row.learnathon_content_id,
+                            row.content_id
+                          )
+                        }
                         sx={{ color: "red" }}
                         className="table-icon"
                       >
@@ -283,22 +274,24 @@ const LernSubmissionTable = () => {
         </TableContainer>
         {emptySubmission && (
           <Box marginLeft={"730px"} padding={"32px"}>
-            <Box>
-              No Submissions yet please submit content
-            </Box>
+            <Box>No Submissions yet please submit content</Box>
             <Button
               className="viewAll"
               onClick={() =>
-              (window.location.href =
-                routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT)
+                (window.location.href =
+                  routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT)
               }
-              sx={{ padding: "7px 45px", borderRadius: "90px !important", marginLeft: "58px", marginTop: "23px" }}
+              sx={{
+                padding: "7px 45px",
+                borderRadius: "90px !important",
+                marginLeft: "58px",
+                marginTop: "23px",
+              }}
             >
               Upload Submission
             </Button>
           </Box>
-        )
-        }
+        )}
 
         <Pagination
           component="div"
@@ -319,7 +312,7 @@ const LernSubmissionTable = () => {
               {t("NO")}
             </Button>
             <Button
-              onClick={(event) => handleDeletePollConfirmed(row.content_id)}
+              onClick={(event) => handleDeletePollConfirmed()}
               className="custom-btn-primary"
             >
               {t("YES")}
