@@ -858,6 +858,7 @@ const LernCreatorForm = () => {
 
           const result = await response.json();
           console.log("suceesss");
+          navigate("/webapp/mylernsubmissions");
           // setData(result.result.data);
           // setTotalPages(Math.ceil(result.result.totalCount / 10));
         } catch (error) {
