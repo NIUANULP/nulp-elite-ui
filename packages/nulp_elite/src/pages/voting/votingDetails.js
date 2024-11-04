@@ -276,9 +276,8 @@ const VotingDetails = () => {
             >
               {poll.title}
             </Link>
-          </Breadcrumbs>
-         {poll?.category === "Learnathon" && ( 
-         <Box>
+            {poll?.category === "Learnathon" && ( 
+              <Box marginLeft={"1150px"}>
                 <Button
                   type="button"
                   className="custom-btn-primary ml-20"
@@ -287,6 +286,8 @@ const VotingDetails = () => {
                   {t("BACK")}
                 </Button>
               </Box>)}
+          </Breadcrumbs>
+         
           <Grid
             container
             spacing={2}
