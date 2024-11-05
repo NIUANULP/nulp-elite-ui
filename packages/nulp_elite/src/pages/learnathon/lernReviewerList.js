@@ -34,14 +34,15 @@ const LernReviewList = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [data, setData] = useState([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(20);
   const [totalRows, setTotalRows] = useState(0);
   const [search, setSearch] = useState("");
   const _userId = util.userId(); // Assuming util.userId() is defined
   const urlConfig = require("../../configs/urlConfig.json");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isSystemAdmin, setIsSystemAdmin] = useState(false);
+  const [pageNumber, setPageNumber] = useState(1);
 
   const handleDialogOpen = () => {
     setDialogOpen(true);
@@ -52,7 +53,7 @@ const LernReviewList = () => {
   useEffect(() => {
     fetchData();
     fetchUserData();
-  }, [page, rowsPerPage, search]);
+  }, [currentPage, rowsPerPage, search]);
 
   const fetchData = async () => {
     const assetBody = {
@@ -65,7 +66,7 @@ const LernReviewList = () => {
           created_on: "desc",
         },
         limit: rowsPerPage,
-        offset: page * rowsPerPage,
+        offset: 20 * (currentPage - 1),
         search: search,
       },
     };
@@ -183,6 +184,13 @@ const LernReviewList = () => {
   const handleCardClick = async () => {
     navigate("/webapp/mylernsubmissions");
   };
+  const handleChange = (event, value) => {
+    if (value !== pageNumber) {
+      setPageNumber(value);
+      setCurrentPage(value);
+      fetchData();
+    }
+  };
 
   return (
     <>
@@ -278,12 +286,9 @@ const LernReviewList = () => {
           </TableContainer>
 
           <Pagination
-            component="div"
             count={totalRows}
-            page={page}
-            onPageChange={handlePageChange}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={handleRowsPerPageChange}
+            page={pageNumber}
+            onChange={handleChange}
           />
         </Paper>
       )}
