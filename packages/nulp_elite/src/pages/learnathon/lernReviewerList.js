@@ -216,6 +216,8 @@ const LernReviewList = () => {
                 <TableRow>
                   <TableCell>Name</TableCell>
                   <TableCell>Last Updated</TableCell>
+                  <TableCell>Category</TableCell>
+
                   <TableCell>Status</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
@@ -240,6 +242,7 @@ const LernReviewList = () => {
                     >
                       {row.status}
                     </TableCell>
+                    <TableCell>{row.category_of_participation}</TableCell>
                     <TableCell>
                       {row.status == "review" && (
                         <Button
