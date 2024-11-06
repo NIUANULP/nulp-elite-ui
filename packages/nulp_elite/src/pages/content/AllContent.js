@@ -309,7 +309,7 @@ const AllContent = () => {
       <Header />
       {toasterMessage && <ToasterCommon response={toasterMessage} />}
 
-     <Box sx={{ height: 'calc(100vh - 210px)', overflowY:'auto' }}
+     <Box
      >
      {domain ? (
         <DomainCarousel onSelectDomain={handleDomainFilter} domains={domain} />

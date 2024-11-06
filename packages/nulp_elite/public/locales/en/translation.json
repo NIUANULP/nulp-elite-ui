@@ -300,7 +300,7 @@
   "POPULAR_COURSES": "Popular Courses",
   "RECENTLY_ADDED": "Recently Added",
   "THIS_CONTENT_IS_DERIVED_FROM": "This content is derived from",
-  "PUBLISHED_ON_NULP_BY": "PUBLISHED ON NULP BY",
+  "PUBLISHED_ON_NULP_BY": "Published on NULP by",
   "ACCEPT_THE_NULP_TERMS_OF_USE": "I am 18+ years old and understand and accept the NULP Terms of Use",
   "As_A_PATENT_GUARDIAN_ACCEPT_THE_NULP_TERMS_OF_USE": "As a parent/guardian I understand & accept the NULP Terms of Use agree my child to register on NULP with the given information.",
   "CONTENT_DERIVED_FROM": "This content is derived from",
@@ -319,8 +319,35 @@
   "PHONE": "Phone",
   "PHONE_NUMBER": "(+91 11) 24617517, 24617543, 24617595",
   "SESSION_TIMEOUT_MESSAGE": "Failed to fetch data.please try again.",
-  "LERN_title": "Learnathon 2.0",
-  "LERN_MESSAGE": "Learnathon 2.0 has started from 20/09/2024 to 20/10/2024. You can now create and share your submissions!",
   "CREATE_CONTENT": "Create Content",
-  "REQUEST_TO_CREATE": "Request to Create"
+  "REQUEST_TO_CREATE": "Request to Create",
+  "PARTICIPATE_NOW":"Participate Now",
+  "LERN_title": "The Learnathon 2.0 Has Begun!",
+  "LERN_MESSAGE": "Where urban practitioners share solutions to foster collaborative learning.",
+  "LERN_MESSAGE_LINE_TWO":"Learnathon 2.0 launched on 18th November 2024 and will continue until 20th December 2024. Submit your urban solutions now!",
+
+  "NEW_NOTIFICATIONS":"New Notification (s)",
+  "CLEAR_ALL":"Clear All",
+  "NO_NOTIFICATIONS_FOUND":"No Notifications Found",
+  "HELLO_CONNECT_MESSAGE":"Hello! I’d like to connect with you.",
+  "SEARCH_FOR_USER":"Search for a User",
+  "FILTER_BY_DESIGNATION":"Filter by Designation",
+  "ABOUT_SURVEY":"About survey",
+  "POLL_ENDED_ON":"Poll Ended On",
+  "LIVE_UNTIL":"Live until",
+  "END_REGISTRATION_MESSAGE":"The event has ended. Registration is no longer available",
+  "REGISTRATION_START_MESSAGE":"Registration will be starting on",
+  "CREATED_BY":"Created By"
+
+  "VOTE_NOW_LEARNATHON_SUBMISSIONS":"Vote Now: Learnathon Submissions",
+  "SUBMISSION_NAME":"Submission Name",
+  "VOTING_DEADLINE":"Voting Deadline",
+  "VOTE_COUNT":"Vote Count",
+  "VOTE_NOW":"Vote Now",
+  "SEARCH_SUBMISSION":"Search Submission",
+  "VIEW_SUBMISSIONS":"View Submissions",
+  "VOTIGN_DEADLINE":"Votting Deadline",
+  "VIEW_AND_VOTE":"View and vote",
+  "VOTE_FOR_THIS_CONTENT":"Vote for this content"
+
 }

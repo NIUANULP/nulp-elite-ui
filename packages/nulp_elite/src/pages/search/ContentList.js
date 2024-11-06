@@ -409,7 +409,7 @@ const ContentList = (props) => {
     <div>
       <Header globalSearchQuery={globalSearchQuery} />
       {toasterMessage && <ToasterCommon response={toasterMessage} />}
-      <Box sx={{ height: 'calc(100vh - 210px)', overflowY:'auto' }}>
+      <Box>
 
       <Box
         className="lg-hide header-bg"

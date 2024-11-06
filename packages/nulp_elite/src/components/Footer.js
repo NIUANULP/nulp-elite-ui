@@ -161,7 +161,17 @@ export default function Footer() {
         </Box>
       </Box>
         <Box
-          className="xs-hide footer"
+          className="xs-hide"
+          style={{
+            background: "#065872",
+            color: "#fff",
+            padding: "15px 15px 13px",
+            marginTop: "auto",
+            position: 'absolute',
+            bottom: '0px',
+            width:'100%',
+            boxSizing: 'border-box'
+          }}
         >
           <Grid container spacing={2}>
             <Grid

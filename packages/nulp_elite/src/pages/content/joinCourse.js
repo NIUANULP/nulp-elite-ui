@@ -162,10 +162,11 @@ const JoinCourse = () => {
           setIsOwner(true);
         }
         let identifiers;
-        if(data?.result?.content?.children[0]?.children){
-          identifiers = data?.result?.content?.children[0]?.children[0]?.identifier;
-        }else{
-          identifiers = data?.result?.content?.children[0]?.identifier
+        if (data?.result?.content?.children[0]?.children) {
+          identifiers =
+            data?.result?.content?.children[0]?.children[0]?.identifier;
+        } else {
+          identifiers = data?.result?.content?.children[0]?.identifier;
         }
         console.log(identifiers, "setChildNode");
         setChildNode(identifiers);
@@ -617,19 +618,20 @@ const JoinCourse = () => {
                 </Button>
               </Box>
 
-              <Box> 
+              <Box>
                 <Button
-                onClick={() => handleLinkClick(childnode)}
-                className="custom-btn-primary  mr-5"
-              >
-                {t("START_LEARNING")}
-              </Button>
-                {!isCompleted &&
+                  onClick={() => handleLinkClick(childnode)}
+                  className="custom-btn-primary  mr-5"
+                >
+                  {t("START_LEARNING")}
+                </Button>
+                {!isCompleted && (
                   <Button
                     onClick={handleLeaveCourseClick} // Open confirmation dialog
                     className="custom-btn-danger xs-mt-10"
-                  > {t("LEAVE_COURSE")}
-     
+                  >
+                    {" "}
+                    {t("LEAVE_COURSE")}
                   </Button>
                 }
               </Box>
@@ -694,7 +696,9 @@ const JoinCourse = () => {
                     <Button
                       onClick={handleLeaveCourseClick} // Open confirmation dialog
                       className="custom-btn-danger xs-mt-10"
-                    > {t("LEAVE_COURSE")}
+                    >
+                      {" "}
+                      {t("LEAVE_COURSE")}
                     </Button>
                   )}{" "}
                 </Box>
@@ -992,7 +996,7 @@ const JoinCourse = () => {
     <div>
       <Header />
       {toasterMessage && <ToasterCommon response={toasterMessage} />}
-      <Box sx={{ height: "calc(100vh - 210px)", overflowY: "auto" }}>
+      <Box>
         <Snackbar
           open={showEnrollmentSnackbar}
           autoHideDuration={6000}
@@ -1317,7 +1321,7 @@ const JoinCourse = () => {
                   style={{
                     background: "#F9FAFC",
                     borderRadius: "10px",
-                    marginTop: "10px",
+                    margin: "10px",
                   }}
                 >
                   <AccordionSummary
@@ -1395,13 +1399,13 @@ const JoinCourse = () => {
                 </AccordionSummary>
                 <AccordionDetails style={{ background: "#fff" }}>
                   <Typography className="h6-title">
-                    {t("Created By")}:{" "}
+                    {t("CREATED_BY")}:{" "}
                     {userData &&
                       userData.result &&
                       userData.result.content.creator}
                   </Typography>
                   <Typography className="h6-title">
-                    {t("Published on NULP by")}:{" "}
+                    {t("PUBLISHED_ON_NULP_BY")}:{" "}
                     {userData &&
                       userData.result &&
                       userData.result?.content?.orgDetails?.orgName}
@@ -1662,8 +1666,7 @@ const JoinCourse = () => {
                       </AccordionSummary>
 
                       <AccordionDetails
-                        style={{ paddingLeft: "35px" }}
-                        className="border-bottom"
+                        style={{ 'padding': '12px',margin: '-10px 0px'}}
                       >
                         {/* If it's not a content collection, render it like a clickable child */}
                         {faqIndex.mimeType !==
@@ -1694,7 +1697,7 @@ const JoinCourse = () => {
                             <AccordionDetails
                               key={faqIndexname.identifier || faqIndexname.name}
                               className="border-bottom"
-                              style={{ paddingLeft: "35px" }}
+                              style={{ 'padding': '12px',margin: '-10px 0px'}}
                             >
                               {faqIndexname.children &&
                               faqIndexname.children.length > 0 ? (
@@ -1737,7 +1740,7 @@ const JoinCourse = () => {
                                       <AccordionDetails
                                         key={child.identifier || child.name}
                                         className="border-bottom"
-                                        style={{ paddingLeft: "35px" }}
+                                        style={{ 'padding': '12px',margin: '-10px 0px'}}
                                       >
                                         {child.children &&
                                         child.children.length > 0 ? (

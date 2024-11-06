@@ -98,6 +98,7 @@ const EventList = (props) => {
   ]);
 
   const handleChangeTab = (event, newValue) => {
+    setCurrentPage(1);
     setValueTab(newValue);
   };
 
@@ -280,7 +281,7 @@ const EventList = (props) => {
     <div>
       <Header globalSearchQuery={globalSearchQuery} />
       {toasterMessage && <ToasterCommon response={toasterMessage} />}
-     <Box sx={{ height: 'calc(100vh - 210px)', overflowY:'auto' }}>
+     <Box>
       <Box>
         {domainList && domainList.length > 0 ? (
           <DomainCarousel

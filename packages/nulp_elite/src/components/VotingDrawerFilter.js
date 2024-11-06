@@ -131,7 +131,7 @@ const VotingDrawerFilter = ({ onFilterChange }) => {
               <DatePicker
                 label={
                   <span>
-                    Select Date From<span className="red"> *</span>
+                    {t("SELECT_DATE_FROM")}<span className="red"> *</span>
                   </span>
                 }
                 value={selectedStartDate}
@@ -141,7 +141,7 @@ const VotingDrawerFilter = ({ onFilterChange }) => {
             <DatePicker
               label={
                 <span>
-                  Select Date To<span className="red"> *</span>
+                  {t("SELECT_DATE_TO")}<span className="red"> *</span>
                 </span>
               }
               value={selectedEndDate}
@@ -228,7 +228,7 @@ const VotingDrawerFilter = ({ onFilterChange }) => {
           </Box>
           <FormControl>
             <InputLabel htmlFor="outlined-adornment-search">
-            {t("SEARCH_FOR_A_POLL")}
+            {t("SEARCH_FOR_A_POLL")} 
             </InputLabel>
             <OutlinedInput
               id="outlined-adornment-search"
@@ -252,7 +252,7 @@ const VotingDrawerFilter = ({ onFilterChange }) => {
                 <DatePicker
                   label={
                     <span>
-                      Select Date From<span className="red"> *</span>
+                      {t("SELECT_DATE_FROM")}<span className="red"> *</span>
                     </span>
                   }
                   value={selectedStartDate}
@@ -262,7 +262,7 @@ const VotingDrawerFilter = ({ onFilterChange }) => {
               <DatePicker
                 label={
                   <span>
-                    Select Date To<span className="red"> *</span>
+                    {t("SELECT_DATE_TO")}<span className="red"> *</span>
                   </span>
                 }
                 value={selectedEndDate}

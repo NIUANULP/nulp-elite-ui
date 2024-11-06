@@ -7,14 +7,19 @@
   src: url("../fonts/Poppins-Bold.ttf");
   src: url("../fonts/Poppins-Medium.ttf");
 }
-
+#root {
+  min-height: 100vh;
+}
+#root>div:first-child {
+  min-height: 100vh;
+  padding-bottom: 135px;
+}
 body {
   font-family: "Poppins", sans-serif !important;
   font-weight: 500;
   font-style: normal;
   background: #ffbc0154;
-  height: 100%;
-  margin: 0;
+  min-height: 100vh;
 }
 
 body,
@@ -149,7 +154,7 @@ button {
 }
 
 .MuiIconButton-sizeMedium {
-  color: #484848 !important;
+  color: #484848;
   font-size: 16px !important;
   padding: 0 !important;
 }
@@ -767,6 +772,9 @@ button {
 }
 
 @media (max-width: 768px) {
+  .jss2{
+    display: block!important;
+  }
   .xs-mt-10{
     margin-top:10px;
   }
@@ -787,7 +795,7 @@ button {
   }
   .viewAll{
     font-size: 10px !important;
-    padding: 9px 4px !important;
+    padding: 10px !important;
   }
   .d-flex-none {
     display: block !important;
@@ -1179,7 +1187,7 @@ button {
   }
 
   .MuiGrid-container.MuiGrid-spacing-xs-2 {
-    margin: 0 -16px !important;
+    margin: 40px -16px !important;
   }
 
   /* .react-multi-carousel-list{
@@ -3740,6 +3748,35 @@ input:required::after {
 background-color: #fff;
 padding: 30px;
 border-radius: 4px;
-border: 1px solid #15353f;
+border: 4px solid #15353f;
 margin: 10px;
+animation: blink-border 1s infinite alternate;
+}
+
+@keyframes blink-border {
+  0% {
+    border-color: #15353f;
+  }
+  50% {
+    border-color: #0e7a9c;
+  }
+  100% {
+    border-color: #15353f;
+  }
+}
+
+.mandatory-symbol{
+  color: #8C1823;
+}
+.center-align{
+  display: flex;
+  justify-content: center;
+}
+
+.table-icon{
+background:#6c666647 !important;
+width: 40px;
+height: 40px;
+border-radius: 4px !important;
+margin-right: 10px !important;
 }

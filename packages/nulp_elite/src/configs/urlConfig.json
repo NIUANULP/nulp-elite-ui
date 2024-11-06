@@ -49,8 +49,10 @@
     "framework": "board,gradeLevel,medium,class,subject"
   },
   "URLS": {
-    "CUSTOM_EVENT_FETCH_RECORDINGS":"/custom_event/fetch_recordings?event_id=",
+    "CUSTOM_EVENT_FETCH_RECORDINGS": "/custom_event/fetch_recordings?event_id=",
     "LEARNER_PREFIX": "/learner/",
+    "PROVIDE_ACCESS": "/learnathon/access/provide",
+    "CHECK_USER_ACCESS": "/learnathon/get/creators",
     "DISCUSSIONS_FORUM_PREFIX": "/discussion/",
     "DEVICE_PREFIX": "/device/",
     "CERT_REG_PREFIX": "/certreg/",
@@ -143,7 +145,8 @@
       "ADD_CERTIFICATE": "v1/add/template",
       "ATTACH_CERTIFICATE": "v1/template/add",
       "CREATE_CERT_TEMPLATE": "asset/v1/create",
-      "UPLOAD_CERT_TEMPLATE": "asset/v1/upload"
+      "UPLOAD_CERT_TEMPLATE": "asset/v1/upload",
+      "CUSTOM_CERTIFICATE_CREATE": "/custom_event/certificate/create"
     },
     "COMPOSITE": {
       "SEARCH": "composite/v1/search",
@@ -341,8 +344,8 @@
       "RETIRE": "assessment/v3/itemsets/retire"
     },
     "ASSET": {
-      "CREATE": "content/v3/create",
-      "UPDATE": "content/v3/upload"
+      "CREATE": "/action/content/v3/create",
+      "UPLOAD": "/action/content/v3/upload/"
     },
     "ITEMSET": {
       "CREATE": "itemset/v3/create",
@@ -438,16 +441,27 @@
       "DELETE_POLL": "/polls/delete",
       "GET_USER_POLL": "/polls/user/get_user_poll",
       "USER_CREATE": "/polls/user/create",
-      "USER_UPDATE": "/polls/user/update"
+      "USER_UPDATE": "/polls/user/update",
+      "GET_VOTTING_LIST": "/polls/all/get_poll"
     },
     "FEEDBACK": {
-      "CREATE" : "/custom_feedback/create",
-      "LIST" : "/custom_feedback/list"
+      "CREATE": "/custom_feedback/create",
+      "LIST": "/custom_feedback/list"
     },
-    "NOTIFICATION" : {
+    "NOTIFICATION": {
       "READ": "notification/v1/feed/read/",
-      "UPDATE" : "notification/v1/feed/update",
-      "DELETE" : "notification/v1/feed/delete"
+      "UPDATE": "notification/v1/feed/update",
+      "DELETE": "notification/v1/feed/delete"
+    },
+    "LEARNATHON": {
+      "LIST": "/learnathon/content/list",
+      "CREATE": "/learnathon/content/create",
+      "UPDATE": "/learnathon/content/update",
+      "DELETE": "/learnathon/content/delete"
+    },
+    "ICON": {
+      "CREATE": "/action/asset/v1/create",
+      "UPLOAD": "/action/asset/v1/upload/"
     }
   }
 }

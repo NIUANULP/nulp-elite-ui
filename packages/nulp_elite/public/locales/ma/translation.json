@@ -317,9 +317,36 @@
   "NO_CHAT_REQUEST": "चॅट विनंती नाही",
   "PHONE":"फोन",
   "PHONE_NUMBER":"(+91 11) 24617517, 24617543, 24617595",
-  "LERN_title":"लर्नथॉन 2.0",
-  "LERN_MESSAGE":"लर्नथॉन 2.0 20/09/2024 ते 20/10/2024 पर्यंत सुरू झाली आहे. तुम्ही आता तुमचे सबमिशन तयार आणि शेअर करू शकता!",
   "CREATE_CONTENT":"सामग्री तयार करा",
-  "REQUEST_TO_CREATE":"तयार करण्याची विनंती"
+  "REQUEST_TO_CREATE":"तयार करण्याची विनंती",
+  "PARTICIPATE_NOW":"आता सहभागी व्हा",
+  "LERN_title": "लर्नथॉन २.० सुरु झाली आहे!",
+  "LERN_MESSAGE": "जेथे शहरी अभ्यासक सहयोगी शिक्षणाला चालना देण्यासाठी उपाय सामायिक करतात.",
+  "LERN_MESSAGE_LINE_TWO":"Learnathon 2.0 18 नोव्हेंबर 2024 ला लॉन्च झाला आणि 20 डिसेंबर 2024 पर्यंत सुरू राहील. तुमचे शहरी उपाय आता सबमिट करा!",
+
+  "NEW_NOTIFICATIONS":"नवीन सूचना",
+  "CLEAR_ALL":"सर्व साफ करा",
+  "NO_NOTIFICATIONS_FOUND":"कोणत्याही सूचना आढळल्या नाहीत",
+  "HELLO_CONNECT_MESSAGE":"नमस्कार! मला तुमच्याशी कनेक्ट व्हायला आवडेल.",
+  "SEARCH_FOR_USER":"वापरकर्त्यासाठी शोधा",
+  "FILTER_BY_DESIGNATION":"पदनामानुसार फिल्टर करा",
+  "ABOUT_SURVEY":"सर्वेक्षण बद्दल",
+  "POLL_ENDED_ON":"मतदान संपले",
+  "LIVE_UNTIL":"तोपर्यंत जगा",
+  "END_REGISTRATION_MESSAGE":"कार्यक्रम संपला. नोंदणी यापुढे उपलब्ध नाही",
+  "REGISTRATION_START_MESSAGE":"पासून नोंदणी सुरू होणार आहे",
+  "CREATED_BY":"यांनी तयार केले"
+
+  "VOTE_NOW_LEARNATHON_SUBMISSIONS":"आता मत द्या: लर्नथॉन सबमिशन",
+  "SUBMISSION_NAME":"सबमिशनचे नाव",
+  "VOTING_DEADLINE":"मतदानाची अंतिम मुदत",
+  "VOTE_COUNT":"मतांची संख्या",
+  "VOTE_NOW":"आता मतदान करा",
+  "SEARCH_SUBMISSION":"शोध सबमिशन",
+  "VIEW_SUBMISSIONS":"सबमिशन पहा",
+  "VOTIGN_DEADLINE":"मतदानाची अंतिम मुदत",
+  "VIEW_AND_VOTE":"पहा आणि मत द्या",
+  "VOTE_FOR_THIS_CONTENT":"या सामग्रीसाठी मत द्या"
+
 }
 

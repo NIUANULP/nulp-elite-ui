@@ -29,6 +29,8 @@ import SkeletonLoader from "components/skeletonLoader";
 import FloatingChatIcon from "components/FloatingChatIcon";
 import * as util from "../../services/utilService";
 import { Loading } from "@shiksha/common-lib";
+import { Button } from '@mui/material';
+import axios from "axios";
 
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -68,16 +70,11 @@ const DomainList = ({ globalSearchQuery }) => {
   const [domain, setDomain] = useState();
   const [popularCourses, setPopularCourses] = useState([]);
   const [recentlyAddedCourses, setRecentlyAddedCourses] = useState([]);
-  const [orgId, setOrgId] = useState();
   const [framework, setFramework] = useState();
+  const [roleList, setRoleList] = useState([]);
+  const [orgId,setOrgId] = useState([]);
 
   const [searchQuery, setSearchQuery] = useState(globalSearchQuery || "");
-
-  const [isModalOpen, setIsModalOpen] = useState(() => {
-    // Check if the modal has been shown in the current session
-    const isModalShown = sessionStorage.getItem('isModalShown');
-    return isModalShown !== 'true'; // Show modal if not already shown
-  });
 
   const [lernUser, setLernUser] = useState([]);
   const _userId = util.userId();
@@ -87,6 +84,11 @@ const DomainList = ({ globalSearchQuery }) => {
       const response = await fetch(url);
       const data = await response.json();
       const rolesData = data.result.response.channel;
+      const roles =data.result.response.roles;
+      const organizationId=roles[0]?.scope[0]?.organisationId;
+      const extractedRoles = roles.map(roleObj => roleObj.role);
+      setRoleList(extractedRoles);
+      setOrgId(organizationId);
       setLernUser(rolesData);
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -100,6 +102,74 @@ const DomainList = ({ globalSearchQuery }) => {
     }
   }, [_userId]);
 
+  const checkAccess = async () => {
+    try {
+      const url = `${urlConfig.URLS.CHECK_USER_ACCESS}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      const userID = data.result.data;
+      const user = userID.find((user) => user.user_id === _userId);
+
+      if (!user) {
+        fetchUserAccess();
+      } else if (user.creator_access === true) {
+        navigate('/webapp/mylernsubmissions');
+      } else if (user.creator_access === false) {
+        fetchUserAccess();
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+ 
+  let responsecode;
+  const isCreator = roleList.includes("CONTENT_CREATOR");
+  const fetchUserAccess = async () => {
+    try {
+      const url = `${urlConfig.URLS.PROVIDE_ACCESS}`;
+      const role = isCreator ? roleList : ["CONTENT_CREATOR", ...roleList];
+      const requestPayload = {
+        request: {
+          organisationId: orgId,
+          roles: role,
+          userId: _userId,
+        },
+      };
+      
+      if (isCreator) {
+        requestPayload.isCreator = true;
+      }
+  
+      const response = await axios.post(url, requestPayload);
+      const data = await response.data;
+      const result = data.result.data.responseCode;
+      
+      responsecode = result;
+      setResponseCode(result);
+      
+      if (result === "OK") {
+        navigate('webapp/mylernsubmissions');
+        setIsModalOpen(false);
+      } else {
+        setToasterMessage("Something went wrong! Please try again later");
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
+
+
+  const handleCheckUser =  async () => { 
+    if (lernUser === 'nulp-learn') {
+      navigate('/webapp/mylernsubmissions');
+    } else{
+      await checkAccess();
+    }
+  };
+
+
   const showErrorMessage = (msg) => {
     setToasterMessage(msg);
     setTimeout(() => {
@@ -112,7 +182,6 @@ const DomainList = ({ globalSearchQuery }) => {
     fetchUserData();
     getRecentlyAddedCourses();
     getPopularCourses();
-    // console.log("domainWithImage--",domainWithImage)
   }, []);
 
   // Function to push data to the array
@@ -124,10 +193,6 @@ const DomainList = ({ globalSearchQuery }) => {
     sessionStorage.setItem("previousRoutes", newPath);
     try {
       const uservData = await util.userData();
-      console.log(
-        "-------------",
-        uservData?.data?.result?.response?.framework?.id[0]
-      );
       setOrgId(uservData?.data?.result?.response?.rootOrgId);
       setFramework(uservData?.data?.result?.response?.framework?.id[0]);
     } catch (error) {
@@ -150,10 +215,8 @@ const DomainList = ({ globalSearchQuery }) => {
     try {
       const url = `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CHANNEL.READ}/${orgId}`;
       const response = await frameworkService.getChannel(url);
-      // console.log("channel---",response.data.result);
       setChannelData(response.data.result);
     } catch (error) {
-      console.log("error---", error);
       showErrorMessage(t("FAILED_TO_FETCH_DATA"));
     } finally {
       setIsLoading(false);
@@ -168,7 +231,6 @@ const DomainList = ({ globalSearchQuery }) => {
       const selectedIndex = categories.findIndex(
         (category) => category.code === "board"
       );
-      console.log("---------", selectedIndex);
 
       response?.data?.result?.framework?.categories[selectedIndex].terms.map(
         (term) => {
@@ -189,10 +251,8 @@ const DomainList = ({ globalSearchQuery }) => {
       );
       setData(itemsArray);
     } catch (error) {
-      console.log("nulp--  error-", error);
       showErrorMessage(t("FAILED_TO_FETCH_DATA"));
     } finally {
-      console.log("nulp finally---");
       setIsLoading(false);
     }
   };
@@ -268,7 +328,6 @@ const DomainList = ({ globalSearchQuery }) => {
       }
 
       const responseData = await response.json();
-      console.log("data", responseData);
       setRecentlyAddedCourses(responseData?.result?.content || []);
     } catch (error) {
       showErrorMessage(t("FAILED_TO_FETCH_DATA"));
@@ -278,14 +337,12 @@ const DomainList = ({ globalSearchQuery }) => {
   };
 
   const loadContents = async (term) => {
-    // console.log(term);
     navigate(`${routeConfig.ROUTES.CONTENTLIST_PAGE.CONTENTLIST}?1`, {
       state: { domain: term.name, domainName: term.name },
     });
   };
 
   const handleSearch = async (domainquery) => {
-    console.log(domainquery);
     navigate(`${routeConfig.ROUTES.CONTENTLIST_PAGE.CONTENTLIST}?1`, {
       state: { domainquery },
     });
@@ -296,7 +353,6 @@ const DomainList = ({ globalSearchQuery }) => {
       state: { domain: query, domainName: domainName },
     });
   };
-  // console.log(frameworkHardCodedData.result.framework.categories[0].terms);
 
   const handleCardClick = (contentId, courseType) => {
     if (courseType === "Course") {
@@ -377,7 +433,6 @@ const DomainList = ({ globalSearchQuery }) => {
       }
 
       const responseData = await response.json();
-      console.log("data", responseData);
       setPopularCourses(responseData?.result?.content || []);
     } catch (error) {
       showErrorMessage(t("FAILED_TO_FETCH_DATA"));
@@ -394,7 +449,6 @@ const DomainList = ({ globalSearchQuery }) => {
 
   const handleInputChange = (event) => {
     setSearchQuery(event.target.value);
-    console.log("value", event.target.value);
   };
 
   const handleKeyPress = (event) => {
@@ -402,14 +456,13 @@ const DomainList = ({ globalSearchQuery }) => {
       onMobileSearch();
     }
   };
-  console.log(lernUser, 'lernUser from dashboard');
 
 
   return (
     <div>
       <Header />
       {toasterMessage && <ToasterCommon response={toasterMessage} />}
-      <Box sx={{ height: 'calc(100vh - 210px)', overflowY: 'auto' }}>
+      <Box>
 
         {/* Search Box */}
         <Box
@@ -455,7 +508,10 @@ const DomainList = ({ globalSearchQuery }) => {
                 spacing={2}
                 style={{ margin: "20px 0", marginBottom: "10px" }}
               >
-                {data &&
+                 {isLoading ? (
+                  <Loading style={{ margin: "20px 50px", marginBottom: "10px" }}message={t("LOADING")} />
+                ) :
+                (data &&
                   data.slice(0, 10).map((term) => (
                     <Grid
                       item
@@ -486,7 +542,7 @@ const DomainList = ({ globalSearchQuery }) => {
                         </h5>
                       </Box>
                     </Grid>
-                  ))}
+                  )))}
               </Grid>
             </Box>
           </Container>
@@ -504,6 +560,46 @@ const DomainList = ({ globalSearchQuery }) => {
         >
 
           {error && <Alert severity="error">{error}</Alert>}
+
+          <Box
+            className="lern-box">
+            <Box>
+              <Grid container>
+                <Grid item xs={12} md={12} lg={12}>
+                  <Box className="h1-title">
+                    {t("LERN_title")}
+                  </Box>
+                </Grid>
+                <Grid item xs={12} md={10} lg={10}>
+                  <Box className='mt-20'>
+                    {t("LERN_MESSAGE_LINE_TWO")}
+                  </Box>
+                </Grid>
+                <Grid item xs={12} md={2} lg={2}>
+                  <Box className='mt-20'>
+                    {lernUser === 'nulp-learn' ? (
+                      <Button className="viewAll" onClick={handleCheckUser}>
+                        {t("PARTICIPATE_NOW")}
+                      </Button>
+                    ) : (
+                      <Button className="viewAll" onClick={handleCheckUser}>
+                        {t("PARTICIPATE_NOW")}
+                      </Button>
+                    )}
+                  </Box>
+                </Grid>
+                <Grid item xs={12} md={12} lg={12}>
+                  {toasterMessage && (
+                    <Box
+                    >
+                      <ToasterCommon response={toasterMessage} />
+                    </Box>
+                  )}
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+
           <Box textAlign="center">
             <p
               style={{

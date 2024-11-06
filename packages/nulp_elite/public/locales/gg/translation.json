@@ -325,8 +325,34 @@
   "NO_CHAT_REQUEST": "કોઈ ચેટ વિનંતી નથી",
   "PHONE":"ફોન",
   "PHONE_NUMBER":"(+91 11) 24617517, 24617543, 24617595",
-  "LERN_title":"લર્નથોન 2.0",
-  "LERN_MESSAGE":"લર્નથોન 2.0 20/09/2024 થી 20/10/2024 સુધી શરૂ થઈ છે. તમે હવે તમારા સબમિશન બનાવી અને શેર કરી શકો છો!",
   "CREATE_CONTENT":"સામગ્રી બનાવો",
-  "REQUEST_TO_CREATE":"બનાવવાની વિનંતી"
+  "REQUEST_TO_CREATE":"બનાવવાની વિનંતી",
+  "PARTICIPATE_NOW":"હવે ભાગ લો",
+  "LERN_title": "ધ લર્નથોન 2.0 શરૂ થઈ ગયું છે!",
+  "LERN_MESSAGE": "જ્યાં શહેરી પ્રેક્ટિશનરો સહયોગી શિક્ષણને પ્રોત્સાહન આપવા માટે ઉકેલો શેર કરે છે.",
+  "LERN_MESSAGE_LINE_TWO":"Learnathon 2.0 18મી નવેમ્બર 2024 ના રોજ લોન્ચ થયું અને 20મી ડિસેમ્બર 2024 સુધી ચાલુ રહેશે. તમારા શહેરી ઉકેલો હમણાં જ સબમિટ કરો!",
+
+  "NEW_NOTIFICATIONS":"નવી સૂચના (ઓ)",
+  "CLEAR_ALL":"બાધા સાફ કરો",
+  "NO_NOTIFICATIONS_FOUND":"કોઈ સૂચના મળી નથી",
+  "HELLO_CONNECT_MESSAGE":"હેલો! હું તમારી સાથે જોડાવા માંગુ છું",
+  "SEARCH_FOR_USER":"વપરાશકર્તા માટે શોધો",
+  "FILTER_BY_DESIGNATION":"હોદ્દો દ્વારા ફિલ્ટર કરો",
+  "ABOUT_SURVEY":"સર્વે વિશે",
+  "POLL_ENDED_ON":"મતદાન પર સમાપ્ત થયું",
+  "LIVE_UNTIL":"સુધી જીવો",
+  "END_REGISTRATION_MESSAGE":"ઘટના સમાપ્ત થઈ ગઈ છે.",
+  "REGISTRATION_START_MESSAGE":"રેજીસ્ટ્રેશન શરૂ થશે",
+  "CREATED_BY":"દ્વારા બનાવવામાં આવેલ"
+
+  "VOTE_NOW_LEARNATHON_SUBMISSIONS":"હવે મત આપો: લર્નથોન સબમિશન",
+  "SUBMISSION_NAME":"સબમિશન નામ",
+  "VOTING_DEADLINE":"મતદાનની અંતિમ તારીખ",
+  "VOTE_COUNT":"મત ગણતરી",
+  "VOTE_NOW":"હવે મત આપો",
+  "SEARCH_SUBMISSION":"સર્ચ સબમિશન",
+  "VIEW_SUBMISSIONS":"સબમિશન જુઓ",
+  "VOTIGN_DEADLINE":"મતદાનની અંતિમ તારીખ",
+  "VIEW_AND_VOTE":"જુઓ અને મત આપો",
+  "VOTE_FOR_THIS_CONTENT":"આ સામગ્રી માટે મત આપો"
 }

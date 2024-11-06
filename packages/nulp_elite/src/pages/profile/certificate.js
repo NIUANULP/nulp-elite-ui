@@ -196,7 +196,7 @@ const Certificate = () => {
       <Box className="lg-hide">
         <Header />
       </Box>
-      <Box sx={{ height: 'calc(100vh - 210px)', overflowY:'auto' }}>
+      <Box>
       {toasterMessage && <ToasterCommon response={toasterMessage} />}
       <Container
         maxWidth="xxl"

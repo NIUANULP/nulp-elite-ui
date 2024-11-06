@@ -16,12 +16,14 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
 import * as util from "../services/utilService";
 const urlConfig = require("../configs/urlConfig.json");
+import { useTranslation } from "react-i18next";
 
 const NotificationPopup = ({ open, handleClose, updateNotificationCount }) => {
   const [notifications, setNotifications] = useState([]);
   const _userId = util.userId();
   const navigate = useNavigate();
-  const [NotificationCount , setNotificationCount] = useState(0)
+  const [NotificationCount , setNotificationCount] = useState(0);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -138,7 +140,7 @@ const NotificationPopup = ({ open, handleClose, updateNotificationCount }) => {
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
       <DialogTitle>
-        {NotificationCount} {"New Notification (s)"}
+        {NotificationCount} {t("NEW_NOTIFICATIONS")}
         <IconButton
           aria-label="close"
           onClick={handleClose}
@@ -193,12 +195,12 @@ const NotificationPopup = ({ open, handleClose, updateNotificationCount }) => {
             })}
           </List>
         ) : (
-          <Typography>No Notifications Found</Typography>
+          <Typography>{t("NO_NOTIFICATIONS_FOUND")}</Typography>
         )}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClearAllNotifications} color="secondary">
-          Clear All
+        {t("CLEAR_ALL")}
         </Button>
       </DialogActions>
     </Dialog>

@@ -40,6 +40,9 @@ const routeConfig = require("./configs/routeConfig.json");
 import PopupForm from "pages/profileData";
 import axios from "axios";
 import ReactGA from "react-ga4";
+import LernModal from "components/learnathon/LernModal";
+import LernSubmissionTable from "pages/learnathon/LernSubmissionTable";
+import LernVotingList from "pages/learnathon/lernVotingList";
 
 function App() {
   // const [t] = useTranslation();
@@ -110,12 +113,6 @@ function App() {
       path: routeConfig.ROUTES.JOIN_COURSE_PAGE.JOIN_COURSE,
       component: JoinCourse,
     },
-    // {
-    //   moduleName: "nulp_elite",
-    //   path: "/joinCourse/:contentId",
-    //   component: JoinCourse,
-    // },
-
     {
       moduleName: "nulp_elite",
       path: routeConfig.ROUTES.PLAYER_PAGE.PLAYER,
@@ -216,8 +213,20 @@ function App() {
       path: routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT,
       component: LernCreatorForm,
     },
+    {
+      moduleName: "nulp_elite",
+      path: routeConfig.ROUTES.LEARNATHON.MYLERNSUBMISSION,
+      component: LernSubmissionTable,
+
+    },
+    {
+      moduleName: "nulp_elite",
+      path: routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
+      component: LernVotingList,
+
+    },
   ];
-  createForm;
+
   initializeI18n(
     ["translation"],
     `${process.env.PUBLIC_URL}/locales/{{lng}}/{{ns}}.json`
@@ -324,6 +333,9 @@ function App() {
               />
             ))}
           </Routes>
+
+          <LernModal />
+
         </Router>
       </React.Suspense>
       {/* </ChakraProvider> */}

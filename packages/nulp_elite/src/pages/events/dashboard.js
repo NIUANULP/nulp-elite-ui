@@ -3,7 +3,6 @@ import Footer from "components/Footer";
 import Header from "components/header";
 import Container from "@mui/material/Container";
 import FloatingChatIcon from "../../components/FloatingChatIcon";
-import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import Box from "@mui/material/Box";
@@ -27,7 +26,6 @@ import { Pagination, TextField } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker as MuiDatePicker } from "@mui/x-date-pickers/DatePicker";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import dayjs from "dayjs";
 const urlConfig = require("../../configs/urlConfig.json");
 import { Checkbox, ListItemText, Chip, Button } from "@material-ui/core";
@@ -552,7 +550,7 @@ const Dashboard = () => {
   return (
     <div>
       <Header />
-      <Box sx={{ height: 'calc(100vh - 210px)', overflowY:'auto' }}>
+      <Box>
       <Container
         maxWidth="xl"
         role="main"
@@ -609,7 +607,7 @@ const Dashboard = () => {
               <Box>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <MuiDatePicker
-                    label="Select Date From"
+                    label={t("SELECT_DATE_FROM")}
                     value={startDateFilter}
                     onChange={handleStartDateChange}
                     renderInput={(params) => <TextField {...params} />}
@@ -619,7 +617,7 @@ const Dashboard = () => {
               <Box>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <MuiDatePicker
-                    label="Select Date To"
+                    label={t("SELECT_DATE_TO")}
                     value={endDateFilter}
                     onChange={handleEndDateChange}
                     renderInput={(params) => <TextField {...params} />}
@@ -689,7 +687,7 @@ const Dashboard = () => {
               <Box>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <MuiDatePicker
-                    label="Select Date from"
+                    label={t("SELECT_DATE_FROM")}
                     value={startDateDesignationFilter}
                     onChange={handleDesignationStartDateChange}
                     renderInput={(params) => <TextField {...params} />}
@@ -699,7 +697,7 @@ const Dashboard = () => {
               <Box>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <MuiDatePicker
-                    label="Select Date To"
+                    label={t("SELECT_DATE_TO")}
                     value={endDateDesignationFilter}
                     onChange={handleDesignationEndDateChange}
                     renderInput={(params) => <TextField {...params} />}

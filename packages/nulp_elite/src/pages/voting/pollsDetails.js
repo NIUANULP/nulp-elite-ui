@@ -143,7 +143,7 @@ const pollsDetailes = () => {
   return (
     <div>
       <Header />
-      <Box sx={{ height: 'calc(100vh - 210px)', overflowY:'auto' }}>
+      <Box>
       <div>
         {polls.length === 0 ? (
           <p>{t("NO_POLL_AVAILABLE")}</p>

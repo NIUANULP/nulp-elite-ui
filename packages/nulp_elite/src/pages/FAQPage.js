@@ -62,7 +62,7 @@ const FAQPage = () => {
   return (
     <div>
       <Header />
-      <Box sx={{ height: 'calc(100vh - 210px)', overflowY:'auto' }}>
+      <Box>
       {setLanguage && url && <Container maxWidth="xl" role="main" className="min-472 pb-30">
         {error && (
           <Alert severity="error" className="my-10">

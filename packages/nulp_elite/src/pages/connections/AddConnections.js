@@ -62,9 +62,7 @@ const AddConnections = () => {
   const [openModal, setOpenModal] = useState(false);
   const [userSearchData, setUserSearchData] = useState();
   const [searchQuery, setSearchQuery] = useState("");
-  const [textValue, setTextValue] = useState(
-    "Hello! I’d like to connect with you."
-  );
+ 
   const [invitationAcceptedUsers, setInvitationAcceptedUsers] = useState();
   const [invitationNotAcceptedUsers, setInvitationNotAcceptedUsers] =
     useState();
@@ -77,6 +75,9 @@ const AddConnections = () => {
   const [showChatModal, setShowChatModal] = useState(false);
   const [selectedUserName, setSelectedUserName] = useState(false);
   const { t } = useTranslation();
+  const [textValue, setTextValue] = useState(
+    t("HELLO_CONNECT_MESSAGE")
+  );
   const setData = useStore((state) => state.setData);
   const [totalPages, setTotalPages] = useState(1);
   const [userQuerySearchData, setUserQuerySearchData] = useState();
@@ -1289,7 +1290,7 @@ const AddConnections = () => {
     <Box>
       <Header />
       {toasterMessage && <ToasterCommon response={toasterMessage} />}
-      <Box sx={{ height: 'calc(100vh - 210px)', overflowY:'auto' }}>
+      <Box>
       <Container maxWidth="xl" role="main" className="pt-0 xs-pb-62 pt-108">
         {error && (
           <Alert severity="error" className="my-10">
@@ -1336,8 +1337,8 @@ const AddConnections = () => {
               ) : (
                 <Button
                   type="button"
-                  className="viewAll xs-mr-10"
                   onClick={handleBackClick}
+                  className="custom-btn-primary mr-5"
                 >
                   {t("BACK")}
                 </Button>
@@ -1355,7 +1356,7 @@ const AddConnections = () => {
                       aria-label="lab API tabs example"
                     >
                       <Tab
-                        label="My Connections"
+                        label={t("MY_CONNECTION")}
                         value="1"
                         style={{ fontSize: "12px", color: "#484848" }}
                         onClick={() => {
@@ -1365,7 +1366,7 @@ const AddConnections = () => {
                         }}
                       />
                       <Tab
-                        label={`Connection Requests (${
+                        label={`${t("CONNECTION_REQUEST")} (${
                           invitationReceiverByUser?.length || 0
                         })`}
                         value="2"
@@ -1376,7 +1377,7 @@ const AddConnections = () => {
                         }}
                       />
                       <Tab
-                        label="Blocked Users"
+                        label={t("BLOCKED_USERS")}
                         value="3"
                         style={{ fontSize: "12px", color: "#484848" }}
                         onClick={() => {
@@ -1851,7 +1852,7 @@ const AddConnections = () => {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Search for a User"
+                        label={t("SEARCH_FOR_USER")}
                         className="searchUser"
                         variant="outlined"
                       />
@@ -1943,7 +1944,7 @@ const AddConnections = () => {
 
                     <Filter
                       options={designationsList}
-                      label="Filter by Designation"
+                      label={t("FILTER_BY_DESIGNATION")}
                       onChange={handleDesignationFilter}
                       // isMulti={false}
                       className="w-30"

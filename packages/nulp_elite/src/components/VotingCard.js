@@ -337,7 +337,7 @@ export default function VotingCard({ items, index, onClick }) {
                 </Typography>
 
                 <Box className="pr-5">
-                  <span className=" h3-custom-title"> Poll Ended On</span>
+                  <span className=" h3-custom-title">{t("POLL_ENDED_ON")}</span>
                   <TodayOutlinedIcon
                     className="h3-custom-title pl-10 mt-10"
                     style={{ verticalAlign: "middle" }}

@@ -28,7 +28,7 @@ const NoResult = () => {
         className="center-box"
       >
         <SearchOffIcon style={{ fontSize: "70px", color: "#ccc" }} />
-        <Box> No Result Found</Box>
+        <Box>{t("NO_RESULT_FOUND")}</Box>
       </Box>
       {/* </Container> */}
       <FloatingChatIcon />

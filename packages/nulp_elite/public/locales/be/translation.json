@@ -322,8 +322,34 @@
   "NO_CHAT_REQUEST": "কোনো চ্যাট অনুরোধ নেই",
   "PHONE":"ফোন",
   "PHONE_NUMBER":"(+91 11) 24617517, 24617543, 24617595",
-  "LERN_title":"Learnathon 2.0",
-  "LERN_MESSAGE":"Learnathon 2.0 20/09/2024 থেকে 20/10/2024 পর্যন্ত শুরু হয়েছে। আপনি এখন আপনার জমাগুলি তৈরি এবং ভাগ করতে পারেন!",
   "CREATE_CONTENT":"সামগ্রী তৈরি করুন",
-  "REQUEST_TO_CREATE":"তৈরি করার অনুরোধ"
+  "REQUEST_TO_CREATE":"তৈরি করার অনুরোধ",
+  "PARTICIPATE_NOW":"এখনই অংশগ্রহণ করুন",
+  "LERN_title": "The Learnathon 2.0 শুরু হয়েছে!",
+  "LERN_MESSAGE": "যেখানে শহুরে অনুশীলনকারীরা সহযোগিতামূলক শিক্ষাকে উৎসাহিত করার জন্য সমাধানগুলি ভাগ করে নেয়।",
+  "LERN_MESSAGE_LINE_TWO":"Learnathon 2.0 18ই নভেম্বর 2024 এ চালু হয়েছে এবং 20শে ডিসেম্বর 2024 পর্যন্ত চলবে। এখনই আপনার শহুরে সমাধান জমা দিন!",
+
+  "NEW_NOTIFICATIONS":"নতুন বিজ্ঞপ্তি (গুলি)",
+  "CLEAR_ALL":"সমস্ত সাফ করুন",
+  "NO_NOTIFICATIONS_FOUND":"কোন বিজ্ঞপ্তি পাওয়া যায়নি",
+  "HELLO_CONNECT_MESSAGE":"নমস্কার! আমি আপনার সাথে সংযোগ করতে চাই",
+  "SEARCH_FOR_USER":"একটি ব্যবহারকারীর জন্য অনুসন্ধান করুন",
+  "FILTER_BY_DESIGNATION":"পদবী দ্বারা ফিল্টার",
+  "ABOUT_SURVEY":" জরিপ সম্পর্কে",
+  "POLL_ENDED_ON":"পোল শেষ হয়েছে৷",
+  "LIVE_UNTIL":"পর্যন্ত লাইভ",
+  "END_REGISTRATION_MESSAGE":" অনুষ্ঠান শেষ হয়েছে। নিবন্ধন আর উপলব্ধ নেই",
+  "REGISTRATION_START_MESSAGE":"রেজিস্ট্রেশন শুরু হবে",
+  "CREATED_BY":"দ্বারা নির্মিত"
+
+"VOTE_NOW_LEARNATHON_SUBMISSIONS":"এখনই ভোট দিন: লার্নথন সাবমিশন",
+  "SUBMISSION_NAME":"জমা দাখিলের নাম",
+  "VOTING_DEADLINE":"ভোটের সময়সীমা",
+  "VOTE_COUNT":"ভোটের সংখ্যা",
+  "VOTE_NOW":"এখনই ভোট দিন",
+  "SEARCH_SUBMISSION":"অনুসন্ধান জমা",
+  "VIEW_SUBMISSIONS":"সাবমিশন দেখুন",
+  "VOTIGN_DEADLINE":"ভোটের সময়সীমা",
+  "VIEW_AND_VOTE":"দেখুন এবং ভোট দিন",
+  "VOTE_FOR_THIS_CONTENT":"এই কন্টেন্ট জন্য ভোট"
 }

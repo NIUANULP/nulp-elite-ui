@@ -248,7 +248,7 @@ const CategoryPage = () => {
   return (
     <>
       <Header />
-     <Box sx={{ height: 'calc(100vh - 210px)', overflowY:'auto' }}>
+     <Box>
       {toasterMessage && <ToasterCommon response={toasterMessage} />}
       {domain.length > 0 ? (
         <DomainCarousel onSelectDomain={handleDomainFilter} domains={domain} selectedDomainCode={preselectedDomain}/>
@@ -312,7 +312,7 @@ const CategoryPage = () => {
             style={{ alignItems: "center",justifyContent:'space-between'}}
           >
             <p className="h3-title">{category === "Course" ? "Courses" : category}</p>
-            <Link onClick={handleGoBack} className="viewAll mr-17">
+            <Link onClick={handleGoBack} className="custom-btn-primary mr-17">
               {t("BACK")}
             </Link>
           </Box>

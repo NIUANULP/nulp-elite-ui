@@ -14,7 +14,7 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import TodayOutlinedIcon from "@mui/icons-material/TodayOutlined";
-
+import TextField from "@mui/material/TextField";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import Link from "@mui/material/Link";
 import LinearProgress from "@mui/material/LinearProgress";
@@ -73,8 +73,10 @@ const VotingDetails = () => {
   const [open, setOpen] = useState(false);
   const [poll, setPoll] = useState(null);
   const [selectedOption, setSelectedOption] = useState("");
+  const [enteredRemark, setEnteredRemark] = useState("");
   const [userVote, setUserVote] = useState([]);
   const [toasterMessage, setToasterMessage] = useState("");
+  const [errormessage, setErrorMessage] = useState("");
   const [toasterOpen, setToasterOpen] = useState(false);
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -87,6 +89,7 @@ const VotingDetails = () => {
   const [startDate, setStartDate] = useState(moment());
   const [endDate, setEndDate] = useState(moment());
   const [updateFlag, setUpdateFlag] = useState(false);
+  const [remark, setRemark] = useState(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -144,6 +147,7 @@ const VotingDetails = () => {
       );
       setUserVote(response.data.result);
       setSelectedOption(response.data.result[0].poll_result);
+      setEnteredRemark(response?.data?.result[0]?.remark);
     } catch (error) {
       console.error("Error fetching user vote", error);
     }
@@ -153,43 +157,52 @@ const VotingDetails = () => {
   };
 
   const handleVoteSubmit = async () => {
-    const data = {
-      poll_id: pollId,
-      user_id: userId,
-      poll_submitted: true,
-      poll_result: selectedOption,
-    };
+    if (poll.category === "Learnathon" && remark == null) {
+      setErrorMessage("Please Enter the Remark");
+    } else {
+      const data = {
+        poll_id: pollId,
+        user_id: userId,
+        poll_submitted: true,
+        poll_result: selectedOption,
+        ...(remark ? { remark } : {}),
+      };
 
-    try {
-      await axios.post(`${urlConfig.URLS.POLL.USER_CREATE}`, data);
-      setToasterMessage(
-        "Vote submitted successfully, You can update your vote within next 15 minutes"
-      );
-      setToasterOpen(true);
-      fetchUserVote(pollId);
-    } catch (error) {
-      console.error("Error submitting vote", error);
+      try {
+        await axios.post(`${urlConfig.URLS.POLL.USER_CREATE}`, data);
+        setToasterMessage(
+          "Vote submitted successfully, You can update your vote within next 15 minutes"
+        );
+        setToasterOpen(true);
+        fetchUserVote(pollId);
+      } catch (error) {
+        console.error("Error submitting vote", error);
+      }
     }
   };
 
   const handleVoteUpdate = async () => {
-    const data = {
-      poll_id: pollId,
-      user_id: userId,
-      poll_submitted: true,
-      poll_result: selectedOption,
-    };
+    if (poll.category === "Learnathon" && remark == "") {
+      setErrorMessage("Please Enter the Remark");
+    } else {
+      const data = {
+        poll_id: pollId,
+        user_id: userId,
+        poll_submitted: true,
+        poll_result: selectedOption,
+        ...(remark ? { remark } : {}),
+      };
 
-    try {
-      await axios.put(`${urlConfig.URLS.POLL.USER_UPDATE}`, data);
-      setToasterMessage("Vote updated successfully");
-      setToasterOpen(true);
-      fetchUserVote(pollId);
-    } catch (error) {
-      console.error("Error updating vote", error);
+      try {
+        await axios.put(`${urlConfig.URLS.POLL.USER_UPDATE}`, data);
+        setToasterMessage("Vote updated successfully");
+        setToasterOpen(true);
+        fetchUserVote(pollId);
+      } catch (error) {
+        console.error("Error updating vote", error);
+      }
     }
   };
-
   const handleClose = () => {
     setOpen(false);
   };
@@ -220,10 +233,15 @@ const VotingDetails = () => {
     window.open(url, "_blank");
   };
 
+  const handleRemarkChange = (event) => {
+    setRemark(event.target.value);
+  };
+
   return (
     <div>
       <Header />
       {toasterMessage && <Toast response={toasterMessage} type="success" />}
+      {errormessage && <Toast response={errormessage} type="error" />}
       {poll && (
         <Container maxWidth="xl" role="main" className=" xs-pb-20 mt-12">
           <Breadcrumbs
@@ -248,6 +266,15 @@ const VotingDetails = () => {
               {poll.title}
             </Link>
           </Breadcrumbs>
+          <Box>
+                <Button
+                  type="button"
+                  className="custom-btn-primary ml-20"
+                  onClick={handleGoBack}
+                >
+                  {t("BACK")}
+                </Button>
+              </Box>
           <Grid
             container
             spacing={2}
@@ -265,13 +292,13 @@ const VotingDetails = () => {
 
                 <Box className="pr-5">
                   {isVotingEnded ? (
-                    <span className=" h3-custom-title"> Poll Ended On</span>
+                    <span className="h3-custom-title">{t("POLL_ENDED_ON")}</span>
                   ) : (
-                    <span className=" h3-custom-title"> Live until</span>
+                    <span className="h3-custom-title">{("LIVE_UNTIL")}</span>
                   )}
                   <TodayOutlinedIcon
                     className="h3-custom-title pl-10 pt-10"
-                    style={{ verticalAlign: 'sub',marginRight: '10px'}}
+                    style={{ verticalAlign: "sub", marginRight: "10px" }}
                   />
                   <span className="h3-custom-title ">
                     {moment(poll.end_date).format(
@@ -279,7 +306,7 @@ const VotingDetails = () => {
                     )}
                   </span>
                 </Box>
-                {userVote && userVote?.length > 0 && ( 
+                {userVote && userVote?.length > 0 && (
                   <Box className="pr-5 my-20">
                     <span className=" h3-custom-title"> Your Vote</span>
                     <VerifiedIcon
@@ -292,11 +319,10 @@ const VotingDetails = () => {
                       }}
                     />
                     <span className="h3-custom-title ">
-                      {userVote[0]?.poll_result} 
-                      
+                      {userVote[0]?.poll_result}
                     </span>
                   </Box>
-                )} 
+                )}
                 <Box sx={{ width: "100%" }}>
                   {pollResult && (
                     <div>
@@ -333,7 +359,7 @@ const VotingDetails = () => {
                   {poll.title}
                 </Typography>
                 <Box className="pr-5 h3-custom-title">
-                  <span className=" h3-custom-title"> Live until</span>
+                  <span className=" h3-custom-title">{t("LIVE_UNTIL")}</span>
                   <TodayOutlinedIcon
                     className="h3-custom-title pl-10 mb-10 pt-10"
                     style={{
@@ -392,6 +418,7 @@ const VotingDetails = () => {
                       value={selectedOption}
                       onChange={handleOptionChange}
                       name="radio-buttons-group"
+                      sx={{ marginBottom: "24px" }}
                     >
                       {poll?.poll_options?.map((option, index) => (
                         <FormControlLabel
@@ -402,6 +429,23 @@ const VotingDetails = () => {
                         />
                       ))}
                     </RadioGroup>
+                    {poll && poll.category === "Learnathon" && (
+                      <Box>
+                        <TextField
+                          label={
+                            <>
+                              {t("Remark")}{" "}
+                              <span style={{ color: "red" }}>*</span>
+                            </>
+                          }
+                          variant="outlined"
+                          fullWidth
+                          placeholder={t("Enter your remark")}
+                          value={enteredRemark || remark}
+                          onChange={handleRemarkChange}
+                        />
+                      </Box>
+                    )}
                     <Box>
                       {userVote?.length > 0 ? (
                         <Button
@@ -409,6 +453,7 @@ const VotingDetails = () => {
                           className="custom-btn-primary"
                           onClick={handleVoteUpdate}
                           disabled={!selectedOption} // Disable the button if no option is selected
+                          sx={{ marginTop: "24px" }}
                         >
                           {t("UPDATE_VOTE")}
                         </Button>
@@ -418,6 +463,7 @@ const VotingDetails = () => {
                           className="custom-btn-primary"
                           onClick={handleVoteSubmit}
                           disabled={!selectedOption} // Disable the button if no option is selected
+                          sx={{ marginTop: "24px" }}
                         >
                           {t("SUBMIT_VOTE")}
                         </Button>
@@ -460,7 +506,7 @@ const VotingDetails = () => {
                     </Typography>
 
                     <Box className="pr-5">
-                      <span className=" h3-custom-title"> Poll Ended On</span>
+                      <span className=" h3-custom-title">{("POLL_ENDED_ON")}</span>
                       <TodayOutlinedIcon
                         className="h3-custom-title pl-10"
                         style={{
@@ -583,19 +629,19 @@ const VotingDetails = () => {
                 </Box>
               </Box>
             )}
-
-            <Box style={{ display: "block", width: "100%" }}></Box>
             <Box
               className="h2-title pl-20 mb-20 mt-20"
               style={{ fontWeight: "600" }}
             >
-              {t("About survey")}
+              {t("ABOUT_SURVEY")}
             </Box>
             <Box
               className="event-h2-title  pl-20 mb-20"
               style={{ fontWeight: "400" }}
             >
+              <Box className="mt-20">
               {poll.description}
+              </Box>
             </Box>
             <Box className="lg-hide ml-20">
               <FacebookShareButton url={shareUrl} className="pr-3">

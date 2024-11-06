@@ -85,7 +85,10 @@
       "POLLS_VIEW_ALL": "/webapp/pollsDetails"
     },
     "LEARNATHON": {
-      "CREATELEARNCONTENT": "/webapp/learnthon"
+      "CREATELEARNCONTENT": "/webapp/learnthon",
+      "SUBMISSIONLIST": "webapp/SubmissionList",
+      "MYLERNSUBMISSION": "/webapp/mylernsubmissions",
+      "LERNVOTINGLIST":"/webapp/lernvotinglist"
     }
   }
 }

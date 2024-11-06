@@ -911,7 +911,7 @@ const formatTimeWithTimezone = (date) => {
                   className="h5-title mb-20 xs-hide"
                   style={{ fontWeight: "400" }}
                 >
-                  Registration will be starting on{" "}
+                 {t("REGISTRATION_START_MESSAGE")}
                   {formatDate(detailData.registrationStartDate)}
                 </Box>
               )}
@@ -932,7 +932,7 @@ const formatTimeWithTimezone = (date) => {
                   style={{ fontWeight: "400" }}
                 >
                   <Alert severity="error">
-                    The event has ended. Registration is no longer available
+                   {t("END_REGISTRATION_MESSAGE")}
                   </Alert>
                 </Box>
               )}
@@ -1123,7 +1123,7 @@ const formatTimeWithTimezone = (date) => {
               )}
               {isRegStart === false && (
                 <Box className="h5-title mb-20" style={{ fontWeight: "400" }}>
-                  Registration will be starting on{" "}
+                  {t("REGISTRATION_START_MESSAGE")}
                   {formatDate(detailData.registrationStartDate)}
                 </Box>
               )}
@@ -1133,7 +1133,7 @@ const formatTimeWithTimezone = (date) => {
                   style={{ fontWeight: "400" }}
                 >
                   <Alert severity="error">
-                    The event has ended. Registration is no longer available
+                  {t("END_REGISTRATION_MESSAGE")}
                   </Alert>
                 </Box>
               )}

@@ -20,7 +20,7 @@ const PDFContent = () => {
   return (
     <div>
       <Header />
-      <Box sx={{ height: 'calc(100vh - 210px)', overflowY:'auto' }}>
+      <Box>
       <Container maxWidth="md" role="main" className="container-pb">
         <Grid container spacing={2}>
           <Grid item xs={8}>

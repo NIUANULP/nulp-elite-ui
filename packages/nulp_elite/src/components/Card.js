@@ -18,7 +18,6 @@ export default function BoxCard({ items, index, onClick, continueLearning }) {
   const { t } = useTranslation();
 
   useEffect(() => {
-    console.log("items-------", items);
     if (items.se_gradeLevels) {
       setSubdomain(processString(items.se_gradeLevels[0]));
     } else if (items.gradeLevel) {
