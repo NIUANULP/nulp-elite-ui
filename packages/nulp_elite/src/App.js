@@ -208,11 +208,11 @@ function App() {
       path: routeConfig.ROUTES.POLL.POLLS_VIEW_ALL,
       component: pollsDetails,
     },
-    {
-      moduleName: "nulp_elite",
-      path: routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT,
-      component: LernCreatorForm,
-    },
+    // {
+    //   moduleName: "nulp_elite",
+    //   path: routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT,
+    //   component: LernCreatorForm,
+    // },
     // {
     //   moduleName: "nulp_elite",
     //   path: routeConfig.ROUTES.LEARNATHON.MYLERNSUBMISSION,
@@ -333,8 +333,7 @@ function App() {
               />
             ))}
           </Routes>
-
-          // <LernModal />
+{/* // <LernModal /> */}
 
         </Router>
       </React.Suspense>
