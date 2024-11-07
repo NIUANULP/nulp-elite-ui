@@ -29,9 +29,8 @@ import SkeletonLoader from "components/skeletonLoader";
 import FloatingChatIcon from "components/FloatingChatIcon";
 import * as util from "../../services/utilService";
 import { Loading } from "@shiksha/common-lib";
-import { Button } from '@mui/material';
+import { Button } from "@mui/material";
 import axios from "axios";
-
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -72,7 +71,7 @@ const DomainList = ({ globalSearchQuery }) => {
   const [recentlyAddedCourses, setRecentlyAddedCourses] = useState([]);
   const [framework, setFramework] = useState();
   const [roleList, setRoleList] = useState([]);
-  const [orgId,setOrgId] = useState([]);
+  const [orgId, setOrgId] = useState([]);
 
   const [searchQuery, setSearchQuery] = useState(globalSearchQuery || "");
 
@@ -84,9 +83,9 @@ const DomainList = ({ globalSearchQuery }) => {
       const response = await fetch(url);
       const data = await response.json();
       const rolesData = data.result.response.channel;
-      const roles =data.result.response.roles;
-      const organizationId=roles[0]?.scope[0]?.organisationId;
-      const extractedRoles = roles.map(roleObj => roleObj.role);
+      const roles = data.result.response.roles;
+      const organizationId = roles[0]?.scope[0]?.organisationId;
+      const extractedRoles = roles.map((roleObj) => roleObj.role);
       setRoleList(extractedRoles);
       setOrgId(organizationId);
       setLernUser(rolesData);
@@ -107,14 +106,14 @@ const DomainList = ({ globalSearchQuery }) => {
       const url = `${urlConfig.URLS.CHECK_USER_ACCESS}`;
       const response = await fetch(url);
       const data = await response.json();
-      
+
       const userID = data.result.data;
       const user = userID.find((user) => user.user_id === _userId);
 
       if (!user) {
         fetchUserAccess();
       } else if (user.creator_access === true) {
-        navigate('/webapp/mylernsubmissions');
+        navigate("/webapp/mylernsubmissions");
       } else if (user.creator_access === false) {
         fetchUserAccess();
       }
@@ -123,7 +122,6 @@ const DomainList = ({ globalSearchQuery }) => {
     }
   };
 
- 
   let responsecode;
   const isCreator = roleList.includes("CONTENT_CREATOR");
   const fetchUserAccess = async () => {
@@ -137,38 +135,36 @@ const DomainList = ({ globalSearchQuery }) => {
           userId: _userId,
         },
       };
-      
+
       if (isCreator) {
         requestPayload.isCreator = true;
       }
-  
+
       const response = await axios.post(url, requestPayload);
       const data = await response.data;
       const result = data.result.data.responseCode;
-      
+
       responsecode = result;
       setResponseCode(result);
-      
+
       if (result === "OK") {
-        navigate('webapp/mylernsubmissions');
+        navigate("webapp/mylernsubmissions");
         setIsModalOpen(false);
       } else {
         setToasterMessage("Something went wrong! Please try again later");
       }
     } catch (error) {
-      console.log('error', error);
+      console.log("error", error);
     }
   };
 
-
-  const handleCheckUser =  async () => { 
-    if (lernUser === 'nulp-learn') {
-      navigate('/webapp/mylernsubmissions');
-    } else{
+  const handleCheckUser = async () => {
+    if (lernUser === "nulp-learn") {
+      navigate("/webapp/mylernsubmissions");
+    } else {
       await checkAccess();
     }
   };
-
 
   const showErrorMessage = (msg) => {
     setToasterMessage(msg);
@@ -457,19 +453,21 @@ const DomainList = ({ globalSearchQuery }) => {
     }
   };
 
-
   return (
     <div>
       <Header />
       {toasterMessage && <ToasterCommon response={toasterMessage} />}
       <Box>
-
         {/* Search Box */}
         <Box
           className="lg-hide d-flex"
           style={{
-            alignItems: "center", padding: '15px', marginTop: '67px', background: '#fff', border: '2px solid #eee',
-            borderRadius: '10px'
+            alignItems: "center",
+            padding: "15px",
+            marginTop: "67px",
+            background: "#fff",
+            border: "2px solid #eee",
+            borderRadius: "10px",
           }}
         >
           <TextField
@@ -508,10 +506,13 @@ const DomainList = ({ globalSearchQuery }) => {
                 spacing={2}
                 style={{ margin: "20px 0", marginBottom: "10px" }}
               >
-                 {isLoading ? (
-                  <Loading style={{ margin: "20px 50px", marginBottom: "10px" }}message={t("LOADING")} />
-                ) :
-                (data &&
+                {isLoading ? (
+                  <Loading
+                    style={{ margin: "20px 50px", marginBottom: "10px" }}
+                    message={t("LOADING")}
+                  />
+                ) : (
+                  data &&
                   data.slice(0, 10).map((term) => (
                     <Grid
                       item
@@ -535,19 +536,21 @@ const DomainList = ({ globalSearchQuery }) => {
                             src={require(`../../assets/domainImgs${term.image}`)}
                           />
                         </Box>
-                        <h5
-                          className=" cursor-pointer domainText"
-                        >
+                        <h5 className=" cursor-pointer domainText">
                           {term.name}
                         </h5>
                       </Box>
                     </Grid>
-                  )))}
+                  ))
+                )}
               </Grid>
             </Box>
           </Container>
         ) : domain ? (
-          <DomainCarousel onSelectDomain={handleDomainFilter} domains={domain} />
+          <DomainCarousel
+            onSelectDomain={handleDomainFilter}
+            domains={domain}
+          />
         ) : (
           <SkeletonLoader />
           // <NoResult />
@@ -558,10 +561,9 @@ const DomainList = ({ globalSearchQuery }) => {
           className=" allContent allContentList domain-list mt-180"
           role="main"
         >
-
           {error && <Alert severity="error">{error}</Alert>}
 
-          <Box
+          {/* <Box
             className="lern-box">
             <Box>
               <Grid container>
@@ -598,7 +600,7 @@ const DomainList = ({ globalSearchQuery }) => {
                 </Grid>
               </Grid>
             </Box>
-          </Box>
+          </Box> */}
 
           <Box textAlign="center">
             <p
@@ -636,7 +638,10 @@ const DomainList = ({ globalSearchQuery }) => {
                           <BoxCard
                             items={items}
                             onClick={() =>
-                              handleCardClick(items.identifier, items.contentType)
+                              handleCardClick(
+                                items.identifier,
+                                items.contentType
+                              )
                             }
                           />
                         </Box>
@@ -720,7 +725,10 @@ const DomainList = ({ globalSearchQuery }) => {
                           <BoxCard
                             items={items}
                             onClick={() =>
-                              handleCardClick(items.identifier, items.contentType)
+                              handleCardClick(
+                                items.identifier,
+                                items.contentType
+                              )
                             }
                           />
                         </Box>
@@ -746,7 +754,10 @@ const DomainList = ({ globalSearchQuery }) => {
                           <BoxCard
                             items={items}
                             onClick={() =>
-                              handleCardClick(items.identifier, items.contentType)
+                              handleCardClick(
+                                items.identifier,
+                                items.contentType
+                              )
                             }
                           />
                         </Box>
