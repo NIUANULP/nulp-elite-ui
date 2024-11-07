@@ -40,9 +40,9 @@ const routeConfig = require("./configs/routeConfig.json");
 import PopupForm from "pages/profileData";
 import axios from "axios";
 import ReactGA from "react-ga4";
-import LernModal from "components/learnathon/LernModal";
-import LernSubmissionTable from "pages/learnathon/LernSubmissionTable";
-import LernVotingList from "pages/learnathon/lernVotingList";
+//import LernModal from "components/learnathon/LernModal";
+//import LernSubmissionTable from "pages/learnathon/LernSubmissionTable";
+//import LernVotingList from "pages/learnathon/lernVotingList";
 
 function App() {
   // const [t] = useTranslation();
@@ -213,18 +213,18 @@ function App() {
       path: routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT,
       component: LernCreatorForm,
     },
-    {
-      moduleName: "nulp_elite",
-      path: routeConfig.ROUTES.LEARNATHON.MYLERNSUBMISSION,
-      component: LernSubmissionTable,
+    // {
+    //   moduleName: "nulp_elite",
+    //   path: routeConfig.ROUTES.LEARNATHON.MYLERNSUBMISSION,
+    //   component: LernSubmissionTable,
 
-    },
-    {
-      moduleName: "nulp_elite",
-      path: routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
-      component: LernVotingList,
+    // },
+    // {
+    //   moduleName: "nulp_elite",
+    //   path: routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
+    //   component: LernVotingList,
 
-    },
+    // },
   ];
 
   initializeI18n(
