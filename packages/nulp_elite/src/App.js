@@ -34,7 +34,7 @@ import createForm from "pages/voting/createForm";
 import VotingDetails from "pages/voting/votingDetails";
 import votingDashboard from "pages/voting/votingDashboard";
 import pollsDetails from "pages/voting/pollsDetails";
-import LernCreatorForm from "pages/learnathon/lernCreatorForm";
+// import LernCreatorForm from "pages/learnathon/lernCreatorForm";
 const urlConfig = require("./configs/urlConfig.json");
 const routeConfig = require("./configs/routeConfig.json");
 import PopupForm from "pages/profileData";
