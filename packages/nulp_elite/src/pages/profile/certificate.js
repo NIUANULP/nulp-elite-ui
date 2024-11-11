@@ -93,6 +93,7 @@ const Certificate = () => {
         const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.CERTIFICATE.CERTIF_SEARCH}`;
         const response = await axios.post(url, request);
         const data = response.data;
+
         setOtherCertData(data);
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -279,7 +280,7 @@ const Certificate = () => {
                                     fontWeight: "600",
                                   }}
                                 >
-                                  {certificate._source.data.badge.name}
+                                  {certificate?._source?.data?.badge?.name}
                                 </Typography>
                                 <Typography
                                   variant="subtitle1"
@@ -288,7 +289,7 @@ const Certificate = () => {
                                   style={{ fontSize: "12px" }}
                                 >
                                   {t("CERTIFICATE_GIVEN_BY")}:{" "}
-                                  {certificate._source.data.badge.issuer.name}
+                                  {certificate?._source?.data?.badge?.issuer?.name}
                                 </Typography>
                                 <Typography
                                   variant="subtitle1"
@@ -297,7 +298,7 @@ const Certificate = () => {
                                   style={{ fontSize: "12px" }}
                                 >
                                   {t("CERTIFICATE_ISSUE_DATE")}:{" "}
-                                  {formatDate(certificate._source.data.issuedOn)}
+                                  {formatDate(certificate?._source?.data?.issuedOn)}
                                 </Typography>
                                 <Box
                                   style={{
@@ -310,7 +311,7 @@ const Certificate = () => {
                                 >
                                   <SimCardDownloadOutlinedIcon />
                                   <Link
-                                    href={certificate._source.pdfUrl}
+                                    href={certificate?._source?.pdfUrl}
                                     underline="none"
                                     style={{
                                       fontSize: "12px",
@@ -319,8 +320,8 @@ const Certificate = () => {
                                     }}
                                     onClick={() => {
                                       getCertificateReport(
-                                        certificate._id,
-                                        certificate._source.data.badge.name
+                                        certificate?._id,
+                                        certificate?._source?.data?.badge?.name
                                       );
                                     }}
                                   >
@@ -331,7 +332,7 @@ const Certificate = () => {
                             </Grid>
                           ))}
                         {otherCertData.map((certificate) => (
-                          <Grid item xs={12} md={4} key={certificate.osid}>
+                          <Grid item xs={12} md={4} key={certificate?.osid}>
                             <Card
                               sx={{
                                 marginTop: "10px",
@@ -340,8 +341,21 @@ const Certificate = () => {
                                 border: "solid 1px #EFEFEF",
                                 boxShadow: "none",
                                 color: "#484848",
+                                position: 'relative',
                               }}
                             >
+                              {certificate?.training?.type && (
+                                <Typography
+                                  gutterBottom
+                                  variant="h7"
+                                  component="div"
+                                  className="ribbonCard"
+                                  marginTop={"-23px"}
+                                >
+                                  <Box className="cardCourses">{certificate?.training?.type}</Box>
+                                </Typography>
+                              )}
+
                               <Typography
                                 className="twoLineEllipsis"
                                 variant="subtitle1"
@@ -352,9 +366,10 @@ const Certificate = () => {
                                   paddingBottom: "0",
                                   height: "42px",
                                   fontWeight: "600",
+                                  marginTop : "27px"
                                 }}
                               >
-                                {certificate.training.name}
+                                {certificate?.training?.name}
                               </Typography>
                               <Typography
                                 variant="subtitle1"
@@ -362,7 +377,7 @@ const Certificate = () => {
                                 component="div"
                                 style={{ fontSize: "12px" }}
                               >
-                                {t("CERTIFICATE_GIVEN_BY")}: {certificate.issuer.name}
+                                {t("CERTIFICATE_GIVEN_BY")}: {certificate?.issuer?.name}
                               </Typography>
                               <Typography
                                 variant="subtitle1"
@@ -371,7 +386,7 @@ const Certificate = () => {
                                 style={{ fontSize: "12px" }}
                               >
                                 {t("CERTIFICATE_ISSUE_DATE")}:{" "}
-                                {formatDate(certificate.osCreatedAt)}
+                                {formatDate(certificate?.osCreatedAt)}
                               </Typography>
                               <Box
                                 style={{
@@ -383,15 +398,15 @@ const Certificate = () => {
                                 className="text-green"
                                 onClick={() => {
                                   getCertificate(
-                                    certificate.templateUrl,
-                                    certificate.osid,
-                                    certificate.training.name
+                                    certificate?.templateUrl,
+                                    certificate?.osid,
+                                    certificate?.training?.name
                                   );
                                 }}
                               >
                                 <SimCardDownloadOutlinedIcon />
                                 <Link
-                                  href={certificate.pdfUrl}
+                                  href={certificate?.pdfUrl}
                                   underline="none"
                                   style={{
                                     fontSize: "12px",
