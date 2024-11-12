@@ -127,7 +127,7 @@ const Chat = ({
   const [eneteredtextValue, setEnteredTextValue] = useState("");
   const charLimit = 700;
   const [prefilledMessage, setPrefilledMessage] = useState(
-    t("HELLO_CONNECT_MESSAGE")
+    "Hello! I’d like to connect with you."
   );
   const [textValue, setTextValue] = useState("");
 
