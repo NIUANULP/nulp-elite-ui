@@ -13,7 +13,8 @@ import {
   Typography,
   Box,
   DialogActions,
-  Grid
+  Grid,
+  Container,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
@@ -34,23 +35,28 @@ const LernSubmissionTable = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [data, setData] = useState([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const [rowsPerPage, setRowsPerPage] = useState(20);
   const [totalRows, setTotalRows] = useState(0);
   const [search, setSearch] = useState("");
   const _userId = util.userId(); // Assuming util.userId() is defined
   const urlConfig = require("../../configs/urlConfig.json");
   const [dialogOpen, setDialogOpen] = useState(false);
-
-  const handleDialogOpen = () => {
+  const [emptySubmission, setEmptySubmission] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [lernId, setLernId] = useState();
+  const [contId, setcontId] = useState();
+  const handleDialogOpen = (learnathon_content_id, content_id) => {
     setDialogOpen(true);
+    setLernId(learnathon_content_id);
+    setcontId(content_id);
   };
 
   const routeConfig = require("../../configs/routeConfig.json");
 
   useEffect(() => {
     fetchData();
-  }, [page, rowsPerPage, search]);
+  }, [currentPage, rowsPerPage, search]);
 
   const fetchData = async () => {
     const assetBody = {
@@ -62,7 +68,7 @@ const LernSubmissionTable = () => {
           created_on: "desc",
         },
         limit: rowsPerPage,
-        offset: page * rowsPerPage,
+        offset: 10 * (currentPage - 1),
         search: search,
       },
     };
@@ -76,59 +82,50 @@ const LernSubmissionTable = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch polls");
+        throw new Error("Something went wrong");
       }
 
       const result = await response.json();
       console.log("suceesss----", result);
       console.log(result.result);
       setData(result.result.data);
-      setTotalRows(result.result.totalCount);
-
+      if (result.result.totalCount == 0) {
+        setEmptySubmission(true);
+      }
+      setTotalRows(Math.ceil(result.result.totalCount / 10));
     } catch (error) {
       console.log("error---", error);
       // setError(error.message);
     } finally {
       // setIsLoading(false);
     }
-
-    // Example API endpoint with limit, offset, and search params
-    // const apiUrl = `https://api.example.com/submissions?limit=${rowsPerPage}&offset=${
-    //   page * rowsPerPage
-    // }&search=${search}`;
-    // const response = await fetch(apiUrl);
-
-    // const result = await response.json();
-    // console.log(submissions);
-    // setData(submissions.result.data);
-    // setTotalRows(result.totalCount);
   };
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
-    setPage(0); // Reset to first page on search
+    setCurrentPage(0); // Reset to first page on search
   };
 
   const handleDialogClose = () => {
     setDialogOpen(false);
   };
 
-  const handleDeletePollConfirmed = async (id) => {
+  const handleDeletePollConfirmed = async () => {
     event.stopPropagation();
     try {
       const response = await fetch(
-        `${urlConfig.URLS.LEARNATHON.DELETE}?id=${id}`,
+        `${urlConfig.URLS.LEARNATHON.DELETE}?id=${lernId}`,
         {
           method: "DELETE",
         }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch polls");
+        throw new Error("Something went wrong");
       }
-
       const result = await response.json();
       console.log("suceesss----", result);
+      window.location.reload();
       setDialogOpen(false);
     } catch (error) {
       console.log("error---", error);
@@ -138,46 +135,32 @@ const LernSubmissionTable = () => {
     }
   };
 
-  const deleteContent = async (id) => {
-    // show confirmation popup
-  };
-
-  const handlePageChange = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleRowsPerPageChange = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+  const handleChange = (event, value) => {
+    if (value !== currentPage) {
+      setCurrentPage(value);
+      fetchData();
+    }
   };
 
   return (
     <>
       <Header />
-      <Paper sx={{ padding: "20px", backgroundColor: "#f9f4eb" }}>
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          mb={2}
-        >
-          <Typography variant="h6" gutterBottom className="fw-600 mt-20">
+      <Container
+        maxWidth="xl"
+        className="pb-30 allContent xs-pb-80 all-card-list mt-180"
+      >
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography
+            variant="h6"
+            gutterBottom
+            className="fw-600 mt-20"
+            color={"#484848"}
+          >
             Learnathon Submissions List
           </Typography>
-          <Button
-            className="viewAll"
-            onClick={() =>
-            (window.location.href =
-              routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT)
-            }
-            sx={{padding: '7px 45px',borderRadius: '90px !important'
-          }}
-          >
-            Upload Submission
-          </Button>
         </Box>
         <Grid container>
-          <Grid item xs={6}>
+          <Grid item xs={5}>
             <Box display="flex" alignItems="center" mb={2}>
               <TextField
                 variant="outlined"
@@ -188,120 +171,157 @@ const LernSubmissionTable = () => {
                   endAdornment: <SearchIcon />,
                 }}
                 size="small"
-                sx={{ background: '#fff' }}
+                sx={{ background: "#fff" }}
               />
-
             </Box>
           </Grid>
+          <Grid item xs={5}></Grid>
+          <Grid item xs={2}>
+            <Button
+              className="viewAll"
+              onClick={() =>
+                (window.location.href =
+                  routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT)
+              }
+              sx={{ padding: "7px 45px", borderRadius: "90px !important" }}
+            >
+              Upload Submission
+            </Button>
+          </Grid>
         </Grid>
+        {!emptySubmission && (
+          <TableContainer component={Paper}>
+            <Table aria-label="simple table">
+              <TableHead sx={{ background: "#D8F6FF" }}>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Last Updated</TableCell>
+                  <TableCell>Category</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {data.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{row.title_of_submission}</TableCell>
+                    <TableCell>
+                      {new Date(row.updated_on).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>{row.category_of_participation}</TableCell>
 
-        <TableContainer component={Paper}>
-          <Table aria-label="simple table">
-            <TableHead sx={{ background: "#D8F6FF" }}>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Last Updated</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{row.title_of_submission}</TableCell>
-                  <TableCell>
-                    {new Date(row.updated_on).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell
-                    style={{
-                      color:
-                        row.status === "live"
-                          ? "green"
-                          : row.status === "review"
+                    <TableCell
+                      style={{
+                        color:
+                          row.status === "live"
+                            ? "green"
+                            : row.status === "review"
                             ? "orange"
                             : "red",
-                      textTransform: 'capitalize'
-                    }}
-                  >
-                    {row.status}
-                  </TableCell>
-                  <TableCell>
-                    {row.status == "draft" && (
-                      <IconButton
-
-                        color="primary"
-                        onClick={() =>
-                        (window.location.href =
-                          routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT +
-                          "?" +
-                          row.learnathon_content_id)
-                        }
-                        sx={{ color: '#057184' }}
-                        className="table-icon"
-                      >
-                        <Edit />
-                      </IconButton>
-                    )}
-                    {
-                      <IconButton
-                        color="primary"
-                        onClick={() =>
-                        (window.location.href =
-                          routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT +
-                          "?" +
-                          row.learnathon_content_id)
-                        }
-                        sx={{ color: '#054753' }}
-                        className="table-icon"
-                      >
-                        <Visibility />
-                      </IconButton>
-                    }
-                    {(row.status == "draft" || row.status == "review") && (
-                      <IconButton
-                        color="secondary"
-                        onClick={() => handleDialogOpen()}
-                        sx={{ color: 'red' }}
-                        className="table-icon"
-                      >
-
-                        <Delete />
-                      </IconButton>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {row.status}
+                    </TableCell>
+                    <TableCell>
+                      {row.status == "draft" && (
+                        <IconButton
+                          color="primary"
+                          onClick={() =>
+                            (window.location.href =
+                              routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT +
+                              "?" +
+                              row.learnathon_content_id)
+                          }
+                          sx={{ color: "#057184" }}
+                          className="table-icon"
+                        >
+                          <Edit />
+                        </IconButton>
+                      )}
+                      {
+                        <IconButton
+                          color="primary"
+                          onClick={() =>
+                            (window.location.href =
+                              routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
+                              "?id=" +
+                              row.learnathon_content_id +
+                              "&page=lern")
+                          }
+                          sx={{ color: "#054753" }}
+                          className="table-icon"
+                        >
+                          <Visibility />
+                        </IconButton>
+                      }
+                      {(row.status == "draft" || row.status == "review") && (
+                        <IconButton
+                          color="secondary"
+                          onClick={() =>
+                            handleDialogOpen(
+                              row.learnathon_content_id,
+                              row.content_id
+                            )
+                          }
+                          sx={{ color: "red" }}
+                          className="table-icon"
+                        >
+                          <Delete />
+                        </IconButton>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+        {emptySubmission && (
+          <Box marginLeft={"550px"} padding={"32px"}>
+            <Box>No Submissions yet please submit content</Box>
+            <Button
+              className="viewAll"
+              onClick={() =>
+                (window.location.href =
+                  routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT)
+              }
+              sx={{
+                padding: "7px 45px",
+                borderRadius: "90px !important",
+                marginLeft: "58px",
+                marginTop: "23px",
+              }}
+            >
+              Upload Submission
+            </Button>
+          </Box>
+        )}
 
         <Pagination
-          component="div"
           count={totalRows}
-          page={page}
-          onPageChange={handlePageChange}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleRowsPerPageChange}
+          page={currentPage}
+          onChange={handleChange}
         />
-      </Paper>
-      <Dialog open={dialogOpen} onClose={handleDialogClose}>
-        <DialogContent>
-          <Box className="h5-title">
-            Are you sure you want to delete this submission
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose} className="custom-btn-default">
-            {t("NO")}
-          </Button>
-          <Button
-            onClick={(event) => handleDeletePollConfirmed(row.content_id)}
-            className="custom-btn-primary"
-          >
-            {t("YES")}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        <Dialog open={dialogOpen} onClose={handleDialogClose}>
+          <DialogContent>
+            <Box className="h5-title">
+              Are you sure you want to delete this submission
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose} className="custom-btn-default">
+              {t("NO")}
+            </Button>
+            <Button
+              onClick={(event) => handleDeletePollConfirmed()}
+              className="custom-btn-primary"
+            >
+              {t("YES")}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Container>
       <Footer />
     </>
   );

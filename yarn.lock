@@ -4052,6 +4052,13 @@
     reflect-metadata "^0.1.13"
     whatwg-fetch "^3.1.0"
 
+"@project-sunbird/sunbird-file-upload-library@1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@project-sunbird/sunbird-file-upload-library/-/sunbird-file-upload-library-1.0.4.tgz#28d682b3a16973fa413f85c65d348db5e6d4ff7a"
+  integrity sha512-IlM+31b/xHFl3d1SZnFSlyDWTTvlR3O4LLkoP8Nh5vC1xyf2wV81hYp/JpWNpeOeZ7cD/eTJje4LNUvKXVblgA==
+  dependencies:
+    axios "^1.4.0"
+
 "@project-sunbird/telemetry-sdk@0.0.26":
   version "0.0.26"
   resolved "https://registry.yarnpkg.com/@project-sunbird/telemetry-sdk/-/telemetry-sdk-0.0.26.tgz#15a7776e0d94da3c844161b1400612303756a830"
@@ -8246,6 +8253,15 @@ axios@^0.24.0:
   integrity sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==
   dependencies:
     follow-redirects "^1.14.4"
+
+axios@^1.4.0:
+  version "1.7.7"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.7.tgz#2f554296f9892a72ac8d8e4c5b79c14a91d0a47f"
+  integrity sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==
+  dependencies:
+    follow-redirects "^1.15.6"
+    form-data "^4.0.0"
+    proxy-from-env "^1.1.0"
 
 axios@^1.6.7:
   version "1.7.2"
@@ -20288,6 +20304,11 @@ react-circular-progressbar@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/react-circular-progressbar/-/react-circular-progressbar-2.1.0.tgz#99e5ae499c21de82223b498289e96f66adb8fa3a"
   integrity sha512-xp4THTrod4aLpGy68FX/k1Q3nzrfHUjUe5v6FsdwXBl3YVMwgeXYQKDrku7n/D6qsJA9CuunarAboC2xCiKs1g==
+
+react-country-state-city@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/react-country-state-city/-/react-country-state-city-1.1.4.tgz#b477a58a13f644d786bdc388a3f458b704c87578"
+  integrity sha512-EjtkhbNbAQdQlEZmCmyJZSMaoZdZQuEEvOCf352E2Pqit8wdFRHNq+MsuLfw1vO2MsY7sNbPlcGUko99l2Eq4A==
 
 react-dev-utils@^12.0.0:
   version "12.0.1"

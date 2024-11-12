@@ -170,10 +170,21 @@ const VotingDetails = () => {
 
       try {
         await axios.post(`${urlConfig.URLS.POLL.USER_CREATE}`, data);
-        setToasterMessage(
+        if(poll?.category !== "Learnathon"){
+          setToasterMessage(
           "Vote submitted successfully, You can update your vote within next 15 minutes"
         );
         setToasterOpen(true);
+
+        }else{
+          navigate("/webapp/lernvotinglist")
+          setToasterMessage(
+          "Vote submitted successfully"
+        );
+        setToasterOpen(true);
+
+        }
+        
         fetchUserVote(pollId);
       } catch (error) {
         console.error("Error submitting vote", error);
@@ -265,8 +276,8 @@ const VotingDetails = () => {
             >
               {poll.title}
             </Link>
-          </Breadcrumbs>
-          <Box>
+            {poll?.category === "Learnathon" && ( 
+              <Box marginLeft={"1150px"}>
                 <Button
                   type="button"
                   className="custom-btn-primary ml-20"
@@ -274,7 +285,9 @@ const VotingDetails = () => {
                 >
                   {t("BACK")}
                 </Button>
-              </Box>
+              </Box>)}
+          </Breadcrumbs>
+         
           <Grid
             container
             spacing={2}
@@ -390,7 +403,7 @@ const VotingDetails = () => {
                 </Box>
 
                 <Box className="pr-5">
-                  {userVote?.length > 0 && timeDifference <= 15 && (
+                  {userVote?.length > 0 && timeDifference <= 15 && poll?.category !== "Learnathon" && (
                     <>
                       <span className=" h3-custom-title">
                         <Alert severity="info">
@@ -443,11 +456,12 @@ const VotingDetails = () => {
                           placeholder={t("Enter your remark")}
                           value={enteredRemark || remark}
                           onChange={handleRemarkChange}
+                          disabled={userVote?.length > 0}
                         />
                       </Box>
                     )}
                     <Box>
-                      {userVote?.length > 0 ? (
+                      {userVote?.length > 0 && poll.category !== "Learnathon" ? (
                         <Button
                           type="button"
                           className="custom-btn-primary"

@@ -345,7 +345,8 @@
     },
     "ASSET": {
       "CREATE": "/action/content/v3/create",
-      "UPLOAD": "/action/content/v3/upload/"
+      "UPLOADURL": "/action/content/v3/upload/url",
+      "UPLOAD": "/action/content/v3/upload"
     },
     "ITEMSET": {
       "CREATE": "itemset/v3/create",
@@ -457,11 +458,14 @@
       "LIST": "/learnathon/content/list",
       "CREATE": "/learnathon/content/create",
       "UPDATE": "/learnathon/content/update",
-      "DELETE": "/learnathon/content/delete"
+      "DELETE": "/learnathon/content/delete",
+      "PUBLISH": "/content/content/v1/publish/",
+      "REJECT": "/content/content/v1/reject/"
     },
     "ICON": {
       "CREATE": "/action/asset/v1/create",
-      "UPLOAD": "/action/asset/v1/upload/"
+      "UPLOADIMG": "/action/content/v3/upload/url",
+      "UPLOAD": "/action/content/v3/upload/"
     }
   }
 }
