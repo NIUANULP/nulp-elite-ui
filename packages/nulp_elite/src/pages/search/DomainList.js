@@ -85,7 +85,6 @@ const DomainList = ({ globalSearchQuery }) => {
       const rolesData = data.result.response.channel;
       const roles = data.result.response.roles;
       let organizationId;
-
       if (roles[0]?.scope[0]?.organisationId) {
         organizationId = roles[0].scope[0].organisationId;
       } else {
@@ -150,7 +149,6 @@ const DomainList = ({ globalSearchQuery }) => {
       const result = data.result.data.responseCode;
 
       responsecode = result;
-
       if (result === "OK") {
         navigate("/webapp/mylernsubmissions");
         setIsModalOpen(false);
@@ -633,7 +631,7 @@ const DomainList = ({ globalSearchQuery }) => {
                 </Grid>
               </Grid>
             </Box>
-          </Box>
+          </Box> 
 
           <Box textAlign="center">
             <p
