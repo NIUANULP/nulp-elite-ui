@@ -322,7 +322,7 @@ const LernCreatorForm = () => {
       tempErrors.title_of_submission = "Title of Submission is required";
     if (!formData.description)
       tempErrors.description = "Description is required";
-    // if (!formData.content_id) tempErrors.content_id = "File upload is required";
+    if (!formData.content_id) tempErrors.content_id = "File upload is required";
     if (!formData.consent_checkbox)
       tempErrors.consent_checkbox = "You must accept the terms and conditions";
 
