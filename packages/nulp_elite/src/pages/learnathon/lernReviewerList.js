@@ -35,14 +35,14 @@ const LernReviewList = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
   const [search, setSearch] = useState("");
   const _userId = util.userId(); // Assuming util.userId() is defined
   const urlConfig = require("../../configs/urlConfig.json");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isSystemAdmin, setIsSystemAdmin] = useState(false);
-  const [pageNumber, setPageNumber] = useState(1);
+  // const [pageNumber, setPageNumber] = useState(1);
 
   const handleDialogOpen = () => {
     setDialogOpen(true);
@@ -66,7 +66,7 @@ const LernReviewList = () => {
           created_on: "desc",
         },
         limit: rowsPerPage,
-        offset: 20 * (currentPage - 1),
+        offset: 10 * (currentPage - 1),
         search: search,
       },
     };
@@ -87,24 +87,13 @@ const LernReviewList = () => {
       console.log("suceesss----", result);
       console.log(result.result);
       setData(result.result.data);
-      setTotalRows(result.result.totalCount);
+      setTotalRows(Math.ceil(result.result.totalCount / 10));
     } catch (error) {
       console.log("error---", error);
       // setError(error.message);
     } finally {
       // setIsLoading(false);
     }
-
-    // Example API endpoint with limit, offset, and search params
-    // const apiUrl = `https://api.example.com/submissions?limit=${rowsPerPage}&offset=${
-    //   page * rowsPerPage
-    // }&search=${search}`;
-    // const response = await fetch(apiUrl);
-
-    // const result = await response.json();
-    // console.log(submissions);
-    // setData(submissions.result.data);
-    // setTotalRows(result.totalCount);
   };
 
   const fetchUserData = async () => {
@@ -177,16 +166,11 @@ const LernReviewList = () => {
     setPage(newPage);
   };
 
-  const handleRowsPerPageChange = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
   const handleCardClick = async () => {
     navigate("/webapp/mylernsubmissions");
   };
   const handleChange = (event, value) => {
-    if (value !== pageNumber) {
-      setPageNumber(value);
+    if (value !== currentPage) {
       setCurrentPage(value);
       fetchData();
     }
@@ -231,6 +215,8 @@ const LernReviewList = () => {
                 <TableRow>
                   <TableCell>Name</TableCell>
                   <TableCell>Last Updated</TableCell>
+                  <TableCell>Category</TableCell>
+
                   <TableCell>Status</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
@@ -255,6 +241,7 @@ const LernReviewList = () => {
                     >
                       {row.status}
                     </TableCell>
+                    <TableCell>{row.category_of_participation}</TableCell>
                     <TableCell>
                       {row.status == "review" && (
                         <Button
@@ -287,7 +274,7 @@ const LernReviewList = () => {
 
           <Pagination
             count={totalRows}
-            page={pageNumber}
+            page={currentPage}
             onChange={handleChange}
           />
         </Paper>

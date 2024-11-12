@@ -3,15 +3,10 @@ import {
   TextField,
   Button,
   MenuItem,
-  Checkbox,
   FormControlLabel,
-  Tooltip,
-  IconButton,
   Typography,
   Box,
   Grid,
-  Paper,
-  Divider,
   Modal,
   Autocomplete,
   Radio,
@@ -133,13 +128,13 @@ const LernCreatorForm = () => {
   const [indicativeThemes, setIndicativeThemes] = useState([]);
   const [indicativeSubThemes, setIndicativeSubThemes] = useState([]);
   const { t } = useTranslation();
-  const [city, setCity] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [uploadType, setUploadType] = useState("file");
   const [previewPlayerPage, setPreviewPlayerPage] = useState();
   const [iconPreviewPage, setIconPreviewPage] = useState();
   const [youtubeUrl, setyoutubeURL] = useState();
   const [preIndicativeTheme, setPreIndicativeThemes] = useState();
+  const [TNCOpen, setTNCOpen] = useState(false);
 
   const handleUploadTypeChange = (event) => {
     console.log(event.target.value);
@@ -222,9 +217,8 @@ const LernCreatorForm = () => {
         if (result.result.data[0].status != "draft") {
           setIsNotDraft(true);
         }
-        if(readResponse.indicative_theme){
-          setPreIndicativeThemes(readResponse.indicative_theme)
-
+        if (readResponse.indicative_theme) {
+          setPreIndicativeThemes(readResponse.indicative_theme);
         }
         // Update formData with the response data
         setFormData((prevFormData) => ({
@@ -319,9 +313,9 @@ const LernCreatorForm = () => {
     )
       tempErrors.other_indicative_themes = "Provide other indicative theme";
 
-    if (!formData.state) tempErrors.state = "Provide state";
+    // if (!formData.state) tempErrors.state = "Provide state";
 
-    if (!formData.city) tempErrors.city = "Provide city";
+    // if (!formData.city) tempErrors.city = "Provide city";
     if (!formData.title_of_submission)
       tempErrors.title_of_submission = "Title of Submission is required";
     if (!formData.description)
@@ -744,10 +738,10 @@ const LernCreatorForm = () => {
         });
     });
   };
-  const handleCheckboxChange = (e) => {
+  const handleCheckboxChange = (confirmed) => {
     setFormData({
       ...formData,
-      consent_checkbox: e.target.checked,
+      consent_checkbox: true,
     });
   };
 
@@ -934,25 +928,31 @@ const LernCreatorForm = () => {
       setIndicativeThemes(
         data?.result?.framework?.categories[Categoryindex]?.terms
       );
-      if(preIndicativeTheme){
+      if (preIndicativeTheme) {
         const selectedBoard = preIndicativeTheme;
-    console.log(data?.result?.framework?.categories[Categoryindex]?.terms,"indicativeThemes--------");
-    const selectedIndex = data?.result?.framework?.categories[Categoryindex]?.terms.findIndex(
-      (category) => category.name === selectedBoard
-    );
-    if (selectedIndex !== -1) {
-      setIndicativeSubThemes(
-        indicativeThemes[selectedIndex]?.associations || []
-      );
-    } else {
-      setIndicativeSubThemes([]);
-
+        console.log(
+          data?.result?.framework?.categories[Categoryindex]?.terms,
+          "indicativeThemes--------"
+        );
+        const selectedIndex = data?.result?.framework?.categories[
+          Categoryindex
+        ]?.terms.findIndex((category) => category.name === selectedBoard);
+        if (selectedIndex !== -1) {
+          setIndicativeSubThemes(
+            indicativeThemes[selectedIndex]?.associations || []
+          );
+        } else {
+          setIndicativeSubThemes([]);
+        }
       }
-    }
     } catch (error) {
       console.error("Error fetching data:", error);
       showErrorMessage(t("FAILED_TO_FETCH_DATA"));
     }
+  };
+
+  const openTNC = async () => {
+    setTNCOpen(true);
   };
 
   useEffect(() => {
@@ -1138,6 +1138,68 @@ const LernCreatorForm = () => {
                   </Grid>
                 </Grid>
               </Grid>
+              <Grid item xs={12}>
+                <Alert className="mt-9" severity="info">
+                  State & City fields are not mandatory. Those submitting from
+                  Industry, Academia and other Non-Government entities may wish
+                  to avoid filling the same.
+                </Alert>
+              </Grid>
+              <Grid item xs={12}>
+                <Grid container>
+                  <Grid item xs={2} className="center-align">
+                    <InputLabel htmlFor="State">State</InputLabel>
+                  </Grid>
+                  <Grid item xs={10}>
+                    <TextField
+                      select
+                      fullWidth
+                      margin="normal"
+                      label="State"
+                      name="state"
+                      value={formData.state}
+                      onChange={handleChange}
+                      error={!!errors.state}
+                      helperText={errors.state}
+                      onInput={handleSearchChange}
+                    >
+                      {filteredStates.map((state) => (
+                        <MenuItem key={state} value={state}>
+                          {state}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+                </Grid>
+              </Grid>{" "}
+              <Grid item xs={12}>
+                <Grid container>
+                  <Grid item xs={2} className="center-align">
+                    <InputLabel htmlFor="City">City</InputLabel>
+                  </Grid>
+
+                  <Grid item xs={10}>
+                    <Autocomplete
+                      freeSolo
+                      options={citiesInIndia}
+                      value={formData.city}
+                      onChange={handleCityChange}
+                      onInputChange={handleCityChange}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          fullWidth
+                          margin="normal"
+                          label="City"
+                          name="city"
+                          error={!!errors.city}
+                          helperText={errors.city}
+                        />
+                      )}
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
               <Grid item xs={12} sm={12}>
                 <Grid container>
                   <Grid item xs={2} className="center-align">
@@ -1273,67 +1335,6 @@ const LernCreatorForm = () => {
                   </Grid>
                 </Grid>
               )}
-              <Grid item xs={12}>
-                <Grid container>
-                  <Grid item xs={2} className="center-align">
-                    <InputLabel htmlFor="State">
-                      State <span className="mandatory-symbol"> *</span>
-                    </InputLabel>
-                  </Grid>
-                  <Grid item xs={10}>
-                    <TextField
-                      select
-                      fullWidth
-                      margin="normal"
-                      label="State"
-                      name="state"
-                      value={formData.state}
-                      onChange={handleChange}
-                      error={!!errors.state}
-                      helperText={errors.state}
-                      required
-                      onInput={handleSearchChange}
-                    >
-                      {filteredStates.map((state) => (
-                        <MenuItem key={state} value={state}>
-                          {state}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-                </Grid>
-              </Grid>{" "}
-              <Grid item xs={12}>
-                <Grid container>
-                  <Grid item xs={2} className="center-align">
-                    <InputLabel htmlFor="City">
-                      City <span className="mandatory-symbol"> *</span>
-                    </InputLabel>
-                  </Grid>
-
-                  <Grid item xs={10}>
-                    <Autocomplete
-                      freeSolo
-                      options={citiesInIndia}
-                      value={formData.city}
-                      onChange={handleCityChange}
-                      onInputChange={handleCityChange}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          fullWidth
-                          margin="normal"
-                          label="City"
-                          name="city"
-                          error={!!errors.city}
-                          helperText={errors.city}
-                          required
-                        />
-                      )}
-                    />
-                  </Grid>
-                </Grid>
-              </Grid>
               <Grid item xs={12}>
                 <Grid container spacing={2}>
                   {/* Toggle between URL and File */}
@@ -1545,7 +1546,6 @@ const LernCreatorForm = () => {
                         <Grid item xs={2} className="center-align">
                           <InputLabel htmlFor="Participant Name">
                             Participant <br /> Name
-                            <span className="red"> *</span>
                             <span className="mandatory-symbol"> *</span>
                           </InputLabel>
                         </Grid>
@@ -1627,18 +1627,88 @@ const LernCreatorForm = () => {
                       your personal details will not be disclosed to any entity.
                     </Box>
 
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={formData.consent_checkbox}
-                          onChange={handleCheckboxChange}
-                          name="consent_checkbox"
-                        />
-                      }
-                    />
-                    <a href={TNCLink} target="_blank" rel="noopener noreferrer">
+                    <a href="#" onClick={openTNC}>
                       Accept terms and conditions
                     </a>
+
+                    {TNCOpen && (
+                      <Modal
+                        open={TNCOpen}
+                        onClose={() => setTNCOpen(false)}
+                        aria-labelledby="confirmation-modal-title"
+                        aria-describedby="confirmation-modal-description"
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <div
+                          style={{
+                            backgroundColor: "white",
+                            padding: "20px",
+                            borderRadius: "8px",
+                            boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                            width: "400px",
+                            textAlign: "center",
+                          }}
+                        >
+                          <Typography
+                            variant="h6"
+                            id="confirmation-modal-title"
+                            gutterBottom
+                          >
+                            TNC
+                          </Typography>
+                          <Typography>
+                            What is Lorem Ipsum? Lorem Ipsum is simply dummy
+                            text of the printing and typesetting industry. Lorem
+                            Ipsum has been the industry's standard dummy text
+                            ever since the 1500s, when an unknown printer took a
+                            galley of type and scrambled it to make a type
+                            specimen book. It has survived not only five
+                            centuries, but also the leap into electronic
+                            typesetting, remaining essentially unchanged. It was
+                            popularised in the 1960s with the release of
+                            Letraset sheets containing Lorem Ipsum passages, and
+                            more recently with desktop publishing software like
+                            Aldus PageMaker including versions of Lorem Ipsum.
+                            Why do we use it? It is a long established fact that
+                            a reader will be distracted by the readable content
+                            of a page when looking at its layout. The point of
+                            using Lorem Ipsum is that it has a more-or-less
+                            normal distribution of letters, as opposed to using
+                            'Content here, content here', making it look like
+                            readable English. Many desktop publishing packages
+                            and web page editors now use Lorem Ipsum as their
+                            default model text, and a search for 'lorem ipsum'
+                            will uncover many web sites still in their infancy.
+                            Various versions have evolved over the years,
+                            sometimes by accident, sometimes on purpose
+                            (injected humour and the like).
+                          </Typography>
+
+                          {/* Modal Actions */}
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => handleCheckboxChange(true)}
+                            style={{ marginRight: "10px" }}
+                          >
+                            Confirm
+                          </Button>
+                          <div style={{ marginTop: "20px" }}>
+                            <Button
+                              variant="outlined"
+                              color="secondary"
+                              onClick={() => setTNCOpen(false)}
+                            >
+                              {"CANCEL"}
+                            </Button>
+                          </div>
+                        </div>
+                      </Modal>
+                    )}
                   </Grid>
                   <Grid
                     container

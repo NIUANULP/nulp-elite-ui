@@ -848,7 +848,7 @@ const Player = () => {
                   onClick={() => Publish()}
                   disabled={isPublished}
                 >
-                  {t("PUBISH")}
+                  {t("PUBLISH")}
                 </Button>
                 <Button
                   type="button"
