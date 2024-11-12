@@ -49,7 +49,7 @@ const LernReviewList = () => {
   };
 
   const routeConfig = require("../../configs/routeConfig.json");
-
+  window.location.reload();
   useEffect(() => {
     fetchData();
     fetchUserData();

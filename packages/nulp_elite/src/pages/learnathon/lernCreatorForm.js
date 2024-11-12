@@ -28,6 +28,7 @@ import industryguideline from "../../assets/industry-guidelines.pdf";
 import industrytnc from "../../assets/industry-tnc.pdf";
 import acdemiatnc from "../../assets/academia-tnc.pdf";
 import statetnc from "../../assets/state-tnc.pdf";
+import Loader from "components/Loader";
 
 import Alert from "@mui/material/Alert";
 const routeConfig = require("../../configs/routeConfig.json");
@@ -135,6 +136,7 @@ const LernCreatorForm = () => {
   const [youtubeUrl, setyoutubeURL] = useState();
   const [preIndicativeTheme, setPreIndicativeThemes] = useState();
   const [TNCOpen, setTNCOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleUploadTypeChange = (event) => {
     console.log(event.target.value);
@@ -493,7 +495,12 @@ const LernCreatorForm = () => {
   };
   const handleFileChange = async (e, type) => {
     if (type == "file") {
-      const mimeType = e.target.files[0].type;
+      if (e.target.files[0].type == "application/zip") {
+        const mimeType = "application/vnd.ekstep.html-archive";
+      } else {
+        const mimeType = e.target.files[0].type;
+      }
+
       const _uuid = uuidv4();
       const assetBody = {
         request: {
@@ -512,6 +519,7 @@ const LernCreatorForm = () => {
         },
       };
       try {
+        setLoading(true);
         const response = await fetch(`${urlConfig.URLS.ASSET.CREATE}`, {
           method: "POST",
           headers: {
@@ -618,12 +626,6 @@ const LernCreatorForm = () => {
               } finally {
               }
             });
-
-          console.log("file uploaded---");
-          setFormData({
-            ...formData,
-            content_id: uploadResult.result.identifier,
-          });
           setErrors({ ...errors, content_id: "" });
         } catch (error) {
           console.log("error---", error);
@@ -702,6 +704,7 @@ const LernCreatorForm = () => {
               ...formData,
               content_id: uploadResult.result.identifier,
             });
+            setLoading(true);
             setErrors({ ...errors, icon: "" });
           } catch (error) {
             console.log("error---", error);
@@ -1502,18 +1505,16 @@ const LernCreatorForm = () => {
                     <div style={{ marginTop: "20px" }}>
                       <Button
                         variant="contained"
-                        color="primary"
+                        className="viewAll"
                         onClick={() => {
                           setOpenPersonalForm(true); // Proceed action
                           setOpenConfirmModal(false); // Close modal after proceeding
                         }}
-                        style={{ marginRight: "10px" }}
                       >
                         {t("PROCEED")}
                       </Button>
                       <Button
-                        variant="outlined"
-                        color="secondary"
+                        className="custom-btn-default"
                         onClick={() => setOpenConfirmModal(false)}
                       >
                         {"CANCEL"}
