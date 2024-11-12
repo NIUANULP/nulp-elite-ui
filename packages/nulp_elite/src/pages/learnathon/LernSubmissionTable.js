@@ -126,6 +126,7 @@ const LernSubmissionTable = () => {
       }
       const result = await response.json();
       console.log("suceesss----", result);
+      window.location.reload();
       setDialogOpen(false);
     } catch (error) {
       console.log("error---", error);

@@ -42,7 +42,7 @@ const LernReviewList = () => {
   const urlConfig = require("../../configs/urlConfig.json");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isSystemAdmin, setIsSystemAdmin] = useState(false);
-  const [pageNumber, setPageNumber] = useState(1);
+  // const [pageNumber, setPageNumber] = useState(1);
 
   const handleDialogOpen = () => {
     setDialogOpen(true);
@@ -170,8 +170,7 @@ const LernReviewList = () => {
     navigate("/webapp/mylernsubmissions");
   };
   const handleChange = (event, value) => {
-    if (value !== pageNumber) {
-      setPageNumber(value);
+    if (value !== currentPage) {
       setCurrentPage(value);
       fetchData();
     }
@@ -275,7 +274,7 @@ const LernReviewList = () => {
 
           <Pagination
             count={totalRows}
-            page={pageNumber}
+            page={currentPage}
             onChange={handleChange}
           />
         </Paper>
