@@ -35,7 +35,6 @@ const LernSubmissionTable = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [data, setData] = useState([]);
-  const [pageNumber, setPageNumber] = useState(1);
 
   const [rowsPerPage, setRowsPerPage] = useState(20);
   const [totalRows, setTotalRows] = useState(0);
@@ -69,7 +68,7 @@ const LernSubmissionTable = () => {
           created_on: "desc",
         },
         limit: rowsPerPage,
-        offset: 20 * (currentPage - 1),
+        offset: 10 * (currentPage - 1),
         search: search,
       },
     };
@@ -137,8 +136,7 @@ const LernSubmissionTable = () => {
   };
 
   const handleChange = (event, value) => {
-    if (value !== pageNumber) {
-      setPageNumber(value);
+    if (value !== currentPage) {
       setCurrentPage(value);
       fetchData();
     }
@@ -302,7 +300,7 @@ const LernSubmissionTable = () => {
 
         <Pagination
           count={totalRows}
-          page={pageNumber}
+          page={currentPage}
           onChange={handleChange}
         />
         <Dialog open={dialogOpen} onClose={handleDialogClose}>

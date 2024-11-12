@@ -50,10 +50,20 @@ const VotingList = () => {
     const formattedFilters = {
       ...newFilters,
       selectedStartDate: newFilters.selectedStartDate
-        ? dayjs(newFilters.selectedStartDate).set('hour', 0).set('minute', 0).set('second', 0).set('millisecond', 0).format("YYYY-MM-DDTHH:mm:ss.SSS[Z]")
+        ? dayjs(newFilters.selectedStartDate)
+            .set("hour", 0)
+            .set("minute", 0)
+            .set("second", 0)
+            .set("millisecond", 0)
+            .format("YYYY-MM-DDTHH:mm:ss.SSS[Z]")
         : null,
       selectedEndDate: newFilters.selectedEndDate
-        ? dayjs(newFilters.selectedEndDate).set('hour', 18).set('minute', 30).set('second', 0).set('millisecond', 0).format("YYYY-MM-DDTHH:mm:ss.SSS[Z]")
+        ? dayjs(newFilters.selectedEndDate)
+            .set("hour", 18)
+            .set("minute", 30)
+            .set("second", 0)
+            .set("millisecond", 0)
+            .format("YYYY-MM-DDTHH:mm:ss.SSS[Z]")
         : null,
     };
     setFilters(formattedFilters);
