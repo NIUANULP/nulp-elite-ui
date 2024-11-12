@@ -746,6 +746,7 @@ const LernCreatorForm = () => {
       ...formData,
       consent_checkbox: true,
     });
+    setTNCOpen(false);
   };
 
   const handleCategoryChange = (e) => {
