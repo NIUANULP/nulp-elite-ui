@@ -400,7 +400,9 @@ const LernCreatorForm = () => {
           primaryCategory: "asset",
           language: ["English"],
           code: _uuid,
-          name: e.target.files[0].name,
+          name: formData.title_of_submission
+            ? formData.title_of_submission
+            : "Untitled Content",
           mediaType: "image",
           mimeType: "image/png",
           createdBy: _userId,
@@ -509,7 +511,9 @@ const LernCreatorForm = () => {
             contentType: "Resource",
             language: ["English"],
             code: _uuid,
-            name: e.target.files[0].name,
+            name: formData.title_of_submission
+              ? formData.title_of_submission
+              : "Untitled Content",
             framework: "nulp-learn",
             mimeType: mimeType,
             createdBy: _userId,
