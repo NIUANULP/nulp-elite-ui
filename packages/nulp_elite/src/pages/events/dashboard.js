@@ -309,7 +309,7 @@ const Dashboard = () => {
             "fromDate",
             dayjs(startDateFilter).format("YYYY-MM-DD")
           );
-          params.append("toDate", dayjs(endDateFilter).format("YYYY-MM-DD"));
+          params.append("toDate", dayjs(endDateFilter).add(1, 'day').format("YYYY-MM-DD"));
         }
 
         const url = `${urlConfig.URLS.CUSTOM_EVENT.TOP_TRENDING_EVENT

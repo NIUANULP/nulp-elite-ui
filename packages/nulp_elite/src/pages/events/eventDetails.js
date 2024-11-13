@@ -312,7 +312,9 @@ const formatTimeWithTimezone = (date) => {
 
       const { result } = response.data;
       const { response: batchResponse } = result;
+
       setBatchCertData(response.data.result)
+
       if (batchResponse && batchResponse.count === 0) {
         showErrorMessage(t("This course has no active Batches"));
       } else if (batchResponse?.content?.length > 0) {
