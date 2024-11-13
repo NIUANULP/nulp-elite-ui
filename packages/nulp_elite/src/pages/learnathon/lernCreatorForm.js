@@ -1556,7 +1556,7 @@ const LernCreatorForm = () => {
                       }}
                     >
                       <Typography variant="h6" gutterBottom>
-                        {t(PARTICIPAION_DETAILS)}
+                        {t("PARTICIPAION_DETAILS")}
                       </Typography>
                     </Grid>
                   </Grid>
