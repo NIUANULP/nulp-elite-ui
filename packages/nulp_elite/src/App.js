@@ -44,6 +44,7 @@ import LernModal from "components/learnathon/LernModal";
 import LernSubmissionTable from "pages/learnathon/LernSubmissionTable";
 import LernVotingList from "pages/learnathon/lernVotingList";
 import LernReviewList from "pages/learnathon/lernReviewerList";
+import LearnathonDashboard from "pages/LearnathonDashboard";
 
 function App() {
   // const [t] = useTranslation();
@@ -229,6 +230,11 @@ function App() {
       moduleName: "nulp_elite",
       path: routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
       component: LernReviewList,
+    },
+    {
+      moduleName: "nulp_elite",
+      path: routeConfig.ROUTES.LEARNATHON.DASHBOARD,
+      component: LearnathonDashboard,
     },
   ];
 
