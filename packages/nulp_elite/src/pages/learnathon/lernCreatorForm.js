@@ -590,27 +590,22 @@ const LernCreatorForm = () => {
               console.log("1111", completed);
 
               console.log("url", url);
-              console.log("mimeType", mimeType);
+              // console.log("mimeType", mimeType);
 
               const fileURL = url.split("?")[0];
               console.log("fileUrl", fileURL);
               const data = new FormData();
+              const mimeType =
+                e.target.files[0].type == "application/zip"
+                  ? "application/vnd.ekstep.html-archive"
+                  : e.target.files[0].type;
               data.append("fileUrl", fileURL);
               data.append("mimeType", mimeType);
 
               data.forEach((value, key) => {
                 console.log(`${key}:`, value);
               });
-              // const config1 = {
-              //   enctype: "multipart/form-data",
-              //   processData: false,
-              //   contentType: false,
-              //   cache: false,
-              // };
-              // const uploadMediaConfig = {
-              //   data,
-              //   param: config1,
-              // };
+
               try {
                 const response = await fetch(
                   `${urlConfig.URLS.ASSET.UPLOAD}/${imgId}`,
@@ -943,27 +938,30 @@ const LernCreatorForm = () => {
         data?.result?.framework?.categories[Categoryindex]?.terms
       );
       if (preIndicativeTheme) {
-  const selectedBoard = preIndicativeTheme;
-  const categories = data?.result?.framework?.categories;
-  
-  if (categories?.[Categoryindex]?.terms) {
-    const terms = categories[Categoryindex].terms;
-    
-    const selectedIndex = terms.findIndex(
-      (category) => category.name === selectedBoard
-    );
+        const selectedBoard = preIndicativeTheme;
+        const categories = data?.result?.framework?.categories;
 
-    if (selectedIndex !== -1) {
-      setIndicativeSubThemes(data?.result?.framework?.categories[Categoryindex]?.terms[selectedIndex]?.associations || []);
-    } else {
-      setIndicativeSubThemes([]);
-    }
-  } else {
-    console.error("No terms found in the specified category index");
-    setIndicativeSubThemes([]);
-  }
-}
+        if (categories?.[Categoryindex]?.terms) {
+          const terms = categories[Categoryindex].terms;
 
+          const selectedIndex = terms.findIndex(
+            (category) => category.name === selectedBoard
+          );
+
+          if (selectedIndex !== -1) {
+            setIndicativeSubThemes(
+              data?.result?.framework?.categories[Categoryindex]?.terms[
+                selectedIndex
+              ]?.associations || []
+            );
+          } else {
+            setIndicativeSubThemes([]);
+          }
+        } else {
+          console.error("No terms found in the specified category index");
+          setIndicativeSubThemes([]);
+        }
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
       showErrorMessage(t("FAILED_TO_FETCH_DATA"));
@@ -1523,22 +1521,34 @@ const LernCreatorForm = () => {
 
                     {/* Modal Actions */}
                     <div style={{ marginTop: "20px" }}>
-                      <Button
-                        variant="contained"
-                        className="viewAll"
-                        onClick={() => {
-                          setOpenPersonalForm(true); // Proceed action
-                          setOpenConfirmModal(false); // Close modal after proceeding
+                      <div
+                        style={{
+                          padding: "5px",
                         }}
                       >
-                        {t("PROCEED")}
-                      </Button>
-                      <Button
-                        className="custom-btn-default"
-                        onClick={() => setOpenConfirmModal(false)}
+                        <Button
+                          variant="contained"
+                          className="viewAll"
+                          onClick={() => {
+                            setOpenPersonalForm(true); // Proceed action
+                            setOpenConfirmModal(false); // Close modal after proceeding
+                          }}
+                        >
+                          {t("PROCEED")}
+                        </Button>
+                      </div>
+                      <div
+                        style={{
+                          padding: "5px",
+                        }}
                       >
-                        {t("CANCEL")}
-                      </Button>
+                        <Button
+                          className="custom-btn-default"
+                          onClick={() => setOpenConfirmModal(false)}
+                        >
+                          {t("CANCEL")}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </Modal>
