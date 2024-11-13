@@ -497,11 +497,12 @@ const LernCreatorForm = () => {
   };
   const handleFileChange = async (e, type) => {
     if (type == "file") {
-      if (e.target.files[0].type == "application/zip") {
-        const mimeType = "application/vnd.ekstep.html-archive";
-      } else {
-        const mimeType = e.target.files[0].type;
-      }
+      // let mimeType;
+      // if (e.target.files[0].type == "application/zip") {
+      //   mimeType = "application/vnd.ekstep.html-archive";
+      // } else {
+      //    mimeType = e.target.files[0].type;
+      // }
 
       const _uuid = uuidv4();
       const assetBody = {
@@ -515,13 +516,18 @@ const LernCreatorForm = () => {
               ? formData.title_of_submission
               : "Untitled Content",
             framework: "nulp-learn",
-            mimeType: mimeType,
+            mimeType:
+              e.target.files[0].type == "application/zip"
+                ? "application/vnd.ekstep.html-archive"
+                : e.target.files[0].type,
+            // mimeType: mimeType,
             createdBy: _userId,
             organisation: [userInfo.rootOrg.channel],
             createdFor: [userInfo.rootOrg.id],
           },
         },
       };
+      console.log("assetBody-----", assetBody);
       try {
         setLoading(true);
         const response = await fetch(`${urlConfig.URLS.ASSET.CREATE}`, {
@@ -977,7 +983,7 @@ const LernCreatorForm = () => {
         <Grid container>
           <Grid item xs={10}>
             <Typography variant="h6" gutterBottom className="fw-600 mt-20">
-              Upload Learnathon Submission
+              {t("UPLOAD_LEARN_SUBMISSION")}
             </Typography>
           </Grid>
           <Grid item xs={2}>
@@ -997,7 +1003,7 @@ const LernCreatorForm = () => {
                   borderRadius: "20px !important",
                 }}
               >
-                Need Help
+                {t("NEED_HELP")}
               </Button>
             </Box>
           </Grid>
@@ -1013,14 +1019,14 @@ const LernCreatorForm = () => {
         >
           <Grid item xs={12} sx={{ borderBottom: "2px solid #057184" }}>
             <Typography variant="h6" gutterBottom style={{ marginTop: "30px" }}>
-              Submission Details
+              {t("SUBMISSION_DETAILS")}
             </Typography>
           </Grid>
           <Grid item xs={12} style={{ marginTop: "30px" }}>
             <Grid container>
               <Grid item xs={2} className="center-align">
                 <InputLabel htmlFor="Name of Organisation">
-                  Submission Icon
+                  {t("SUBMISSION_ICON")}
                 </InputLabel>
               </Grid>
 
@@ -1042,12 +1048,13 @@ const LernCreatorForm = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Preview
+                    {t("PREVIEW")}
                   </a>
                 )}
               </Grid>
               <Grid item xs={10}>
                 <Alert className="mt-9" everity="info">
+                  {t("IMG_GUIDELINES")}
                   Upload png, jpeg (Max File size: 1MB)
                 </Alert>
               </Grid>
@@ -1057,7 +1064,7 @@ const LernCreatorForm = () => {
             <Grid container>
               <Grid item xs={2} className="center-align">
                 <InputLabel htmlFor="Title of Submission">
-                  Title of Submission{" "}
+                  {t("TITLE_OF_SUBMISSION")}{" "}
                   <span className="mandatory-symbol"> *</span>
                 </InputLabel>
               </Grid>
@@ -1080,7 +1087,8 @@ const LernCreatorForm = () => {
             <Grid container>
               <Grid item xs={2} className="center-align">
                 <InputLabel htmlFor="Description">
-                  Description <span className="mandatory-symbol"> *</span>
+                  {t("DESCRIPTION")}{" "}
+                  <span className="mandatory-symbol"> *</span>
                 </InputLabel>
               </Grid>
               <Grid item xs={10}>
@@ -1107,7 +1115,7 @@ const LernCreatorForm = () => {
                 <Grid container>
                   <Grid item xs={2} className="center-align">
                     <InputLabel htmlFor="Category of Participation">
-                      Category of Participation
+                      {t("CATEGORY_OF_PARTICIPATION")}
                       <span className="mandatory-symbol"> *</span>
                     </InputLabel>
                   </Grid>
@@ -1139,7 +1147,7 @@ const LernCreatorForm = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          View and Download Guidelines
+                          {t("VIEW_AND_DOWLOAD_GUIDELINES")}
                         </a>
                       )}
                     </Box>
@@ -1148,6 +1156,7 @@ const LernCreatorForm = () => {
               </Grid>
               <Grid item xs={12}>
                 <Alert className="mt-9" severity="info">
+                  {t("STAR_CITY_MSG")}
                   State & City fields are not mandatory. Those submitting from
                   Industry, Academia and other Non-Government entities may wish
                   to avoid filling the same.
@@ -1212,7 +1221,7 @@ const LernCreatorForm = () => {
                 <Grid container>
                   <Grid item xs={2} className="center-align">
                     <InputLabel htmlFor="Name of Organisation">
-                      Name of Organisation{" "}
+                      {t("NAME_OF_ORG")}{" "}
                       <span className="mandatory-symbol"> *</span>
                     </InputLabel>
                   </Grid>
@@ -1235,7 +1244,7 @@ const LernCreatorForm = () => {
                 <Grid container>
                   <Grid item xs={2} className="center-align">
                     <InputLabel htmlFor="Name of Department/Group">
-                      Name of Department/Group
+                      {t("NAME_OF_DEPT/GROUP")}
                     </InputLabel>
                   </Grid>
                   <Grid item xs={10}>
@@ -1254,7 +1263,7 @@ const LernCreatorForm = () => {
                 <Grid container>
                   <Grid item xs={2} className="center-align">
                     <InputLabel htmlFor="indicative_theme">
-                      Indicative Theme{" "}
+                      {t("INDICATIVE_THEME")}{" "}
                       <span className="mandatory-symbol"> *</span>
                     </InputLabel>
                   </Grid>
@@ -1279,7 +1288,7 @@ const LernCreatorForm = () => {
                         ))
                       ) : (
                         <MenuItem disabled value="">
-                          No options available
+                          {t("NO_OPTION_AVAILABLE")}
                         </MenuItem>
                       )}
                     </TextField>
@@ -1291,7 +1300,7 @@ const LernCreatorForm = () => {
                   <Grid container>
                     <Grid item xs={2} className="center-align">
                       <InputLabel htmlFor="other_indicative_themes">
-                        Other Indicative Theme{" "}
+                        {t("OTHER_INDICATIVE_THEME")}{" "}
                         <span className="mandatory-symbol"> *</span>
                       </InputLabel>
                     </Grid>
@@ -1316,7 +1325,7 @@ const LernCreatorForm = () => {
                   <Grid container>
                     <Grid item xs={2} className="center-align">
                       <InputLabel htmlFor="indicative_sub_theme">
-                        Indicative SubTheme{" "}
+                        {t("INDICATIVE_SUBTHEME")}{" "}
                         <span className="mandatory-symbol"> *</span>
                       </InputLabel>
                     </Grid>
@@ -1414,7 +1423,7 @@ const LernCreatorForm = () => {
                           className="custom-btn-default"
                           onClick={() => handleFileChange(youtubeUrl, "url")}
                         >
-                          upload
+                          {t("UPLOAD")}
                         </Button>
                       </Grid>
                     )}
@@ -1429,13 +1438,14 @@ const LernCreatorForm = () => {
                             );
                           }}
                         >
-                          Preview
+                          {t("PREVIEW")}
                         </a>
                       </Grid>
                     )}
                   </Grid>
                   <Grid item xs={10}>
                     <Alert className="mt-9" severity="info">
+                      {t("CONT_FORMAT")}
                       Supported formats: MP4, PDF, HTML5, YouTube links
                     </Alert>
                   </Grid>
@@ -1457,7 +1467,7 @@ const LernCreatorForm = () => {
                     className="custom-btn-default"
                     onClick={() => handleSubmit("draft")}
                   >
-                    Save as Draft
+                    {t("SAVE_AS_DRAFT")}
                   </Button>
 
                   <Button
@@ -1466,7 +1476,7 @@ const LernCreatorForm = () => {
                     onClick={() => setOpenConfirmModal(true)}
                     sx={{ ml: 2, padding: "9px 35px" }} // Adds spacing between the buttons
                   >
-                    Proceed to Submit
+                    {t("PROCEED_TO_SUBMIT")}
                   </Button>
                 </Box>
               </Grid>
@@ -1522,7 +1532,7 @@ const LernCreatorForm = () => {
                         className="custom-btn-default"
                         onClick={() => setOpenConfirmModal(false)}
                       >
-                        {"CANCEL"}
+                        {t("CANCEL")}
                       </Button>
                     </div>
                   </div>
@@ -1541,7 +1551,7 @@ const LernCreatorForm = () => {
                       }}
                     >
                       <Typography variant="h6" gutterBottom>
-                        Participant Details
+                        {t(PARTICIPAION_DETAILS)}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -1551,7 +1561,8 @@ const LernCreatorForm = () => {
                       <Grid container>
                         <Grid item xs={2} className="center-align">
                           <InputLabel htmlFor="Participant Name">
-                            Participant <br /> Name
+                            {t("PARTICIPANT")}
+                            <br /> {t("NAME")}
                             <span className="mandatory-symbol"> *</span>
                           </InputLabel>
                         </Grid>
@@ -1574,7 +1585,8 @@ const LernCreatorForm = () => {
                       <Grid container>
                         <Grid item xs={2} className="center-align">
                           <InputLabel htmlFor="Email">
-                            Email <span className="mandatory-symbol"> *</span>
+                            {t("EMAIL")}{" "}
+                            <span className="mandatory-symbol"> *</span>
                           </InputLabel>
                         </Grid>
                         <Grid item xs={10}>
@@ -1598,7 +1610,8 @@ const LernCreatorForm = () => {
                       <Grid container>
                         <Grid item xs={2} className="center-align">
                           <InputLabel htmlFor="Mobile Number">
-                            Mobile <br /> Number<span className="red"> *</span>
+                            {t("MOBILE")} <br /> {t("NUMBER")}
+                            <span className="red"> *</span>
                           </InputLabel>
                         </Grid>
                         <Grid item xs={10}>
@@ -1629,11 +1642,13 @@ const LernCreatorForm = () => {
                     className="mb-30"
                   >
                     <Box>
+                      {t("NULP_DECLARE")}
                       Your submission will be used for NULP purposes only and
                       your personal details will not be disclosed to any entity.
                     </Box>
 
                     <a href="#" onClick={openTNC}>
+                      {t("TNC")}
                       Accept terms and conditions
                     </a>
 
@@ -1664,6 +1679,7 @@ const LernCreatorForm = () => {
                             id="confirmation-modal-title"
                             gutterBottom
                           >
+                            {t("TNC")}
                             TNC
                           </Typography>
                           <Typography>
@@ -1701,7 +1717,7 @@ const LernCreatorForm = () => {
                             onClick={() => handleCheckboxChange(true)}
                             style={{ marginRight: "10px" }}
                           >
-                            Confirm
+                            {t("CONFIRM")}
                           </Button>
                           <div style={{ marginTop: "20px" }}>
                             <Button
@@ -1709,7 +1725,7 @@ const LernCreatorForm = () => {
                               color="secondary"
                               onClick={() => setTNCOpen(false)}
                             >
-                              {"CANCEL"}
+                              {t("CANCEL")}
                             </Button>
                           </div>
                         </div>
@@ -1733,7 +1749,7 @@ const LernCreatorForm = () => {
                         onClick={() => handleSubmit("review")}
                         sx={{ ml: 2, padding: "9px 35px" }} // Adds spacing between the buttons
                       >
-                        Submit
+                        {t("SUBMIT")}
                       </Button>
                     </Box>
                   </Grid>
