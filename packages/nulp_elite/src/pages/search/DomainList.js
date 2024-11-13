@@ -84,8 +84,12 @@ const DomainList = ({ globalSearchQuery }) => {
       const data = await response.json();
       const rolesData = data.result.response.channel;
       const roles = data.result.response.roles;
-      const organizationId = roles[0]?.scope[0]?.organisationId;
-      const extractedRoles = roles.map((roleObj) => roleObj.role);
+      let organizationId;
+      if (roles[0]?.scope[0]?.organisationId) {
+        organizationId = roles[0].scope[0].organisationId;
+      } else {
+          organizationId = data?.result?.response?.organisations[0]?.organisationId;
+        }      const extractedRoles = roles.map((roleObj) => roleObj.role);
       setRoleList(extractedRoles);
       setOrgId(organizationId);
       setLernUser(rolesData);
@@ -145,10 +149,8 @@ const DomainList = ({ globalSearchQuery }) => {
       const result = data.result.data.responseCode;
 
       responsecode = result;
-      setResponseCode(result);
-
       if (result === "OK") {
-        navigate("webapp/mylernsubmissions");
+        navigate("/webapp/mylernsubmissions");
         setIsModalOpen(false);
       } else {
         setToasterMessage("Something went wrong! Please try again later");
@@ -563,8 +565,7 @@ const DomainList = ({ globalSearchQuery }) => {
         >
           {error && <Alert severity="error">{error}</Alert>}
 
-          {/* <Box
-            className="lern-box">
+          <Box className="lern-box">
             <Box>
               <Grid container>
                 <Grid item xs={12}>
@@ -630,7 +631,7 @@ const DomainList = ({ globalSearchQuery }) => {
                 </Grid>
               </Grid>
             </Box>
-          </Box> */}
+          </Box> 
 
           <Box textAlign="center">
             <p

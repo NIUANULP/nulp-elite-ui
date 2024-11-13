@@ -162,13 +162,15 @@ const JoinCourse = () => {
           setIsOwner(true);
         }
         let identifiers;
-        if (data?.result?.content?.children[0]?.children) {
+        if (data?.result?.content?.children[0]?.children[0]?.children) {
+          identifiers =
+            data?.result?.content?.children[0]?.children[0]?.children[0]?.identifier;
+        }else if(data?.result?.content?.children[0]?.children){
           identifiers =
             data?.result?.content?.children[0]?.children[0]?.identifier;
         } else {
           identifiers = data?.result?.content?.children[0]?.identifier;
         }
-        console.log(identifiers, "setChildNode");
         setChildNode(identifiers);
 
         let allContents = [];
