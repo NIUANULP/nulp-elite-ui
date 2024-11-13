@@ -26,13 +26,13 @@ import submissions from "./lernSubmission.json";
 import Paper from "@mui/material/Paper";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Pagination } from "@mui/material";
+import usePreviousLocation from "components/usePreviousLocation";
 
 import Footer from "components/Footer";
 import Header from "components/header";
 
 const LernReviewList = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -43,14 +43,19 @@ const LernReviewList = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isSystemAdmin, setIsSystemAdmin] = useState(false);
   // const [pageNumber, setPageNumber] = useState(1);
+  const previousLocation = usePreviousLocation(); // Get the previous location
+  const navigate = useNavigate(); // Navigation hook
 
   const handleDialogOpen = () => {
     setDialogOpen(true);
   };
 
   const routeConfig = require("../../configs/routeConfig.json");
-  window.location.reload();
+  // console.log(previousLocation.pathname);
   useEffect(() => {
+    // if (previousLocation.pathname == "./webapp/player.js") {
+    //   window.location.reload;
+    // }
     fetchData();
     fetchUserData();
   }, [currentPage, rowsPerPage, search]);
@@ -213,12 +218,12 @@ const LernReviewList = () => {
             <Table aria-label="simple table">
               <TableHead sx={{ background: "#D8F6FF" }}>
                 <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Last Updated</TableCell>
-                  <TableCell>Category</TableCell>
+                  <TableCell> {t("NAME")}</TableCell>
+                  <TableCell> {t("LAST_UPDATED")}</TableCell>
+                  <TableCell> {t("CATEGORY")}</TableCell>
 
-                  <TableCell>Status</TableCell>
-                  <TableCell>Actions</TableCell>
+                  <TableCell> {t("STATUS")}</TableCell>
+                  <TableCell> {t("ACTION")}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -287,6 +292,7 @@ const LernReviewList = () => {
             alignItems="center"
             mb={2}
           >
+            {t("ROLE_REVIEW_RESTRICT")}
             Review is not available for your role. You can participate in
             contest
             <Button className="viewAll" onClick={handleCardClick}>

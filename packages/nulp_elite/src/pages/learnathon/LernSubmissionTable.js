@@ -156,7 +156,7 @@ const LernSubmissionTable = () => {
             className="fw-600 mt-20"
             color={"#484848"}
           >
-            Learnathon Submissions List
+            {t("LEARN_SUBMISSION_LIST")}
           </Typography>
         </Box>
         <Grid container>
@@ -185,7 +185,7 @@ const LernSubmissionTable = () => {
               }
               sx={{ padding: "7px 45px", borderRadius: "90px !important" }}
             >
-              Upload Submission
+              {t("UPLOAD_SUBMISSION")}
             </Button>
           </Grid>
         </Grid>
@@ -194,11 +194,11 @@ const LernSubmissionTable = () => {
             <Table aria-label="simple table">
               <TableHead sx={{ background: "#D8F6FF" }}>
                 <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Last Updated</TableCell>
-                  <TableCell>Category</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Actions</TableCell>
+                  <TableCell>{t("NAME")}</TableCell>
+                  <TableCell>{t("LAST_UPDATED")}</TableCell>
+                  <TableCell>{t("CATEGORY")}</TableCell>
+                  <TableCell>{t("STATUS")}</TableCell>
+                  <TableCell>{t("ACTION")}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -279,7 +279,10 @@ const LernSubmissionTable = () => {
         )}
         {emptySubmission && (
           <Box marginLeft={"550px"} padding={"32px"}>
-            <Box>No Submissions yet please submit content</Box>
+            <Box>
+              No Submissions yet please submit content
+              {t("NO_SUBMISSION")}
+            </Box>
             <Button
               className="viewAll"
               onClick={() =>
@@ -293,6 +296,7 @@ const LernSubmissionTable = () => {
                 marginTop: "23px",
               }}
             >
+              {t("UPLAOD_SUBMISSION")}
               Upload Submission
             </Button>
           </Box>
@@ -306,6 +310,7 @@ const LernSubmissionTable = () => {
         <Dialog open={dialogOpen} onClose={handleDialogClose}>
           <DialogContent>
             <Box className="h5-title">
+              {t("CONFIRM_DELETE")}
               Are you sure you want to delete this submission
             </Box>
           </DialogContent>

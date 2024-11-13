@@ -815,7 +815,10 @@ const Player = () => {
                 public_url="https://nulp.niua.org/newplayer"
               />
             ) : (
-              <Box>No content available to play</Box>
+              <Box>
+                {t("NO_CONTENT_TO_PLAY")}
+                No content available to play
+              </Box>
             )}
           </Box>
           <Box
