@@ -330,7 +330,13 @@ const Player = () => {
   const handleClose = () => setOpenFeedBack(false);
   const handleGoBack = () => navigate(sessionStorage.getItem("previousRoutes"));
   const handleBackNavigation = () => {
+    if(pageParam == "vote"){
+      navigate("/webapp/lernvotinglist");
+      window.location.reload();
+    }else{
     navigate(-1); // Navigate back in history
+    }
+
   };
 
   const fetchData = async (content_Id) => {
