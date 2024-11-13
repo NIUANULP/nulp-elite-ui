@@ -499,11 +499,13 @@ const Player = () => {
               throw new Error("Something went wrong");
             } else {
               navigate("/webapp/lernreviewlist");
+              window.location.reload();
             }
 
             const result = await response.json();
             console.log("suceesss");
             navigate("/webapp/mylernsubmissions");
+            window.location.reload();
           } catch (error) {
           } finally {
           }
@@ -516,6 +518,7 @@ const Player = () => {
       }
 
       navigate(routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST);
+      window.location.reload();
       // setData(result.result.data);
       // setTotalRows(result.result.totalCount);
     } catch (error) {

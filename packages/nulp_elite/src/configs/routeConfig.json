@@ -89,7 +89,8 @@
       "SUBMISSIONLIST": "webapp/SubmissionList",
       "MYLERNSUBMISSION": "/webapp/mylernsubmissions",
       "LERNVOTINGLIST": "/webapp/lernvotinglist",
-      "LERNREVIEWLIST": "/webapp/lernreviewlist"
+      "LERNREVIEWLIST": "/webapp/lernreviewlist",
+      "DASHBOARD": "./webapp/learndashboard"
     }
   }
 }

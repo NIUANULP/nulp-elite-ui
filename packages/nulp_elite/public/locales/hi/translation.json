@@ -361,12 +361,9 @@
   "NO_SUBMISSION": "नहीं सबमिशन",
   "UPLAOD_SUBMISSION": "UPLAOD SUBMISSION",
   "UPLOAD_LEARN_SUBMISSION": "अपलोड लर्न सबमिशन",
-  "NEED_HELP": "मदद की ज़रूरत है",
   "SUBMISSION_DETAILS": "सबमिशन विवरण",
   "SUBMISSION_ICON": "सबमिशन आइकॉन",
-  "IMG_GUIDELINES": "आईएमजी दिशानिर्देश",
   "VIEW_AND_DOWLOAD_GUIDELINES": "देखें और डाउनलोड दिशानिर्देश",
-  "NAME_OF_DEPT/GROUP": "NAME OF DEPT/समूह",
   "INDICATIVE_SUBTHEME": "सूचक उपविषय",
   "UPLOAD": "अपलोड करें",
   "PREVIEW": "पूर्व दर्शन",
@@ -381,18 +378,18 @@
   "LEARN_SUBMISSION_LIST": "सबमिशन सूची सीखें",
 
   "UPLlOAD_SUBMISSION": "अपलोड सबमिशन",
-  "CONFIRM_DELETE": "हटाने की पुष्टि करें",
-
   "TITLE_OF_SUBMISSION": "सबमिशन का शीर्षक",
 
-  "STAR_CITY_MSG": "स्टार सिटी MSG",
-  "NAME_OF_ORG": "संगठन का नाम",
-  "NAME_OF_DEPT/समूह": "विभाग/समूह का नाम",
+  "NAME_OF_DEPT/GROUP": "विभाग/समूह का नाम",
   "NO_OPTION_AVAILABLE": "कोई विकल्प उपलब्ध नहीं",
   "OTHER_INDICATIVE_THEME": "अन्य सांकेतिक थीम",
-
-  "CONT_FORMAT": "CONT FORMAT",
-
   "PROCEED_TO_SUBMIT": "सबमिट करने के लिए आगे बढ़ें",
-  "NULP_DECLARE": "NULP DECLARE"
+
+  "NULP_DECLARE": "आपका सबमिशन केवल nullp उद्देश्यों के लिए उपयोग किया जाएगा और आपके व्यक्तिगत विवरण किसी अन्य संस्था को प्रकट नहीं किए जाएंगे।",
+  "NAME_OF_ORG": "संगठन का नाम",
+  "NEED_HELP": "मदद चाहिए?",
+  "CONFIRM_DELETE": "क्या आप वाकई इस सबमिशन को हटाना चाहते हैं?",
+  "CONT_FORMAT": "समर्थित प्रारूप: MP4, PDF, HTML5, YouTube लिंक",
+  "STAR_CITY_MSG": "राज्य और शहर फ़ील्ड अनिवार्य नहीं हैं। उद्योग, शिक्षा और अन्य गैर-सरकारी संस्थाओं से आवेदन करने वाले इसे भरने से बचना चाह सकते हैं।",
+  "IMG_GUIDELINES": "पीएनजी, जेपीईजी अपलोड करें (अधिकतम फ़ाइल आकार: 1 एमबी)"
 }
