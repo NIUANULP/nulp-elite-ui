@@ -943,22 +943,27 @@ const LernCreatorForm = () => {
         data?.result?.framework?.categories[Categoryindex]?.terms
       );
       if (preIndicativeTheme) {
-        const selectedBoard = preIndicativeTheme;
-        console.log(
-          data?.result?.framework?.categories[Categoryindex]?.terms,
-          "indicativeThemes--------"
-        );
-        const selectedIndex = data?.result?.framework?.categories[
-          Categoryindex
-        ]?.terms.findIndex((category) => category.name === selectedBoard);
-        if (selectedIndex !== -1) {
-          setIndicativeSubThemes(
-            indicativeThemes[selectedIndex]?.associations || []
-          );
-        } else {
-          setIndicativeSubThemes([]);
-        }
-      }
+  const selectedBoard = preIndicativeTheme;
+  const categories = data?.result?.framework?.categories;
+  
+  if (categories?.[Categoryindex]?.terms) {
+    const terms = categories[Categoryindex].terms;
+    
+    const selectedIndex = terms.findIndex(
+      (category) => category.name === selectedBoard
+    );
+
+    if (selectedIndex !== -1) {
+      setIndicativeSubThemes(data?.result?.framework?.categories[Categoryindex]?.terms[selectedIndex]?.associations || []);
+    } else {
+      setIndicativeSubThemes([]);
+    }
+  } else {
+    console.error("No terms found in the specified category index");
+    setIndicativeSubThemes([]);
+  }
+}
+
     } catch (error) {
       console.error("Error fetching data:", error);
       showErrorMessage(t("FAILED_TO_FETCH_DATA"));
