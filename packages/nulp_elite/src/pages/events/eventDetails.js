@@ -111,6 +111,8 @@ const EventDetails = () => {
   const [recording, setRecording] = useState();
   const [isAllreadyFilledRegistation,setIsAlreadyFilledRegistration] = useState(true)
   const [isExpired , setIsExpired] = useState(false)
+   const [batchCertData,setBatchCertData] = useState();
+  const [isCertificateIssued , setIsCertificateIssued] = useState(true)
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -286,6 +288,8 @@ const formatTimeWithTimezone = (date) => {
     getUserData(_userId, "loggedIn");
     fetchMyEvents();
     getEventRecording();
+     fetchData();
+    checkCertificateAlreadyIssued();
     // checkEnrolledCourse();
   }, [_userId, eventId]);
 
@@ -308,6 +312,9 @@ const formatTimeWithTimezone = (date) => {
 
       const { result } = response.data;
       const { response: batchResponse } = result;
+
+      setBatchCertData(response.data.result)
+
       if (batchResponse && batchResponse.count === 0) {
         showErrorMessage(t("This course has no active Batches"));
       } else if (batchResponse?.content?.length > 0) {
@@ -453,6 +460,82 @@ const formatTimeWithTimezone = (date) => {
       year: "numeric",
     });
   };
+
+  const fetchData = async () => {
+    try {
+      const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.GET_PROFILE}${_userId}?fields=${urlConfig.params.userReadParam.fields}`;
+
+      const header = "application/json";
+      const response = await fetch(url, {
+        // headers: {
+        //   "Content-Type": "application/json",
+        // },
+      });
+      const data = await response.json();
+      setUserData(data);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      showErrorMessage(t("FAILED_TO_FETCH_DATA"));
+    }
+  };
+
+  const checkCertificateAlreadyIssued = async () => {
+    try{
+      const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.CERTIFICATE.CERTIF_SEARCH}`;
+    const requestBody = {
+      filters: {
+        recipient: {
+            id: {
+                eq: _userId
+            }
+          }
+      }
+    }
+    const resopnse = await axios.post(url, requestBody);
+     setIsCertificateIssued(resopnse.data.some((item) => item.training?.id === eventId));
+
+    }catch(error){
+      console.log("error While calling API ");
+    }
+
+  }
+
+ const generateCertificate = async () => {
+  const templateId = Object.keys(batchCertData?.response?.content[0]["certTemplates"])[0];
+  const certificateDetails = batchCertData?.response?.content[0]["certTemplates"][templateId];
+  try {
+    const url = `${urlConfig.URLS.CERTIFICATE.CUSTOM_CERTIFICATE_CREATE}`;
+    const requestBody = {
+      recipient: {
+        id: _userId, 
+        name: userData?.result?.response?.firstName + " " + userData?.result?.response?.lastName,
+        type: "user",
+      },
+      issuer: certificateDetails?.issuer,
+      training: {
+        id: detailData?.identifier,
+        name: detailData?.name,
+        type: "Event",
+        batchId: batchData?.batchId,
+      },
+      templateUrl:
+        certificateDetails?.url, 
+      status: "ACTIVE",
+      signatoryList:
+        certificateDetails?.signatoryList,
+      certificateLabel: "test",
+      issuedOn: new Date().toISOString(),
+    };
+    if(!isCertificateIssued){
+      const response = await axios.post(url, requestBody);
+      if(response.data.responseCode === "OK"){
+        setIsCertificateIssued(true)
+      }
+    }
+  } catch (error) {
+    console.error("Error creating certificate:", error);
+  }
+};
 
   const managePublicPrivateEvent = (button) => {
     if (eventVisibility && eventVisibility === "Public" && button === "reg") {
@@ -864,6 +947,10 @@ const formatTimeWithTimezone = (date) => {
                     type="button"
                     onClick={() => {
                       managePublicPrivateEvent("join");
+                       // generateCertificate();
+                      if(detailData.issueCerificate === "Yes"){
+                        generateCertificate();
+                      }
                     }}
                     // onClick={attendWebinar}
                     style={{

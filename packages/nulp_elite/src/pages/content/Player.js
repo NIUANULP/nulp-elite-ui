@@ -294,6 +294,9 @@ const Player = () => {
             setLearnathonDetails(result.result.data[0]);
 
             setPlayerContent(result.result.data[0].content_id);
+            if (result.result.data[0].status == "Live") {
+              setIsPublished(true);
+            }
 
             if (result.result.data[0].content_id === null || undefined) {
               setNoPreviewAvailable(true);
@@ -840,7 +843,7 @@ const Player = () => {
                 )}
               </div>
             )}
-            {reviewEnable && (
+            {reviewEnable && !isPublished && (
               <div className="vote-section">
                 <Button
                   type="button"
@@ -848,7 +851,7 @@ const Player = () => {
                   onClick={() => Publish()}
                   disabled={isPublished}
                 >
-                  {t("PUBISH")}
+                  {t("PUBLISH")}
                 </Button>
                 <Button
                   type="button"

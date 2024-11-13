@@ -35,7 +35,6 @@ const LernSubmissionTable = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [data, setData] = useState([]);
-  const [pageNumber, setPageNumber] = useState(1);
 
   const [rowsPerPage, setRowsPerPage] = useState(20);
   const [totalRows, setTotalRows] = useState(0);
@@ -69,7 +68,7 @@ const LernSubmissionTable = () => {
           created_on: "desc",
         },
         limit: rowsPerPage,
-        offset: 20 * (currentPage - 1),
+        offset: 10 * (currentPage - 1),
         search: search,
       },
     };
@@ -93,7 +92,7 @@ const LernSubmissionTable = () => {
       if (result.result.totalCount == 0) {
         setEmptySubmission(true);
       }
-      setTotalRows(result.result.totalCount / 10);
+      setTotalRows(Math.ceil(result.result.totalCount / 10));
     } catch (error) {
       console.log("error---", error);
       // setError(error.message);
@@ -126,6 +125,7 @@ const LernSubmissionTable = () => {
       }
       const result = await response.json();
       console.log("suceesss----", result);
+      window.location.reload();
       setDialogOpen(false);
     } catch (error) {
       console.log("error---", error);
@@ -136,8 +136,7 @@ const LernSubmissionTable = () => {
   };
 
   const handleChange = (event, value) => {
-    if (value !== pageNumber) {
-      setPageNumber(value);
+    if (value !== currentPage) {
       setCurrentPage(value);
       fetchData();
     }
@@ -190,91 +189,96 @@ const LernSubmissionTable = () => {
             </Button>
           </Grid>
         </Grid>
-        <TableContainer component={Paper}>
-          <Table aria-label="simple table">
-            <TableHead sx={{ background: "#D8F6FF" }}>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Last Updated</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{row.title_of_submission}</TableCell>
-                  <TableCell>
-                    {new Date(row.updated_on).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell
-                    style={{
-                      color:
-                        row.status === "live"
-                          ? "green"
-                          : row.status === "review"
-                          ? "orange"
-                          : "red",
-                      textTransform: "capitalize",
-                    }}
-                  >
-                    {row.status}
-                  </TableCell>
-                  <TableCell>
-                    {row.status == "draft" && (
-                      <IconButton
-                        color="primary"
-                        onClick={() =>
-                          (window.location.href =
-                            routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT +
-                            "?" +
-                            row.learnathon_content_id)
-                        }
-                        sx={{ color: "#057184" }}
-                        className="table-icon"
-                      >
-                        <Edit />
-                      </IconButton>
-                    )}
-                    {
-                      <IconButton
-                        color="primary"
-                        onClick={() =>
-                          (window.location.href =
-                            routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
-                            "?id=" +
-                            row.learnathon_content_id +
-                            "&page=lern")
-                        }
-                        sx={{ color: "#054753" }}
-                        className="table-icon"
-                      >
-                        <Visibility />
-                      </IconButton>
-                    }
-                    {(row.status == "draft" || row.status == "review") && (
-                      <IconButton
-                        color="secondary"
-                        onClick={() =>
-                          handleDialogOpen(
-                            row.learnathon_content_id,
-                            row.content_id
-                          )
-                        }
-                        sx={{ color: "red" }}
-                        className="table-icon"
-                      >
-                        <Delete />
-                      </IconButton>
-                    )}
-                  </TableCell>
+        {!emptySubmission && (
+          <TableContainer component={Paper}>
+            <Table aria-label="simple table">
+              <TableHead sx={{ background: "#D8F6FF" }}>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Last Updated</TableCell>
+                  <TableCell>Category</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Actions</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {data.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{row.title_of_submission}</TableCell>
+                    <TableCell>
+                      {new Date(row.updated_on).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>{row.category_of_participation}</TableCell>
+
+                    <TableCell
+                      style={{
+                        color:
+                          row.status === "live"
+                            ? "green"
+                            : row.status === "review"
+                            ? "orange"
+                            : "red",
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {row.status}
+                    </TableCell>
+                    <TableCell>
+                      {row.status == "draft" && (
+                        <IconButton
+                          color="primary"
+                          onClick={() =>
+                            (window.location.href =
+                              routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT +
+                              "?" +
+                              row.learnathon_content_id)
+                          }
+                          sx={{ color: "#057184" }}
+                          className="table-icon"
+                        >
+                          <Edit />
+                        </IconButton>
+                      )}
+                      {
+                        <IconButton
+                          color="primary"
+                          onClick={() =>
+                            (window.location.href =
+                              routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
+                              "?id=" +
+                              row.learnathon_content_id +
+                              "&page=lern")
+                          }
+                          sx={{ color: "#054753" }}
+                          className="table-icon"
+                        >
+                          <Visibility />
+                        </IconButton>
+                      }
+                      {(row.status == "draft" || row.status == "review") && (
+                        <IconButton
+                          color="secondary"
+                          onClick={() =>
+                            handleDialogOpen(
+                              row.learnathon_content_id,
+                              row.content_id
+                            )
+                          }
+                          sx={{ color: "red" }}
+                          className="table-icon"
+                        >
+                          <Delete />
+                        </IconButton>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
         {emptySubmission && (
-          <Box marginLeft={"730px"} padding={"32px"}>
+          <Box marginLeft={"550px"} padding={"32px"}>
             <Box>No Submissions yet please submit content</Box>
             <Button
               className="viewAll"
@@ -296,7 +300,7 @@ const LernSubmissionTable = () => {
 
         <Pagination
           count={totalRows}
-          page={pageNumber}
+          page={currentPage}
           onChange={handleChange}
         />
         <Dialog open={dialogOpen} onClose={handleDialogClose}>
