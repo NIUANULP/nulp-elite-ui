@@ -364,7 +364,6 @@
   "SUBMISSION_DETAILS": "सबमिशन विवरण",
   "SUBMISSION_ICON": "सबमिशन आइकॉन",
   "VIEW_AND_DOWLOAD_GUIDELINES": "देखें और डाउनलोड दिशानिर्देश",
-  "NAME_OF_DEPT/GROUP": "NAME OF DEPT/समूह",
   "INDICATIVE_SUBTHEME": "सूचक उपविषय",
   "UPLOAD": "अपलोड करें",
   "PREVIEW": "पूर्व दर्शन",
@@ -381,7 +380,7 @@
   "UPLlOAD_SUBMISSION": "अपलोड सबमिशन",
   "TITLE_OF_SUBMISSION": "सबमिशन का शीर्षक",
 
-  "NAME_OF_DEPT/समूह": "विभाग/समूह का नाम",
+  "NAME_OF_DEPT/GROUP": "विभाग/समूह का नाम",
   "NO_OPTION_AVAILABLE": "कोई विकल्प उपलब्ध नहीं",
   "OTHER_INDICATIVE_THEME": "अन्य सांकेतिक थीम",
   "PROCEED_TO_SUBMIT": "सबमिट करने के लिए आगे बढ़ें",
