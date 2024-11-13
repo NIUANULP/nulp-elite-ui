@@ -22,6 +22,7 @@ import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 const routeConfig = require("../../configs/routeConfig.json");
 const urlConfig = require("../../configs/urlConfig.json");
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 
 const LernVotingList = () => {
   const { t } = useTranslation();
@@ -168,7 +169,10 @@ const LernVotingList = () => {
                   <TableCell>
                     {new Date(row.end_date).toLocaleDateString()}
                   </TableCell>
-                  <TableCell>{voteCounts[row.poll_id] || 0}</TableCell>
+                  <TableCell>
+                    {voteCounts[row.poll_id] || 0}
+                    <span style={{ fontSize: '1.5rem', marginLeft: '5px' }}>👍</span>
+                  </TableCell>
                   <TableCell>
                     <Box>
                       <Button
