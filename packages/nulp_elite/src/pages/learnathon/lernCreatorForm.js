@@ -1058,7 +1058,6 @@ const LernCreatorForm = () => {
               <Grid item xs={10}>
                 <Alert className="mt-9" everity="info">
                   {t("IMG_GUIDELINES")}
-                  Upload png, jpeg (Max File size: 1MB)
                 </Alert>
               </Grid>
             </Grid>
@@ -1160,9 +1159,6 @@ const LernCreatorForm = () => {
               <Grid item xs={12}>
                 <Alert className="mt-9" severity="info">
                   {t("STAR_CITY_MSG")}
-                  State & City fields are not mandatory. Those submitting from
-                  Industry, Academia and other Non-Government entities may wish
-                  to avoid filling the same.
                 </Alert>
               </Grid>
               <Grid item xs={12}>
@@ -1449,7 +1445,6 @@ const LernCreatorForm = () => {
                   <Grid item xs={10}>
                     <Alert className="mt-9" severity="info">
                       {t("CONT_FORMAT")}
-                      Supported formats: MP4, PDF, HTML5, YouTube links
                     </Alert>
                   </Grid>
                 </Grid>
@@ -1656,11 +1651,7 @@ const LernCreatorForm = () => {
                     textAlign="center"
                     className="mb-30"
                   >
-                    <Box>
-                      {t("NULP_DECLARE")}
-                      Your submission will be used for NULP purposes only and
-                      your personal details will not be disclosed to any entity.
-                    </Box>
+                    <Box>{t("NULP_DECLARE")}</Box>
 
                     <a href="#" onClick={openTNC}>
                       {t("TNC")}
