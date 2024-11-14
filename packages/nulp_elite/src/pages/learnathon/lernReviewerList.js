@@ -16,13 +16,8 @@ import {
   Grid,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
-
 import * as util from "../../services/utilService";
-import Dialog from "@mui/material/Dialog";
-import DialogContent from "@mui/material/DialogContent";
-import { Edit, Visibility, Delete } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
-import submissions from "./lernSubmission.json";
 import Paper from "@mui/material/Paper";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Pagination } from "@mui/material";
@@ -293,8 +288,7 @@ const LernReviewList = () => {
             mb={2}
           >
             {t("ROLE_REVIEW_RESTRICT")}
-            Review is not available for your role. You can participate in
-            contest
+
             <Button className="viewAll" onClick={handleCardClick}>
               {t("PARTICIPATE_NOW")}
             </Button>

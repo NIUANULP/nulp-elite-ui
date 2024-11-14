@@ -380,5 +380,6 @@
   "CONFIRM_DELETE": "Are you sure you want to delete this submission?",
   "CONT_FORMAT": "Supported formats: MP4, PDF, HTML5, YouTube links",
   "STAR_CITY_MSG": "State & City fields are not mandatory. Those submitting from Industry, Academia and other Non-Government entities may wish to avoid filling the same.",
-  "IMG_GUIDELINES": "Upload png, jpeg (Max File size: 1MB)"
+  "IMG_GUIDELINES": "Upload png, jpeg (Max File size: 1MB)",
+  "NO_CONTENT_TO_PLAY": "No content available to play"
 }

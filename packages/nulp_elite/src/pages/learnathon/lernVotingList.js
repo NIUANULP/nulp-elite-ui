@@ -22,7 +22,7 @@ import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 const routeConfig = require("../../configs/routeConfig.json");
 const urlConfig = require("../../configs/urlConfig.json");
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 
 const LernVotingList = () => {
   const { t } = useTranslation();
@@ -35,11 +35,11 @@ const LernVotingList = () => {
   const [pollData, setPollData] = useState([]);
   const [voteCounts, setVoteCounts] = useState({}); // Object to store vote counts
   const [pageNumber, setPageNumber] = useState(1);
-  const [currentPage, setCurrentPage] = useState(1);
+  // const [pageNumber, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchData();
-  }, [currentPage, rowsPerPage, search]);
+  }, [pageNumber, rowsPerPage, search]);
 
   const fetchData = async () => {
     const assetBody = {
@@ -50,7 +50,7 @@ const LernVotingList = () => {
         },
 
         limit: rowsPerPage,
-        offset: 20 * (currentPage - 1),
+        offset: 20 * (pageNumber - 1),
         search: search,
       },
     };
@@ -115,7 +115,6 @@ const LernVotingList = () => {
   const handleChange = (event, value) => {
     if (value !== pageNumber) {
       setPageNumber(value);
-      setCurrentPage(value);
       fetchData();
     }
   };
@@ -171,7 +170,9 @@ const LernVotingList = () => {
                   </TableCell>
                   <TableCell>
                     {voteCounts[row.poll_id] || 0}
-                    <span style={{ fontSize: '1.5rem', marginLeft: '5px' }}>👍</span>
+                    <span style={{ fontSize: "1.5rem", marginLeft: "5px" }}>
+                      👍
+                    </span>
                   </TableCell>
                   <TableCell>
                     <Box>
