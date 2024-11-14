@@ -358,8 +358,9 @@
   "सीखने का इतिहास": "सीखने का इतिहास",
   "CONTENT_DERIVED_FROM": "यह सामग्री इससे ली गई है",
   "UPLOAD_SUBMISSION": "अपलोड सबमिशन",
-  "NO_SUBMISSION": "नहीं सबमिशन",
-  "UPLAOD_SUBMISSION": "UPLAOD SUBMISSION",
+
+  "NO_SUBMISSION": "अभी तक कोई सबमिशन नहीं, कृपया सामग्री सबमिट करें",
+  "UPLAOD_SUBMISSION": "अपलोड सबमिशन",
   "UPLOAD_LEARN_SUBMISSION": "अपलोड लर्न सबमिशन",
   "SUBMISSION_DETAILS": "सबमिशन विवरण",
   "SUBMISSION_ICON": "सबमिशन आइकॉन",
@@ -375,6 +376,7 @@
   "NUMBER": "संख्या",
   "CONFIRM": "पुष्टि करना",
 
+  "TNC": "नियम और शर्तें",
   "LEARN_SUBMISSION_LIST": "सबमिशन सूची सीखें",
 
   "UPLlOAD_SUBMISSION": "अपलोड सबमिशन",

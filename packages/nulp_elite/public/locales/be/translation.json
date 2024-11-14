@@ -376,14 +376,15 @@
   "SUBMISSION_ICON": "SUBMISSION ICON",
   "LEARN_SUBMISSION_LIST": "জানুন জমার তালিকা",
   "UPLOAD_SUBMISSION": "আপলোড জমা",
-  "NO_SUBMISSION": "না জমা নেই",
+
+  "NO_SUBMISSION": "এখনও কোন জমা নেই অনুগ্রহ করে বিষয়বস্তু জমা দিন",
   "UPLAOD_SUBMISSION": "আপলোড জমা",
 
   "TITLE_OF_SUBMISSION": "SUBMISSION এর শিরোনাম",
 
   "CATEGORY_OF_PARTICIPATION": "অংশগ্রহণের বিভাগ",
   "VIEW_AND_DOWLOAD_GUIDELINES": "নির্দেশিকা দেখুন এবং ডাউনলোড করুন",
-
+  "TNC": "নিয়ম ও শর্তাবলী",
   "NULP_DECLARE": "আপনার জমা দেওয়া শুধুমাত্র NULP উদ্দেশ্যে ব্যবহার করা হবে এবং আপনার ব্যক্তিগত বিবরণ অন্য কোনো সত্তার কাছে প্রকাশ করা হবে না।",
   "NAME_OF_DEPT/GROUP": "বিভাগ/গ্রুপের নাম",
   "INDICATIVE_THEME": "ইঙ্গিত থিম",
