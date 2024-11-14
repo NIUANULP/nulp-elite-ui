@@ -481,6 +481,7 @@ const Player = () => {
             status: "Live",
             created_by: learnathonDetails.created_by,
             title_of_submission: learnathonDetails.title_of_submission,
+            created_by: learnathonDetails.created_by,
           };
 
           try {
@@ -498,13 +499,11 @@ const Player = () => {
             if (!response.ok) {
               throw new Error("Something went wrong");
             } else {
-              navigate("/webapp/lernreviewlist");
-              window.location.reload();
             }
 
             const result = await response.json();
             console.log("suceesss");
-            navigate("/webapp/mylernsubmissions");
+            navigate("/webapp/lernreviewlist");
             window.location.reload();
           } catch (error) {
           } finally {
@@ -514,7 +513,6 @@ const Player = () => {
         }
       } catch (error) {
         // setToasterMessage(error.message);
-        setToasterOpen(true);
       }
 
       navigate(routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST);
@@ -556,10 +554,40 @@ const Player = () => {
       const result = await response.json();
       console.log("suceesss----", result);
       console.log(result.result);
-      alert("Content Rejected");
+      const formData = {
+        status: "Reject",
+        title_of_submission: learnathonDetails.title_of_submission,
+        created_by: learnathonDetails.created_by,
+      };
+      try {
+        const response = await fetch(
+          `${urlConfig.URLS.LEARNATHON.UPDATE}?id=${contentId}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          }
+        );
 
-      navigate(routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST);
-      window.location.reload();
+        if (!response.ok) {
+          throw new Error("Something went wrong");
+        } else {
+          navigate("/webapp/lernreviewlist");
+          window.location.reload();
+        }
+
+        const result = await response.json();
+        console.log("suceesss");
+        alert("Content Rejected");
+
+        navigate("/webapp/lernreviewlist");
+        window.location.reload();
+      } catch (error) {
+      } finally {
+      }
+
       // setData(result.result.data);
       // setTotalRows(result.result.totalCount);
     } catch (error) {
@@ -682,7 +710,10 @@ const Player = () => {
                       ))}
 
                     {isLearnathon &&
-                    learnathonDetails.indicative_sub_theme != undefined ? (
+                    !(
+                      learnathonDetails.indicative_sub_theme == undefined ||
+                      learnathonDetails.indicative_sub_theme == null
+                    ) ? (
                       <Button
                         key={`board`}
                         size="small"
@@ -715,7 +746,10 @@ const Player = () => {
                       ))
                     )}
                     {isLearnathon &&
-                    learnathonDetails.other_indicative_themes != undefined ? (
+                    !(
+                      learnathonDetails.other_indicative_themes == undefined ||
+                      learnathonDetails.other_indicative_themes == null
+                    ) ? (
                       <Button
                         key={`board`}
                         size="small"
@@ -842,10 +876,7 @@ const Player = () => {
                 public_url="https://nulp.niua.org/newplayer"
               />
             ) : (
-              <Box>
-                {t("NO_CONTENT_TO_PLAY")}
-                No content available to play
-              </Box>
+              <Box>{t("NO_CONTENT_TO_PLAY")}</Box>
             )}
           </Box>
           <Box

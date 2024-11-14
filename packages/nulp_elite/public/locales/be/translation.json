@@ -376,12 +376,12 @@
   "SUBMISSION_ICON": "SUBMISSION ICON",
   "LEARN_SUBMISSION_LIST": "জানুন জমার তালিকা",
   "UPLOAD_SUBMISSION": "আপলোড জমা",
-
+  "ROLE_REVIEW_RESTRICT": "আপনার ভূমিকার জন্য পর্যালোচনা উপলব্ধ নয়। আপনি প্রতিযোগিতায় অংশগ্রহণ করতে পারেন",
   "NO_SUBMISSION": "এখনও কোন জমা নেই অনুগ্রহ করে বিষয়বস্তু জমা দিন",
   "UPLAOD_SUBMISSION": "আপলোড জমা",
 
   "TITLE_OF_SUBMISSION": "SUBMISSION এর শিরোনাম",
-
+  "NO_CONTENT_TO_PLAY": "খেলার জন্য কোনো সামগ্রী উপলব্ধ নেই",
   "CATEGORY_OF_PARTICIPATION": "অংশগ্রহণের বিভাগ",
   "VIEW_AND_DOWLOAD_GUIDELINES": "নির্দেশিকা দেখুন এবং ডাউনলোড করুন",
   "TNC": "নিয়ম ও শর্তাবলী",

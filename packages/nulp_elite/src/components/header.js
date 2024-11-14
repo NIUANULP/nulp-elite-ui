@@ -79,6 +79,7 @@ function Header({ globalSearchQuery }) {
       const data = await response.json();
       const userID = data.result.data;
       const user = userID.find((user) => user.user_id === _userId);
+      console.log(user);
       if (
         (roles.includes("COURSE_MENTOR") ||
           roles.includes("SYSTEM_ADMINISTRATION") ||
@@ -86,7 +87,7 @@ function Header({ globalSearchQuery }) {
           roles.includes("CONTENT_CREATION") ||
           roles.includes("CONTENT_REVIEWER") ||
           roles.includes("FLAG_REVIEWER")) &&
-        user
+        user == undefined
       ) {
         setAccessWorkspace(true);
       }
