@@ -330,13 +330,15 @@ const Player = () => {
   const handleClose = () => setOpenFeedBack(false);
   const handleGoBack = () => navigate(sessionStorage.getItem("previousRoutes"));
   const handleBackNavigation = () => {
-    if(pageParam == "vote"){
+    if (pageParam == "vote") {
       navigate("/webapp/lernvotinglist");
       window.location.reload();
-    }else{
-    navigate(-1); // Navigate back in history
+    } else if (pageParam == "lern") {
+      navigate("/webapp/lernreviewlist");
+      window.location.reload();
+    } else {
+      navigate(-1); // Navigate back in history
     }
-
   };
 
   const fetchData = async (content_Id) => {
@@ -503,7 +505,7 @@ const Player = () => {
 
             const result = await response.json();
             console.log("suceesss");
-            navigate("/webapp/lernreviewlist");
+            handleBackNavigation();
             window.location.reload();
           } catch (error) {
           } finally {
@@ -573,16 +575,13 @@ const Player = () => {
 
         if (!response.ok) {
           throw new Error("Something went wrong");
-        } else {
-          navigate("/webapp/lernreviewlist");
-          window.location.reload();
         }
 
         const result = await response.json();
         console.log("suceesss");
         alert("Content Rejected");
 
-        navigate("/webapp/lernreviewlist");
+        handleBackNavigation();
         window.location.reload();
       } catch (error) {
       } finally {
@@ -710,10 +709,8 @@ const Player = () => {
                       ))}
 
                     {isLearnathon &&
-                    !(
-                      learnathonDetails.indicative_sub_theme == undefined ||
-                      learnathonDetails.indicative_sub_theme == null
-                    ) ? (
+                    learnathonDetails.indicative_sub_theme &&
+                    learnathonDetails.indicative_sub_theme != null ? (
                       <Button
                         key={`board`}
                         size="small"
@@ -746,24 +743,22 @@ const Player = () => {
                       ))
                     )}
                     {isLearnathon &&
-                    !(
-                      learnathonDetails.other_indicative_themes == undefined ||
-                      learnathonDetails.other_indicative_themes == null
-                    ) ? (
-                      <Button
-                        key={`board`}
-                        size="small"
-                        style={{
-                          color: "#424242",
-                          fontSize: "10px",
-                          margin: "0 10px 3px 6px",
-                          cursor: "auto",
-                        }}
-                        className="bg-blueShade3"
-                      >
-                        {learnathonDetails.other_indicative_themes}
-                      </Button>
-                    ) : null}
+                      learnathonDetails.other_indicative_themes &&
+                      learnathonDetails.other_indicative_themes != null && (
+                        <Button
+                          key={`board`}
+                          size="small"
+                          style={{
+                            color: "#424242",
+                            fontSize: "10px",
+                            margin: "0 10px 3px 6px",
+                            cursor: "auto",
+                          }}
+                          className="bg-blueShade3"
+                        >
+                          {learnathonDetails.other_indicative_themes}
+                        </Button>
+                      )}
 
                     {!isLearnathon &&
                       !lesson.gradeLevel &&
