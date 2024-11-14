@@ -131,6 +131,7 @@ const Chat = ({
     "Hello! I’d like to connect with you."
   );
   const [textValue, setTextValue] = useState("");
+console.log("hhhhhhhhhhhhhhhhhhhhhhhhhh");
 
   const location = useLocation();
   const {
