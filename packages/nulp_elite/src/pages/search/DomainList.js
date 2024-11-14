@@ -141,6 +141,8 @@ const DomainList = ({ globalSearchQuery }) => {
       };
 
       if (isCreator) {
+        requestPayload.isCreator = false;
+      }else{
         requestPayload.isCreator = true;
       }
 

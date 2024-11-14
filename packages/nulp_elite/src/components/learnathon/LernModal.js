@@ -98,6 +98,8 @@ const LernModal = () => {
       };
 
       if (isCreator) {
+        requestPayload.isCreator = false;
+      }else{
         requestPayload.isCreator = true;
       }
 
