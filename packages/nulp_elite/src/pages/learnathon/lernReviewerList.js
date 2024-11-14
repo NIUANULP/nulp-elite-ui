@@ -6,22 +6,19 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TablePagination,
   TextField,
   Button,
-  IconButton,
   Typography,
   Box,
-  DialogActions,
   Grid,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
+
 import * as util from "../../services/utilService";
 import SearchIcon from "@mui/icons-material/Search";
 import Paper from "@mui/material/Paper";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Pagination } from "@mui/material";
-import usePreviousLocation from "components/usePreviousLocation";
 
 import Footer from "components/Footer";
 import Header from "components/header";
@@ -33,24 +30,14 @@ const LernReviewList = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
   const [search, setSearch] = useState("");
-  const _userId = util.userId(); // Assuming util.userId() is defined
+  const _userId = util.userId();
   const urlConfig = require("../../configs/urlConfig.json");
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [isSystemAdmin, setIsSystemAdmin] = useState(false);
-  // const [pageNumber, setPageNumber] = useState(1);
-  const previousLocation = usePreviousLocation(); // Get the previous location
   const navigate = useNavigate(); // Navigation hook
 
-  const handleDialogOpen = () => {
-    setDialogOpen(true);
-  };
-
   const routeConfig = require("../../configs/routeConfig.json");
-  // console.log(previousLocation.pathname);
+
   useEffect(() => {
-    // if (previousLocation.pathname == "./webapp/player.js") {
-    //   window.location.reload;
-    // }
     fetchData();
     fetchUserData();
   }, [currentPage, rowsPerPage, search]);
@@ -104,11 +91,6 @@ const LernReviewList = () => {
       const rootOrgId = data.result.response.rootOrgId;
       console.log(" data.result.response -----", data.result.response);
 
-      //   sessionStorage.setItem("rootOrgId", rootOrgId);
-      //   sessionStorage.setItem(
-      //     "userDomain",
-      //     data.result.response.framework.board
-      //   );
       const rolesData = data.result.response.roles;
       const roles = rolesData?.map((roleObject) => roleObject.role);
       setIsSystemAdmin(roles.includes("SYSTEM_ADMINISTRATION"));
