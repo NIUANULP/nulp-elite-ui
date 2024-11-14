@@ -50,7 +50,7 @@ const LernVotingList = () => {
         },
 
         limit: rowsPerPage,
-        offset: 20 * (pageNumber - 1),
+        offset: 10 * (pageNumber - 1),
         search: search,
       },
     };
