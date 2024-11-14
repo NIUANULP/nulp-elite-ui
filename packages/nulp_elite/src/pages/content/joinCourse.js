@@ -543,7 +543,7 @@ const JoinCourse = () => {
 
   const handleLinkClick = (id) => {
     if (isEnroll) {
-      navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${id}`, {
+      navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?${id}`, {
         state: {
           coursename: userData?.result?.content?.name,
           batchid: batchDetails?.batchId,
@@ -1668,7 +1668,7 @@ const JoinCourse = () => {
                       </AccordionSummary>
 
                       <AccordionDetails
-                        style={{ padding: "12px", margin: "-10px 0px" }}
+                        style={{ 'padding': '12px',margin: '-10px 0px'}}
                       >
                         {/* If it's not a content collection, render it like a clickable child */}
                         {faqIndex.mimeType !==
@@ -1699,7 +1699,7 @@ const JoinCourse = () => {
                             <AccordionDetails
                               key={faqIndexname.identifier || faqIndexname.name}
                               className="border-bottom"
-                              style={{ padding: "12px", margin: "-10px 0px" }}
+                              style={{ 'padding': '12px',margin: '-10px 0px'}}
                             >
                               {faqIndexname.children &&
                               faqIndexname.children.length > 0 ? (
@@ -1742,10 +1742,7 @@ const JoinCourse = () => {
                                       <AccordionDetails
                                         key={child.identifier || child.name}
                                         className="border-bottom"
-                                        style={{
-                                          padding: "12px",
-                                          margin: "-10px 0px",
-                                        }}
+                                        style={{ 'padding': '12px',margin: '-10px 0px'}}
                                       >
                                         {child.children &&
                                         child.children.length > 0 ? (
