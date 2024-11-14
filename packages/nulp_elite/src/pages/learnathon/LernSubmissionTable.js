@@ -23,7 +23,6 @@ import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import { Edit, Visibility, Delete } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
-import submissions from "./lernSubmission.json";
 import Paper from "@mui/material/Paper";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Pagination } from "@mui/material";
@@ -103,7 +102,7 @@ const LernSubmissionTable = () => {
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
-    setCurrentPage(0); // Reset to first page on search
+    setCurrentPage(1); // Reset to first page on search
   };
 
   const handleDialogClose = () => {
@@ -279,10 +278,7 @@ const LernSubmissionTable = () => {
         )}
         {emptySubmission && (
           <Box marginLeft={"550px"} padding={"32px"}>
-            <Box>
-              No Submissions yet please submit content
-              {t("NO_SUBMISSION")}
-            </Box>
+            <Box>{t("NO_SUBMISSION")}</Box>
             <Button
               className="viewAll"
               onClick={() =>
@@ -297,7 +293,6 @@ const LernSubmissionTable = () => {
               }}
             >
               {t("UPLAOD_SUBMISSION")}
-              Upload Submission
             </Button>
           </Box>
         )}
@@ -309,10 +304,7 @@ const LernSubmissionTable = () => {
         />
         <Dialog open={dialogOpen} onClose={handleDialogClose}>
           <DialogContent>
-            <Box className="h5-title">
-              {t("CONFIRM_DELETE")}
-              Are you sure you want to delete this submission
-            </Box>
+            <Box className="h5-title">{t("CONFIRM_DELETE")}</Box>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleDialogClose} className="custom-btn-default">

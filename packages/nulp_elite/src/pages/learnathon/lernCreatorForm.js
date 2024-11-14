@@ -859,6 +859,8 @@ const LernCreatorForm = () => {
       formData.status = "review";
       if (!validate()) return;
 
+      console.log("submit-form---", formData);
+
       if (isEdit == false) {
         try {
           const response = await fetch(`${urlConfig.URLS.LEARNATHON.CREATE}`, {
@@ -1655,7 +1657,6 @@ const LernCreatorForm = () => {
 
                     <a href="#" onClick={openTNC}>
                       {t("TNC")}
-                      Accept terms and conditions
                     </a>
 
                     {TNCOpen && (
@@ -1686,7 +1687,6 @@ const LernCreatorForm = () => {
                             gutterBottom
                           >
                             {t("TNC")}
-                            TNC
                           </Typography>
                           <Typography>
                             What is Lorem Ipsum? Lorem Ipsum is simply dummy

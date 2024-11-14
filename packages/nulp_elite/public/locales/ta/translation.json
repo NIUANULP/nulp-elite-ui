@@ -371,7 +371,8 @@
   "CATEGORY": "వర్గం",
   "STATUS": "స్టేటస్",
   "ACTION": "యాక్షన్",
-  "NO_SUBMISSION": "సమర్పణ లేదు",
+
+  "NO_SUBMISSION": "இன்னும் சமர்ப்பிப்புகள் எதுவும் இல்லை தயவுசெய்து உள்ளடக்கத்தைச் சமர்ப்பிக்கவும்",
   "UPLAOD_SUBMISSION": "UPLAOD సమర్పణ",
   "UPLOAD_LEARN_SUBMISSION": "అప్‌లోడ్ తెలుసుకోండి సమర్పణ",
   "SUBMISSION_DETAILS": "సమర్పణ వివరాలు",

@@ -559,6 +559,7 @@ const Player = () => {
       alert("Content Rejected");
 
       navigate(routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST);
+      window.location.reload();
       // setData(result.result.data);
       // setTotalRows(result.result.totalCount);
     } catch (error) {
@@ -680,7 +681,8 @@ const Player = () => {
                         </Button>
                       ))}
 
-                    {isLearnathon ? (
+                    {isLearnathon &&
+                    learnathonDetails.indicative_sub_theme != undefined ? (
                       <Button
                         key={`board`}
                         size="small"
@@ -712,6 +714,22 @@ const Player = () => {
                         </Button>
                       ))
                     )}
+                    {isLearnathon &&
+                    learnathonDetails.other_indicative_themes != undefined ? (
+                      <Button
+                        key={`board`}
+                        size="small"
+                        style={{
+                          color: "#424242",
+                          fontSize: "10px",
+                          margin: "0 10px 3px 6px",
+                          cursor: "auto",
+                        }}
+                        className="bg-blueShade3"
+                      >
+                        {learnathonDetails.other_indicative_themes}
+                      </Button>
+                    ) : null}
 
                     {!isLearnathon &&
                       !lesson.gradeLevel &&
