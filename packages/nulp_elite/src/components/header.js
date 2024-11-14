@@ -78,6 +78,7 @@ function Header({ globalSearchQuery }) {
       const response = await fetch(url);
       const data = await response.json();
       const userID = data.result.data;
+
       console.log(userID);
       const user = userID.find(
         (user) => user.user_id === _userId && user.creator_access === false
@@ -560,7 +561,7 @@ function Header({ globalSearchQuery }) {
               )}
 
               {/* Check if roles array is empty or contains "PUBLIC" */}
-              {accessWorkspace ? null : (
+              {accessWorkspace && (
                 <Link
                   target="_blank"
                   href="/workspace/content/create"
