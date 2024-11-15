@@ -57,7 +57,6 @@ const Player = () => {
   const [propLength, setPropLength] = useState();
   const _userId = util.userId();
   const [isLearnathon, setIsLearnathon] = useState(false);
-  const [isLearnathonContent, setIsLearnathonContent] = useState(false);
   const [alreadyVoted, setAlreadyVoted] = useState(false);
   const [pollId, setPollId] = useState();
   const [learnathonDetails, setLearnathonDetails] = useState();
@@ -338,7 +337,7 @@ const Player = () => {
       navigate("/webapp/lernvotinglist");
       window.location.reload();
     } else if (pageParam == "lern") {
-      navigate("/webapp/lernreviewlist");
+      navigate("/webapp/lernreviewlist", { state: { backPage: "player" } });
       window.location.reload();
     } else if (pageParam == "lernpreview") {
       navigate("/webapp/mylernsubmissions");
@@ -454,7 +453,6 @@ const Player = () => {
       const result = await response.json();
       console.log("suceesss----", result);
       console.log(result.result);
-      alert("Published successfully");
       const currentDateTime = new Date();
       currentDateTime.setMinutes(currentDateTime.getMinutes() + 2);
       const updatedDateTime = currentDateTime.toISOString();
@@ -506,15 +504,17 @@ const Player = () => {
             );
 
             if (!response.ok) {
-              throw new Error("Something went wrong");
+              throw new Error(t("SOMETHING_WENT_WRONG"));
             } else {
             }
 
             const result = await response.json();
             console.log("suceesss");
+            alert("Published successfully");
             handleBackNavigation();
             window.location.reload();
           } catch (error) {
+            throw new Error(t("SOMETHING_WENT_WRONG"));
           } finally {
           }
         } else {
@@ -524,8 +524,8 @@ const Player = () => {
         // setToasterMessage(error.message);
       }
 
-      navigate(routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST);
-      window.location.reload();
+      // navigate(routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST);
+      // window.location.reload();
       // setData(result.result.data);
       // setTotalRows(result.result.totalCount);
     } catch (error) {

@@ -35,7 +35,7 @@ const LernSubmissionTable = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
 
-  const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
   const [search, setSearch] = useState("");
   const _userId = util.userId(); // Assuming util.userId() is defined
