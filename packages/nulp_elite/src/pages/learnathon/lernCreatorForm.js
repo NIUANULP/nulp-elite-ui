@@ -1540,7 +1540,7 @@ const LernCreatorForm = () => {
                         }}
                       >
                         <Button
-                          className="custom-btn-default"
+                          className="cancelBtn"
                           onClick={() => setOpenConfirmModal(false)}
                         >
                           {t("CANCEL")}

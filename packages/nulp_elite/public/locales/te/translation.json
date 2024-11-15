@@ -347,5 +347,12 @@
   "LEARN_SUBMISSION_LIST": "సమర్పణ జాబితాను నేర్చుకోండి",
   "UPLOAD_SUBMISSION": "అప్‌లోడ్ సమర్పణ",
   "NO_SUBMISSION": "ఇంకా సమర్పణలు లేవు దయచేసి కంటెంట్‌ని సమర్పించండి",
-  "UPLAOD_SUBMISSION": "అప్‌లోడ్ సమర్పణ"
+  "UPLAOD_SUBMISSION": "అప్‌లోడ్ సమర్పణ",
+  "LAST_UPDATED": "చివరిగా నవీకరించబడింది",
+  "PARTICIPANT": "పాల్గొనేవాడు",
+  "MOBILE": "మొబైల్",
+  "EMAIL": "ఇమెయిల్",
+  "CATEGORY": "వర్గం",
+  "STATUS": "స్టేటస్",
+  "Action": "యాక్షన్"
 }

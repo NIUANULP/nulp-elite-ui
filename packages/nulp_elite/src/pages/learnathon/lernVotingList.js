@@ -29,7 +29,7 @@ const LernVotingList = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
   const [search, setSearch] = useState("");
   const [pollData, setPollData] = useState([]);

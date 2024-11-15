@@ -2677,6 +2677,19 @@ button {
   cursor: pointer;
 }
 
+.cancelBtn {
+  border-radius: 10px !important;
+  border: solid 1px #004367 !important;
+  font-size: 12px;
+  font-weight: 500 !important;
+  padding: 9px 32px;
+  text-align: center !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  color: #004367 !important;
+  background: #fff !important;
+}
+
 .viewAll:hover {
   background: #057184 !important;
 }

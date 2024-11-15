@@ -368,5 +368,12 @@
   "VOTIGN_DEADLINE": "મતદાનની અંતિમ તારીખ",
   "VIEW_AND_VOTE": "જુઓ અને મત આપો",
   "VOTE_FOR_THIS_CONTENT": "આ સામગ્રી માટે મત આપો",
-  "NO_CONTENT_TO_PLAY": "રમવા માટે કોઈ સામગ્રી ઉપલબ્ધ નથી"
+  "NO_CONTENT_TO_PLAY": "રમવા માટે કોઈ સામગ્રી ઉપલબ્ધ નથી",
+  "LAST_UPDATED": "છેલ્લે અપડેટ કરેલ",
+  "PARTICIPANT": "સહભાગી",
+  "MOBILE": "મોબાઇલ",
+  "EMAIL": "ઇમેઇલ",
+  "CATEGORY": "શ્રેણી",
+  "STATUS": "સ્થિતિ",
+  "ACTION": "ક્રિયા"
 }
