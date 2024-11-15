@@ -246,7 +246,7 @@ const LernSubmissionTable = () => {
                               routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
                               "?id=" +
                               row.learnathon_content_id +
-                              "&page=lern")
+                              "&page=lernpreview")
                           }
                           sx={{ color: "#054753" }}
                           className="table-icon"

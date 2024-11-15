@@ -262,7 +262,11 @@ const Player = () => {
           }
         };
 
-        if (pageParam == "review" || pageParam == "lern") {
+        if (
+          pageParam == "review" ||
+          pageParam == "lern" ||
+          pageParam == "lernpreview"
+        ) {
           setIsLearnathon(true);
 
           const assetBody = {
@@ -335,6 +339,9 @@ const Player = () => {
       window.location.reload();
     } else if (pageParam == "lern") {
       navigate("/webapp/lernreviewlist");
+      window.location.reload();
+    } else if (pageParam == "lernpreview") {
+      navigate("/webapp/mylernsubmissions");
       window.location.reload();
     } else {
       navigate(-1); // Navigate back in history
