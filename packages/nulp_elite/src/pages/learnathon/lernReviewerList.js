@@ -17,13 +17,14 @@ import { useTranslation } from "react-i18next";
 import * as util from "../../services/utilService";
 import SearchIcon from "@mui/icons-material/Search";
 import Paper from "@mui/material/Paper";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { Pagination } from "@mui/material";
-
+import { useNavigate, useLocation } from "react-router-dom";
 import Footer from "components/Footer";
 import Header from "components/header";
 
 const LernReviewList = () => {
+  const location = useLocation();
   const { t } = useTranslation();
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -34,6 +35,9 @@ const LernReviewList = () => {
   const urlConfig = require("../../configs/urlConfig.json");
   const [isSystemAdmin, setIsSystemAdmin] = useState(false);
   const navigate = useNavigate(); // Navigation hook
+  const [backPage, setBackPage] = useState(location.state?.backPage);
+
+  console.log(backPage);
 
   const routeConfig = require("../../configs/routeConfig.json");
 
@@ -42,11 +46,18 @@ const LernReviewList = () => {
     fetchUserData();
   }, [currentPage, rowsPerPage, search]);
 
+  useEffect(() => {
+    if (backPage === "player") {
+      // Clear `location.state.backPage` and reload the page
+      navigate("/webapp/lernreviewlist", { replace: true, state: null });
+      window.location.reload(); // Reload the page only once
+    }
+  }, [backPage, location.pathname, navigate]);
+
   const fetchData = async () => {
     const assetBody = {
       request: {
         filters: {
-          //   created_by: _userId,
           status: "review",
         },
         sort_by: {

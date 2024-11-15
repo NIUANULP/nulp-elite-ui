@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 const urlConfig = require("../configs/urlConfig.json");
+
+import Paper from "@mui/material/Paper";
+
 import {
   Table,
   TableBody,
@@ -7,14 +10,33 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Pagination,
+  TablePagination,
+  TextField,
   Button,
+  IconButton,
+  Typography,
   Box,
+  DialogActions,
+  Grid,
+  Container,
 } from "@mui/material";
-import Paper from "@mui/material/Paper";
 import { useTranslation } from "react-i18next";
+import MenuItem from "@mui/material/MenuItem";
+
+// import * as util from "../services/utilService";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import { Edit, Visibility, Delete } from "@mui/icons-material";
+import SearchIcon from "@mui/icons-material/Search";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Pagination } from "@mui/material";
+
+import Footer from "components/Footer";
+import Header from "components/header";
 const routeConfig = require("../configs/routeConfig.json");
+
 const LearnathonDashboard = () => {
+  const [search, setSearch] = useState("");
   const [data, setData] = useState([]);
   const [totalSubmissions, setTotalSubmissions] = useState(0);
   const [organisationsParticipated, setOrganisationsParticipated] = useState(0);
@@ -23,7 +45,28 @@ const LearnathonDashboard = () => {
   const [statesULBs, setStatesULBs] = useState(0);
   const [industry, setIndustry] = useState(0);
   const [stateCount, setStateCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+  const [theme, setTheme] = useState("");
+  const [state, setState] = useState("");
+  const [status, setStatus] = useState("");
   const { t } = useTranslation();
+
+  const themeOptions = [
+    { value: "theme1", label: "Theme 1" },
+    { value: "theme2", label: "Theme 2" },
+  ];
+
+  const stateOptions = [
+    { value: "state1", label: "State 1" },
+    { value: "state2", label: "State 2" },
+  ];
+
+  const statusOptions = [
+    { value: "active", label: "Active" },
+    { value: "inactive", label: "Inactive" },
+  ];
   useEffect(() => {
     const fetchTotalSubmissions = async () => {
       const assetBody = {
@@ -32,6 +75,12 @@ const LearnathonDashboard = () => {
           sort_by: {
             created_on: "desc",
           },
+          sort_by: {
+            created_on: "desc",
+          },
+          limit: rowsPerPage,
+          offset: 10 * (currentPage - 1),
+          search: search,
         },
       };
       try {
@@ -49,6 +98,8 @@ const LearnathonDashboard = () => {
         console.log("suceesss----", result);
         console.log(result.result);
         setTotalSubmissions(result.result.totalCount);
+        setTotalRows(Math.ceil(result.result.totalCount / 10));
+
         setData(result.result.data);
         const states = result.result.data
           .map((item) => item.state)
@@ -118,7 +169,7 @@ const LearnathonDashboard = () => {
     };
     fetchTotalSubmissions();
     fetchPublishedContent();
-  }, []);
+  }, [currentPage, rowsPerPage, search, theme, state, status]);
   const handleClick = (contentId) => {
     navigate(
       `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${contentId}&page=vote`
@@ -146,8 +197,19 @@ const LearnathonDashboard = () => {
     fontSize: "24px",
     fontWeight: "bold",
   };
+  const handleChange = (event, value) => {
+    if (value !== currentPage) {
+      setCurrentPage(value);
+      fetchTotalSubmissions();
+    }
+  };
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setCurrentPage(1); // Reset to first page on search
+  };
   return (
     <>
+      <Header />
       <div style={dashboardStyle}>
         <h1>Learnathon Dashboard</h1>
         <div style={gridStyle}>
@@ -181,33 +243,160 @@ const LearnathonDashboard = () => {
           </div>
         </div>
       </div>
+
+      <Grid container spacing={2}>
+        <Grid item xs={5}>
+          <Box display="flex" alignItems="center" mb={2}>
+            <TextField
+              variant="outlined"
+              placeholder="Search Submission"
+              value={search}
+              onChange={handleSearchChange}
+              InputProps={{
+                endAdornment: <SearchIcon />,
+              }}
+              size="small"
+              sx={{ background: "#fff" }}
+            />
+          </Box>
+        </Grid>
+        {/* Filter Dropdowns */}
+        <Grid item xs={3}>
+          <Box display="flex" gap={2} alignItems="center">
+            <TextField
+              select
+              variant="outlined"
+              size="small"
+              value={theme}
+              onChange={(e) => setTheme(e.target.value)}
+              sx={{ background: "#fff", minWidth: "100px" }}
+            >
+              {themeOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </TextField>
+
+            <TextField
+              select
+              variant="outlined"
+              size="small"
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              sx={{ background: "#fff", minWidth: "100px" }}
+            >
+              {stateOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </TextField>
+
+            <TextField
+              select
+              variant="outlined"
+              size="small"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              sx={{ background: "#fff", minWidth: "100px" }}
+            >
+              {statusOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
+        </Grid>
+
+        <Grid item xs={2}>
+          <Button
+            className="viewAll"
+            onClick={() => exportTable()}
+            sx={{ padding: "7px 45px", borderRadius: "90px !important" }}
+          >
+            {t("EXPORT_TABLE")}
+          </Button>
+        </Grid>
+      </Grid>
+
       <TableContainer component={Paper}>
         <Table aria-label="simple table">
           <TableHead sx={{ background: "#D8F6FF" }}>
             <TableRow>
               <TableCell>{t("SUBMISSION_NAME")}</TableCell>
-              <TableCell>{t("VOTING_DEADLINE")}</TableCell>
-              <TableCell>{t("VOTE_COUNT")}</TableCell>
-              <TableCell>{t("VOTE_NOW")}</TableCell>
+              <TableCell>{t("THEME")}</TableCell>
+              <TableCell>{t("SUBTHEME")}</TableCell>
+              <TableCell>{t("STATE")}</TableCell>
+              <TableCell>{t("CITY")}</TableCell>
+              <TableCell>{t("ORGANISATION")}</TableCell>
+              <TableCell>{t("SUBMISSION_DATE")}</TableCell>
+              <TableCell>{t("STATUS")}</TableCell>
+              <TableCell>{t("VIEW")}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {data.map((row) => (
               <TableRow key={row.id}>
                 <TableCell>{row.title_of_submission}</TableCell>
-                <TableCell>{row.name_of_organisation}</TableCell>
                 <TableCell>{row.indicative_theme}</TableCell>
                 <TableCell>{row.indicative_sub_theme}</TableCell>
+                <TableCell>{row.state}</TableCell>
+                <TableCell>{row.city}</TableCell>
+                <TableCell>{row.name_of_organisation}</TableCell>
+                <TableCell>
+                  {row.updated_on ? row.updated_on : row.created_on}
+                </TableCell>
+                <TableCell>{row.status}</TableCell>
+                <TableCell>
+                  {row.poll_id && row.poll_id != null ? (
+                    <IconButton
+                      color="primary"
+                      onClick={() =>
+                        (window.location.href =
+                          routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
+                          "?id=" +
+                          row.learnathon_content_id +
+                          "&page=vote")
+                      }
+                      sx={{ color: "#054753" }}
+                      className="table-icon"
+                    >
+                      <Visibility />
+                    </IconButton>
+                  ) : (
+                    <IconButton
+                      color="primary"
+                      onClick={() =>
+                        (window.location.href =
+                          routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
+                          "?id=" +
+                          row.learnathon_content_id +
+                          "&page=lernpreview")
+                      }
+                      sx={{ color: "#054753" }}
+                      className="table-icon"
+                    >
+                      <Visibility />
+                    </IconButton>
+                  )}
+                </TableCell>
+                {/* <TableCell>{row.indicative_sub_theme}</TableCell>
+                <TableCell>{row.name_of_organisation}</TableCell>
+                <TableCell>{row.indicative_theme}</TableCell>
+                <TableCell>{row.indicative_sub_theme}</TableCell> */}
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-      {/* <Pagination
-          count={27}
-          page={pageNumber}
-          onChange={handleChange}
-        /> */}
+      <Pagination
+        count={totalRows}
+        page={currentPage}
+        onChange={handleChange}
+      />
+      <Footer />
     </>
   );
 };
