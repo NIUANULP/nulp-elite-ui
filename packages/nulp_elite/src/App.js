@@ -34,17 +34,17 @@ import createForm from "pages/voting/createForm";
 import VotingDetails from "pages/voting/votingDetails";
 import votingDashboard from "pages/voting/votingDashboard";
 import pollsDetails from "pages/voting/pollsDetails";
-import LernCreatorForm from "pages/learnathon/lernCreatorForm";
+// import LernCreatorForm from "pages/learnathon/lernCreatorForm";
 const urlConfig = require("./configs/urlConfig.json");
 const routeConfig = require("./configs/routeConfig.json");
 import PopupForm from "pages/profileData";
 import axios from "axios";
 import ReactGA from "react-ga4";
-import LernModal from "components/learnathon/LernModal";
-import LernSubmissionTable from "pages/learnathon/LernSubmissionTable";
-import LernVotingList from "pages/learnathon/lernVotingList";
-import LernReviewList from "pages/learnathon/lernReviewerList";
-import LearnathonDashboard from "pages/LearnathonDashboard";
+// import LernModal from "components/learnathon/LernModal";
+// import LernSubmissionTable from "pages/learnathon/LernSubmissionTable";
+// import LernVotingList from "pages/learnathon/lernVotingList";
+// import LernReviewList from "pages/learnathon/lernReviewerList";
+// import LearnathonDashboard from "pages/LearnathonDashboard";
 
 function App() {
   // const [t] = useTranslation();
@@ -210,32 +210,32 @@ function App() {
       path: routeConfig.ROUTES.POLL.POLLS_VIEW_ALL,
       component: pollsDetails,
     },
-    {
-      moduleName: "nulp_elite",
-      path: routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT,
-      component: LernCreatorForm,
-    },
-    {
-      moduleName: "nulp_elite",
-      path: routeConfig.ROUTES.LEARNATHON.MYLERNSUBMISSION,
-      component: LernSubmissionTable,
-    },
-    {
-      moduleName: "nulp_elite",
-      path: routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
-      component: LernVotingList,
-    },
-    ,
-    {
-      moduleName: "nulp_elite",
-      path: routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
-      component: LernReviewList,
-    },
-    {
-      moduleName: "nulp_elite",
-      path: routeConfig.ROUTES.LEARNATHON.DASHBOARD,
-      component: LearnathonDashboard,
-    },
+    // {
+    //   moduleName: "nulp_elite",
+    //   path: routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT,
+    //   component: LernCreatorForm,
+    // },
+    // {
+    //   moduleName: "nulp_elite",
+    //   path: routeConfig.ROUTES.LEARNATHON.MYLERNSUBMISSION,
+    //   component: LernSubmissionTable,
+    // },
+    // {
+    //   moduleName: "nulp_elite",
+    //   path: routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
+    //   component: LernVotingList,
+    // },
+    // ,
+    // {
+    //   moduleName: "nulp_elite",
+    //   path: routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
+    //   component: LernReviewList,
+    // },
+    // {
+    //   moduleName: "nulp_elite",
+    //   path: routeConfig.ROUTES.LEARNATHON.DASHBOARD,
+    //   component: LearnathonDashboard,
+    // },
   ];
 
   initializeI18n(
@@ -343,7 +343,7 @@ function App() {
             ))}
           </Routes>
 
-          <LernModal />
+         // <LernModal />
         </Router>
       </React.Suspense>
       {/* </ChakraProvider> */}
