@@ -80,10 +80,14 @@ function Header({ globalSearchQuery }) {
       const userID = data.result.data;
 
       console.log(userID);
+      const oldCreator = userID.find(
+        (user) => user.user_id === _userId && user.creator_access === false
+      );
       const user = userID.find(
         (user) => user.user_id === _userId && user.creator_access === false
       );
       console.log(user);
+      console.log(roles);
       if (
         (roles.includes("COURSE_MENTOR") ||
           roles.includes("SYSTEM_ADMINISTRATION") ||
@@ -919,10 +923,7 @@ function Header({ globalSearchQuery }) {
                     </Link>
                   )}
 
-                  {/* Check if roles array is empty or contains "PUBLIC" */}
-                  {(roleNames && roleNames?.length === 0) ||
-                  (roleNames.length === 1 &&
-                    roleNames.includes("PUBLIC")) ? null : (
+                  {accessWorkspace && (
                     <Link
                       target="_blank"
                       href="/workspace/content/create"
