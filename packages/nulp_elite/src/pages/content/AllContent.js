@@ -121,7 +121,11 @@ const AllContent = () => {
         filters: {
           board: [domainName],
           primaryCategory: [
-            "course", "Manuals/SOPs", "Good Practices", "Reports", "Manual/SOPs"
+            "course",
+            "Manuals/SOPs",
+            "Good Practices",
+            "Reports",
+            "Manual/SOPs",
           ],
           // visibility: ["Default", "Parent"],   Commentent because not showing contents on prod
         },
@@ -162,9 +166,13 @@ const AllContent = () => {
 
       const filteredAndSortedData = response?.data?.result?.content
         ?.filter((item) =>
-          ["Manuals/SOPs", "Manual/SOPs", "Good Practices", "Reports", "Course"].includes(
-            item.primaryCategory
-          )
+          [
+            "Manuals/SOPs",
+            "Manual/SOPs",
+            "Good Practices",
+            "Reports",
+            "Course",
+          ].includes(item.primaryCategory)
         )
         .sort((a, b) => {
           if (
@@ -185,8 +193,7 @@ const AllContent = () => {
       setData(filteredAndSortedData);
     } catch (error) {
       showErrorMessage(t("FAILED_TO_FETCH_DATA"));
-    }
-    finally {
+    } finally {
       setIsLoading(false);
     }
   };
@@ -275,8 +282,8 @@ const AllContent = () => {
   };
 
   const clearDomain = () => {
-    setDomainName(null)
-  }
+    setDomainName(null);
+  };
 
   const pushData = (term) => {
     setItemsArray((prevData) => [...prevData, term]);
@@ -299,180 +306,185 @@ const AllContent = () => {
         `${routeConfig.ROUTES.JOIN_COURSE_PAGE.JOIN_COURSE}?${item.identifier}`
       );
     } else {
-      navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?${item.identifier}`);
+      navigate(
+        `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${item.identifier}`
+      );
     }
   };
 
   return (
     <>
-    <Box>
-      <Header />
-      {toasterMessage && <ToasterCommon response={toasterMessage} />}
+      <Box>
+        <Header />
+        {toasterMessage && <ToasterCommon response={toasterMessage} />}
 
-     <Box
-     >
-     {domain ? (
-        <DomainCarousel onSelectDomain={handleDomainFilter} domains={domain} />
-      ) : (
-        <SkeletonLoader />
-      )}
+        <Box>
+          {domain ? (
+            <DomainCarousel
+              onSelectDomain={handleDomainFilter}
+              domains={domain}
+            />
+          ) : (
+            <SkeletonLoader />
+          )}
 
-      <Container
-        maxWidth="xl"
-        className="pb-30 allContent xs-pb-80 all-card-list mt-180"
-      >
-        {domainName && (
-          <Box
-            className="d-flex my-20 px-10"
-            style={{ alignItems: "center",justifyContent:'space-between' }}
+          <Container
+            maxWidth="xl"
+            className="pb-30 allContent xs-pb-80 all-card-list mt-180"
           >
-            <Box
-              sx={{ marginTop: "10px", alignItems: "center" }}
-              className="d-flex xs-d-none"
-            >
-              <Box className="h3-custom-title">
-                {t("YOU_ARE_VIEWING_CONTENTS_FOR")}
-              </Box>
-              <Box className="remove-box">
+            {domainName && (
+              <Box
+                className="d-flex my-20 px-10"
+                style={{
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
                 <Box
-                  sx={{ fontWeight: "600", paddingLeft: "5px" }}
-                  className="text-blueShade2 h4-custom"
+                  sx={{ marginTop: "10px", alignItems: "center" }}
+                  className="d-flex xs-d-none"
                 >
-                  {domainName}
-                </Box>
-                <Box
-                  sx={{
-                    fontSize: "16px",
-                    fontWeight: "600",
-                    color: "#0e7a9c",
-                    paddingLeft: "10px",
-                    cursor: "pointer"
-                  }}
-                  onClick={clearDomain}
-                >
-                  &#x2716;
-                </Box>
-              </Box>
-            </Box>
-          </Box>
-        )}
-        {isLoading ? (
-          <Loading message={t("LOADING")} />
-        ) : error ? (
-          <Alert severity="error" className="my-10">
-            {error}
-          </Alert>
-        ) : data?.length > 0 ? (
-          Object.entries(
-            data.reduce((acc, item) => {
-              if (!acc[item.primaryCategory]) {
-                acc[item.primaryCategory] = [];
-              }
-              acc[item.primaryCategory].push(item);
-              return acc;
-            }, {})
-          ).map(([category, items]) => {
-            const IconComponent =
-              iconMapping[category] || SummarizeOutlinedIcon;
-            return (
-              <React.Fragment key={category}>
-                <Box
-                  className="d-flex"
-                  style={{
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <Box
-                    style={{
-                      display: "inline-block",
-                      margin: "15px 0px 20px",
-                    }}
-                    className="h4-title"
-                  >
-                    <IconComponent style={{ verticalAlign: "top" }} />{" "}
+                  <Box className="h3-custom-title">
+                    {t("YOU_ARE_VIEWING_CONTENTS_FOR")}
+                  </Box>
+                  <Box className="remove-box">
                     <Box
-                      style={{
-                        display: "inline-block",
-                      }}
-                      className="h3-title"
+                      sx={{ fontWeight: "600", paddingLeft: "5px" }}
+                      className="text-blueShade2 h4-custom"
                     >
-                      {category === "Course" ? "Courses" : category}
-                    </Box>{" "}
-                  </Box>
-                  <Box>
-                    {items?.length > 4 && (
-                      <Link
-                        to={`${routeConfig.ROUTES.VIEW_ALL_PAGE.VIEW_ALL}?${category}?${domainName}`}
-                        className="viewAll mr-22"
-                      >
-                        {t("VIEW_ALL")}{" "}
-                        {category === "Course" ? "Courses" : category}
-                      </Link>
-                    )}
+                      {domainName}
+                    </Box>
+                    <Box
+                      sx={{
+                        fontSize: "16px",
+                        fontWeight: "600",
+                        color: "#0e7a9c",
+                        paddingLeft: "10px",
+                        cursor: "pointer",
+                      }}
+                      onClick={clearDomain}
+                    >
+                      &#x2716;
+                    </Box>
                   </Box>
                 </Box>
-                {isMobile ? (
-                  <Carousel
-                    swipeable={true}
-                    draggable={true}
-                    showDots="3"
-                    responsive={responsiveCard}
-                    ssr={true}
-                    infinite={true}
-                    autoPlaySpeed={1000}
-                    keyBoardControl={true}
-                    customTransition="all .5"
-                    transitionDuration={500}
-                    containerClass="carousel-container"
-                    removeArrowOnDeviceType={["tablet", "mobile"]}
-                    dotListClass="custom-dot-list"
-                    itemClass="carousel-item-padding-40-px allContentList xs-pb-20"
-                  >
-                    {expandedCategory === category
-                      ? items?.map((item) => (
-                        <Grid item xs={12} md={6} lg={2} key={item.id}>
-                          <BoxCard
-                            items={item}
-                            onClick={() =>
-                              handleCardClick(item, item.primaryCategory)
-                            }
-                          ></BoxCard>
-                        </Grid>
-                      ))
-                      : items?.slice(0, 4).map((item) => (
-                        <Grid item xs={12} md={6} lg={2} key={item.id}>
-                          <BoxCard
-                            items={item}
-                            onClick={() =>
-                              handleCardClick(item, item.primaryCategory)
-                            }
-                          ></BoxCard>
-                        </Grid>
-                      ))}
-                  </Carousel>
-                ) : (
-                  <>
-                    <Box className="custom-card">
-                      {expandedCategory === category
-                        ? renderItems(items, category)
-                        : renderItems(items.slice(0, 5), category)}
+              </Box>
+            )}
+            {isLoading ? (
+              <Loading message={t("LOADING")} />
+            ) : error ? (
+              <Alert severity="error" className="my-10">
+                {error}
+              </Alert>
+            ) : data?.length > 0 ? (
+              Object.entries(
+                data.reduce((acc, item) => {
+                  if (!acc[item.primaryCategory]) {
+                    acc[item.primaryCategory] = [];
+                  }
+                  acc[item.primaryCategory].push(item);
+                  return acc;
+                }, {})
+              ).map(([category, items]) => {
+                const IconComponent =
+                  iconMapping[category] || SummarizeOutlinedIcon;
+                return (
+                  <React.Fragment key={category}>
+                    <Box
+                      className="d-flex"
+                      style={{
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Box
+                        style={{
+                          display: "inline-block",
+                          margin: "15px 0px 20px",
+                        }}
+                        className="h4-title"
+                      >
+                        <IconComponent style={{ verticalAlign: "top" }} />{" "}
+                        <Box
+                          style={{
+                            display: "inline-block",
+                          }}
+                          className="h3-title"
+                        >
+                          {category === "Course" ? "Courses" : category}
+                        </Box>{" "}
+                      </Box>
+                      <Box>
+                        {items?.length > 4 && (
+                          <Link
+                            to={`${routeConfig.ROUTES.VIEW_ALL_PAGE.VIEW_ALL}?${category}?${domainName}`}
+                            className="viewAll mr-22"
+                          >
+                            {t("VIEW_ALL")}{" "}
+                            {category === "Course" ? "Courses" : category}
+                          </Link>
+                        )}
+                      </Box>
                     </Box>
-                  </>
-                )}
-              </React.Fragment>
-            );
-          })
-        ) : (
-          <NoResult />
-        )}
-
-      </Container>
-      <FloatingChatIcon />
-     </Box>
-      <Footer />
+                    {isMobile ? (
+                      <Carousel
+                        swipeable={true}
+                        draggable={true}
+                        showDots="3"
+                        responsive={responsiveCard}
+                        ssr={true}
+                        infinite={true}
+                        autoPlaySpeed={1000}
+                        keyBoardControl={true}
+                        customTransition="all .5"
+                        transitionDuration={500}
+                        containerClass="carousel-container"
+                        removeArrowOnDeviceType={["tablet", "mobile"]}
+                        dotListClass="custom-dot-list"
+                        itemClass="carousel-item-padding-40-px allContentList xs-pb-20"
+                      >
+                        {expandedCategory === category
+                          ? items?.map((item) => (
+                              <Grid item xs={12} md={6} lg={2} key={item.id}>
+                                <BoxCard
+                                  items={item}
+                                  onClick={() =>
+                                    handleCardClick(item, item.primaryCategory)
+                                  }
+                                ></BoxCard>
+                              </Grid>
+                            ))
+                          : items?.slice(0, 4).map((item) => (
+                              <Grid item xs={12} md={6} lg={2} key={item.id}>
+                                <BoxCard
+                                  items={item}
+                                  onClick={() =>
+                                    handleCardClick(item, item.primaryCategory)
+                                  }
+                                ></BoxCard>
+                              </Grid>
+                            ))}
+                      </Carousel>
+                    ) : (
+                      <>
+                        <Box className="custom-card">
+                          {expandedCategory === category
+                            ? renderItems(items, category)
+                            : renderItems(items.slice(0, 5), category)}
+                        </Box>
+                      </>
+                    )}
+                  </React.Fragment>
+                );
+              })
+            ) : (
+              <NoResult />
+            )}
+          </Container>
+          <FloatingChatIcon />
+        </Box>
+        <Footer />
       </Box>
-     
     </>
   );
 };

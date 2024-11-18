@@ -3,16 +3,16 @@ import {
   TextField,
   Button,
   MenuItem,
-  Checkbox,
   FormControlLabel,
-  Tooltip,
-  IconButton,
   Typography,
   Box,
   Grid,
-  Paper,
-  Divider,
+  Modal,
+  Autocomplete,
+  Radio,
+  RadioGroup,
 } from "@mui/material";
+
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import Footer from "components/Footer";
 import Header from "components/header";
@@ -22,12 +22,20 @@ import { v4 as uuidv4 } from "uuid";
 import { useNavigate, useLocation } from "react-router-dom";
 import Container from "@mui/material/Container";
 import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
-import Alert from "@mui/material/Alert";
+import acdemiaguideline from "../../assets/academia-guidelines.pdf";
+import stateguideline from "../../assets/state-guidelines.pdf";
+import industryguideline from "../../assets/industry-guidelines.pdf";
+import industrytnc from "../../assets/industry-tnc.pdf";
+import acdemiatnc from "../../assets/academia-tnc.pdf";
+import statetnc from "../../assets/state-tnc.pdf";
+import Loader from "components/Loader";
 
-// const [globalSearchQuery, setGlobalSearchQuery] = useState();
-// // location.state?.globalSearchQuery || undefined
-// const [searchQuery, setSearchQuery] = useState(globalSearchQuery || "");
+import Alert from "@mui/material/Alert";
+const routeConfig = require("../../configs/routeConfig.json");
+
+import { Observable } from "rxjs";
+
+import { useTranslation } from "react-i18next";
 
 const categories = [
   "State / UT / SPVs / ULBs / Any Other",
@@ -47,7 +55,68 @@ const themes = [
   "Governance and Urban Management",
   "Miscellaneous/ Others",
 ];
+const IndianStates = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  "Delhi",
+  "Jammu and Kashmir",
+];
 
+// List of some popular cities in India
+const citiesInIndia = [
+  "Mumbai",
+  "Delhi",
+  "Bangalore",
+  "Hyderabad",
+  "Ahmedabad",
+  "Chennai",
+  "Kolkata",
+  "Pune",
+  "Jaipur",
+  "Surat",
+  "Lucknow",
+  "Kanpur",
+  "Nagpur",
+  "Visakhapatnam",
+  "Bhopal",
+  "Patna",
+  "Ludhiana",
+  "Agra",
+  "Nashik",
+  "Faridabad",
+  "Meerut",
+  "Rajkot",
+  "Kalyan-Dombivli",
+  "Vasai-Virar",
+  "Varanasi",
+  // Add more cities as needed
+];
 const LernCreatorForm = () => {
   const _userId = util.userId(); // Assuming util.userId() is defined
   const [isEdit, setIsEdit] = useState(false);
@@ -55,6 +124,32 @@ const LernCreatorForm = () => {
   const [userInfo, setUserInfo] = useState();
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
+  const [openPersonalForm, setOpenPersonalForm] = useState(false);
+  const [openConfirmModal, setOpenConfirmModal] = useState(false);
+  const [indicativeThemes, setIndicativeThemes] = useState([]);
+  const [indicativeSubThemes, setIndicativeSubThemes] = useState([]);
+  const { t } = useTranslation();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [uploadType, setUploadType] = useState("file");
+  const [previewPlayerPage, setPreviewPlayerPage] = useState();
+  const [iconPreviewPage, setIconPreviewPage] = useState();
+  const [youtubeUrl, setyoutubeURL] = useState();
+  const [preIndicativeTheme, setPreIndicativeThemes] = useState();
+  const [TNCOpen, setTNCOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleUploadTypeChange = (event) => {
+    console.log(event.target.value);
+    setUploadType(event.target.value);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const filteredStates = IndianStates.filter((state) =>
+    state.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const [formData, setFormData] = useState({
     user_name: "",
@@ -66,6 +161,9 @@ const LernCreatorForm = () => {
     name_of_department_group: "",
     indicative_theme: "",
     other_indicative_themes: "",
+    indicative_sub_theme: "",
+    state: "",
+    city: "",
     title_of_submission: "",
     description: "",
     content_id: null,
@@ -76,6 +174,7 @@ const LernCreatorForm = () => {
     // "link_to_guidelines": "https://demo.com/guideline",
   });
   const [guidelineLink, setGuidelineLink] = useState("");
+  const [TNCLink, setTNCLink] = useState("");
   const location = useLocation();
   const queryString = location.search;
   let contentId = queryString.startsWith("?do_")
@@ -107,14 +206,21 @@ const LernCreatorForm = () => {
         });
 
         if (!response.ok) {
-          throw new Error("Failed to fetch polls");
+          throw new Error("Something went wrong");
         }
 
         const result = await response.json();
+        setPreviewPlayerPage(result.result.data[0].content_id);
+        setIconPreviewPage(result.result.data[0].icon);
+        // fetchIconData(result.result.data[0].icon);
+        fetchContentData(result.result.data[0].content_id);
         setIsEdit(true);
         const readResponse = result.result.data[0];
         if (result.result.data[0].status != "draft") {
           setIsNotDraft(true);
+        }
+        if (readResponse.indicative_theme) {
+          setPreIndicativeThemes(readResponse.indicative_theme);
         }
         // Update formData with the response data
         setFormData((prevFormData) => ({
@@ -129,6 +235,9 @@ const LernCreatorForm = () => {
           name_of_department_group: readResponse.name_of_department_group || "",
           indicative_theme: readResponse.indicative_theme || "",
           other_indicative_themes: readResponse.other_indicative_themes || "",
+          indicative_sub_theme: readResponse.indicative_sub_theme || "",
+          state: readResponse.state || "",
+          city: readResponse.city || "",
           title_of_submission: readResponse.title_of_submission || "",
           description: readResponse.description || "",
           content_id: readResponse.content_id || null,
@@ -140,13 +249,46 @@ const LernCreatorForm = () => {
         }));
       } catch (error) {
         console.log("error---", error);
-        // setError(error.message);
       } finally {
-        // setIsLoading(false);
       }
     }
   };
-
+  // const fetchIconData = async (icon) => {
+  //   try {
+  //     const response = await fetch(
+  //       `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CONTENT.GET}/${content_Id}?fields=transcripts,ageGroup,appIcon,artifactUrl,attributions,attributions,audience,author,badgeAssertions,board,body,channel,code,concepts,contentCredits,contentType,contributors,copyright,copyrightYear,createdBy,createdOn,creator,creators,description,displayScore,domain,editorState,flagReasons,flaggedBy,flags,framework,gradeLevel,identifier,itemSetPreviewUrl,keywords,language,languageCode,lastUpdatedOn,license,mediaType,medium,mimeType,name,originData,osId,owner,pkgVersion,publisher,questions,resourceType,scoreDisplayConfig,status,streamingUrl,subject,template,templateId,totalQuestions,totalScore,versionKey,visibility,year,primaryCategory,additionalCategories,interceptionPoints,interceptionType&orgdetails=orgName,email&licenseDetails=name,description,url`,
+  //       {
+  //         headers: { "Content-Type": "application/json" },
+  //       }
+  //     );
+  //     if (!response.ok) throw new Error("Failed to fetch course data");
+  //     const data = await response.json();
+  //     console.log("uploadedeeee content -------", data.result.content);
+  //   } catch (error) {
+  //     console.error("Error fetching course data:", error);
+  //   }
+  // };
+  const fetchContentData = async (content_Id) => {
+    try {
+      const response = await fetch(
+        `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CONTENT.GET}/${content_Id}?fields=transcripts,ageGroup,appIcon,artifactUrl,attributions,attributions,audience,author,badgeAssertions,board,body,channel,code,concepts,contentCredits,contentType,contributors,copyright,copyrightYear,createdBy,createdOn,creator,creators,description,displayScore,domain,editorState,flagReasons,flaggedBy,flags,framework,gradeLevel,identifier,itemSetPreviewUrl,keywords,language,languageCode,lastUpdatedOn,license,mediaType,medium,mimeType,name,originData,osId,owner,pkgVersion,publisher,questions,resourceType,scoreDisplayConfig,status,streamingUrl,subject,template,templateId,totalQuestions,totalScore,versionKey,visibility,year,primaryCategory,additionalCategories,interceptionPoints,interceptionType&orgdetails=orgName,email&licenseDetails=name,description,url`,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (!response.ok) throw new Error("Failed to fetch course data");
+      const data = await response.json();
+      console.log("content readddd-----", data.result.content);
+    } catch (error) {
+      console.error("Error fetching course data:", error);
+    }
+  };
+  const handleCityChange = (event, newValue) => {
+    setFormData({
+      ...formData,
+      city: newValue || event.target.value,
+    });
+  };
   const validate = () => {
     let tempErrors = {};
 
@@ -167,7 +309,15 @@ const LernCreatorForm = () => {
       tempErrors.name_of_organisation = "Name of Organisation is required";
     if (!formData.indicative_theme)
       tempErrors.indicative_theme = "Indicative Theme is required";
-    // if (!formData.other_indicative_theme) tempErrors.other_indicative_theme = "Indicative Theme is required";
+    if (
+      formData.indicative_theme == "Miscellaneous/ Others" &&
+      !formData.other_indicative_themes
+    )
+      tempErrors.other_indicative_themes = "Provide other indicative theme";
+
+    // if (!formData.state) tempErrors.state = "Provide state";
+
+    // if (!formData.city) tempErrors.city = "Provide city";
     if (!formData.title_of_submission)
       tempErrors.title_of_submission = "Title of Submission is required";
     if (!formData.description)
@@ -176,7 +326,13 @@ const LernCreatorForm = () => {
     if (!formData.consent_checkbox)
       tempErrors.consent_checkbox = "You must accept the terms and conditions";
 
+    if (!formData.consent_checkbox) {
+      alert("You must accept the terms and conditions.");
+      return;
+    }
+
     setErrors(tempErrors);
+    console.log(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
 
@@ -186,6 +342,7 @@ const LernCreatorForm = () => {
 
       const response = await fetch(url);
       const data = await response.json();
+      console.log("userInfo---", data.result.response);
       setUserInfo(data.result.response);
     } catch (error) {
       console.error("Error while getting user data:", error);
@@ -201,8 +358,41 @@ const LernCreatorForm = () => {
     setErrors({ ...errors, [name]: "" });
   };
 
+  const handleThemeChange = (e) => {
+    const { name, value } = e.target;
+    const selectedBoard = e.target.value;
+    console.log(selectedBoard, "selectedBoard");
+    const selectedIndex = indicativeThemes.findIndex(
+      (category) => category.name === selectedBoard
+    );
+    if (selectedIndex !== -1) {
+      setIndicativeSubThemes(
+        indicativeThemes[selectedIndex]?.associations || []
+      );
+    } else {
+      setIndicativeSubThemes([]);
+    }
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+    setErrors({ ...errors, [name]: "" });
+  };
+
+  const handlesubthemeChange = (e) => {
+    const { name, value } = e.target;
+    const selectedsubBoard = e.target.value;
+    console.log(selectedsubBoard, "selectedsubBoard");
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+    setErrors({ ...errors, [name]: "" });
+  };
+
   const handleIconChange = async (e) => {
     reader.readAsDataURL(e.target.files[0]);
+    const mimeType = e.target.files[0].type;
     const _uuid = uuidv4();
     const assetBody = {
       request: {
@@ -210,7 +400,9 @@ const LernCreatorForm = () => {
           primaryCategory: "asset",
           language: ["English"],
           code: _uuid,
-          name: e.target.files[0].name,
+          name: formData.title_of_submission
+            ? formData.title_of_submission
+            : "Untitled Content",
           mediaType: "image",
           mimeType: "image/png",
           createdBy: _userId,
@@ -228,145 +420,338 @@ const LernCreatorForm = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch polls");
+        throw new Error("Something went wrong");
       }
 
       const result = await response.json();
-      console.log("suceesss----", result);
 
-      const uploadBody = {
+      const uploadUrlBody = {
         request: {
           content: {
             fileName: e.target.files[0].name,
           },
         },
       };
+
       try {
         const response = await fetch(
-          `${urlConfig.URLS.ICON.UPLOAD}/${result.result.identifier}`,
+          `${urlConfig.URLS.ICON.UPLOADIMG}/${result.result.identifier}`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(uploadBody),
+            body: JSON.stringify(uploadUrlBody),
           }
         );
 
         if (!response.ok) {
-          throw new Error("Failed to fetch polls");
+          throw new Error("Something went wrong");
         }
 
         const uploadResult = await response.json();
-        console.log("upload suceesss------", uploadResult);
-        setFormData({
-          ...formData,
-          icon: uploadResult.result.identifier,
-        });
-        setErrors({ ...errors, icon: "" });
+        const uploadBody = new FormData();
+        uploadBody.append("file", e.target.files[0]);
+        uploadBody.append("mimeType", "image/png");
 
-        // setData(result.result.data);
-        // setTotalPages(Math.ceil(result.result.totalCount / 10));
+        try {
+          const response = await fetch(
+            `${urlConfig.URLS.ICON.UPLOAD}${result.result.identifier}?enctype=multipart/form-data&processData=false&contentType=false&cache=false`,
+            {
+              method: "POST",
+              body: uploadBody,
+            }
+          );
+          if (!response.ok) {
+            alert("Something went wrong while uploading Image");
+            throw new Error("Something went wrong");
+          }
+
+          const uploadResult = await response.json();
+          console.log(uploadResult.result.artifactUrl);
+          setFormData({
+            ...formData,
+            icon: uploadResult.result.artifactUrl,
+          });
+
+          setErrors({ ...errors, icon: "" });
+        } catch (error) {
+          console.log("error---", error);
+        } finally {
+        }
+
+        setErrors({ ...errors, icon: "" });
       } catch (error) {
         console.log("error---", error);
-        // setError(error.message);
       } finally {
-        // setIsLoading(false);
       }
     } catch (error) {
       console.log("error---", error);
       // setError(error.message);
     } finally {
-      // setIsLoading(false);
     }
+    // setFormData({
+    //   ...formData,
+    //   icon: "https://devnewnulp.blob.core.windows.net/contents/content/do_1141731824771481601676/artifact/do_1141731824771481601676_1730124815972_samplejpgimage_2mbmb.jpg",
+    // });
   };
-  const handleFileChange = async (e) => {
-    console.log("e.target.files[0]----", e.target.files[0]);
-    const _uuid = uuidv4();
-    const assetBody = {
-      request: {
-        content: {
-          primaryCategory: "Good Practices",
-          contentType: "Resource",
-          language: ["English"],
-          code: _uuid,
-          name: e.target.files[0].name,
-          mediaType: "image",
-          mimeType: e.target.files[0].type,
-          createdBy: _userId,
-          organisation: [userInfo.rootOrg.channel],
-          createdFor: [userInfo.rootOrg.id],
-        },
-      },
-    };
-    try {
-      const response = await fetch(`${urlConfig.URLS.ASSET.CREATE}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(assetBody),
-      });
+  const handleFileChange = async (e, type) => {
+    if (type == "file") {
+      // let mimeType;
+      // if (e.target.files[0].type == "application/zip") {
+      //   mimeType = "application/vnd.ekstep.html-archive";
+      // } else {
+      //    mimeType = e.target.files[0].type;
+      // }
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch polls");
-      }
-
-      const result = await response.json();
-      console.log("suceesss----", result);
-
-      const uploadBody = {
+      const _uuid = uuidv4();
+      const assetBody = {
         request: {
           content: {
-            fileName: formData.title_of_submission,
+            primaryCategory: "Good Practices",
+            contentType: "Resource",
+            language: ["English"],
+            code: _uuid,
+            name: formData.title_of_submission
+              ? formData.title_of_submission
+              : "Untitled Content",
+            framework: "nulp-learn",
+            mimeType:
+              e.target.files[0].type == "application/zip"
+                ? "application/vnd.ekstep.html-archive"
+                : e.target.files[0].type,
+            // mimeType: mimeType,
+            createdBy: _userId,
+            organisation: [userInfo.rootOrg.channel],
+            createdFor: [userInfo.rootOrg.id],
           },
         },
       };
+      console.log("assetBody-----", assetBody);
       try {
-        const response = await fetch(
-          `${urlConfig.URLS.ASSET.UPLOAD}/${result.result.identifier}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(uploadBody),
-          }
-        );
+        setLoading(true);
+        const response = await fetch(`${urlConfig.URLS.ASSET.CREATE}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(assetBody),
+        });
 
         if (!response.ok) {
-          throw new Error("Failed to fetch polls");
+          throw new Error("Something went wrong");
         }
 
-        const uploadResult = await response.json();
-        console.log("upload suceesss------", uploadResult);
-        setFormData({
-          ...formData,
-          content_id: uploadResult.result.identifier,
-        });
-        setErrors({ ...errors, content_id: "" });
+        const result = await response.json();
+        console.log("suceesss----", result);
+        const imgId = result.result.identifier;
+        const uploadBody = {
+          request: {
+            content: {
+              fileName: e.target.files[0].name,
+            },
+          },
+        };
+        try {
+          const response = await fetch(
+            `${urlConfig.URLS.ASSET.UPLOADURL}/${result.result.identifier}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(uploadBody),
+            }
+          );
 
-        // setData(result.result.data);
-        // setTotalPages(Math.ceil(result.result.totalCount / 10));
+          if (!response.ok) {
+            throw new Error("Something went wrong");
+          }
+
+          const uploadResult = await response.json();
+          console.log("upload suceesss------", uploadResult);
+          const imgId = result.result.identifier;
+          const url = uploadResult.result.pre_signed_url;
+          const file = e.target.files[0];
+          const csp = "azure"; // Cloud provider (azure, aws, etc.)
+
+          const uploader = new SunbirdFileUploadLib.FileUploader();
+
+          uploader
+            .upload({
+              file: file,
+              url: url,
+              csp: "azure",
+            })
+            .on("error", (error) => {
+              console.log("0000", error);
+            })
+            .on("completed", async (completed) => {
+              console.log("1111", completed);
+
+              console.log("url", url);
+              // console.log("mimeType", mimeType);
+
+              const fileURL = url.split("?")[0];
+              console.log("fileUrl", fileURL);
+              const data = new FormData();
+              const mimeType =
+                e.target.files[0].type == "application/zip"
+                  ? "application/vnd.ekstep.html-archive"
+                  : e.target.files[0].type;
+              data.append("fileUrl", fileURL);
+              data.append("mimeType", mimeType);
+
+              data.forEach((value, key) => {
+                console.log(`${key}:`, value);
+              });
+
+              try {
+                const response = await fetch(
+                  `${urlConfig.URLS.ASSET.UPLOAD}/${imgId}`,
+                  {
+                    method: "POST",
+                    body: data,
+                  }
+                );
+
+                if (!response.ok) {
+                  throw new Error("Something went wrong");
+                }
+
+                const uploadResult = await response.json();
+                console.log("upload suceesss------", uploadResult);
+                setFormData({
+                  ...formData,
+                  content_id: uploadResult.result.identifier,
+                });
+                setErrors({ ...errors, icon: "" });
+              } catch (error) {
+                console.log("error---", error);
+              } finally {
+              }
+            });
+          setErrors({ ...errors, content_id: "" });
+        } catch (error) {
+          console.log("error---", error);
+        } finally {
+        }
       } catch (error) {
         console.log("error---", error);
         // setError(error.message);
       } finally {
-        // setIsLoading(false);
       }
-    } catch (error) {
-      console.log("error---", error);
-      // setError(error.message);
-    } finally {
-      // setIsLoading(false);
+    } else if (type == "url") {
+      console.log("------------------", youtubeUrl);
+      const youtubeRegex =
+        /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
+
+      if (youtubeUrl === "" || youtubeRegex.test(youtubeUrl)) {
+        const _uuid = uuidv4();
+        const assetBody = {
+          request: {
+            content: {
+              primaryCategory: "Good Practices",
+              contentType: "Resource",
+              language: ["English"],
+              code: _uuid,
+              name: formData.title_of_submission
+                ? formData.title_of_submission
+                : "Untitled Content",
+              framework: "nulp-learn",
+              mimeType: "video/x-youtube",
+              createdBy: _userId,
+              organisation: [userInfo.rootOrg.channel],
+              createdFor: [userInfo.rootOrg.id],
+            },
+          },
+        };
+        try {
+          const response = await fetch(`${urlConfig.URLS.ASSET.CREATE}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(assetBody),
+          });
+
+          if (!response.ok) {
+            throw new Error("Something went wrong");
+          }
+
+          const result = await response.json();
+          console.log("suceesss----", result);
+          const cont_id = result.result.identifier;
+          const data = new FormData();
+          data.append("fileUrl", youtubeUrl);
+          data.append("mimeType", "video/x-youtube");
+
+          data.forEach((value, key) => {
+            console.log(`${key}:`, value);
+          });
+
+          try {
+            const response = await fetch(
+              `${urlConfig.URLS.ASSET.UPLOAD}/${cont_id}`,
+              {
+                method: "POST",
+                body: data,
+              }
+            );
+
+            if (!response.ok) {
+              throw new Error("Something went wrong");
+            }
+
+            const uploadResult = await response.json();
+            console.log("upload suceesss------", uploadResult);
+            setFormData({
+              ...formData,
+              content_id: uploadResult.result.identifier,
+            });
+            setLoading(true);
+            setErrors({ ...errors, icon: "" });
+          } catch (error) {
+            console.log("error---", error);
+          } finally {
+          }
+        } catch (error) {
+          console.log("error---", error);
+          // setError(error.message);
+        } finally {
+        }
+      } else {
+        let tempErrors = {};
+        tempErrors.youtube = "Add youtube URL correctly";
+        setErrors(tempErrors);
+        return Object.keys(tempErrors).length === 0;
+      }
     }
   };
 
-  const handleCheckboxChange = (e) => {
+  const uploadToBlob = (signedURL, file, csp) => {
+    return new Observable((observer) => {
+      const uploaderLib = new SunbirdFileUploadLib.FileUploader();
+
+      uploaderLib
+        .upload({ url: signedURL, file, csp })
+        .on("error", (error) => {
+          // Emit the error and notify the observer of failure
+          observer.error(error);
+        })
+        .on("completed", (completed) => {
+          // Emit the completed status and close the observable stream
+          observer.next(completed);
+          observer.complete();
+        });
+    });
+  };
+  const handleCheckboxChange = (confirmed) => {
     setFormData({
       ...formData,
-      consent_checkbox: e.target.checked,
+      consent_checkbox: true,
     });
+    setTNCOpen(false);
   };
 
   const handleCategoryChange = (e) => {
@@ -375,33 +760,40 @@ const LernCreatorForm = () => {
     setErrors({ ...errors, category_of_participation: "" });
     // Set appropriate guideline link based on category_of_participation
     if (category_of_participation === "State / UT / SPVs / ULBs / Any Other") {
-      setGuidelineLink("link-to-state-guidelines.pdf");
+      setGuidelineLink(stateguideline);
+      setTNCLink(stateguideline);
     } else if (category_of_participation === "Industry") {
-      setGuidelineLink("link-to-industry-guidelines.pdf");
+      setGuidelineLink(industryguideline);
+      setTNCLink(industryguideline);
     } else if (category_of_participation === "Academia") {
-      setGuidelineLink("link-to-academia-guidelines.pdf");
+      setGuidelineLink(acdemiaguideline);
+      setTNCLink(acdemiaguideline);
     } else {
       setGuidelineLink("");
+      setTNCLink("");
     }
+  };
+  const handleUrlChange = (event) => {
+    console.log(event.target.value);
+    setyoutubeURL(event.target.value);
   };
 
   const checkDraftValidations = () => {
     let tempErrors = {};
-    if (!formData.user_name) tempErrors.user_name = "User Name is required";
+    // if (!formData.user_name) tempErrors.user_name = "User Name is required";
     if (!formData.title_of_submission)
       tempErrors.title_of_submission = "Title of Submission is required";
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
+  const confirmSubmission = async () => {
+    setOpenConfirmModal();
+  };
   const handleSubmit = async (action) => {
-    if (!formData.consent_checkbox) {
-      alert("You must accept the terms and conditions.");
-      return;
-    }
-
     formData.created_by = _userId;
     // Handle form submission (draft or review)
     console.log("Form submitted:", formData);
+    console.log(action);
     if (action === "draft") {
       formData.status = "draft";
       // Add validations
@@ -419,7 +811,7 @@ const LernCreatorForm = () => {
           });
 
           if (!response.ok) {
-            throw new Error("Failed to fetch polls");
+            throw new Error("Something went wrong");
           }
 
           const result = await response.json();
@@ -430,9 +822,7 @@ const LernCreatorForm = () => {
         } catch (error) {
           console.log("error---", error.message);
           alert(error.message);
-          // setError(error.message);
         } finally {
-          // setIsLoading(false);
         }
       } else if (isEdit == true) {
         console.log("formData----", formData);
@@ -449,7 +839,7 @@ const LernCreatorForm = () => {
           );
 
           if (!response.ok) {
-            throw new Error("Failed to fetch polls");
+            throw new Error("Something went wrong");
           }
 
           const result = await response.json();
@@ -460,9 +850,7 @@ const LernCreatorForm = () => {
         } catch (error) {
           console.log("error---", error.message);
           alert(error.message);
-          // setError(error.message);
         } finally {
-          // setIsLoading(false);
         }
       }
 
@@ -470,6 +858,8 @@ const LernCreatorForm = () => {
     } else if (action === "review") {
       formData.status = "review";
       if (!validate()) return;
+
+      console.log("submit-form---", formData);
 
       if (isEdit == false) {
         try {
@@ -482,20 +872,21 @@ const LernCreatorForm = () => {
           });
 
           if (!response.ok) {
-            throw new Error("Failed to fetch polls");
+            throw new Error("Something went wrong");
           }
 
           const result = await response.json();
           console.log("suceesss");
+          navigate("/webapp/mylernsubmissions");
           // setData(result.result.data);
           // setTotalPages(Math.ceil(result.result.totalCount / 10));
         } catch (error) {
           console.log("error---", error);
-          // setError(error.message);
         } finally {
-          // setIsLoading(false);
         }
       } else {
+        console.log("ggggg");
+
         try {
           const response = await fetch(
             `${urlConfig.URLS.LEARNATHON.UPDATE}?id=${contentId}`,
@@ -509,24 +900,83 @@ const LernCreatorForm = () => {
           );
 
           if (!response.ok) {
-            throw new Error("Failed to fetch polls");
+            throw new Error("Something went wrong");
           }
 
           const result = await response.json();
           console.log("suceesss");
+          navigate("/webapp/mylernsubmissions");
           // setData(result.result.data);
           // setTotalPages(Math.ceil(result.result.totalCount / 10));
         } catch (error) {
           console.log("error---", error);
-          // setError(error.message);
         } finally {
-          // setIsLoading(false);
         }
       }
-
       console.log("Sent for review");
     }
   };
+
+  const getFramework = async (defaultFramework) => {
+    try {
+      const url = `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.FRAMEWORK.READ}/nulp-domain`;
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        showErrorMessage(t("FAILED_TO_FETCH_DATA"));
+        throw new Error(t("FAILED_TO_FETCH_DATA"));
+      }
+
+      const data = await response.json();
+      const Categoryindex = data?.result?.framework?.categories.findIndex(
+        (category) => category.code === "board"
+      );
+      setIndicativeThemes(
+        data?.result?.framework?.categories[Categoryindex]?.terms
+      );
+      if (preIndicativeTheme) {
+        const selectedBoard = preIndicativeTheme;
+        const categories = data?.result?.framework?.categories;
+
+        if (categories?.[Categoryindex]?.terms) {
+          const terms = categories[Categoryindex].terms;
+
+          const selectedIndex = terms.findIndex(
+            (category) => category.name === selectedBoard
+          );
+
+          if (selectedIndex !== -1) {
+            setIndicativeSubThemes(
+              data?.result?.framework?.categories[Categoryindex]?.terms[
+                selectedIndex
+              ]?.associations || []
+            );
+          } else {
+            setIndicativeSubThemes([]);
+          }
+        } else {
+          console.error("No terms found in the specified category index");
+          setIndicativeSubThemes([]);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      showErrorMessage(t("FAILED_TO_FETCH_DATA"));
+    }
+  };
+
+  const openTNC = async () => {
+    setTNCOpen(true);
+  };
+
+  useEffect(() => {
+    getFramework();
+  }, [preIndicativeTheme]);
 
   return (
     <>
@@ -538,7 +988,7 @@ const LernCreatorForm = () => {
         <Grid container>
           <Grid item xs={10}>
             <Typography variant="h6" gutterBottom className="fw-600 mt-20">
-              Upload Learnathon Submission
+              {t("UPLOAD_LEARN_SUBMISSION")}
             </Typography>
           </Grid>
           <Grid item xs={2}>
@@ -558,7 +1008,7 @@ const LernCreatorForm = () => {
                   borderRadius: "20px !important",
                 }}
               >
-                Need Help
+                {t("NEED_HELP")}
               </Button>
             </Box>
           </Grid>
@@ -572,102 +1022,20 @@ const LernCreatorForm = () => {
               "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
           }}
         >
-          <Grid container spacing={2}>
-            <Grid
-              item
-              xs={12}
-              sm={12}
-              sx={{ borderBottom: "2px solid #057184", marginBottom: "20px" }}
-            >
-              <Typography variant="h6" gutterBottom>
-                Participant Details
-              </Typography>
-            </Grid>
-          </Grid>
-
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <Grid container>
-                <Grid item xs={2} className="center-align">
-                  <InputLabel htmlFor="User Name">
-                    User Name <span className="mandatory-symbol"> *</span>
-                  </InputLabel>
-                </Grid>
-                <Grid item xs={10}>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    label="User Name"
-                    name="user_name"
-                    value={formData.user_name}
-                    onChange={handleChange}
-                    error={!!errors.user_name}
-                    helperText={errors.user_name}
-                    required
-                  />
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Grid container>
-                <Grid item xs={2} className="center-align">
-                  <InputLabel htmlFor="Email">
-                    Email <span className="mandatory-symbol"> *</span>
-                  </InputLabel>
-                </Grid>
-                <Grid item xs={10}>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    label="Email"
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    error={!!errors.email}
-                    helperText={errors.email}
-                    required
-                  />
-                </Grid>
-              </Grid>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <Grid container>
-                <Grid item xs={2} className="center-align">
-                  <InputLabel htmlFor="Mobile Number">
-                    Mobile <br /> Number<span className="red"> *</span>
-                  </InputLabel>
-                </Grid>
-                <Grid item xs={10}>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    label="Mobile Number"
-                    name="mobile_number"
-                    value={formData.mobile_number}
-                    onChange={handleChange}
-                    error={!!errors.mobile_number}
-                    helperText={errors.mobile_number}
-                    required
-                  />
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
           <Grid item xs={12} sx={{ borderBottom: "2px solid #057184" }}>
             <Typography variant="h6" gutterBottom style={{ marginTop: "30px" }}>
-              Submission Details
+              {t("SUBMISSION_DETAILS")}
             </Typography>
           </Grid>
           <Grid item xs={12} style={{ marginTop: "30px" }}>
             <Grid container>
               <Grid item xs={2} className="center-align">
                 <InputLabel htmlFor="Name of Organisation">
-                  Submission Icon
+                  {t("SUBMISSION_ICON")}
                 </InputLabel>
               </Grid>
-              <Grid item xs={10}>
+
+              <Grid item xs={7}>
                 <TextField
                   type="file"
                   fullWidth
@@ -677,11 +1045,71 @@ const LernCreatorForm = () => {
                   }}
                 />
               </Grid>
-              <Grid item xs={2}></Grid>
+              <Grid item xs={3}>
+                {" "}
+                {isEdit && formData.icon && (
+                  <a
+                    href={formData.icon}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {t("PREVIEW")}
+                  </a>
+                )}
+              </Grid>
               <Grid item xs={10}>
                 <Alert className="mt-9" everity="info">
-                  Supported formats: MP4, PDF, HTML5, YouTube links
+                  {t("IMG_GUIDELINES")}
                 </Alert>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={12}>
+            <Grid container>
+              <Grid item xs={2} className="center-align">
+                <InputLabel htmlFor="Title of Submission">
+                  {t("TITLE_OF_SUBMISSION")}{" "}
+                  <span className="mandatory-symbol"> *</span>
+                </InputLabel>
+              </Grid>
+              <Grid item xs={10}>
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  label="Title of Submission"
+                  name="title_of_submission"
+                  value={formData.title_of_submission}
+                  onChange={handleChange}
+                  inputProps={{ maxLength: 150 }}
+                  error={!!errors.title_of_submission}
+                  required
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={12}>
+            <Grid container>
+              <Grid item xs={2} className="center-align">
+                <InputLabel htmlFor="Description">
+                  {t("DESCRIPTION")}{" "}
+                  <span className="mandatory-symbol"> *</span>
+                </InputLabel>
+              </Grid>
+              <Grid item xs={10}>
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  label="Description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  multiline
+                  rows={3}
+                  inputProps={{ maxLength: 500 }}
+                  error={!!errors.description}
+                  helperText={errors.description}
+                  required
+                />
               </Grid>
             </Grid>
           </Grid>
@@ -691,7 +1119,7 @@ const LernCreatorForm = () => {
                 <Grid container>
                   <Grid item xs={2} className="center-align">
                     <InputLabel htmlFor="Category of Participation">
-                      Category of Participation
+                      {t("CATEGORY_OF_PARTICIPATION")}
                       <span className="mandatory-symbol"> *</span>
                     </InputLabel>
                   </Grid>
@@ -723,10 +1151,70 @@ const LernCreatorForm = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          View and Download Guidelines
+                          {t("VIEW_AND_DOWLOAD_GUIDELINES")}
                         </a>
                       )}
                     </Box>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <Alert className="mt-9" severity="info">
+                  {t("STAR_CITY_MSG")}
+                </Alert>
+              </Grid>
+              <Grid item xs={12}>
+                <Grid container>
+                  <Grid item xs={2} className="center-align">
+                    <InputLabel htmlFor="State">State</InputLabel>
+                  </Grid>
+                  <Grid item xs={10}>
+                    <TextField
+                      select
+                      fullWidth
+                      margin="normal"
+                      label="State"
+                      name="state"
+                      value={formData.state}
+                      onChange={handleChange}
+                      error={!!errors.state}
+                      helperText={errors.state}
+                      onInput={handleSearchChange}
+                    >
+                      {filteredStates.map((state) => (
+                        <MenuItem key={state} value={state}>
+                          {state}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+                </Grid>
+              </Grid>{" "}
+              <Grid item xs={12}>
+                <Grid container>
+                  <Grid item xs={2} className="center-align">
+                    <InputLabel htmlFor="City">City</InputLabel>
+                  </Grid>
+
+                  <Grid item xs={10}>
+                    <Autocomplete
+                      freeSolo
+                      options={citiesInIndia}
+                      value={formData.city}
+                      onChange={handleCityChange}
+                      onInputChange={handleCityChange}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          fullWidth
+                          margin="normal"
+                          label="City"
+                          name="city"
+                          error={!!errors.city}
+                          helperText={errors.city}
+                        />
+                      )}
+                    />
                   </Grid>
                 </Grid>
               </Grid>
@@ -734,7 +1222,7 @@ const LernCreatorForm = () => {
                 <Grid container>
                   <Grid item xs={2} className="center-align">
                     <InputLabel htmlFor="Name of Organisation">
-                      Name of Organisation{" "}
+                      {t("NAME_OF_ORG")}{" "}
                       <span className="mandatory-symbol"> *</span>
                     </InputLabel>
                   </Grid>
@@ -757,7 +1245,7 @@ const LernCreatorForm = () => {
                 <Grid container>
                   <Grid item xs={2} className="center-align">
                     <InputLabel htmlFor="Name of Department/Group">
-                      Name of Department/Group
+                      {t("NAME_OF_DEPT/GROUP")}
                     </InputLabel>
                   </Grid>
                   <Grid item xs={10}>
@@ -775,8 +1263,8 @@ const LernCreatorForm = () => {
               <Grid item xs={12}>
                 <Grid container>
                   <Grid item xs={2} className="center-align">
-                    <InputLabel htmlFor="Indicative Theme">
-                      Indicative Theme{" "}
+                    <InputLabel htmlFor="indicative_theme">
+                      {t("INDICATIVE_THEME")}{" "}
                       <span className="mandatory-symbol"> *</span>
                     </InputLabel>
                   </Grid>
@@ -788,92 +1276,177 @@ const LernCreatorForm = () => {
                       label="Indicative Theme"
                       name="indicative_theme"
                       value={formData.indicative_theme}
-                      onChange={handleChange}
+                      onChange={handleThemeChange}
                       error={!!errors.indicative_theme}
                       helperText={errors.indicative_theme}
                       required
                     >
-                      {themes.map((theme) => (
-                        <MenuItem key={theme} value={theme}>
-                          {theme}
+                      {indicativeThemes.length > 0 ? (
+                        indicativeThemes.map((theme, index) => (
+                          <MenuItem key={theme?.name} value={theme?.name}>
+                            {theme?.name}
+                          </MenuItem>
+                        ))
+                      ) : (
+                        <MenuItem disabled value="">
+                          {t("NO_OPTION_AVAILABLE")}
                         </MenuItem>
-                      ))}
+                      )}
                     </TextField>
                   </Grid>
                 </Grid>
               </Grid>
+              {formData.indicative_theme === "Miscellaneous/ Others" && (
+                <Grid item xs={12}>
+                  <Grid container>
+                    <Grid item xs={2} className="center-align">
+                      <InputLabel htmlFor="other_indicative_themes">
+                        {t("OTHER_INDICATIVE_THEME")}{" "}
+                        <span className="mandatory-symbol"> *</span>
+                      </InputLabel>
+                    </Grid>
+                    <Grid item xs={10}>
+                      <TextField
+                        fullWidth
+                        margin="normal"
+                        label="Other Indicative Theme"
+                        name="other_indicative_themes"
+                        value={formData.other_indicative_themes}
+                        onChange={handleChange}
+                        error={!!errors.other_indicative_themes}
+                        helperText={errors.other_indicative_themes}
+                        required
+                      />
+                    </Grid>
+                  </Grid>
+                </Grid>
+              )}
+              {formData.indicative_theme !== "Miscellaneous/ Others" && (
+                <Grid item xs={12}>
+                  <Grid container>
+                    <Grid item xs={2} className="center-align">
+                      <InputLabel htmlFor="indicative_sub_theme">
+                        {t("INDICATIVE_SUBTHEME")}{" "}
+                        <span className="mandatory-symbol"> *</span>
+                      </InputLabel>
+                    </Grid>
+                    <Grid item xs={10}>
+                      <TextField
+                        select
+                        fullWidth
+                        margin="normal"
+                        label="Indicative SubTheme"
+                        name="indicative_sub_theme"
+                        value={formData.indicative_sub_theme}
+                        onChange={handlesubthemeChange}
+                        error={!!errors.indicative_sub_theme}
+                        helperText={errors.indicative_sub_theme}
+                        required
+                      >
+                        {indicativeSubThemes.map((theme) => (
+                          <MenuItem key={theme?.name} value={theme?.name}>
+                            {theme?.name}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              )}
               <Grid item xs={12}>
-                <Grid container>
+                <Grid container spacing={2}>
+                  {/* Toggle between URL and File */}
+                  <Grid item xs={12}>
+                    <RadioGroup
+                      row
+                      value={uploadType}
+                      onChange={handleUploadTypeChange}
+                      aria-label="Upload Type"
+                    >
+                      <FormControlLabel
+                        value="file"
+                        control={<Radio />}
+                        label="File Upload"
+                      />
+                      <FormControlLabel
+                        value="url"
+                        control={<Radio />}
+                        label="Youtube URL Upload"
+                      />
+                    </RadioGroup>
+                  </Grid>
+
+                  {/* Conditional Fields Based on Selection */}
                   <Grid item xs={2} className="center-align">
-                    <InputLabel htmlFor="Title of Submission">
-                      Title of Submission{" "}
+                    <InputLabel htmlFor="upload">
+                      {uploadType === "file"
+                        ? "File Upload"
+                        : "Youtube URL Upload"}
                       <span className="mandatory-symbol"> *</span>
                     </InputLabel>
                   </Grid>
+
+                  {uploadType === "file" ? (
+                    <Grid item xs={7}>
+                      <TextField
+                        type="file"
+                        fullWidth
+                        onChange={(event) => handleFileChange(event, "file")}
+                        inputProps={{
+                          accept: "video/mp4,application/pdf,text/html",
+                        }}
+                        sx={{ border: "1px dashed" }}
+                      />
+                    </Grid>
+                  ) : (
+                    <Grid item xs={6}>
+                      <TextField
+                        type="url"
+                        fullWidth
+                        placeholder="Enter URL"
+                        onChange={(event) => handleUrlChange(event)}
+                        error={!!errors.youtube}
+                        helperText={
+                          !!errors.youtube
+                            ? "Please enter a valid YouTube URL."
+                            : ""
+                        }
+                      />
+                    </Grid>
+                  )}
+
+                  <Grid item xs={4}>
+                    {" "}
+                    {uploadType === "url" && (
+                      <Grid item xs={2}>
+                        <Button
+                          //  disabled={!formda}
+                          className="custom-btn-default"
+                          onClick={() => handleFileChange(youtubeUrl, "url")}
+                        >
+                          {t("UPLOAD")}
+                        </Button>
+                      </Grid>
+                    )}
+                    {isEdit && formData.content_id && (
+                      <Grid item xs={2}>
+                        <a
+                          href="#"
+                          onClick={(e) => {
+                            window.open(
+                              `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${previewPlayerPage}`,
+                              "_blank"
+                            );
+                          }}
+                        >
+                          {t("PREVIEW")}
+                        </a>
+                      </Grid>
+                    )}
+                  </Grid>
                   <Grid item xs={10}>
-                    <TextField
-                      fullWidth
-                      margin="normal"
-                      label="Title of Submission"
-                      name="title_of_submission"
-                      value={formData.title_of_submission}
-                      onChange={handleChange}
-                      inputProps={{ maxLength: 20 }}
-                      error={!!errors.title_of_submission}
-                      helperText={errors.title_of_submission}
-                      required
-                    />
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Grid item xs={12}>
-                <Grid container>
-                  <Grid item xs={2} className="center-align">
-                    <InputLabel htmlFor="Description">
-                      Description <span className="mandatory-symbol"> *</span>
-                    </InputLabel>
-                  </Grid>
-                  <Grid item xs={10}>
-                    <TextField
-                      fullWidth
-                      margin="normal"
-                      label="Description"
-                      name="description"
-                      value={formData.description}
-                      onChange={handleChange}
-                      multiline
-                      rows={3}
-                      inputProps={{ maxLength: 100 }}
-                      error={!!errors.description}
-                      helperText={errors.description}
-                      required
-                    />
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Grid item xs={12}>
-                <Grid container>
-                  <Grid item xs={2} className="center-align">
-                    <InputLabel htmlFor="File Upload">
-                      File Upload <span className="mandatory-symbol"> *</span>
-                    </InputLabel>
-                  </Grid>
-                  <Grid item xs={10}>
-                    <TextField
-                      type="file"
-                      fullWidth
-                      onChange={handleFileChange}
-                      inputProps={{
-                        accept:
-                          "video/mp4,application/pdf,text/html,video/youtube",
-                      }}
-                      sx={{ border: "1px dashed" }}
-                    />
-                  </Grid>
-                  <Grid item xs={2}></Grid>
-                  <Grid item xs={10}>
-                    <Alert className="mt-9" everity="info">
-                      Supported formats: MP4, PDF, HTML5, YouTube links
+                    <Alert className="mt-9" severity="info">
+                      {t("CONT_FORMAT")}
                     </Alert>
                   </Grid>
                 </Grid>
@@ -888,55 +1461,310 @@ const LernCreatorForm = () => {
                 textAlign="center"
                 className="mb-30"
               >
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={formData.consent_checkbox}
-                      onChange={handleCheckboxChange}
-                      name="consent_checkbox"
-                    />
-                  }
-                  label="Terms and conditions"
-                />
+                <Box mt={3}>
+                  <Button
+                    disabled={isNotDraft || openPersonalForm}
+                    className="custom-btn-default"
+                    onClick={() => handleSubmit("draft")}
+                  >
+                    {t("SAVE_AS_DRAFT")}
+                  </Button>
+
+                  <Button
+                    disabled={isNotDraft || openPersonalForm}
+                    className="viewAll"
+                    onClick={() => setOpenConfirmModal(true)}
+                    sx={{ ml: 2, padding: "9px 35px" }} // Adds spacing between the buttons
+                  >
+                    {t("PROCEED_TO_SUBMIT")}
+                  </Button>
+                </Box>
               </Grid>
+              {openConfirmModal && (
+                <Modal
+                  open={openConfirmModal}
+                  onClose={() => setOpenConfirmModal(false)}
+                  aria-labelledby="confirmation-modal-title"
+                  aria-describedby="confirmation-modal-description"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      backgroundColor: "white",
+                      padding: "20px",
+                      borderRadius: "8px",
+                      boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                      width: "400px",
+                      textAlign: "center",
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      id="confirmation-modal-title"
+                      gutterBottom
+                    >
+                      {t("ARE_YOU_SURE")}
+                    </Typography>
+                    <Typography
+                      id="confirmation-modal-description"
+                      color="textSecondary"
+                    >
+                      {t("YOU_WILL_NOT_BE_ABLE_TO_UPDATE")}
+                    </Typography>
+
+                    {/* Modal Actions */}
+                    <div style={{ marginTop: "20px" }}>
+                      <div
+                        style={{
+                          padding: "5px",
+                        }}
+                      >
+                        <Button
+                          variant="contained"
+                          className="viewAll"
+                          onClick={() => {
+                            setOpenPersonalForm(true); // Proceed action
+                            setOpenConfirmModal(false); // Close modal after proceeding
+                          }}
+                        >
+                          {t("PROCEED")}
+                        </Button>
+                      </div>
+                      <div
+                        style={{
+                          padding: "5px",
+                        }}
+                      >
+                        <Button
+                          className="cancelBtn"
+                          onClick={() => setOpenConfirmModal(false)}
+                        >
+                          {t("CANCEL")}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </Modal>
+              )}
+              {openPersonalForm && (
+                <>
+                  <Grid container spacing={2}>
+                    <Grid
+                      item
+                      xs={12}
+                      sm={12}
+                      sx={{
+                        borderBottom: "2px solid #057184",
+                        marginBottom: "20px",
+                      }}
+                    >
+                      <Typography variant="h6" gutterBottom>
+                        {t("PARTICIPAION_DETAILS")}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <Grid container>
+                        <Grid item xs={2} className="center-align">
+                          <InputLabel htmlFor="Participant Name">
+                            {t("PARTICIPANT")}
+                            <br /> {t("NAME")}
+                            <span className="mandatory-symbol"> *</span>
+                          </InputLabel>
+                        </Grid>
+                        <Grid item xs={10}>
+                          <TextField
+                            fullWidth
+                            margin="normal"
+                            label="User Name"
+                            name="user_name"
+                            value={formData.user_name}
+                            onChange={handleChange}
+                            error={!!errors.user_name}
+                            helperText={errors.user_name}
+                            required
+                          />
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <Grid container>
+                        <Grid item xs={2} className="center-align">
+                          <InputLabel htmlFor="Email">
+                            {t("EMAIL")}{" "}
+                            <span className="mandatory-symbol"> *</span>
+                          </InputLabel>
+                        </Grid>
+                        <Grid item xs={10}>
+                          <TextField
+                            fullWidth
+                            margin="normal"
+                            label="Email"
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            error={!!errors.email}
+                            helperText={errors.email}
+                            required
+                          />
+                        </Grid>
+                      </Grid>
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <Grid container>
+                        <Grid item xs={2} className="center-align">
+                          <InputLabel htmlFor="Mobile Number">
+                            {t("MOBILE")} <br /> {t("NUMBER")}
+                            <span className="red"> *</span>
+                          </InputLabel>
+                        </Grid>
+                        <Grid item xs={10}>
+                          <TextField
+                            fullWidth
+                            margin="normal"
+                            label="Mobile Number"
+                            name="mobile_number"
+                            value={formData.mobile_number}
+                            onChange={handleChange}
+                            error={!!errors.mobile_number}
+                            helperText={errors.mobile_number}
+                            required
+                          />
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+
+                  <Grid
+                    container
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                    direction="column"
+                    textAlign="center"
+                    className="mb-30"
+                  >
+                    <Box>{t("NULP_DECLARE")}</Box>
+
+                    <a href="#" onClick={openTNC}>
+                      {t("TNC")}
+                    </a>
+
+                    {TNCOpen && (
+                      <Modal
+                        open={TNCOpen}
+                        onClose={() => setTNCOpen(false)}
+                        aria-labelledby="confirmation-modal-title"
+                        aria-describedby="confirmation-modal-description"
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <div
+                          style={{
+                            backgroundColor: "white",
+                            padding: "20px",
+                            borderRadius: "8px",
+                            boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                            width: "400px",
+                            textAlign: "center",
+                          }}
+                        >
+                          <Typography
+                            variant="h6"
+                            id="confirmation-modal-title"
+                            gutterBottom
+                          >
+                            {t("TNC")}
+                          </Typography>
+                          <Typography>
+                            What is Lorem Ipsum? Lorem Ipsum is simply dummy
+                            text of the printing and typesetting industry. Lorem
+                            Ipsum has been the industry's standard dummy text
+                            ever since the 1500s, when an unknown printer took a
+                            galley of type and scrambled it to make a type
+                            specimen book. It has survived not only five
+                            centuries, but also the leap into electronic
+                            typesetting, remaining essentially unchanged. It was
+                            popularised in the 1960s with the release of
+                            Letraset sheets containing Lorem Ipsum passages, and
+                            more recently with desktop publishing software like
+                            Aldus PageMaker including versions of Lorem Ipsum.
+                            Why do we use it? It is a long established fact that
+                            a reader will be distracted by the readable content
+                            of a page when looking at its layout. The point of
+                            using Lorem Ipsum is that it has a more-or-less
+                            normal distribution of letters, as opposed to using
+                            'Content here, content here', making it look like
+                            readable English. Many desktop publishing packages
+                            and web page editors now use Lorem Ipsum as their
+                            default model text, and a search for 'lorem ipsum'
+                            will uncover many web sites still in their infancy.
+                            Various versions have evolved over the years,
+                            sometimes by accident, sometimes on purpose
+                            (injected humour and the like).
+                          </Typography>
+
+                          {/* Modal Actions */}
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => handleCheckboxChange(true)}
+                            style={{ marginRight: "10px" }}
+                          >
+                            {t("CONFIRM")}
+                          </Button>
+                          <div style={{ marginTop: "20px" }}>
+                            <Button
+                              variant="outlined"
+                              color="secondary"
+                              onClick={() => setTNCOpen(false)}
+                            >
+                              {t("CANCEL")}
+                            </Button>
+                          </div>
+                        </div>
+                      </Modal>
+                    )}
+                  </Grid>
+                  <Grid
+                    container
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                    direction="column"
+                    textAlign="center"
+                    className="mb-30"
+                  >
+                    <Box mt={3}>
+                      <Button
+                        disabled={isNotDraft}
+                        className="viewAll"
+                        onClick={() => handleSubmit("review")}
+                        sx={{ ml: 2, padding: "9px 35px" }} // Adds spacing between the buttons
+                      >
+                        {t("SUBMIT")}
+                      </Button>
+                    </Box>
+                  </Grid>
+                </>
+              )}
             </Grid>
           </Grid>
         </Grid>
       </Container>
-      <Grid
-        container
-        item
-        xs={12}
-        justifyContent="center"
-        alignItems="center"
-        direction="column"
-        textAlign="center"
-        className="mb-30"
-      >
-        <Box>
-          Your submission will be used for NULP purposes only and your personal
-          details will not be disclosed to any entity.
-        </Box>
-
-        <Box mt={3}>
-          <Button
-            disabled={isNotDraft}
-            className="custom-btn-default"
-            onClick={() => handleSubmit("draft")}
-          >
-            Save as Draft
-          </Button>
-
-          <Button
-            disabled={isNotDraft}
-            className="viewAll"
-            onClick={() => handleSubmit("review")}
-            sx={{ ml: 2, padding: "9px 35px" }} // Adds spacing between the buttons
-          >
-            Submit
-          </Button>
-        </Box>
-      </Grid>
 
       <Footer />
     </>

@@ -11,7 +11,6 @@ import {
   Button,
   Typography,
   Box,
-
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import SearchIcon from "@mui/icons-material/Search";
@@ -23,6 +22,7 @@ import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 const routeConfig = require("../../configs/routeConfig.json");
 const urlConfig = require("../../configs/urlConfig.json");
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 
 const LernVotingList = () => {
   const { t } = useTranslation();
@@ -34,12 +34,12 @@ const LernVotingList = () => {
   const [search, setSearch] = useState("");
   const [pollData, setPollData] = useState([]);
   const [voteCounts, setVoteCounts] = useState({}); // Object to store vote counts
-  const[pageNumber,setPageNumber] = useState(1);
-  const[currentPage,setCurrentPage] = useState(1)
+  const [pageNumber, setPageNumber] = useState(1);
+  // const [pageNumber, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchData();
-  }, [currentPage, rowsPerPage, search]);
+  }, [pageNumber, rowsPerPage, search]);
 
   const fetchData = async () => {
     const assetBody = {
@@ -50,7 +50,7 @@ const LernVotingList = () => {
         },
 
         limit: rowsPerPage,
-        offset: 10 * (currentPage-1),
+        offset: 10 * (pageNumber - 1),
         search: search,
       },
     };
@@ -107,13 +107,14 @@ const LernVotingList = () => {
   };
 
   const handleClick = (contentId) => {
-    navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?${contentId}`);
+    navigate(
+      `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${contentId}&page=vote`
+    );
   };
 
-    const handleChange = (event, value) => {
+  const handleChange = (event, value) => {
     if (value !== pageNumber) {
       setPageNumber(value);
-      setCurrentPage(value);
       fetchData();
     }
   };
@@ -121,14 +122,16 @@ const LernVotingList = () => {
   return (
     <>
       <Header />
-      <Paper sx={{ padding: "20px", backgroundColor: "#f9f4eb" }}>
+      <Box sx={{ padding: "20px" }}>
         <Box
           display="flex"
           justifyContent="space-between"
           alignItems="center"
           mb={2}
         >
-          <Typography variant="h6" gutterBottom className="fw-600 mt-20">{t("VOTE_NOW_LEARNATHON_SUBMISSIONS")}</Typography>
+          <Typography variant="h6" gutterBottom className="fw-600 mt-20">
+            {t("VOTE_NOW_LEARNATHON_SUBMISSIONS")}
+          </Typography>
         </Box>
         <Grid container>
           <Grid item xs={6}>
@@ -142,7 +145,7 @@ const LernVotingList = () => {
                   endAdornment: <SearchIcon />,
                 }}
                 size="small"
-                sx={{ background: '#fff' }}
+                sx={{ background: "#fff" }}
               />
             </Box>
           </Grid>
@@ -165,20 +168,25 @@ const LernVotingList = () => {
                   <TableCell>
                     {new Date(row.end_date).toLocaleDateString()}
                   </TableCell>
-                  <TableCell>{voteCounts[row.poll_id] || 0}</TableCell>
                   <TableCell>
-                     <Box>
-                <Button
-                  type="button"
-                  className="custom-btn-primary ml-20"
-                  onClick={() => handleClick(row.content_id)}
-                >
-                  {t("VIEW_AND_VOTE")}
-                </Button>
-              </Box>
+                    {voteCounts[row.poll_id] || 0}
+                    <span style={{ fontSize: "1.5rem", marginLeft: "5px" }}>
+                      👍
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <Box>
+                      <Button
+                        type="button"
+                        className="custom-btn-primary ml-20"
+                        onClick={() => handleClick(row.content_id)}
+                      >
+                        {t("VIEW_AND_VOTE")}
+                      </Button>
+                    </Box>
                   </TableCell>
                 </TableRow>
-              ))} 
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
@@ -188,7 +196,7 @@ const LernVotingList = () => {
           page={pageNumber}
           onChange={handleChange}
         />
-      </Paper>
+      </Box>
       <Footer />
     </>
   );

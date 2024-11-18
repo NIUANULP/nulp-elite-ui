@@ -40,9 +40,11 @@ const routeConfig = require("./configs/routeConfig.json");
 import PopupForm from "pages/profileData";
 import axios from "axios";
 import ReactGA from "react-ga4";
-//import LernModal from "components/learnathon/LernModal";
-//import LernSubmissionTable from "pages/learnathon/LernSubmissionTable";
-//import LernVotingList from "pages/learnathon/lernVotingList";
+// import LernModal from "components/learnathon/LernModal";
+// import LernSubmissionTable from "pages/learnathon/LernSubmissionTable";
+// import LernVotingList from "pages/learnathon/lernVotingList";
+// import LernReviewList from "pages/learnathon/lernReviewerList";
+// import LearnathonDashboard from "pages/LearnathonDashboard";
 
 function App() {
   // const [t] = useTranslation();
@@ -217,13 +219,22 @@ function App() {
     //   moduleName: "nulp_elite",
     //   path: routeConfig.ROUTES.LEARNATHON.MYLERNSUBMISSION,
     //   component: LernSubmissionTable,
-
     // },
     // {
     //   moduleName: "nulp_elite",
     //   path: routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
     //   component: LernVotingList,
-
+    // },
+    // ,
+    // {
+    //   moduleName: "nulp_elite",
+    //   path: routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
+    //   component: LernReviewList,
+    // },
+    // {
+    //   moduleName: "nulp_elite",
+    //   path: routeConfig.ROUTES.LEARNATHON.DASHBOARD,
+    //   component: LearnathonDashboard,
     // },
   ];
 
@@ -248,7 +259,6 @@ function App() {
       };
       const response = await axios.post(url, requestBody);
       const Data = response.data;
-      console.log("Data of user----------- ", Data);
       if (
         (Array.isArray(Data?.result) && Data.result.length === 0) ||
         (Array.isArray(Data?.result) &&
@@ -298,7 +308,6 @@ function App() {
         console.error("Error fetching user data:", error);
       }
     };
-    console.log("dev here");
     fetchData();
     UserData();
   }, []);
@@ -334,7 +343,9 @@ function App() {
             ))}
           </Routes>
 
+
           {/* // <LernModal /> */}
+
         </Router>
       </React.Suspense>
       {/* </ChakraProvider> */}

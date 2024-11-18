@@ -84,8 +84,12 @@ const DomainList = ({ globalSearchQuery }) => {
       const data = await response.json();
       const rolesData = data.result.response.channel;
       const roles = data.result.response.roles;
-      const organizationId = roles[0]?.scope[0]?.organisationId;
-      const extractedRoles = roles.map((roleObj) => roleObj.role);
+      let organizationId;
+      if (roles[0]?.scope[0]?.organisationId) {
+        organizationId = roles[0].scope[0].organisationId;
+      } else {
+          organizationId = data?.result?.response?.organisations[0]?.organisationId;
+        }      const extractedRoles = roles.map((roleObj) => roleObj.role);
       setRoleList(extractedRoles);
       setOrgId(organizationId);
       setLernUser(rolesData);
@@ -137,6 +141,8 @@ const DomainList = ({ globalSearchQuery }) => {
       };
 
       if (isCreator) {
+        requestPayload.isCreator = false;
+      }else{
         requestPayload.isCreator = true;
       }
 
@@ -145,10 +151,8 @@ const DomainList = ({ globalSearchQuery }) => {
       const result = data.result.data.responseCode;
 
       responsecode = result;
-      setResponseCode(result);
-
       if (result === "OK") {
-        navigate("webapp/mylernsubmissions");
+        navigate("/webapp/mylernsubmissions");
         setIsModalOpen(false);
       } else {
         setToasterMessage("Something went wrong! Please try again later");
@@ -357,7 +361,7 @@ const DomainList = ({ globalSearchQuery }) => {
         `${routeConfig.ROUTES.JOIN_COURSE_PAGE.JOIN_COURSE}?${contentId}`
       );
     } else {
-      navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?${contentId}`);
+      navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${contentId}`);
     }
   };
 
@@ -563,44 +567,73 @@ const DomainList = ({ globalSearchQuery }) => {
         >
           {error && <Alert severity="error">{error}</Alert>}
 
-          {/* <Box
-            className="lern-box">
+          <Box className="lern-box">
             <Box>
               <Grid container>
-                <Grid item xs={12} md={12} lg={12}>
-                  <Box className="h1-title">
-                    {t("LERN_title")}
-                  </Box>
+                <Grid item xs={12}>
+                  <Box className="h1-title">{t("LERN_title")}</Box>
                 </Grid>
-                <Grid item xs={12} md={10} lg={10}>
-                  <Box className='mt-20'>
-                    {t("LERN_MESSAGE_LINE_TWO")}
-                  </Box>
+
+                <Grid item xs={12} md={9}>
+                  <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
                 </Grid>
-                <Grid item xs={12} md={2} lg={2}>
-                  <Box className='mt-20'>
-                    {lernUser === 'nulp-learn' ? (
-                      <Button className="viewAll" onClick={handleCheckUser}>
-                        {t("PARTICIPATE_NOW")}
+
+                <Grid item xs={12} md={3}>
+                  <Grid
+                    container
+                    direction="column"
+                    spacing={2}
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Grid item xs={12}>
+                      <Button className="viewAllbtn" onClick={handleCheckUser}>
+                        {lernUser === "nulp-learn"
+                          ? t("PARTICIPATE_NOW")
+                          : t("PARTICIPATE_NOW")}
                       </Button>
-                    ) : (
-                      <Button className="viewAll" onClick={handleCheckUser}>
-                        {t("PARTICIPATE_NOW")}
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <Button
+                        className="viewAllbtn"
+                        onClick={() => {
+                          window.open(
+                            routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
+                            "_blank"
+                          );
+                        }}
+                      >
+                        Review Now
                       </Button>
-                    )}
-                  </Box>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <Button
+                        className="viewAllbtn"
+                        onClick={() => {
+                          window.open(
+                            routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
+                            "_blank"
+                          );
+                        }}
+                      >
+                        Vote Now
+                      </Button>
+                    </Grid>
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} md={12} lg={12}>
+
+                <Grid item xs={12}>
                   {toasterMessage && (
-                    <Box
-                    >
+                    <Box>
                       <ToasterCommon response={toasterMessage} />
                     </Box>
                   )}
                 </Grid>
               </Grid>
             </Box>
-          </Box> */}
+          </Box> 
 
           <Box textAlign="center">
             <p

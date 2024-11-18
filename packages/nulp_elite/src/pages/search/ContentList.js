@@ -114,11 +114,11 @@ const ContentList = (props) => {
   }, [domain]);
 
   useEffect(() => {
-    setCurrentPage(1)
+    setCurrentPage(1);
     fetchData();
   }, [contentTypeFilter]);
   useEffect(() => {
-        setCurrentPage(1)
+    setCurrentPage(1);
     fetchData();
   }, [subDomainFilter]);
 
@@ -131,7 +131,7 @@ const ContentList = (props) => {
   }, [globalSearchQuery]);
 
   useEffect(() => {
-    setCurrentPage(1)
+    setCurrentPage(1);
     if (headerSearch) {
       setSearchQuery(headerSearch || "");
     }
@@ -368,7 +368,7 @@ const ContentList = (props) => {
         `${routeConfig.ROUTES.JOIN_COURSE_PAGE.JOIN_COURSE}?${contentId}`
       );
     } else {
-      navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?${contentId}`);
+      navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${contentId}`);
     }
   };
 
@@ -410,57 +410,56 @@ const ContentList = (props) => {
       <Header globalSearchQuery={globalSearchQuery} />
       {toasterMessage && <ToasterCommon response={toasterMessage} />}
       <Box>
-
-      <Box
-        className="lg-hide header-bg"
-        style={{ alignItems: "center", paddingLeft: "23px" }}
-      >
-        <TextField
-          placeholder={t("What do you want to learn today?  ")}
-          variant="outlined"
-          size="small"
-          fullWidth
-          value={searchQuery}
-          onChange={handleInputChange}
-          onKeyPress={handleKeyPress}
-          className="searchField"
-          InputProps={{
-            endAdornment: (
-              <IconButton
-                type="submit"
-                aria-label="search"
-                onClick={handleSearch}
-              >
-                <SearchIcon />
-              </IconButton>
-            ),
-          }}
-        />
-      </Box>
-      <Box>
-        {domainList && domainList.length > 0 ? (
-          <DomainCarousel
-            // className={`my-class ${
-            //   activeStates[index] ? "carousel-active-ui" : ""
-            // }`}
-            onSelectDomain={handleDomainFilter}
-            selectedDomainCode={domain}
-            domains={domainList}
-            keepOpen={isDomain}
+        <Box
+          className="lg-hide header-bg"
+          style={{ alignItems: "center", paddingLeft: "23px" }}
+        >
+          <TextField
+            placeholder={t("What do you want to learn today?  ")}
+            variant="outlined"
+            size="small"
+            fullWidth
+            value={searchQuery}
+            onChange={handleInputChange}
+            onKeyPress={handleKeyPress}
+            className="searchField"
+            InputProps={{
+              endAdornment: (
+                <IconButton
+                  type="submit"
+                  aria-label="search"
+                  onClick={handleSearch}
+                >
+                  <SearchIcon />
+                </IconButton>
+              ),
+            }}
           />
-        ) : (
-          <SkeletonLoader />
-          //CircularProgress color="inherit" />
-        )}
-      </Box>
+        </Box>
+        <Box>
+          {domainList && domainList.length > 0 ? (
+            <DomainCarousel
+              // className={`my-class ${
+              //   activeStates[index] ? "carousel-active-ui" : ""
+              // }`}
+              onSelectDomain={handleDomainFilter}
+              selectedDomainCode={domain}
+              domains={domainList}
+              keepOpen={isDomain}
+            />
+          ) : (
+            <SkeletonLoader />
+            //CircularProgress color="inherit" />
+          )}
+        </Box>
 
-      <Container
-        maxWidth="xl"
-        className="allContent xs-pb-20  pb-30 content-list eventTab mt-180"
-      >
-        {/* <Box style={{ margin: "20px 0" }}> */}
-        {/* <domainCarousel></domainCarousel> */}
-        {/* <Box
+        <Container
+          maxWidth="xl"
+          className="allContent xs-pb-20  pb-30 content-list eventTab mt-180"
+        >
+          {/* <Box style={{ margin: "20px 0" }}> */}
+          {/* <domainCarousel></domainCarousel> */}
+          {/* <Box
             style={{ display: "flex", justifyContent: "space-between" }}
             className="filter-domain"
           >
@@ -477,126 +476,134 @@ const ContentList = (props) => {
               />
             )}
           </Box> */}
-        {/* </Box> */}
-        <Box
-          className="d-flex mr-20 my-20"
-          style={{ alignItems: "center",justifyContent:'space-between' }}
-        >
-          {domainName || searchQuery ? (
-            <Box
-              sx={{ marginTop: "10px", alignItems: "center" }}
-              className="d-flex h3-title xs-d-none"
-            >
-              <Box className="h3-custom-title">
-                {domainName && !searchQuery
-                  ? t("YOU_ARE_VIEWING_CONTENTS_FOR")
-                  : t("YOU_ARE_SHOWING_CONTENTS_FOR")}
-              </Box>
+          {/* </Box> */}
+          <Box
+            className="d-flex mr-20 my-20"
+            style={{ alignItems: "center", justifyContent: "space-between" }}
+          >
+            {domainName || searchQuery ? (
               <Box
-                sx={{ fontSize: "16px", fontWeight: "600", paddingLeft: "5px" }}
-                className="text-blueShade2 h4-custom"
+                sx={{ marginTop: "10px", alignItems: "center" }}
+                className="d-flex h3-title xs-d-none"
               >
-                {domainName || searchQuery
-                  ? `${searchQuery || ""}${
-                      searchQuery && domainName ? ", " : ""
-                    }${domainName || ""}`
-                  : ""}
+                <Box className="h3-custom-title">
+                  {domainName && !searchQuery
+                    ? t("YOU_ARE_VIEWING_CONTENTS_FOR")
+                    : t("YOU_ARE_SHOWING_CONTENTS_FOR")}
+                </Box>
+                <Box
+                  sx={{
+                    fontSize: "16px",
+                    fontWeight: "600",
+                    paddingLeft: "5px",
+                  }}
+                  className="text-blueShade2 h4-custom"
+                >
+                  {domainName || searchQuery
+                    ? `${searchQuery || ""}${
+                        searchQuery && domainName ? ", " : ""
+                      }${domainName || ""}`
+                    : ""}
+                </Box>
               </Box>
-            </Box>
-          ) : (
-            <Box sx={{ marginTop: "10px" }}></Box>
-          )}
-          <Link onClick={handleGoBack} className="viewAll xs-hide mr-22">
-            {t("BACK")}
-          </Link>
-        </Box>
-        <Box className="h3-custom-title">
-          {searchQuery &&
-            `Showing ${contentCount} out of ${data?.count || 0} results`}
-        </Box>
+            ) : (
+              <Box sx={{ marginTop: "10px" }}></Box>
+            )}
+            <Link onClick={handleGoBack} className="viewAll xs-hide mr-22">
+              {t("BACK")}
+            </Link>
+          </Box>
+          <Box className="h3-custom-title">
+            {searchQuery &&
+              `Showing ${contentCount} out of ${data?.count || 0} results`}
+          </Box>
 
-        <Grid container spacing={2} className="pt-8 mt-15">
-          <Grid
-            item
-            xs={12}
-            md={4}
-            lg={3}
-            className="sm-p-25 left-container  flter-btn w-100 xs-m-10"
-            style={{ padding: "0", borderRight: "none", background: "#f9fafc" }}
-          >
-            <DrawerFilter
-              SelectedFilters={handlefilterChanges}
-              renderedPage="contentlist"
-              domainCode={domain}
-            />
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            md={8}
-            lg={9}
-            className=" height-none lg-pl-12 "
-            style={{ paddingTop: "0" }}
-          >
-            <Box textAlign="center" padding="10">
-              <Box>
-                {isLoading ? (
-                  <p>{t("LOADING")}</p>
-                ) : error ? (
-                  <Alert severity="error">{error}</Alert>
-                ) : data && data.content && data.content.length > 0 ? (
-                  <div>
-                    <Box className="custom-card">
-                      {/* <Grid
+          <Grid container spacing={2} className="pt-8 mt-15">
+            <Grid
+              item
+              xs={12}
+              md={4}
+              lg={3}
+              className="sm-p-25 left-container  flter-btn w-100 xs-m-10"
+              style={{
+                padding: "0",
+                borderRight: "none",
+                background: "#f9fafc",
+              }}
+            >
+              <DrawerFilter
+                SelectedFilters={handlefilterChanges}
+                renderedPage="contentlist"
+                domainCode={domain}
+              />
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              md={8}
+              lg={9}
+              className=" height-none lg-pl-12 "
+              style={{ paddingTop: "0" }}
+            >
+              <Box textAlign="center" padding="10">
+                <Box>
+                  {isLoading ? (
+                    <p>{t("LOADING")}</p>
+                  ) : error ? (
+                    <Alert severity="error">{error}</Alert>
+                  ) : data && data.content && data.content.length > 0 ? (
+                    <div>
+                      <Box className="custom-card">
+                        {/* <Grid
                       container
                       spacing={2}
                       style={{ margin: "20px 0", marginBottom: "10px" }}
                     > */}
-                      {data?.content?.map((items, index) => (
-                        // <Grid
-                        //   item
-                        //   xs={6}
-                        //   md={6}
-                        //   lg={3}
-                        //   style={{ marginBottom: "10px" }}
-                        //   key={items.identifier}
-                        // >
-                        <Box
-                          className="custom-card-box"
-                          key={items.identifier}
-                        >
-                          <BoxCard
-                            items={items}
-                            index={index}
-                            onClick={() =>
-                              handleCardClick(
-                                items.identifier,
-                                items.contentType
-                              )
-                            }
-                          ></BoxCard>
-                        </Box>
+                        {data?.content?.map((items, index) => (
+                          // <Grid
+                          //   item
+                          //   xs={6}
+                          //   md={6}
+                          //   lg={3}
+                          //   style={{ marginBottom: "10px" }}
+                          //   key={items.identifier}
+                          // >
+                          <Box
+                            className="custom-card-box"
+                            key={items.identifier}
+                          >
+                            <BoxCard
+                              items={items}
+                              index={index}
+                              onClick={() =>
+                                handleCardClick(
+                                  items.identifier,
+                                  items.contentType
+                                )
+                              }
+                            ></BoxCard>
+                          </Box>
 
-                        // </Grid>
-                      ))}
-                      <div className="blankCard"></div>
-                    </Box>
-                    {/* </Grid> */}
-                    <Pagination
-                      count={totalPages}
-                      page={pageNumber}
-                      onChange={handleChange}
-                    />
-                  </div>
-                ) : (
-                  <NoResult /> // Render NoResult component when there are no search results
-                )}
+                          // </Grid>
+                        ))}
+                        <div className="blankCard"></div>
+                      </Box>
+                      {/* </Grid> */}
+                      <Pagination
+                        count={totalPages}
+                        page={pageNumber}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  ) : (
+                    <NoResult /> // Render NoResult component when there are no search results
+                  )}
+                </Box>
               </Box>
-            </Box>
+            </Grid>
           </Grid>
-        </Grid>
-      </Container>
-      <FloatingChatIcon />
+        </Container>
+        <FloatingChatIcon />
       </Box>
       <Footer />
     </div>

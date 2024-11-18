@@ -67,10 +67,8 @@ const CategoryPage = () => {
   };
 
   useEffect(() => {
-    
-      fetchMoreItems();
-    
-  }, [selectedDomain,domainName,clearDomains]);
+    fetchMoreItems();
+  }, [selectedDomain, domainName, clearDomains]);
 
   useEffect(() => {
     fetchMoreItems(selectedDomain);
@@ -96,8 +94,9 @@ const CategoryPage = () => {
           visibility: [],
           board: domainName
             ? [domainName]
-            : (clearDomains && clearDomains !== "null" ? [clearDomains] : undefined)
-
+            : clearDomains && clearDomains !== "null"
+            ? [clearDomains]
+            : undefined,
         },
         limit: 20,
         sort_by: {
@@ -133,15 +132,13 @@ const CategoryPage = () => {
     };
 
     try {
-
       const url = `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CONTENT.SEARCH}?orgdetails=${appConfig.ContentPlayer.contentApiQueryParams.orgdetails}&licenseDetails=${appConfig.ContentPlayer.contentApiQueryParams.licenseDetails}`;
       const response = await getAllContents(url, data, headers);
       setData(response.data.result.content ?? []);
       setTotalPages(Math.ceil((response.data.result.count ?? 0) / 20));
     } catch (error) {
       showErrorMessage(t("FAILED_TO_FETCH_DATA"));
-    }
-    finally {
+    } finally {
       setIsLoading(false);
     }
   };
@@ -225,8 +222,8 @@ const CategoryPage = () => {
   const clearDomain = () => {
     setDomainName(null);
     setClearDomain(null);
-    setSelectedDomain(null)
-  }
+    setSelectedDomain(null);
+  };
 
   useEffect(() => {
     if (category) {
@@ -241,119 +238,124 @@ const CategoryPage = () => {
         `${routeConfig.ROUTES.JOIN_COURSE_PAGE.JOIN_COURSE}?${contentId}`
       );
     } else {
-      navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?${contentId}`);
+      navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${contentId}`);
     }
   };
 
   return (
     <>
       <Header />
-     <Box>
-      {toasterMessage && <ToasterCommon response={toasterMessage} />}
-      {domain.length > 0 ? (
-        <DomainCarousel onSelectDomain={handleDomainFilter} domains={domain} selectedDomainCode={preselectedDomain}/>
-      ) : (
-        <SkeletonLoader />
-      )}
-      <Container
-        maxWidth="xl"
-        role="main"
-        className="allContent xs-pb-20 pb-30 domain-list"
-      >
-        {(domainName || (clearDomains && clearDomains !== "null")) && (
-          <Box
-            className="d-flex mr-20 my-20"
-            style={{ alignItems: "center",justifyContent:'space' }}
-          >
+      <Box>
+        {toasterMessage && <ToasterCommon response={toasterMessage} />}
+        {domain.length > 0 ? (
+          <DomainCarousel
+            onSelectDomain={handleDomainFilter}
+            domains={domain}
+            selectedDomainCode={preselectedDomain}
+          />
+        ) : (
+          <SkeletonLoader />
+        )}
+        <Container
+          maxWidth="xl"
+          role="main"
+          className="allContent xs-pb-20 pb-30 domain-list"
+        >
+          {(domainName || (clearDomains && clearDomains !== "null")) && (
             <Box
-              sx={{ marginTop: "10px", alignItems: "center" }}
-              className="d-flex h3-title xs-d-none"
+              className="d-flex mr-20 my-20"
+              style={{ alignItems: "center", justifyContent: "space" }}
             >
-              <Box className="h3-custom-title">
-                {t("YOU_ARE_VIEWING_CONTENTS_FOR")}
-              </Box>
-              <Box className="remove-box">
-                <Box
-                  sx={{ fontWeight: "600", paddingLeft: "5px" }}
-                  className="text-blueShade2 h4-custom"
-                >
-                  {domainName ? domainName : preselectedDomain}
+              <Box
+                sx={{ marginTop: "10px", alignItems: "center" }}
+                className="d-flex h3-title xs-d-none"
+              >
+                <Box className="h3-custom-title">
+                  {t("YOU_ARE_VIEWING_CONTENTS_FOR")}
                 </Box>
-                <Box
-                  sx={{
-                    fontSize: "16px",
-                    fontWeight: "600",
-                    color: "#0e7a9c",
-                    paddingLeft: "10px",
-                    cursor: "pointer"
-                  }}
-                  onClick={clearDomain}
-                >
-                  &#x2716;
+                <Box className="remove-box">
+                  <Box
+                    sx={{ fontWeight: "600", paddingLeft: "5px" }}
+                    className="text-blueShade2 h4-custom"
+                  >
+                    {domainName ? domainName : preselectedDomain}
+                  </Box>
+                  <Box
+                    sx={{
+                      fontSize: "16px",
+                      fontWeight: "600",
+                      color: "#0e7a9c",
+                      paddingLeft: "10px",
+                      cursor: "pointer",
+                    }}
+                    onClick={clearDomain}
+                  >
+                    &#x2716;
+                  </Box>
                 </Box>
-              </Box>
-              {/* <Box
+                {/* <Box
                 sx={{ fontSize: "16px", fontWeight: "600", paddingLeft: "5px" }}
                 className="text-blueShade2 h4-custom"
               >
                 {domainName ? domainName : preselectedDomain}
               </Box> */}
-            </Box>
-          </Box>
-        )}
-        {error && (
-          <Alert className="my-4" severity="error">
-            {error}
-          </Alert>
-        )}
-        {category && (
-          <Box
-            className="d-flex mr-20 my-20 px-10"
-            style={{ alignItems: "center",justifyContent:'space-between'}}
-          >
-            <p className="h3-title">{category === "Course" ? "Courses" : category}</p>
-            <Link onClick={handleGoBack} className="custom-btn-primary mr-17">
-              {t("BACK")}
-            </Link>
-          </Box>
-        )}
-        {isLoading ? (
-          <Loading message={t("LOADING")} />
-        ) : (
-          <>
-            {data && data.length === 0 && !error && <NoResult />}
-            <Box textAlign="center">
-              <Box className="custom-card xs-pb-20">
-                {data &&
-                  data.map((item) => (
-                    <Box
-                      className="custom-card-box"
-                      key={item.id}
-                      style={{ marginBottom: "10px" }}
-                    >
-                      <BoxCard
-                        items={item}
-                        index={item.count}
-                        onClick={() =>
-                          handleCardClick(item.identifier, item.contentType)
-                        }
-                      />
-                    </Box>
-                  ))}
-                <div className="blankCard"></div>
               </Box>
-              {totalPages > 1 && (
-                <Pagination
-                  count={totalPages}
-                  page={currentPage}
-                  onChange={handlePageChange}
-                />
-              )}
             </Box>
-          </>
-        )}
-
-      </Container>
+          )}
+          {error && (
+            <Alert className="my-4" severity="error">
+              {error}
+            </Alert>
+          )}
+          {category && (
+            <Box
+              className="d-flex mr-20 my-20 px-10"
+              style={{ alignItems: "center", justifyContent: "space-between" }}
+            >
+              <p className="h3-title">
+                {category === "Course" ? "Courses" : category}
+              </p>
+              <Link onClick={handleGoBack} className="custom-btn-primary mr-17">
+                {t("BACK")}
+              </Link>
+            </Box>
+          )}
+          {isLoading ? (
+            <Loading message={t("LOADING")} />
+          ) : (
+            <>
+              {data && data.length === 0 && !error && <NoResult />}
+              <Box textAlign="center">
+                <Box className="custom-card xs-pb-20">
+                  {data &&
+                    data.map((item) => (
+                      <Box
+                        className="custom-card-box"
+                        key={item.id}
+                        style={{ marginBottom: "10px" }}
+                      >
+                        <BoxCard
+                          items={item}
+                          index={item.count}
+                          onClick={() =>
+                            handleCardClick(item.identifier, item.contentType)
+                          }
+                        />
+                      </Box>
+                    ))}
+                  <div className="blankCard"></div>
+                </Box>
+                {totalPages > 1 && (
+                  <Pagination
+                    count={totalPages}
+                    page={currentPage}
+                    onChange={handlePageChange}
+                  />
+                )}
+              </Box>
+            </>
+          )}
+        </Container>
       </Box>
       <Footer />
     </>

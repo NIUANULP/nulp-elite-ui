@@ -111,7 +111,6 @@ const ContinueLearning = () => {
   };
 
   const filteredCourses = useMemo(() => {
-
     let filtered = data;
 
     if (courseStatus.length) {
@@ -136,7 +135,7 @@ const ContinueLearning = () => {
         `${routeConfig.ROUTES.JOIN_COURSE_PAGE.JOIN_COURSE}?${contentId}`
       );
     } else {
-      navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?${contentId}`);
+      navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${contentId}`);
     }
   };
   const handlePageChange = (event, newPage) => {
@@ -144,7 +143,6 @@ const ContinueLearning = () => {
   };
 
   const paginatedCourses = useMemo(() => {
-
     const startIndex = (currentPage - 1) * itemsPerPage;
     return filteredCourses.slice(startIndex, startIndex + itemsPerPage);
   }, [currentPage, itemsPerPage, filteredCourses]);
@@ -177,7 +175,9 @@ const ContinueLearning = () => {
             <Grid container spacing={2}>
               <Box className="custom-card profile-card-view w-100">
                 {isLoading ? (
-                  <Loading message={t("LOADING")} />) : paginatedCourses.map((items) => (
+                  <Loading message={t("LOADING")} />
+                ) : (
+                  paginatedCourses.map((items) => (
                     <Box className="custom-card-box" key={items.contentId}>
                       <BoxCard
                         items={items}
@@ -191,17 +191,18 @@ const ContinueLearning = () => {
                         continueLearning={false}
                       ></BoxCard>
                     </Box>
-                  ))}
+                  ))
+                )}
               </Box>
               <Box>
-              {!isLoading && paginatedCourses.length ===0 && (
-                <>
-                  <Box style={{ width: "100%" }}>
-                    <NoResult className="center-no-result " />
-                    <Box className="h5-title">{t("EXPLORE_CONTENT")}</Box>
-                  </Box>
-                </>
-              )}
+                {!isLoading && paginatedCourses.length === 0 && (
+                  <>
+                    <Box style={{ width: "100%" }}>
+                      <NoResult className="center-no-result " />
+                      <Box className="h5-title">{t("EXPLORE_CONTENT")}</Box>
+                    </Box>
+                  </>
+                )}
               </Box>
               <div className="blankCard"></div>
             </Grid>
