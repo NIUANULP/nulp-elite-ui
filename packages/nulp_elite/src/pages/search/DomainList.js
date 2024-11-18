@@ -567,63 +567,6 @@ const DomainList = ({ globalSearchQuery }) => {
         >
           {error && <Alert severity="error">{error}</Alert>}
 
-          <Box className="lern-box">
-            <Box>
-              <Grid container>
-                <Grid item xs={12}>
-                  <Box className="h1-title">{t("LERN_title")}</Box>
-                </Grid>
-
-                <Grid item xs={12} md={9}>
-                  <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
-                </Grid>
-
-                <Grid item xs={12} md={3}>
-                  <Grid
-                    container
-                    direction="column"
-                    spacing={2}
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Grid item xs={12}>
-                      <Button className="viewAllbtn" onClick={handleCheckUser}>
-                        {lernUser === "nulp-learn"
-                          ? t("PARTICIPATE_NOW")
-                          : t("PARTICIPATE_NOW")}
-                      </Button>
-                    </Grid>
-
-                    <Grid item xs={12}>
-                      <Button
-                        className="viewAllbtn"
-                        onClick={() => {
-                          window.open(
-                            routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
-                            "_blank"
-                          );
-                        }}
-                      >
-                        Review Now
-                      </Button>
-                    </Grid>
-
-                    <Grid item xs={12}>
-                      <Button
-                        className="viewAllbtn"
-                        onClick={() => {
-                          window.open(
-                            routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
-                            "_blank"
-                          );
-                        }}
-                      >
-                        Vote Now
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </Grid>
-
                 <Grid item xs={12}>
                   {toasterMessage && (
                     <Box>
