@@ -354,5 +354,24 @@
   "EMAIL": "ఇమెయిల్",
   "CATEGORY": "వర్గం",
   "STATUS": "స్టేటస్",
-  "Action": "యాక్షన్"
+  "Action": "యాక్షన్",
+  "THEME_FILTER": "థీమ్ ద్వారా ఫిల్టర్",
+  "STATE_FILTER": "రాష్ట్రం వారీగా ఫిల్టర్",
+  "STATUS_FILTER": "స్టేటస్ ద్వారా ఫిల్టర్",
+  "EXPORT_TABLE": "ఎగుమతి పట్టిక",
+  "THEME": "థీమ్",
+  "SUBTHEME": "సబ్‌థీమ్",
+  "CITY": "నగరం",
+  "ORGANISATION": "సంస్థ",
+  "SUBMISSION_DATE": "సమర్పణ తేదీ",
+  "VIEW": "వీక్షణ",
+
+  "LERN_DASHBOARD": "లెర్నాథాన్ డ్యాష్‌బోర్డ్",
+  "TOTAL_SUBMISSION": "మొత్తం సమర్పణలు",
+  "ORG_PARTICIPATED": "పాల్గొన్న సంస్థలు",
+  "PUBLISHED_COUNT": "ప్రచురించబడిన కంటెంట్",
+  "ACEDEMIA": "అకాడెమియా",
+  "STATE_ULBS": "రాష్ట్రాలు / ULBS మొదలైనవి",
+  "INDUSTRY": "ఇండస్ట్రీ",
+  "STATE_COUNT": "రాష్ట్ర గణన"
 }
