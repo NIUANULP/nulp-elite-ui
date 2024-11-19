@@ -402,5 +402,27 @@
 
   "CATEGORY": "श्रेणी",
   "STATUS": "स्थिति",
-  "ACTION": "कार्रवाई"
+  "ACTION": "कार्रवाई",
+
+  "THEME_FILTER": "थीम के अनुसार फ़िल्टर करें",
+  "STATE_FILTER": "राज्य के अनुसार फ़िल्टर करें",
+  "STATUS_FILTER": "स्थिति के अनुसार फ़िल्टर करें",
+  "EXPORT_TABLE": "निर्यात तालिका",
+
+  "THEME": "थीम",
+  "SUBTHEME": "उपविषय",
+
+  "CITY": "शहर",
+  "ORGANISATION": "संगठन",
+  "SUBMISSION_DATE": "सबमिशन तिथि",
+
+  "VIEW": "देखें",
+  "LERN_DASHBOARD": "लर्नथॉन डैशबोर्ड",
+  "TOTAL_SUBMISSION": "कुल सबमिशन",
+  "ORG_PARTICIPATED": "संगठनों ने भाग लिया",
+  "PUBLISHED_COUNT": "प्रकाशित सामग्री",
+  "ACEDEMIA": "एकेडेमिया",
+  "STATE_ULBS": "राज्य/यूएलबीएस आदि",
+  "INDUSTRY": "उद्योग",
+  "STATE_COUNT": "राज्य गणना"
 }
