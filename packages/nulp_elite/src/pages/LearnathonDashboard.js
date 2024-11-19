@@ -69,8 +69,8 @@ const LearnathonDashboard = () => {
 
   const statusOptions = [
     { value: "Live", label: "Live" },
-    { value: "Draft", label: "Draft" },
-    { value: "Review", label: "Review" },
+    { value: "draft", label: "Draft" },
+    { value: "review", label: "Review" },
     { value: "Reject", label: "Reject" },
   ];
 
