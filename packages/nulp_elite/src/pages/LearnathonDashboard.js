@@ -69,8 +69,8 @@ const LearnathonDashboard = () => {
 
   const statusOptions = [
     { value: "Live", label: "Live" },
-    { value: "Draft", label: "Draft" },
-    { value: "Review", label: "Review" },
+    { value: "draft", label: "Draft" },
+    { value: "review", label: "Review" },
     { value: "Reject", label: "Reject" },
   ];
 
@@ -201,7 +201,7 @@ const LearnathonDashboard = () => {
           throw new Error("Failed to fetch list");
         }
         const result = await response.json();
-        console.log("suceesss----", result);
+        console.log("suceesss now----", result);
         console.log(result.result);
         setPublishedContent(result.result.totalCount);
       } catch (error) {
@@ -255,34 +255,34 @@ const LearnathonDashboard = () => {
     <>
       <Header />
       <div style={dashboardStyle}>
-        <h1>Learnathon Dashboard</h1>
+        <h1>{t("LERN_DASHBOARD")}</h1>
         <div style={gridStyle}>
           <div style={boxStyle}>
-            <h3>Total Submissions</h3>
+            <h3>{t("TOTAL_SUBMISSION")}</h3>
             <p style={countStyle}>{totalSubmissions}</p>
           </div>
           <div style={boxStyle}>
-            <h3>Organisations Participated</h3>
+            <h3>{t("ORG_PARTICIPATED")}</h3>
             <p style={countStyle}>{organisationsParticipated}</p>
           </div>
           <div style={boxStyle}>
-            <h3>Published Content</h3>
+            <h3>{t("PUBLISHED_COUNT")}</h3>
             <p style={countStyle}>{publishedContent}</p>
           </div>
           <div style={boxStyle}>
-            <h3>Academia</h3>
+            <h3>{t("ACEDEMIA")}</h3>
             <p style={countStyle}>{academia}</p>
           </div>
           <div style={boxStyle}>
-            <h3>States / ULBS etc</h3>
+            <h3>{t("STATE_ULBS")}</h3>
             <p style={countStyle}>{statesULBs}</p>
           </div>
           <div style={boxStyle}>
-            <h3>Industry</h3>
+            <h3>{t("INDUSTRY")}</h3>
             <p style={countStyle}>{industry}</p>
           </div>
           <div style={boxStyle}>
-            <h3>State Count</h3>
+            <h3>{t("STATE_COUNT")}</h3>
             <p style={countStyle}>{stateCount}</p>
           </div>
         </div>
@@ -293,7 +293,7 @@ const LearnathonDashboard = () => {
           <Box display="flex" alignItems="center" mb={2}>
             <TextField
               variant="outlined"
-              placeholder="Search Submission"
+              placeholder={t("SEARCH_SUBMISSION")}
               value={search}
               onChange={handleSearchChange}
               InputProps={{
@@ -310,7 +310,7 @@ const LearnathonDashboard = () => {
             <TextField
               select
               variant="outlined"
-              label="filter by Theme"
+              label={t("THEME_FILTER")}
               size="small"
               value={theme}
               onChange={(e) => setTheme(e.target.value)}
@@ -326,7 +326,7 @@ const LearnathonDashboard = () => {
             <TextField
               select
               variant="outlined"
-              label="filter by State"
+              label={t("STATE_FILTER")}
               size="small"
               value={state}
               onChange={(e) => setState(e.target.value)}
@@ -342,7 +342,7 @@ const LearnathonDashboard = () => {
             <TextField
               select
               variant="outlined"
-              label="filter by Status"
+              label={t("STATUS_FILTER")}
               size="small"
               value={status}
               onChange={(e) => setStatus(e.target.value)}

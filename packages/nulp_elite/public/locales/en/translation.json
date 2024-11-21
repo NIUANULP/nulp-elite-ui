@@ -388,5 +388,27 @@
   "EMAIL": "Email",
   "CATEGORY": "Category",
   "STATUS": "Status",
-  "Action": "Action"
+  "Action": "Action",
+  "LERN_DASHBOARD": "Learnathon Dashboard",
+  "TOTAL_SUBMISSION": "Total Submissions",
+  "ORG_PARTICIPATED": "Organisations Participated",
+  "PUBLISHED_COUNT": "Published Content",
+  "ACEDEMIA": "Academia",
+  "STATE_ULBS": "States / ULBS etc",
+  "INDUSTRY": "Industry",
+  "STATE_COUNT": "State Count",
+
+  "THEME_FILTER": "filter by Theme",
+  "STATE_FILTER": "filter by State",
+  "STATUS_FILTER": "filter by Status",
+  "EXPORT_TABLE": "Export Table",
+
+  "THEME": "Theme",
+  "SUBTHEME": "Subtheme",
+
+  "CITY": "City",
+  "ORGANISATION": "Organisation",
+  "SUBMISSION_DATE": "Submission Date",
+
+  "VIEW": "View"
 }

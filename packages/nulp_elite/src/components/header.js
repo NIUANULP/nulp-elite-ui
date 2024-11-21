@@ -80,9 +80,7 @@ function Header({ globalSearchQuery }) {
       const userID = data.result.data;
 
       console.log(userID);
-      const oldCreator = userID.find(
-        (user) => user.user_id === _userId && user.creator_access === false
-      );
+
       const user = userID.find(
         (user) => user.user_id === _userId && user.creator_access === false
       );
@@ -95,7 +93,7 @@ function Header({ globalSearchQuery }) {
           roles.includes("CONTENT_CREATION") ||
           roles.includes("CONTENT_REVIEWER") ||
           roles.includes("FLAG_REVIEWER")) &&
-        user != undefined
+        (!userID.some((item) => item.user_id === _userId) || user != undefined)
       ) {
         setAccessWorkspace(true);
       }
