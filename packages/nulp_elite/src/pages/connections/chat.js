@@ -195,7 +195,6 @@ const Chat = ({
       top: chatRef.current.scrollHeight,
       behavior: "smooth",
     });
-    setIsFirstVisit(false); // Mark as not the first visit
   }
 }, [messages,message]);
 
