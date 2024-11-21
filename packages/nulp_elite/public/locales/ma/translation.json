@@ -396,5 +396,26 @@
   "CONFIRM_DELETE": "तुम्हाला खात्री आहे की तुम्ही हे सबमिशन हटवू इच्छिता?",
   "CONT_FORMAT": "समर्थित स्वरूप: MP4, PDF, HTML5, YouTube दुवे",
   "STAR_CITY_MSG": "राज्य आणि शहर फील्ड अनिवार्य नाहीत. जे उद्योग, शैक्षणिक संस्था आणि इतर गैर-सरकारी संस्थांमधून सबमिट करत आहेत ते ते भरणे टाळू शकतात.",
-  "IMG_GUIDELINES": "png, jpeg अपलोड करा (जास्तीत जास्त फाइल आकार: 1MB)"
+  "IMG_GUIDELINES": "png, jpeg अपलोड करा (जास्तीत जास्त फाइल आकार: 1MB)",
+  "THEME_FILTER": "थीमनुसार फिल्टर करा",
+  "STATE_FILTER": "राज्यानुसार फिल्टर",
+  "STATUS_FILTER": "स्थितीनुसार फिल्टर करा",
+  "EXPORT_TABLE": "निर्यात सारणी",
+
+  "THEME": "थीम",
+  "SUBTHEME": "सबथीम",
+
+  "CITY": "शहर",
+  "ORGANISATION": "संस्था",
+  "SUBMISSION_DATE": "सबमिशनची तारीख",
+
+  "VIEW": "पहा",
+  "LERN_DASHBOARD": "लर्नथॉन डॅशबोर्ड",
+  "TOTAL_SUBMISSION": "एकूण सबमिशन",
+  "ORG_PARTICIPATED": "संस्था सहभागी झाल्या",
+  "PUBLISHED_COUNT": "प्रकाशित सामग्री",
+  "ACEDEMIA": "अकादमी",
+  "STATE_ULBS": "राज्ये / ULBS इ",
+  "INDUSTRY": "उद्योग",
+  "STATE_COUNT": "राज्य संख्या"
 }

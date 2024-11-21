@@ -398,8 +398,25 @@
   "STAR_CITY_MSG": "রাজ্য ও শহরের ক্ষেত্রগুলি বাধ্যতামূলক নয়৷ যারা শিল্প, একাডেমিয়া এবং অন্যান্য বেসরকারি সংস্থাগুলি থেকে জমা দিচ্ছেন তারা এটি পূরণ করা এড়াতে চাইতে পারেন৷",
   "IMG_GUIDELINES": "png, jpeg আপলোড করুন (সর্বোচ্চ ফাইলের আকার: 1MB)",
   "LAST_UPDATED": "শেষ আপডেট করা হয়েছে",
-
   "CATEGORY": "বিভাগ",
   "STATUS": "স্থিতি",
-  "ACTION": "অ্যাকশন"
+  "ACTION": "অ্যাকশন",
+  "THEME_FILTER": "থিম দ্বারা ফিল্টার",
+  "STATE_FILTER": "রাষ্ট্র দ্বারা ফিল্টার",
+  "STATUS_FILTER": "স্থিতি দ্বারা ফিল্টার",
+  "EXPORT_TABLE": "রপ্তানি সারণী",
+  "THEME": "থিম",
+  "SUBTHEME": "সাবথিম",
+  "CITY": "শহর",
+  "ORGANISATION": "সংস্থা",
+  "SUBMISSION_DATE": "জমা জমা দেওয়ার তারিখ",
+  "VIEW": "দেখুন",
+  "LERN_DASHBOARD": "লার্ননাথন ড্যাশবোর্ড",
+  "TOTAL_SUBMISSION": "মোট জমা",
+  "ORG_PARTICIPATED": "সংস্থা অংশগ্রহণ করেছে",
+  "PUBLISHED_COUNT": "প্রকাশিত বিষয়বস্তু",
+  "ACEDEMIA": "Academia",
+  "STATE_ULBS": "রাজ্য / ULBS ইত্যাদি",
+  "INDUSTRY": "শিল্প",
+  "STATE_COUNT": "রাজ্য গণনা"
 }

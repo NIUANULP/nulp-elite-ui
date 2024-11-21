@@ -107,6 +107,7 @@ const Chat = ({
 }) => {
   console.log(showCloseIcon, 'showCloseIcon');
 
+  const { t } = useTranslation();
   const classes = useStyles();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
@@ -130,7 +131,9 @@ const Chat = ({
     "Hello! I’d like to connect with you."
   );
   const [textValue, setTextValue] = useState("");
+
   const chatRef = useRef(null);
+
   const location = useLocation();
   const {
     senderUserId: routeSenderUserId,
@@ -141,7 +144,6 @@ const Chat = ({
   const receiverUserId = propReceiverUserId || routeReceiverUserId;
   const _userId = util.userId();
 
-  const { t } = useTranslation();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [customReason, setCustomReason] = useState("");
   const [activePath, setActivePath] = useState(location.pathname);

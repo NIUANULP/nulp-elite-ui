@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 const urlConfig = require("../configs/urlConfig.json");
-
+import ExportToCSV from "components/ExportToCSV";
 import Paper from "@mui/material/Paper";
 
 import {
@@ -10,22 +10,14 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TablePagination,
   TextField,
-  Button,
   IconButton,
-  Typography,
   Box,
-  DialogActions,
   Grid,
-  Container,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import MenuItem from "@mui/material/MenuItem";
 
-// import * as util from "../services/utilService";
-import Dialog from "@mui/material/Dialog";
-import DialogContent from "@mui/material/DialogContent";
 import { Edit, Visibility, Delete } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -54,24 +46,76 @@ const LearnathonDashboard = () => {
   const { t } = useTranslation();
 
   const themeOptions = [
-    { value: "theme1", label: "Theme 1" },
-    { value: "theme2", label: "Theme 2" },
-  ];
-
-  const stateOptions = [
-    { value: "state1", label: "State 1" },
-    { value: "state2", label: "State 2" },
+    { value: "Solid Waste Management", label: "Solid Waste Management" },
+    { value: "Environment and Climate", label: "Environment and Climate" },
+    {
+      value: "WASH - Water, Sanitation and Hygiene",
+      label: "WASH - Water, Sanitation and Hygiene",
+    },
+    {
+      value: "Urban Planning and Housing",
+      label: "Urban Planning and Housing",
+    },
+    { value: "Transport and Mobility", label: "Transport and Mobility" },
+    { value: "Social Aspects", label: "Social Aspects" },
+    { value: "Municipal Finance", label: "Municipal Finance" },
+    { value: "General Administration", label: "General Administration" },
+    {
+      value: "Governance and Urban Management",
+      label: "Governance and Urban Management",
+    },
+    { value: "Miscellaneous/ Others", label: "Miscellaneous/ Others" },
   ];
 
   const statusOptions = [
-    { value: "active", label: "Active" },
-    { value: "inactive", label: "Inactive" },
+    { value: "Live", label: "Live" },
+    { value: "draft", label: "Draft" },
+    { value: "review", label: "Review" },
+    { value: "Reject", label: "Reject" },
+  ];
+
+  const stateOptions = [
+    { value: "Andhra Pradesh", label: "Andhra Pradesh" },
+    { value: "Arunachal Pradesh", label: "Arunachal Pradesh" },
+    { value: "Assam", label: "Assam" },
+    { value: "Bihar", label: "Bihar" },
+    { value: "Chhattisgarh", label: "Chhattisgarh" },
+    { value: "Goa", label: "Goa" },
+    { value: "Gujarat", label: "Gujarat" },
+    { value: "Haryana", label: "Haryana" },
+    { value: "Himachal Pradesh", label: "Himachal Pradesh" },
+    { value: "Jharkhand", label: "Jharkhand" },
+    { value: "Karnataka", label: "Karnataka" },
+    { value: "Kerala", label: "Kerala" },
+    { value: "Madhya Pradesh", label: "Madhya Pradesh" },
+    { value: "Maharashtra", label: "Maharashtra" },
+    { value: "Manipur", label: "Manipur" },
+    { value: "Meghalaya", label: "Meghalaya" },
+    { value: "Mizoram", label: "Mizoram" },
+    { value: "Nagaland", label: "Nagaland" },
+    { value: "Odisha", label: "Odisha" },
+    { value: "Punjab", label: "Punjab" },
+    { value: "Rajasthan", label: "Rajasthan" },
+    { value: "Sikkim", label: "Sikkim" },
+    { value: "Tamil Nadu", label: "Tamil Nadu" },
+    { value: "Telangana", label: "Telangana" },
+    { value: "Tripura", label: "Tripura" },
+    { value: "Uttar Pradesh", label: "Uttar Pradesh" },
+    { value: "Uttarakhand", label: "Uttarakhand" },
+    { value: "West Bengal", label: "West Bengal" },
+    { value: "Delhi", label: "Delhi" },
+    { value: "Jammu and Kashmir", label: "Jammu and Kashmir" },
   ];
   useEffect(() => {
     const fetchTotalSubmissions = async () => {
       const assetBody = {
         request: {
-          filters: {},
+          filters: {
+            ...(state && { state: state }),
+            ...(status && { status: status }),
+            ...(theme && { indicative_theme: theme }),
+          },
+
           sort_by: {
             created_on: "desc",
           },
@@ -157,7 +201,7 @@ const LearnathonDashboard = () => {
           throw new Error("Failed to fetch list");
         }
         const result = await response.json();
-        console.log("suceesss----", result);
+        console.log("suceesss now----", result);
         console.log(result.result);
         setPublishedContent(result.result.totalCount);
       } catch (error) {
@@ -211,45 +255,45 @@ const LearnathonDashboard = () => {
     <>
       <Header />
       <div style={dashboardStyle}>
-        <h1>Learnathon Dashboard</h1>
+        <h1>{t("LERN_DASHBOARD")}</h1>
         <div style={gridStyle}>
           <div style={boxStyle}>
-            <h3>Total Submissions</h3>
+            <h3>{t("TOTAL_SUBMISSION")}</h3>
             <p style={countStyle}>{totalSubmissions}</p>
           </div>
           <div style={boxStyle}>
-            <h3>Organisations Participated</h3>
+            <h3>{t("ORG_PARTICIPATED")}</h3>
             <p style={countStyle}>{organisationsParticipated}</p>
           </div>
           <div style={boxStyle}>
-            <h3>Published Content</h3>
+            <h3>{t("PUBLISHED_COUNT")}</h3>
             <p style={countStyle}>{publishedContent}</p>
           </div>
           <div style={boxStyle}>
-            <h3>Academia</h3>
+            <h3>{t("ACEDEMIA")}</h3>
             <p style={countStyle}>{academia}</p>
           </div>
           <div style={boxStyle}>
-            <h3>States / ULBS etc</h3>
+            <h3>{t("STATE_ULBS")}</h3>
             <p style={countStyle}>{statesULBs}</p>
           </div>
           <div style={boxStyle}>
-            <h3>Industry</h3>
+            <h3>{t("INDUSTRY")}</h3>
             <p style={countStyle}>{industry}</p>
           </div>
           <div style={boxStyle}>
-            <h3>State Count</h3>
+            <h3>{t("STATE_COUNT")}</h3>
             <p style={countStyle}>{stateCount}</p>
           </div>
         </div>
       </div>
 
-      <Grid container spacing={2}>
+      <Grid xs={12} style={dashboardStyle}>
         <Grid item xs={5}>
           <Box display="flex" alignItems="center" mb={2}>
             <TextField
               variant="outlined"
-              placeholder="Search Submission"
+              placeholder={t("SEARCH_SUBMISSION")}
               value={search}
               onChange={handleSearchChange}
               InputProps={{
@@ -261,11 +305,12 @@ const LearnathonDashboard = () => {
           </Box>
         </Grid>
         {/* Filter Dropdowns */}
-        <Grid item xs={3}>
+        <Grid item xs={5}>
           <Box display="flex" gap={2} alignItems="center">
             <TextField
               select
               variant="outlined"
+              label={t("THEME_FILTER")}
               size="small"
               value={theme}
               onChange={(e) => setTheme(e.target.value)}
@@ -281,6 +326,7 @@ const LearnathonDashboard = () => {
             <TextField
               select
               variant="outlined"
+              label={t("STATE_FILTER")}
               size="small"
               value={state}
               onChange={(e) => setState(e.target.value)}
@@ -296,6 +342,7 @@ const LearnathonDashboard = () => {
             <TextField
               select
               variant="outlined"
+              label={t("STATUS_FILTER")}
               size="small"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
@@ -311,13 +358,15 @@ const LearnathonDashboard = () => {
         </Grid>
 
         <Grid item xs={2}>
-          <Button
+          {/* <Button
             className="viewAll"
             onClick={() => exportTable()}
             sx={{ padding: "7px 45px", borderRadius: "90px !important" }}
           >
             {t("EXPORT_TABLE")}
-          </Button>
+          </Button> */}
+
+          <ExportToCSV data={data} fileName="table_data" />
         </Grid>
       </Grid>
 

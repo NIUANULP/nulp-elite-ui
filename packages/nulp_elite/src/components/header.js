@@ -80,10 +80,12 @@ function Header({ globalSearchQuery }) {
       const userID = data.result.data;
 
       console.log(userID);
+
       const user = userID.find(
         (user) => user.user_id === _userId && user.creator_access === false
       );
       console.log(user);
+      console.log(roles);
       if (
         (roles.includes("COURSE_MENTOR") ||
           roles.includes("SYSTEM_ADMINISTRATION") ||
@@ -91,7 +93,7 @@ function Header({ globalSearchQuery }) {
           roles.includes("CONTENT_CREATION") ||
           roles.includes("CONTENT_REVIEWER") ||
           roles.includes("FLAG_REVIEWER")) &&
-        user != undefined
+        (!userID.some((item) => item.user_id === _userId) || user != undefined)
       ) {
         setAccessWorkspace(true);
       }
@@ -561,7 +563,7 @@ function Header({ globalSearchQuery }) {
               )}
 
               {/* Check if roles array is empty or contains "PUBLIC" */}
-              {accessWorkspace && (
+             
                 <Link
                   target="_blank"
                   href="/workspace/content/create"
@@ -570,7 +572,7 @@ function Header({ globalSearchQuery }) {
                 >
                   <MenuItem>{t("WORKSPACE")}</MenuItem>
                 </Link>
-              )}
+              
 
               <MenuItem
                 onClick={handleSubmenuToggle}
@@ -919,10 +921,7 @@ function Header({ globalSearchQuery }) {
                     </Link>
                   )}
 
-                  {/* Check if roles array is empty or contains "PUBLIC" */}
-                  {(roleNames && roleNames?.length === 0) ||
-                  (roleNames.length === 1 &&
-                    roleNames.includes("PUBLIC")) ? null : (
+                  {accessWorkspace && (
                     <Link
                       target="_blank"
                       href="/workspace/content/create"
