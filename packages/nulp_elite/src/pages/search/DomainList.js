@@ -142,6 +142,8 @@ const DomainList = ({ globalSearchQuery }) => {
         },
       };
 
+      console.log("rolesss", roleList, isCreator);
+
       if (isCreator) {
         requestPayload.isCreator = false;
       } else {

@@ -1746,25 +1746,6 @@ const LernCreatorForm = () => {
                             </div>
                           </div>
                         </div>
-
-                        {/* <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => handleCheckboxChange(true)}
-                            style={{ marginRight: "10px" }}
-                          >
-                            {t("CONFIRM")}
-                          </Button>
-                          <div style={{ marginTop: "20px" }}>
-                            <Button
-                              variant="outlined"
-                              color="secondary"
-                              onClick={() => setTNCOpen(false)}
-                            >
-                              {t("CANCEL")}
-                            </Button>
-                          </div> */}
-                        {/* </div> */}
                       </Modal>
                     )}
                   </Grid>
