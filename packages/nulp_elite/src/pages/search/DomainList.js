@@ -88,8 +88,10 @@ const DomainList = ({ globalSearchQuery }) => {
       if (roles[0]?.scope[0]?.organisationId) {
         organizationId = roles[0].scope[0].organisationId;
       } else {
-          organizationId = data?.result?.response?.organisations[0]?.organisationId;
-        }      const extractedRoles = roles.map((roleObj) => roleObj.role);
+        organizationId =
+          data?.result?.response?.organisations[0]?.organisationId;
+      }
+      const extractedRoles = roles.map((roleObj) => roleObj.role);
       setRoleList(extractedRoles);
       setOrgId(organizationId);
       setLernUser(rolesData);
@@ -142,7 +144,7 @@ const DomainList = ({ globalSearchQuery }) => {
 
       if (isCreator) {
         requestPayload.isCreator = false;
-      }else{
+      } else {
         requestPayload.isCreator = true;
       }
 
@@ -566,18 +568,15 @@ const DomainList = ({ globalSearchQuery }) => {
           role="main"
         >
           {error && <Alert severity="error">{error}</Alert>}
-
-          <Box className="lern-box">
+          {/* <Box className="lern-box">
             <Box>
               <Grid container>
                 <Grid item xs={12}>
                   <Box className="h1-title">{t("LERN_title")}</Box>
                 </Grid>
-
                 <Grid item xs={12} md={9}>
                   <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
                 </Grid>
-
                 <Grid item xs={12} md={3}>
                   <Grid
                     container
@@ -593,7 +592,6 @@ const DomainList = ({ globalSearchQuery }) => {
                           : t("PARTICIPATE_NOW")}
                       </Button>
                     </Grid>
-
                     <Grid item xs={12}>
                       <Button
                         className="viewAllbtn"
@@ -607,7 +605,6 @@ const DomainList = ({ globalSearchQuery }) => {
                         Review Now
                       </Button>
                     </Grid>
-
                     <Grid item xs={12}>
                       <Button
                         className="viewAllbtn"
@@ -623,7 +620,6 @@ const DomainList = ({ globalSearchQuery }) => {
                     </Grid>
                   </Grid>
                 </Grid>
-
                 <Grid item xs={12}>
                   {toasterMessage && (
                     <Box>
@@ -633,7 +629,7 @@ const DomainList = ({ globalSearchQuery }) => {
                 </Grid>
               </Grid>
             </Box>
-          </Box> 
+          </Box>  */}
 
           <Box textAlign="center">
             <p

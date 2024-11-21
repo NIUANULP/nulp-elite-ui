@@ -375,5 +375,27 @@
   "EMAIL": "ઇમેઇલ",
   "CATEGORY": "શ્રેણી",
   "STATUS": "સ્થિતિ",
-  "ACTION": "ક્રિયા"
+  "ACTION": "ક્રિયા",
+
+  "THEME_FILTER": "થીમ દ્વારા ફિલ્ટર કરો",
+  "STATE_FILTER": "રાજ્ય દ્વારા ફિલ્ટર કરો",
+  "STATUS_FILTER": "સ્થિતિ દ્વારા ફિલ્ટર કરો",
+  "EXPORT_TABLE": "કોષ્ટકની નિકાસ કરો",
+
+  "THEME": "થીમ",
+  "SUBTHEME": "સબથીમ",
+
+  "CITY": "શહેર",
+  "ORGANISATION": "સંસ્થા",
+  "SUBMISSION_DATE": "સબમિશન તારીખ",
+
+  "VIEW": "જુઓ",
+  "LERN_DASHBOARD": "લર્નનાથન ડેશબોર્ડ",
+  "TOTAL_SUBMISSION": "કુલ સબમિશન",
+  "ORG_PARTICIPATED": "સંસ્થાઓએ ભાગ લીધો",
+  "PUBLISHED_COUNT": "પ્રકાશિત સામગ્રી",
+  "ACEDEMIA": "એકેડેમિયા",
+  "STATE_ULBS": "રાજ્યો / ULBS વગેરે",
+  "INDUSTRY": "ઉદ્યોગ",
+  "STATE_COUNT": "રાજ્યની સંખ્યા"
 }
