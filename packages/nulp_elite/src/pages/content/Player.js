@@ -66,6 +66,8 @@ const Player = () => {
   let contentId = params.get("id");
   const [playerContent, setPlayerContent] = useState(false);
   const [noPreviewAvailable, setNoPreviewAvailable] = useState(false);
+  const playerUrl = `${window.location.origin}/newplayer`;
+
   let extractedRoles;
   if (contentId && contentId.endsWith("=")) {
     contentId = contentId.slice(0, -1);
@@ -875,7 +877,7 @@ const Player = () => {
                     setTrackData(data);
                   }
                 }}
-                public_url="https://nulp.niua.org/newplayer"
+                public_url={playerUrl}
               />
             ) : (
               <Box>{t("NO_CONTENT_TO_PLAY")}</Box>
