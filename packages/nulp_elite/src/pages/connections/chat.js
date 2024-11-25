@@ -131,7 +131,8 @@ const Chat = ({
     "Hello! I’d like to connect with you."
   );
   const [textValue, setTextValue] = useState("");
-console.log("hhhhhhhhhhhhhhhhhhhhhhhhhh");
+
+  const chatRef = useRef(null);
 
   const location = useLocation();
   const {
@@ -189,6 +190,15 @@ console.log("hhhhhhhhhhhhhhhhhhhhhhhhhh");
       fetchBlockUserStatus();
     }
   }, [receiverUserId, _userId]);
+
+  useEffect(() => {
+  if (messages.length > 0 && chatRef.current) {
+    chatRef.current.scrollTo({
+      top: chatRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }
+}, [messages,message]);
 
   useEffect(() => {
     const getInvitationNotAcceptedUserByIds = async () => {
@@ -718,7 +728,7 @@ console.log("hhhhhhhhhhhhhhhhhhhhhhhhhh");
           </Box>
         </div>
       ) : messages.length > 0 ? (
-        <div className={classes.chat}>
+        <div ref={chatRef} className={classes.chat}>
           <Alert severity="info" style={{ margin: "10px 0" }}>
             {t("YOUR_CHAT_WILL_DISAPPEAR")}
           </Alert>

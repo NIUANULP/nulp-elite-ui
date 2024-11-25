@@ -1143,7 +1143,7 @@ const LernCreatorForm = () => {
                       ))}
                     </TextField>
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item style={{ padding: "30px" }} xs={3}>
                     <Box>
                       {guidelineLink && (
                         <a
@@ -1717,22 +1717,33 @@ const LernCreatorForm = () => {
                           </Typography>
 
                           {/* Modal Actions */}
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => handleCheckboxChange(true)}
-                            style={{ marginRight: "10px" }}
-                          >
-                            {t("CONFIRM")}
-                          </Button>
+
                           <div style={{ marginTop: "20px" }}>
-                            <Button
-                              variant="outlined"
-                              color="secondary"
-                              onClick={() => setTNCOpen(false)}
+                            <div
+                              style={{
+                                padding: "5px",
+                              }}
                             >
-                              {t("CANCEL")}
-                            </Button>
+                              <Button
+                                variant="contained"
+                                className="viewAll"
+                                onClick={() => handleCheckboxChange(true)}
+                              >
+                                {t("CONFIRM")}
+                              </Button>
+                            </div>
+                            <div
+                              style={{
+                                padding: "5px",
+                              }}
+                            >
+                              <Button
+                                className="cancelBtn"
+                                onClick={() => setTNCOpen(false)}
+                              >
+                                {t("CANCEL")}
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </Modal>

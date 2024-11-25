@@ -221,6 +221,8 @@ const LernReviewList = () => {
                     <TableCell>
                       {new Date(row.updated_on).toLocaleDateString()}
                     </TableCell>
+                    <TableCell>{row.category_of_participation}</TableCell>
+
                     <TableCell
                       style={{
                         color:
@@ -234,7 +236,6 @@ const LernReviewList = () => {
                     >
                       {row.status}
                     </TableCell>
-                    <TableCell>{row.category_of_participation}</TableCell>
                     <TableCell>
                       {row.status == "review" && (
                         <Button

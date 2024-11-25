@@ -142,6 +142,8 @@ const DomainList = ({ globalSearchQuery }) => {
         },
       };
 
+      console.log("rolesss", roleList, isCreator);
+
       if (isCreator) {
         requestPayload.isCreator = false;
       } else {
@@ -568,7 +570,7 @@ const DomainList = ({ globalSearchQuery }) => {
           role="main"
         >
           {error && <Alert severity="error">{error}</Alert>}
-          {/* <Box className="lern-box">
+       {/*   <Box className="lern-box">
             <Box>
               <Grid container>
                 <Grid item xs={12}>
@@ -629,7 +631,7 @@ const DomainList = ({ globalSearchQuery }) => {
                 </Grid>
               </Grid>
             </Box>
-          </Box>  */}
+          </Box>*/}
 
           <Box textAlign="center">
             <p
