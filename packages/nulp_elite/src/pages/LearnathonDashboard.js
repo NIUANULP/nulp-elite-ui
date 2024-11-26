@@ -25,6 +25,7 @@ import { Pagination } from "@mui/material";
 
 import Footer from "components/Footer";
 import Header from "components/header";
+import { Button } from "native-base";
 const routeConfig = require("../configs/routeConfig.json");
 
 const LearnathonDashboard = () => {
@@ -43,6 +44,8 @@ const LearnathonDashboard = () => {
   const [theme, setTheme] = useState("");
   const [state, setState] = useState("");
   const [status, setStatus] = useState("");
+  const [totalParticipants, setTotalParticipants] = useState("");
+
   const { t } = useTranslation();
 
   const themeOptions = [
@@ -178,6 +181,7 @@ const LearnathonDashboard = () => {
         // setIsLoading(false);
       }
     };
+
     const fetchPublishedContent = async () => {
       const assetBody = {
         request: {
@@ -213,11 +217,26 @@ const LearnathonDashboard = () => {
     };
     fetchTotalSubmissions();
     fetchPublishedContent();
+    totalParticipations();
   }, [currentPage, rowsPerPage, search, theme, state, status]);
-  const handleClick = (contentId) => {
-    navigate(
-      `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${contentId}&page=vote`
-    );
+  const totalParticipations = async () => {
+    try {
+      const url = `${urlConfig.URLS.CHECK_USER_ACCESS}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      setTotalParticipants(data.result.totalCount);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
   };
   // Inline CSS for the component
   const dashboardStyle = {
@@ -251,12 +270,26 @@ const LearnathonDashboard = () => {
     setSearch(e.target.value);
     setCurrentPage(1); // Reset to first page on search
   };
+  const handleClearAll = () => {
+    alert("hi");
+    setTheme("");
+    setState("");
+    setStatus("");
+    setSearch("");
+    fetchTotalSubmissions();
+    fetchPublishedContent();
+  };
+
   return (
     <>
       <Header />
       <div style={dashboardStyle}>
         <h1>{t("LERN_DASHBOARD")}</h1>
         <div style={gridStyle}>
+          <div style={boxStyle}>
+            <h3>{t("TOTAL_PARTICIPANTS")}</h3>
+            <p style={countStyle}>{totalParticipants}</p>
+          </div>
           <div style={boxStyle}>
             <h3>{t("TOTAL_SUBMISSION")}</h3>
             <p style={countStyle}>{totalSubmissions}</p>
@@ -288,9 +321,14 @@ const LearnathonDashboard = () => {
         </div>
       </div>
 
-      <Grid xs={12} style={dashboardStyle}>
-        <Grid item xs={5}>
-          <Box display="flex" alignItems="center" mb={2}>
+      <Grid xs={12} sm={12} style={dashboardStyle}>
+        <Grid item xs={6}>
+          <Box
+            display="flex"
+            sx={{ minWidth: "100px" }}
+            gap={1}
+            alignItems="center"
+          >
             <TextField
               variant="outlined"
               placeholder={t("SEARCH_SUBMISSION")}
@@ -300,12 +338,19 @@ const LearnathonDashboard = () => {
                 endAdornment: <SearchIcon />,
               }}
               size="small"
-              sx={{ background: "#fff" }}
+              sx={{ minWidth: "70px", background: "#fff" }}
+            />
+
+            <ExportToCSV
+              sx={{ minWidth: "30px" }}
+              data={data}
+              fileName="table_data"
             />
           </Box>
         </Grid>
+
         {/* Filter Dropdowns */}
-        <Grid item xs={5}>
+        <Grid item xs={6}>
           <Box display="flex" gap={2} alignItems="center">
             <TextField
               select
@@ -354,20 +399,19 @@ const LearnathonDashboard = () => {
                 </MenuItem>
               ))}
             </TextField>
+            <Button
+              type="button"
+              className="viewAll mb-20"
+              onClick={handleClearAll}
+            >
+              {t("CLEAR_ALL")}
+            </Button>
           </Box>
         </Grid>
 
-        <Grid item xs={2}>
-          {/* <Button
-            className="viewAll"
-            onClick={() => exportTable()}
-            sx={{ padding: "7px 45px", borderRadius: "90px !important" }}
-          >
-            {t("EXPORT_TABLE")}
-          </Button> */}
-
-          <ExportToCSV data={data} fileName="table_data" />
-        </Grid>
+        {/* <Grid item xs={2}>
+            <ExportToCSV data={data} fileName="table_data" />        
+        </Grid> */}
       </Grid>
 
       <TableContainer component={Paper}>
@@ -395,7 +439,7 @@ const LearnathonDashboard = () => {
                 <TableCell>{row.city}</TableCell>
                 <TableCell>{row.name_of_organisation}</TableCell>
                 <TableCell>
-                  {row.updated_on ? row.updated_on : row.created_on}
+                  {formatDate(row.updated_on ? row.updated_on : row.created_on)}
                 </TableCell>
                 <TableCell>{row.status}</TableCell>
                 <TableCell>
