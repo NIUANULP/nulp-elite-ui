@@ -563,7 +563,8 @@ function Header({ globalSearchQuery }) {
               )}
 
               {/* Check if roles array is empty or contains "PUBLIC" */}
-             
+
+              {accessWorkspace && (
                 <Link
                   target="_blank"
                   href="/workspace/content/create"
@@ -572,7 +573,7 @@ function Header({ globalSearchQuery }) {
                 >
                   <MenuItem>{t("WORKSPACE")}</MenuItem>
                 </Link>
-              
+              )}
 
               <MenuItem
                 onClick={handleSubmenuToggle}
