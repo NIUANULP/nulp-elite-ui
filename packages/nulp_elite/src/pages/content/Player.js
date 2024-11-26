@@ -350,7 +350,7 @@ const Player = () => {
       window.location.reload();
     } else {
       navigate(-1); // Navigate back in history
-      window.location.reload();
+       window.location.reload();
     }
   };
 
