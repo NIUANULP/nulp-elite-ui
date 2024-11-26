@@ -271,7 +271,6 @@ const LearnathonDashboard = () => {
     setCurrentPage(1); // Reset to first page on search
   };
   const handleClearAll = () => {
-    alert("hi");
     setTheme("");
     setState("");
     setStatus("");
@@ -451,7 +450,7 @@ const LearnathonDashboard = () => {
                           routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
                           "?id=" +
                           row.learnathon_content_id +
-                          "&page=vote")
+                          "&page=dashboard")
                       }
                       sx={{ color: "#054753" }}
                       className="table-icon"
@@ -466,7 +465,7 @@ const LearnathonDashboard = () => {
                           routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
                           "?id=" +
                           row.learnathon_content_id +
-                          "&page=lernpreview")
+                          "&page=dashboard")
                       }
                       sx={{ color: "#054753" }}
                       className="table-icon"

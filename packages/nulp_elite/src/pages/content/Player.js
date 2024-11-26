@@ -266,7 +266,8 @@ const Player = () => {
         if (
           pageParam == "review" ||
           pageParam == "lern" ||
-          pageParam == "lernpreview"
+          pageParam == "lernpreview" ||
+          pageParam == "dashboard"
         ) {
           setIsLearnathon(true);
 
@@ -344,8 +345,12 @@ const Player = () => {
     } else if (pageParam == "lernpreview") {
       navigate("/webapp/mylernsubmissions");
       window.location.reload();
+    } else if (pageParam == "dashboard") {
+      navigate("/webapp/learndashboard");
+      window.location.reload();
     } else {
       navigate(-1); // Navigate back in history
+      window.location.reload();
     }
   };
 
@@ -414,12 +419,12 @@ const Player = () => {
   };
 
   useEffect(() => {
-    if (pageParam == "vote") {
+    if (pageParam == "vote" || pageParam == "dashboard") {
       CheckLearnathonContent();
     }
   }, [contentId]);
   useEffect(() => {
-    if (pageParam == "vote") {
+    if (pageParam == "vote" || pageParam == "dashboard") {
       CheckAlreadyVoted();
     }
   }, [pollId]);
