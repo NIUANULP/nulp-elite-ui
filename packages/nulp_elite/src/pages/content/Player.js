@@ -111,7 +111,7 @@ const Player = () => {
     } else if (data.eid === "END") {
       await updateContentState(2);
     } else if (data.eid === "START") {
-      await updateContentState(2);
+      await updateContentState(1);
     }
   };
 
@@ -193,7 +193,7 @@ const Player = () => {
   }
 
   const updateContentStateForAssessment = async () => {
-    await updateContentState(2);
+    // await updateContentState(2);
     try {
       const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
       const requestBody = {
@@ -222,6 +222,7 @@ const Player = () => {
         },
       };
       const response = await axios.patch(url, requestBody);
+      console.log("assesment state updated");
     } catch (error) {
       console.error("Error fetching course data:", error);
     }
