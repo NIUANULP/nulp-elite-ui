@@ -66,7 +66,11 @@ const Player = () => {
   let contentId = params.get("id");
   const [playerContent, setPlayerContent] = useState(false);
   const [noPreviewAvailable, setNoPreviewAvailable] = useState(false);
-  const playerUrl = `${window.location.origin}/newplayer`;
+  // const playerUrl = `${window.location.origin}/newplayer`;
+  const playerUrl =
+    window.location.origin != "http://localhost:3000"
+      ? `${window.location.origin}/newplayer`
+      : "https://devnulp.niua.org/newplayer";
 
   let extractedRoles;
   if (contentId && contentId.endsWith("=")) {
@@ -90,6 +94,7 @@ const Player = () => {
 
   const handleTrackData = useCallback(
     async ({ score, trackData, attempts, ...props }, playerType = "quml") => {
+      console.log("assestrack", Object.keys(props).length);
       setPropLength(Object.keys(props).length);
       CheckfeedBackSubmitted();
 
@@ -98,19 +103,26 @@ const Player = () => {
         props.currentPage === props.totalPages
       ) {
         setIsCompleted(true);
+      } else if (playerType === "ecml" && propLength === assessEvents.length) {
+        await updateContentStateForAssessment();
       }
     },
     [assessEvents]
   );
   const handleAssessmentData = async (data) => {
+    console.log("data  handleAssessmentData----", data);
     if (data.eid === "ASSESS") {
       setAssessEvents((prevAssessEvents) => {
         const updatedAssessEvents = [...prevAssessEvents, data];
         return updatedAssessEvents;
       });
     } else if (data.eid === "END") {
+      console.log("data  assessEvents----", assessEvents);
+
       await updateContentState(2);
-    } else if (data.eid === "START") {
+    } else if (data.eid === "START" && playerType === "ecml") {
+      await updateContentState(1);
+    } else if (data.eid === "START" && playerType != "ecml") {
       await updateContentState(2);
     }
   };
@@ -193,7 +205,7 @@ const Player = () => {
   }
 
   const updateContentStateForAssessment = async () => {
-    await updateContentState(2);
+    // await updateContentState(2);
     try {
       const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
       const requestBody = {
@@ -222,6 +234,7 @@ const Player = () => {
         },
       };
       const response = await axios.patch(url, requestBody);
+      console.log("assesment state updated");
     } catch (error) {
       console.error("Error fetching course data:", error);
     }
@@ -266,7 +279,8 @@ const Player = () => {
         if (
           pageParam == "review" ||
           pageParam == "lern" ||
-          pageParam == "lernpreview"
+          pageParam == "lernpreview" ||
+          pageParam == "dashboard"
         ) {
           setIsLearnathon(true);
 
@@ -344,8 +358,12 @@ const Player = () => {
     } else if (pageParam == "lernpreview") {
       navigate("/webapp/mylernsubmissions");
       window.location.reload();
+    } else if (pageParam == "dashboard") {
+      navigate("/webapp/learndashboard");
+      window.location.reload();
     } else {
       navigate(-1); // Navigate back in history
+      window.location.reload();
     }
   };
 
@@ -414,12 +432,12 @@ const Player = () => {
   };
 
   useEffect(() => {
-    if (pageParam == "vote") {
+    if (pageParam == "vote" || pageParam == "dashboard") {
       CheckLearnathonContent();
     }
   }, [contentId]);
   useEffect(() => {
-    if (pageParam == "vote") {
+    if (pageParam == "vote" || pageParam == "dashboard") {
       CheckAlreadyVoted();
     }
   }, [pollId]);
