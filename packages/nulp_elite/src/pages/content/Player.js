@@ -120,8 +120,10 @@ const Player = () => {
       console.log("data  assessEvents----", assessEvents);
 
       await updateContentState(2);
-    } else if (data.eid === "START") {
+    } else if (data.eid === "START" && playerType === "ecml") {
       await updateContentState(1);
+    } else if (data.eid === "START" && playerType != "ecml") {
+      await updateContentState(2);
     }
   };
 
