@@ -203,7 +203,6 @@ const Player = () => {
   }
 
   const updateContentStateForAssessment = async () => {
-    alert("hi");
     // await updateContentState(2);
     try {
       const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
