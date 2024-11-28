@@ -12,9 +12,14 @@ const SunbirdPlayer = ({
   telemetryData,
   ...props
 }) => {
+  console.log('props----', props)
   const { mimeType } = props
   let trackData = []
   const [url, setUrl] = React.useState()
+  const questionListUrl =
+    window.location.origin != 'http://localhost:3000'
+      ? `${window.location.origin}/api/question/v1/list`
+      : 'https://devnulp.niua.org/api/question/v1/list'
   React.useEffect(() => {
     if (mimeType === 'application/pdf') {
       setUrl(`/pdf`)
@@ -176,7 +181,7 @@ const SunbirdPlayer = ({
           width='100%'
           name={JSON.stringify({
             ...props,
-            questionListUrl: 'https://nulp.niua.org/api/question/v1/list'
+            questionListUrl: questionListUrl
             // questionListUrl: `${process.env.REACT_APP_API_URL}/course/questionset`
           })}
           src={`${public_url ? public_url : process.env.PUBLIC_URL}${url}`}
