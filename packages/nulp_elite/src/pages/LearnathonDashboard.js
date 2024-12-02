@@ -31,6 +31,8 @@ const routeConfig = require("../configs/routeConfig.json");
 const LearnathonDashboard = () => {
   const [search, setSearch] = useState("");
   const [data, setData] = useState([]);
+  const [exportdata, setExportData] = useState([]);
+
   const [totalSubmissions, setTotalSubmissions] = useState(0);
   const [organisationsParticipated, setOrganisationsParticipated] = useState(0);
   const [publishedContent, setPublishedContent] = useState(0);
@@ -148,6 +150,75 @@ const LearnathonDashboard = () => {
         setTotalRows(Math.ceil(result.result.totalCount / 10));
 
         setData(result.result.data);
+        const states = result.result.data
+          .map((item) => item.state)
+          .filter((state) => state !== null);
+        const uniqueStates = [...new Set(states)]; // Removing duplicates
+        const stateCount = uniqueStates.length;
+        setStateCount(stateCount);
+        const organizations = result.result.data
+          .map((item) => item.name_of_organisation)
+          .filter((org) => org); // Filter out empty strings
+        const uniqueOrganizations = [...new Set(organizations)];
+        const OrganisationsParticipated = uniqueOrganizations.length;
+        setOrganisationsParticipated(OrganisationsParticipated);
+        const StatesULBs = result.result.data.filter(
+          (item) =>
+            item.category_of_participation ===
+            "State / UT / SPVs / ULBs / Any Other"
+        ).length;
+        setStatesULBs(StatesULBs);
+        const Academia = result.result.data.filter(
+          (item) => item.category_of_participation === "Academia"
+        ).length;
+        setAcademia(Academia);
+        const Industry = result.result.data.filter(
+          (item) => item.category_of_participation === "Industry"
+        ).length;
+        setIndustry(Industry);
+      } catch (error) {
+        console.log("error---", error);
+        // setError(error.message);
+      } finally {
+        // setIsLoading(false);
+      }
+      const exportassetBody = {
+        request: {
+          filters: {
+            ...(state && { state: state }),
+            ...(status && { status: status }),
+            ...(theme && { indicative_theme: theme }),
+          },
+
+          sort_by: {
+            created_on: "desc",
+          },
+          sort_by: {
+            created_on: "desc",
+          },
+          limit: 1000000,
+          offset: 10 * (currentPage - 1),
+          search: search,
+        },
+      };
+      try {
+        const response = await fetch(`${urlConfig.URLS.LEARNATHON.LIST}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(exportassetBody),
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch list");
+        }
+        const result = await response.json();
+        console.log("suceesss----", result);
+        console.log(result.result);
+        setTotalSubmissions(result.result.totalCount);
+        setTotalRows(Math.ceil(result.result.totalCount / 10));
+
+        setExportData(result.result.data);
         const states = result.result.data
           .map((item) => item.state)
           .filter((state) => state !== null);
@@ -342,7 +413,7 @@ const LearnathonDashboard = () => {
 
             <ExportToCSV
               sx={{ minWidth: "30px" }}
-              data={data}
+              data={exportdata}
               fileName="table_data"
             />
           </Box>
