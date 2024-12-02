@@ -236,6 +236,7 @@ export default function BoxCard({ items, index, onClick, continueLearning }) {
             )}
           </Box>
           <Box>
+            {" "}
             {items?.medium ||
               (items?.se_mediums && (
                 <>
