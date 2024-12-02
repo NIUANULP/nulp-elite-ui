@@ -292,6 +292,13 @@ const playerConfig = {
   },
   metadata: metadata,
   config: {
+    showEndPage: true,
+    endPage: [
+      {
+        template: "assessment",
+        contentType: ["SelfAssess"],
+      },
+    ],
     traceId: "1234",
     sideMenu: {
       enable: false,
