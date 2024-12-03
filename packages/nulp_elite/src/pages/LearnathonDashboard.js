@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-const urlConfig = require("../configs/urlConfig.json");
 import ExportToCSV from "components/ExportToCSV";
 import Paper from "@mui/material/Paper";
 
@@ -12,21 +11,22 @@ import {
   TableRow,
   TextField,
   IconButton,
-  Box,
   Grid,
+  Container,
+  Button,
+  Box
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import MenuItem from "@mui/material/MenuItem";
 
-import { Edit, Visibility, Delete } from "@mui/icons-material";
+import { Visibility } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
-import { useNavigate, useLocation } from "react-router-dom";
 import { Pagination } from "@mui/material";
 
 import Footer from "components/Footer";
 import Header from "components/header";
-import { Button } from "native-base";
 const routeConfig = require("../configs/routeConfig.json");
+const urlConfig = require("../configs/urlConfig.json");
 
 const LearnathonDashboard = () => {
   const [search, setSearch] = useState("");
@@ -390,15 +390,9 @@ const LearnathonDashboard = () => {
           </div>
         </div>
       </div>
-
-      <Grid xs={12} sm={12} style={dashboardStyle}>
-        <Grid item xs={6}>
-          <Box
-            display="flex"
-            sx={{ minWidth: "100px" }}
-            gap={1}
-            alignItems="center"
-          >
+      <Container role="main" maxWidth="xxl" sx={{ padding: '20px' }}>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
             <TextField
               variant="outlined"
               placeholder={t("SEARCH_SUBMISSION")}
@@ -408,20 +402,18 @@ const LearnathonDashboard = () => {
                 endAdornment: <SearchIcon />,
               }}
               size="small"
-              sx={{ minWidth: "70px", background: "#fff" }}
+              sx={{ background: "#fff" }}
             />
-
+          </Grid>
+          <Grid item xs={6}>
             <ExportToCSV
-              sx={{ minWidth: "30px" }}
+              sx={{ minWidth: "30px", float: 'right' }}
               data={exportdata}
               fileName="table_data"
             />
-          </Box>
-        </Grid>
-
-        {/* Filter Dropdowns */}
-        <Grid item xs={6}>
-          <Box display="flex" gap={2} alignItems="center">
+          </Grid>
+          {/* Filter Dropdowns */}
+          <Grid item xs={3}>
             <TextField
               select
               variant="outlined"
@@ -429,7 +421,7 @@ const LearnathonDashboard = () => {
               size="small"
               value={theme}
               onChange={(e) => setTheme(e.target.value)}
-              sx={{ background: "#fff", minWidth: "100px" }}
+              sx={{ background: "#fff" }}
             >
               {themeOptions.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
@@ -437,7 +429,8 @@ const LearnathonDashboard = () => {
                 </MenuItem>
               ))}
             </TextField>
-
+          </Grid>
+          <Grid item xs={3}>
             <TextField
               select
               variant="outlined"
@@ -453,7 +446,8 @@ const LearnathonDashboard = () => {
                 </MenuItem>
               ))}
             </TextField>
-
+          </Grid>
+          <Grid item xs={3}>
             <TextField
               select
               variant="outlined"
@@ -469,96 +463,97 @@ const LearnathonDashboard = () => {
                 </MenuItem>
               ))}
             </TextField>
+          </Grid>
+          <Grid item xs={3}>
             <Button
               type="button"
-              className="viewAll mb-20"
               onClick={handleClearAll}
+              className="viewAll mb-20"
             >
               {t("CLEAR_ALL")}
             </Button>
-          </Box>
+          </Grid>
         </Grid>
-
-        {/* <Grid item xs={2}>
-            <ExportToCSV data={data} fileName="table_data" />        
-        </Grid> */}
-      </Grid>
-
-      <TableContainer component={Paper}>
-        <Table aria-label="simple table">
-          <TableHead sx={{ background: "#D8F6FF" }}>
-            <TableRow>
-              <TableCell>{t("SUBMISSION_NAME")}</TableCell>
-              <TableCell>{t("THEME")}</TableCell>
-              <TableCell>{t("SUBTHEME")}</TableCell>
-              <TableCell>{t("STATE")}</TableCell>
-              <TableCell>{t("CITY")}</TableCell>
-              <TableCell>{t("ORGANISATION")}</TableCell>
-              <TableCell>{t("SUBMISSION_DATE")}</TableCell>
-              <TableCell>{t("STATUS")}</TableCell>
-              <TableCell>{t("VIEW")}</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell>{row.title_of_submission}</TableCell>
-                <TableCell>{row.indicative_theme}</TableCell>
-                <TableCell>{row.indicative_sub_theme}</TableCell>
-                <TableCell>{row.state}</TableCell>
-                <TableCell>{row.city}</TableCell>
-                <TableCell>{row.name_of_organisation}</TableCell>
-                <TableCell>
-                  {formatDate(row.updated_on ? row.updated_on : row.created_on)}
-                </TableCell>
-                <TableCell>{row.status}</TableCell>
-                <TableCell>
-                  {row.poll_id && row.poll_id != null ? (
-                    <IconButton
-                      color="primary"
-                      onClick={() =>
-                        (window.location.href =
-                          routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
-                          "?id=" +
-                          row.learnathon_content_id +
-                          "&page=dashboard")
-                      }
-                      sx={{ color: "#054753" }}
-                      className="table-icon"
-                    >
-                      <Visibility />
-                    </IconButton>
-                  ) : (
-                    <IconButton
-                      color="primary"
-                      onClick={() =>
-                        (window.location.href =
-                          routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
-                          "?id=" +
-                          row.learnathon_content_id +
-                          "&page=dashboard")
-                      }
-                      sx={{ color: "#054753" }}
-                      className="table-icon"
-                    >
-                      <Visibility />
-                    </IconButton>
-                  )}
-                </TableCell>
-                {/* <TableCell>{row.indicative_sub_theme}</TableCell>
-                <TableCell>{row.name_of_organisation}</TableCell>
-                <TableCell>{row.indicative_theme}</TableCell>
-                <TableCell>{row.indicative_sub_theme}</TableCell> */}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <Pagination
-        count={totalRows}
-        page={currentPage}
-        onChange={handleChange}
-      />
+      </Container>
+      <Container role="main" maxWidth="xxl">
+        <Grid container spacing={2}>
+          <Grid xs={12} sm={12}>
+            <Box sx={{ padding: '20px' }}>
+              <TableContainer component={Paper}>
+                <Table aria-label="simple table">
+                  <TableHead sx={{ background: "#D8F6FF" }}>
+                    <TableRow>
+                      <TableCell>{t("SUBMISSION_NAME")}</TableCell>
+                      <TableCell>{t("THEME")}</TableCell>
+                      <TableCell>{t("SUBTHEME")}</TableCell>
+                      <TableCell>{t("STATE")}</TableCell>
+                      <TableCell>{t("CITY")}</TableCell>
+                      <TableCell>{t("ORGANISATION")}</TableCell>
+                      <TableCell>{t("SUBMISSION_DATE")}</TableCell>
+                      <TableCell>{t("STATUS")}</TableCell>
+                      <TableCell>{t("VIEW")}</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {data.map((row) => (
+                      <TableRow key={row.id}>
+                        <TableCell>{row.title_of_submission}</TableCell>
+                        <TableCell>{row.indicative_theme}</TableCell>
+                        <TableCell>{row.indicative_sub_theme}</TableCell>
+                        <TableCell>{row.state}</TableCell>
+                        <TableCell>{row.city}</TableCell>
+                        <TableCell>{row.name_of_organisation}</TableCell>
+                        <TableCell>
+                          {formatDate(row.updated_on ? row.updated_on : row.created_on)}
+                        </TableCell>
+                        <TableCell>{row.status}</TableCell>
+                        <TableCell>
+                          {row.poll_id && row.poll_id != null ? (
+                            <IconButton
+                              color="primary"
+                              onClick={() =>
+                              (window.location.href =
+                                routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
+                                "?id=" +
+                                row.learnathon_content_id +
+                                "&page=dashboard")
+                              }
+                              sx={{ color: "#054753" }}
+                              className="table-icon"
+                            >
+                              <Visibility />
+                            </IconButton>
+                          ) : (
+                            <IconButton
+                              color="primary"
+                              onClick={() =>
+                              (window.location.href =
+                                routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
+                                "?id=" +
+                                row.learnathon_content_id +
+                                "&page=dashboard")
+                              }
+                              sx={{ color: "#054753" }}
+                              className="table-icon"
+                            >
+                              <Visibility />
+                            </IconButton>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <Pagination
+                count={totalRows}
+                page={currentPage}
+                onChange={handleChange}
+              />
+            </Box>
+          </Grid>
+        </Grid>
+      </Container>
       <Footer />
     </>
   );
