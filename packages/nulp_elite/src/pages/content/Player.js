@@ -347,30 +347,30 @@ const Player = () => {
   const handleClose = () => setOpenFeedBack(false);
   const handleGoBack = () => navigate(sessionStorage.getItem("previousRoutes"));
   const handleBackNavigation = () => {
+    console.log("pageParam - ", pageParam);
     if (pageParam == "vote") {
-      alert("00000");
-
       navigate("/webapp/lernvotinglist");
       window.location.reload();
     } else if (pageParam == "lern") {
-      alert("11111");
-
       navigate("/webapp/lernreviewlist", { state: { backPage: "player" } });
       window.location.reload();
     } else if (pageParam == "lernpreview") {
-      alert("22222");
-
       navigate("/webapp/mylernsubmissions");
       window.location.reload();
     } else if (pageParam == "dashboard") {
-      alert("3333");
-
       navigate("/webapp/learndashboard");
       window.location.reload();
     } else {
-      alert("444444");
-      navigate(-1); // Navigate back in history
-      window.location.reload();
+      console.log(
+        "sessionStorage.getItem(previousRoutes) - ",
+        sessionStorage.getItem("previousRoutes")
+      );
+      if (sessionStorage.getItem("previousRoutes")) {
+        navigate(sessionStorage.getItem("previousRoutes"));
+        window.location.reload();
+      } else {
+        navigate(-1); // Navigate back in history
+      }
     }
   };
 
@@ -616,6 +616,7 @@ const Player = () => {
         alert("Content Rejected");
 
         handleBackNavigation();
+
         window.location.reload();
       } catch (error) {
       } finally {
