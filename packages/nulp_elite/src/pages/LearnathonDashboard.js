@@ -197,7 +197,7 @@ const LearnathonDashboard = () => {
             created_on: "desc",
           },
           limit: 1000000,
-          offset: 10 * (currentPage - 1),
+          offset: 0,
           search: search,
         },
       };
