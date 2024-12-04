@@ -14,7 +14,7 @@ import {
   Grid,
   Container,
   Button,
-  Box
+  Box,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import MenuItem from "@mui/material/MenuItem";
@@ -390,7 +390,7 @@ const LearnathonDashboard = () => {
           </div>
         </div>
       </div>
-      <Container role="main" maxWidth="xxl" sx={{ padding: '20px' }}>
+      <Container role="main" maxWidth="xxl" sx={{ padding: "20px" }}>
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <TextField
@@ -407,7 +407,7 @@ const LearnathonDashboard = () => {
           </Grid>
           <Grid item xs={6}>
             <ExportToCSV
-              sx={{ minWidth: "30px", float: 'right' }}
+              sx={{ minWidth: "30px", float: "right" }}
               data={exportdata}
               fileName="table_data"
             />
@@ -467,7 +467,7 @@ const LearnathonDashboard = () => {
           <Grid item xs={3}>
             <Button
               type="button"
-              onClick={handleClearAll}
+              onClick={() => handleClearAll()}
               className="viewAll mb-20"
             >
               {t("CLEAR_ALL")}
@@ -478,7 +478,7 @@ const LearnathonDashboard = () => {
       <Container role="main" maxWidth="xxl">
         <Grid container spacing={2}>
           <Grid xs={12} sm={12}>
-            <Box sx={{ padding: '20px' }}>
+            <Box sx={{ padding: "20px" }}>
               <TableContainer component={Paper}>
                 <Table aria-label="simple table">
                   <TableHead sx={{ background: "#D8F6FF" }}>
@@ -504,7 +504,9 @@ const LearnathonDashboard = () => {
                         <TableCell>{row.city}</TableCell>
                         <TableCell>{row.name_of_organisation}</TableCell>
                         <TableCell>
-                          {formatDate(row.updated_on ? row.updated_on : row.created_on)}
+                          {formatDate(
+                            row.updated_on ? row.updated_on : row.created_on
+                          )}
                         </TableCell>
                         <TableCell>{row.status}</TableCell>
                         <TableCell>
@@ -512,11 +514,11 @@ const LearnathonDashboard = () => {
                             <IconButton
                               color="primary"
                               onClick={() =>
-                              (window.location.href =
-                                routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
-                                "?id=" +
-                                row.learnathon_content_id +
-                                "&page=dashboard")
+                                (window.location.href =
+                                  routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
+                                  "?id=" +
+                                  row.learnathon_content_id +
+                                  "&page=dashboard")
                               }
                               sx={{ color: "#054753" }}
                               className="table-icon"
@@ -527,11 +529,11 @@ const LearnathonDashboard = () => {
                             <IconButton
                               color="primary"
                               onClick={() =>
-                              (window.location.href =
-                                routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
-                                "?id=" +
-                                row.learnathon_content_id +
-                                "&page=dashboard")
+                                (window.location.href =
+                                  routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
+                                  "?id=" +
+                                  row.learnathon_content_id +
+                                  "&page=dashboard")
                               }
                               sx={{ color: "#054753" }}
                               className="table-icon"
