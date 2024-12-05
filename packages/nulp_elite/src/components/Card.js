@@ -34,6 +34,7 @@ export default function BoxCard({ items, index, onClick, continueLearning }) {
     return dateObject.toLocaleDateString("en-GB", options);
   };
 
+
   if (items.content) {
     return (
       <Card
@@ -98,9 +99,8 @@ export default function BoxCard({ items, index, onClick, continueLearning }) {
                 <Box className="cardLabelEllips">
                   {items.content.organisation.length === 1
                     ? items.content.organisation[0]
-                    : `${items.content.organisation[0]} + ${
-                        items.content.organisation.length - 1
-                      }`}
+                    : `${items.content.organisation[0]} + ${items.content.organisation.length - 1
+                    }`}
                 </Box>
               </Typography>
             )}
@@ -227,76 +227,52 @@ export default function BoxCard({ items, index, onClick, continueLearning }) {
                   <Box className="cardLabelEllips">
                     {items.organisation.length === 1
                       ? items.organisation[0]
-                      : `${items.organisation[0]} + ${
-                          items.organisation.length - 1
-                        }`}
+                      : `${items.organisation[0]} + ${items.organisation.length - 1
+                      }`}
                   </Box>
                 </Typography>
               </Tooltip>
             )}
           </Box>
           <Box>
-            {" "}
-            {items?.medium ||
-              (items?.se_mediums && (
-                <>
-                  {items?.medium && items.medium.length > 0 ? (
-                    <Tooltip
-                      title={
-                        items.medium.length > 1
-                          ? items.medium.join(", ")
-                          : items.medium[0]
-                      }
-                      arrow
-                      placement="top"
-                    >
-                      <Typography
-                        variant="body2"
-                        color="#5B5B5B"
-                        style={{
-                          fontSize: "11px",
-                          padding: "10px 0",
-                          textAlign: "right",
-                        }}
-                      >
-                        <Box className="cardLabelEllips">
-                          {items.medium.length === 1
-                            ? items.medium[0]
-                            : `${items.medium[0]} + ${items.medium.length - 1}`}
-                        </Box>
-                      </Typography>
-                    </Tooltip>
-                  ) : (
-                    <Tooltip
-                      title={
-                        items.se_mediums.length > 1
+            {items?.medium || items?.se_mediums ? (
+              <>
+                {(items?.medium && items.medium.length > 0) || items?.se_mediums.length > 0 ? (
+                  <Tooltip
+                    title={
+                      items.medium?.length > 1
+                        ? items.medium.join(", ")
+                        : items.medium?.[0] ||
+                        (items.se_mediums.length > 1
                           ? items.se_mediums.join(", ")
-                          : items.se_mediums[0]
-                      }
-                      arrow
-                      placement="top"
+                          : items.se_mediums[0])
+                    }
+                    arrow
+                    placement="top"
+                  >
+                    <Typography
+                      variant="body2"
+                      color="#5B5B5B"
+                      style={{
+                        fontSize: "11px",
+                        padding: "10px 0",
+                        textAlign: "right",
+                      }}
                     >
-                      <Typography
-                        variant="body2"
-                        color="#5B5B5B"
-                        style={{
-                          fontSize: "11px",
-                          padding: "10px 0",
-                          textAlign: "right",
-                        }}
-                      >
-                        <Box className="cardLabelEllips">
-                          {items.se_mediums.length === 1
+                      <Box className="cardLabelEllips">
+                        {items.medium?.length > 0
+                          ? items.medium.length === 1
+                            ? items.medium[0]
+                            : `${items.medium[0]} + ${items.medium.length - 1}`
+                          : items.se_mediums.length === 1
                             ? items.se_mediums[0]
-                            : `${items.se_mediums[0]} + ${
-                                items.se_mediums.length - 1
-                              }`}
-                        </Box>
-                      </Typography>
-                    </Tooltip>
-                  )}
-                </>
-              ))}
+                            : `${items.se_mediums[0]} + ${items.se_mediums.length - 1}`}
+                      </Box>
+                    </Typography>
+                  </Tooltip>
+                ) : null}
+              </>
+            ) : null}
           </Box>
         </Box>
       </CardContent>
@@ -304,72 +280,69 @@ export default function BoxCard({ items, index, onClick, continueLearning }) {
         items?.gradeLevel ||
         items?.se_boards ||
         items?.se_gradeLevels) && (
-        <>
-          <Box className="textLeft mb-15 d-flex">
-            {items?.board ? (
-              <Tooltip
-                title={items.board}
-                placement="top"
-                className="labelOne cardLabelEllips"
-              >
-                <Button>{items.board}</Button>
-              </Tooltip>
-            ) : (
-              <Tooltip
-                title={
-                  Array.isArray(items?.se_boards) && items.se_boards.length > 0
-                    ? items.se_boards.join(", ")
-                    : ""
-                }
-                placement="top"
-                className="labelOne cardLabelEllips"
-              >
-                <Button>
-                  {Array.isArray(items?.se_boards) && items.se_boards.length > 0
-                    ? `${items.se_boards[0]}${
-                        items.se_boards.length > 1
-                          ? ` + ${items.se_boards.length - 1}`
-                          : ""
+          <>
+            <Box className="textLeft mb-15 d-flex">
+              {items?.board ? (
+                <Tooltip
+                  title={items.board}
+                  placement="top"
+                  className="labelOne cardLabelEllips"
+                >
+                  <Button>{items.board}</Button>
+                </Tooltip>
+              ) : (
+                <Tooltip
+                  title={
+                    Array.isArray(items?.se_boards) && items.se_boards.length > 0
+                      ? items.se_boards.join(", ")
+                      : ""
+                  }
+                  placement="top"
+                  className="labelOne cardLabelEllips"
+                >
+                  <Button>
+                    {Array.isArray(items?.se_boards) && items.se_boards.length > 0
+                      ? `${items.se_boards[0]}${items.se_boards.length > 1
+                        ? ` + ${items.se_boards.length - 1}`
+                        : ""
                       }`
-                    : ""}
-                </Button>
-              </Tooltip>
-            )}
-            {(items.gradeLevel || items.se_gradeLevels) && (
-              <Tooltip
-                title={
-                  Array.isArray(items?.gradeLevel) &&
-                  items.gradeLevel.length > 1
-                    ? items.gradeLevel.join(", ")
-                    : items.gradeLevel?.[0] ||
+                      : ""}
+                  </Button>
+                </Tooltip>
+              )}
+              {(items.gradeLevel || items.se_gradeLevels) && (
+                <Tooltip
+                  title={
+                    Array.isArray(items?.gradeLevel) &&
+                      items.gradeLevel.length > 1
+                      ? items.gradeLevel.join(", ")
+                      : items.gradeLevel?.[0] ||
                       (Array.isArray(items?.se_gradeLevels) &&
-                      items.se_gradeLevels.length > 1
+                        items.se_gradeLevels.length > 1
                         ? items.se_gradeLevels.join(", ")
                         : items.se_gradeLevels?.[0] || "")
-                }
-                placement="top"
-                className="labeltwo cardLabelEllips"
-              >
-                <Button>
-                  {Array.isArray(items?.gradeLevel) &&
-                  items.gradeLevel.length === 1
-                    ? items.gradeLevel[0]
-                    : (Array.isArray(items?.gradeLevel) &&
-                        `${items.gradeLevel[0]} + ${
-                          items.gradeLevel.length - 1
+                  }
+                  placement="top"
+                  className="labeltwo cardLabelEllips"
+                >
+                  <Button>
+                    {Array.isArray(items?.gradeLevel) &&
+                      items.gradeLevel.length === 1
+                      ? items.gradeLevel[0]
+                      : (Array.isArray(items?.gradeLevel) &&
+                        `${items.gradeLevel[0]} + ${items.gradeLevel.length - 1
                         }`) ||
-                      (Array.isArray(items?.se_gradeLevels) &&
-                        items.se_gradeLevels.length === 1)
-                    ? items.se_gradeLevels[0]
-                    : `${items.se_gradeLevels[0]} + ${
-                        items.se_gradeLevels.length - 1
-                      }`}
-                </Button>
-              </Tooltip>
-            )}
-          </Box>
-        </>
-      )}
+                        (Array.isArray(items?.se_gradeLevels) &&
+                          items.se_gradeLevels.length === 1)
+                        ? items.se_gradeLevels[0]
+                        : `${items.se_gradeLevels[0]} + ${items.se_gradeLevels.length - 1
+                        }`}
+                  </Button>
+                </Tooltip>
+              )}
+            </Box>
+          </>
+        )}
     </Card>
   );
 }

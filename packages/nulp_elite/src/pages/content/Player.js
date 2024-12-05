@@ -349,6 +349,7 @@ const Player = () => {
   const handleClose = () => setOpenFeedBack(false);
   const handleGoBack = () => navigate(sessionStorage.getItem("previousRoutes"));
   const handleBackNavigation = () => {
+    console.log("pageParam - ", pageParam);
     if (pageParam == "vote") {
       navigate("/webapp/lernvotinglist");
       window.location.reload();
@@ -362,8 +363,16 @@ const Player = () => {
       navigate("/webapp/learndashboard");
       window.location.reload();
     } else {
-      navigate(-1); // Navigate back in history
-      window.location.reload();
+      console.log(
+        "sessionStorage.getItem(previousRoutes) - ",
+        sessionStorage.getItem("previousRoutes")
+      );
+      if (sessionStorage.getItem("previousRoutes")) {
+        navigate(sessionStorage.getItem("previousRoutes"));
+        window.location.reload();
+      } else {
+        navigate(-1); // Navigate back in history
+      }
     }
   };
 
@@ -609,6 +618,7 @@ const Player = () => {
         alert("Content Rejected");
 
         handleBackNavigation();
+
         window.location.reload();
       } catch (error) {
       } finally {

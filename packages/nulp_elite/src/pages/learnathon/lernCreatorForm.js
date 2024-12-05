@@ -29,7 +29,7 @@ import industrytnc from "../../assets/industry-tnc.pdf";
 import acdemiatnc from "../../assets/academia-tnc.pdf";
 import statetnc from "../../assets/state-tnc.pdf";
 import Loader from "components/Loader";
-
+import Checkbox from '@mui/material/Checkbox';
 import Alert from "@mui/material/Alert";
 const routeConfig = require("../../configs/routeConfig.json");
 
@@ -1517,11 +1517,8 @@ const LernCreatorForm = () => {
                     </Typography>
 
                     {/* Modal Actions */}
-                    <div style={{ marginTop: "20px" }}>
-                      <div
-                        style={{
-                          padding: "5px",
-                        }}
+                    <Box style={{ marginTop: "20px", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Box
                       >
                         <Button
                           variant="contained"
@@ -1533,11 +1530,9 @@ const LernCreatorForm = () => {
                         >
                           {t("PROCEED")}
                         </Button>
-                      </div>
-                      <div
-                        style={{
-                          padding: "5px",
-                        }}
+                      </Box>
+                      <Box
+                        ml={'20px'}
                       >
                         <Button
                           className="cancelBtn"
@@ -1545,8 +1540,8 @@ const LernCreatorForm = () => {
                         >
                           {t("CANCEL")}
                         </Button>
-                      </div>
-                    </div>
+                      </Box>
+                    </Box>
                   </div>
                 </Modal>
               )}
@@ -1677,18 +1672,21 @@ const LernCreatorForm = () => {
                             padding: "20px",
                             borderRadius: "8px",
                             boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
-                            width: "400px",
-                            textAlign: "center",
+                            width: "600px",
+                            textAlign: "justify",
                           }}
                         >
                           <Typography
                             variant="h6"
                             id="confirmation-modal-title"
                             gutterBottom
+                            style={{
+                              textAlign: "center"
+                            }}
                           >
                             {t("TNC")}
                           </Typography>
-                          <Typography>
+                          <p>
                             What is Lorem Ipsum? Lorem Ipsum is simply dummy
                             text of the printing and typesetting industry. Lorem
                             Ipsum has been the industry's standard dummy text
@@ -1714,12 +1712,16 @@ const LernCreatorForm = () => {
                             Various versions have evolved over the years,
                             sometimes by accident, sometimes on purpose
                             (injected humour and the like).
-                          </Typography>
+                          </p>
 
                           {/* Modal Actions */}
+                          <Box style={{ marginTop: "20px", textAlign: 'center' }}>
+                            <FormControlLabel control={<Checkbox />} label="I here by confirm that I accept the above mentioned terms and conditions " />
+                          </Box>
 
-                          <div style={{ marginTop: "20px" }}>
-                            <div
+
+                          <Box style={{ marginTop: "20px", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Box
                               style={{
                                 padding: "5px",
                               }}
@@ -1731,8 +1733,8 @@ const LernCreatorForm = () => {
                               >
                                 {t("CONFIRM")}
                               </Button>
-                            </div>
-                            <div
+                            </Box>
+                            <Box
                               style={{
                                 padding: "5px",
                               }}
@@ -1743,8 +1745,8 @@ const LernCreatorForm = () => {
                               >
                                 {t("CANCEL")}
                               </Button>
-                            </div>
-                          </div>
+                            </Box>
+                          </Box>
                         </div>
                       </Modal>
                     )}
