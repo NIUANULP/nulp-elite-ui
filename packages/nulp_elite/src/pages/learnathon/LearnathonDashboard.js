@@ -25,8 +25,8 @@ import { Pagination } from "@mui/material";
 
 import Footer from "components/Footer";
 import Header from "components/header";
-const routeConfig = require("../configs/routeConfig.json");
-const urlConfig = require("../configs/urlConfig.json");
+const routeConfig = require("../../configs/routeConfig.json");
+const urlConfig = require("../../configs/urlConfig.json");
 
 const LearnathonDashboard = () => {
   const [search, setSearch] = useState("");
