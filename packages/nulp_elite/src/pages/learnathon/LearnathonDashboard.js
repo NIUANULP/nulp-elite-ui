@@ -25,8 +25,8 @@ import { Pagination } from "@mui/material";
 
 import Footer from "components/Footer";
 import Header from "components/header";
-const routeConfig = require("../configs/routeConfig.json");
-const urlConfig = require("../configs/urlConfig.json");
+const routeConfig = require("../../configs/routeConfig.json");
+const urlConfig = require("../../configs/urlConfig.json");
 
 const LearnathonDashboard = () => {
   const [search, setSearch] = useState("");
@@ -348,6 +348,7 @@ const LearnathonDashboard = () => {
     setSearch("");
     fetchTotalSubmissions();
     fetchPublishedContent();
+    setCurrentPage(1);
   };
 
   return (
@@ -420,7 +421,10 @@ const LearnathonDashboard = () => {
               label={t("THEME_FILTER")}
               size="small"
               value={theme}
-              onChange={(e) => setTheme(e.target.value)}
+              onChange={(e) => {
+                setTheme(e.target.value);
+                setCurrentPage(1);
+              }}
               sx={{ background: "#fff" }}
             >
               {themeOptions.map((option) => (
@@ -437,7 +441,10 @@ const LearnathonDashboard = () => {
               label={t("STATE_FILTER")}
               size="small"
               value={state}
-              onChange={(e) => setState(e.target.value)}
+              onChange={(e) => {
+                setState(e.target.value);
+                setCurrentPage(1);
+              }}
               sx={{ background: "#fff", minWidth: "100px" }}
             >
               {stateOptions.map((option) => (
@@ -454,7 +461,10 @@ const LearnathonDashboard = () => {
               label={t("STATUS_FILTER")}
               size="small"
               value={status}
-              onChange={(e) => setStatus(e.target.value)}
+              onChange={(e) => {
+                setStatus(e.target.value);
+                setCurrentPage(1);
+              }}
               sx={{ background: "#fff", minWidth: "100px" }}
             >
               {statusOptions.map((option) => (
