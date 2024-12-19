@@ -42,8 +42,9 @@ const LernModal = () => {
       if (roles[0]?.scope[0]?.organisationId) {
         organizationId = roles[0].scope[0].organisationId;
       } else {
-          organizationId = data?.result?.response?.organisations[0]?.organisationId;
-        }
+        organizationId =
+          data?.result?.response?.organisations[0]?.organisationId;
+      }
 
       const extractedRoles = roles.map((roleObj) => roleObj.role);
       setRoleList(extractedRoles);
@@ -99,7 +100,7 @@ const LernModal = () => {
 
       if (isCreator) {
         requestPayload.isCreator = false;
-      }else{
+      } else {
         requestPayload.isCreator = true;
       }
 
@@ -148,6 +149,8 @@ const LernModal = () => {
   };
 
   const handleCardClick = async () => {
+    sessionStorage.setItem("isModalShown", "true"); // Set flag to not show modal again
+
     if (lernUser === "nulp-learn") {
       navigate("/webapp/mylernsubmissions");
       setIsModalOpen(false); // Close the modal
