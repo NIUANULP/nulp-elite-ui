@@ -214,7 +214,7 @@ export default function Footer() {
             </Link>
             <Link
               underline="none"
-              href="#"
+              href={routeConfig.ROUTES.HELPDESK.HELPDESK}
               style={{ padding: "10px 0 2px", color: "#fff", margin: "0 8px" }}
             >
               {t("CONTACT_US")}

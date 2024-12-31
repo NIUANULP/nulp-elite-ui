@@ -23,6 +23,9 @@
     "HELP_PAGE": {
       "HELP": "/webapp/help"
     },
+    "HELPDESK":{
+      "HELPDESK":"https://helpdesknulp.niua.org/public/"
+    },
     "ADDCONNECTION_PAGE": {
       "ADDCONNECTION": "/webapp/addConnections",
       "CHAT": "/webapp/chat"
