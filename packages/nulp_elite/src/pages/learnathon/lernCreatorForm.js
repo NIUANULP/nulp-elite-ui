@@ -309,6 +309,8 @@ const LernCreatorForm = () => {
       tempErrors.name_of_organisation = "Name of Organisation is required";
     if (!formData.indicative_theme)
       tempErrors.indicative_theme = "Indicative Theme is required";
+    if (!formData.indicative_sub_theme)
+      tempErrors.indicative_sub_theme = "Indicative Sub Theme is required";
     if (
       formData.indicative_theme == "Miscellaneous/ Others" &&
       !formData.other_indicative_themes
@@ -1392,6 +1394,7 @@ const LernCreatorForm = () => {
                         type="file"
                         fullWidth
                         onChange={(event) => handleFileChange(event, "file")}
+                        error={!!errors.content_id}
                         inputProps={{
                           accept: "video/mp4,application/pdf,text/html",
                         }}
@@ -1405,7 +1408,7 @@ const LernCreatorForm = () => {
                         fullWidth
                         placeholder="Enter URL"
                         onChange={(event) => handleUrlChange(event)}
-                        error={!!errors.youtube}
+                        error={!!errors.youtube || !!errors.content_id}
                         helperText={
                           !!errors.youtube
                             ? "Please enter a valid YouTube URL."
