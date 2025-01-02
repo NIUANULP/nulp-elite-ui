@@ -31,6 +31,7 @@ import * as util from "../../services/utilService";
 import { Loading } from "@shiksha/common-lib";
 import { Button } from "@mui/material";
 import axios from "axios";
+import dayjs from "dayjs";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -77,6 +78,28 @@ const DomainList = ({ globalSearchQuery }) => {
 
   const [lernUser, setLernUser] = useState([]);
   const _userId = util.userId();
+
+   const today = dayjs();
+
+  const isParticipateNow = today.isBetween(
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_START_DATE),
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE),
+    "minute"
+  );
+
+  const isReviewNow = today.isBetween(
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_REVIEW_START_DATE),
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_REVIEW_END_DATE),
+    "minute"
+  );
+
+  const isVoteNow = today.isBetween(
+    dayjs(urlConfig.LEARNATHON_DATES.VOTING_START_DATE),
+    dayjs(urlConfig.LEARNATHON_DATES.VOTING_END_DATE),
+    "minute"
+  );
+
+
   const fetchData = async () => {
     try {
       const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.GET_PROFILE}${_userId}`;
@@ -580,48 +603,52 @@ const DomainList = ({ globalSearchQuery }) => {
                   <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
                 </Grid>
                 <Grid item xs={12} md={3}>
-                  <Grid
-                    container
-                    direction="column"
-                    spacing={2}
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Grid item xs={12}>
-                      <Button className="viewAllbtn" onClick={handleCheckUser}>
-                        {lernUser === "nulp-learn"
-                          ? t("PARTICIPATE_NOW")
-                          : t("PARTICIPATE_NOW")}
-                      </Button>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Button
-                        className="viewAllbtn"
-                        onClick={() => {
-                          window.open(
-                            routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
-                            "_blank"
-                          );
-                        }}
-                      >
-                        Review Now
-                      </Button>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Button
-                        className="viewAllbtn"
-                        onClick={() => {
-                          window.open(
-                            routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
-                            "_blank"
-                          );
-                        }}
-                      >
-                        Vote Now
-                      </Button>
+                    <Grid
+                      container
+                      direction="column"
+                      spacing={2}
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      {isParticipateNow && (
+                        <Grid item xs={12}>
+                          <Button className="viewAllbtn" onClick={handleCheckUser}>
+                            {t("PARTICIPATE_NOW")}
+                          </Button>
+                        </Grid>
+                      )}
+                      {isReviewNow && (
+                        <Grid item xs={12}>
+                          <Button
+                            className="viewAllbtn"
+                            onClick={() => {
+                              window.open(
+                                routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
+                                "_blank"
+                              );
+                            }}
+                          >
+                            {t("REVIEW_NOW")}
+                          </Button>
+                        </Grid>
+                      )}
+                      {isVoteNow && (
+                        <Grid item xs={12}>
+                          <Button
+                            className="viewAllbtn"
+                            onClick={() => {
+                              window.open(
+                                routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
+                                "_blank"
+                              );
+                            }}
+                          >
+                            {t("VOTE_NOW")}
+                          </Button>
+                        </Grid>
+                      )}
                     </Grid>
                   </Grid>
-                </Grid>
                 <Grid item xs={12}>
                   {toasterMessage && (
                     <Box>
