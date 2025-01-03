@@ -8,6 +8,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import ToasterCommon from "pages/ToasterCommon";
+import dayjs from "dayjs";
+
 
 const LernModal = () => {
   const { t } = useTranslation();
@@ -20,7 +22,7 @@ const LernModal = () => {
     const isModalShown = sessionStorage.getItem("isModalShown");
     return isModalShown !== "true"; // Show modal if not already shown
   });
-
+  const [isReviewer, setIsREviewer] = useState(false)
   const [lernUser, setLernUser] = useState([]);
   const [responseCode, setResponseCode] = useState([]);
   const [orgId, setOrgId] = useState([]);
@@ -29,6 +31,26 @@ const LernModal = () => {
     setIsModalOpen(false);
     sessionStorage.setItem("isModalShown", "true"); // Set flag to not show modal again
   };
+
+  const today = dayjs();
+
+  const isParticipateNow = today.isBetween(
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_START_DATE),
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE),
+    "minute"
+  );
+
+  const isReviewNow = today.isBetween(
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_REVIEW_START_DATE),
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_REVIEW_END_DATE),
+    "minute"
+  );
+
+  const isVoteNow = today.isBetween(
+    dayjs(urlConfig.LEARNATHON_DATES.VOTING_START_DATE),
+    dayjs(urlConfig.LEARNATHON_DATES.VOTING_END_DATE),
+    "minute"
+  );
 
   const fetchData = async () => {
     try {
@@ -87,6 +109,9 @@ const LernModal = () => {
   let responsecode;
   const fetchUserAccess = async () => {
     const isCreator = roleList.includes("CONTENT_CREATOR");
+    const isReviewer = roleList.includes("SYSTEM_ADMINISTRATION")
+    setIsREviewer(isReviewer)
+
     try {
       const url = `${urlConfig.URLS.PROVIDE_ACCESS}`;
       const role = isCreator ? roleList : ["CONTENT_CREATOR", ...roleList];
@@ -193,24 +218,54 @@ const LernModal = () => {
           <Grid container spacing={2}>
             <Grid item xs={12} sm={12} md={4}>
               <Box className="profileBox">
-                <img src={require("../../assets/image24.png")} alt="" />
+                <img height="222px" width="207px" src={require("../../assets/Image_for_Pop_up.jpg")} alt="" />
               </Box>
             </Grid>
             <Grid item xs={12} sm={12} md={8}>
               <Box className="profileBox ml-20">
-                <Box className="mt-20">{t("LERN_MESSAGE")}</Box>
-                <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
-
+               {isParticipateNow && (
+                    <Box>
+                        <Box className="mt-20">{t("LERN_MESSAGE")}</Box>
+                        <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
+                    </Box>
+                )}
+                {isReviewNow && isReviewer && (
+                    <Box>
+                        <Box className="mt-20">{t("REVIEW_NOW")}</Box>
+                        <Box className="mt-20">{t("REVIEW_MESSEGE")}</Box>
+                    </Box>
+                )}
+                {isVoteNow && (
+                    <Box>
+                        <Box className="mt-20">{t("VOTE_NOW")}</Box>
+                        <Box className="mt-20">{t("VOTE_NOW_MESSEGE")}</Box>
+                    </Box>
+                )}
                 <Box className="lg-mt-30">
-                  {lernUser === "nulp-learn" ? (
-                    <Button className="viewAll" onClick={handleCardClick}>
-                      {t("PARTICIPATE_NOW")}
-                    </Button>
-                  ) : (
-                    <Button className="viewAll" onClick={handleCardClick}>
-                      {t("PARTICIPATE_NOW")}
-                    </Button>
-                  )}
+                  {isParticipateNow && (
+                          <Button
+                            className="viewAll"
+                            onClick={handleCardClick}
+                          >
+                            {t("Click here to now more")}
+                          </Button>
+                      )}
+                  {isReviewNow && isReviewer && (
+                          <Button
+                            className="viewAll"
+                            onClick={handleCardClick}
+                          >
+                            {t("REVIEW_NOW")}
+                          </Button>
+                      )}
+                  {isVoteNow && (
+                        <Button
+                          className="viewAll"
+                          onClick={handleCardClick}
+                        >
+                          {t("VOTE_NOW")}
+                        </Button>
+                    )}
                 </Box>
               </Box>
             </Grid>
