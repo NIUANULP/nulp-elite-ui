@@ -64,7 +64,7 @@ const Player = () => {
   const params = new URLSearchParams(window.location.search);
   const pageParam = params.get("page");
   let contentId = params.get("id");
-  const [playerContent, setPlayerContent] = useState(false);
+  const [playerContent, setPlayerContent] = useState();
   const [noPreviewAvailable, setNoPreviewAvailable] = useState(false);
   // const playerUrl = `${window.location.origin}/newplayer`;
   const playerUrl =
@@ -309,7 +309,7 @@ const Player = () => {
             console.log(result.result);
 
             setLearnathonDetails(result.result.data[0]);
-
+            setCourseId(result.result.data[0].content_id);
             setPlayerContent(result.result.data[0].content_id);
             if (result.result.data[0].status == "Live") {
               setIsPublished(true);
