@@ -80,6 +80,7 @@ const DomainList = ({ globalSearchQuery }) => {
   const _userId = util.userId();
 
    const today = dayjs();
+   const formattedDate = today.subtract(1, 'hour').format('YYYY-MM-DD HH:mm:ss');
 
   const isParticipateNow = today.isBetween(
     dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_START_DATE),
@@ -94,7 +95,7 @@ const DomainList = ({ globalSearchQuery }) => {
   );
 
   const isVoteNow = today.isBetween(
-    dayjs(urlConfig.LEARNATHON_DATES.VOTING_START_DATE),
+    dayjs(formattedDate),
     dayjs(urlConfig.LEARNATHON_DATES.VOTING_END_DATE),
     "minute"
   );
@@ -604,49 +605,45 @@ const DomainList = ({ globalSearchQuery }) => {
                 </Grid>
                 <Grid item xs={12} md={3}>
                     <Grid
-                      container
-                      direction="column"
-                      spacing={2}
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      {isParticipateNow && (
-                        <Grid item xs={12}>
-                          <Button className="viewAllbtn" onClick={handleCheckUser}>
-                            {t("PARTICIPATE_NOW")}
-                          </Button>
-                        </Grid>
-                      )}
-                      {isReviewNow && (
-                        <Grid item xs={12}>
-                          <Button
-                            className="viewAllbtn"
-                            onClick={() => {
-                              window.open(
-                                routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
-                                "_blank"
-                              );
-                            }}
-                          >
-                            {t("REVIEW_NOW")}
-                          </Button>
-                        </Grid>
-                      )}
-                      {isVoteNow && (
-                        <Grid item xs={12}>
-                          <Button
-                            className="viewAllbtn"
-                            onClick={() => {
-                              window.open(
-                                routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
-                                "_blank"
-                              );
-                            }}
-                          >
-                            {t("VOTE_NOW")}
-                          </Button>
-                        </Grid>
-                      )}
+                    container
+                    direction="column"
+                    spacing={2}
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Grid item xs={12}>
+                      <Button className="viewAllbtn" onClick={handleCheckUser}>
+                        {lernUser === "nulp-learn"
+                          ? t("PARTICIPATE_NOW")
+                          : t("PARTICIPATE_NOW")}
+                      </Button>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Button
+                        className="viewAllbtn"
+                        onClick={() => {
+                          window.open(
+                            routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
+                            "_blank"
+                          );
+                        }}
+                      >
+                        Review Now
+                      </Button>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Button
+                        className="viewAllbtn"
+                        onClick={() => {
+                          window.open(
+                            routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
+                            "_blank"
+                          );
+                        }}
+                      >
+                        Vote Now
+                      </Button>
+                    </Grid>
                     </Grid>
                   </Grid>
                 <Grid item xs={12}>
