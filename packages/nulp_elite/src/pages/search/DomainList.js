@@ -150,12 +150,14 @@ const DomainList = ({ globalSearchQuery }) => {
     }
   };
 
-  const navigateConsecutively = () => {
+  const navigateConsecutively = async () => {
     console.log("navigateConsecutively1111");
-    this.router.navigate(["/logout"]).then(() => {
-      this.router.navigate(["/webapp/mylernsubmissions"]);
-      console.log("navigateConsecutively22222");
-    });
+    navigate("/logout");
+    // Simulate an async operation like data fetching
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    navigate("/webapp/mylernsubmissions");
+
+    console.log("navigateConsecutively22222");
   };
 
   let responsecode;
