@@ -158,9 +158,25 @@ const LernModal = () => {
   const navigateConsecutively = async () => {
     console.log("navigateConsecutively1111");
 
-    navigate("/logout");
+    // navigate("/logoff");
+    // localStorage.clear();
+    // sessionStorage.clear();
+    try {
+      const response = await fetch("/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (response.ok) {
+        localStorage.clear(); // Clear local storage if needed
+        navigate("/webapp/mylernsubmissions"); // Redirect to login
+      } else {
+        console.error("Failed to log out");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
     // Simulate an async operation like data fetching
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 10000));
     navigate("/webapp/mylernsubmissions");
 
     console.log("navigateConsecutively22222");
