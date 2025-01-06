@@ -28,7 +28,7 @@ const LernModal = () => {
   const [lernUser, setLernUser] = useState([]);
   const [responseCode, setResponseCode] = useState([]);
   const [orgId, setOrgId] = useState([]);
-  const [learnathonUser ,isLearnathonUser]=useState()
+  const [learnathonUser ,setIsLearnathonUser]=useState()
   const _userId = util.userId();
   const handleClose = () => {
     setIsModalOpen(false);
@@ -51,7 +51,7 @@ const LernModal = () => {
   );
 
   const isVoteNow = today.isBetween(
-    dayjs(formattedDate),
+    dayjs(urlConfig.LEARNATHON_DATES.VOTING_START_DATE),
     dayjs(urlConfig.LEARNATHON_DATES.VOTING_END_DATE),
     "minute"
   );
@@ -64,8 +64,7 @@ const LernModal = () => {
       const rolesData = data.result.response.channel;
       const roles = data.result.response.roles;
       let organizationId;
-      isLearnathonUser(data.result.response.firstName.includes("tekdiNulp11"))
-      console.log(data.result.response.firstName.includes("tekdiNulp11"),"data.result.response---------------");
+      setIsLearnathonUser(data.result.response.firstName.includes("tekdiNulp11"))
 
       if (roles[0]?.scope[0]?.organisationId) {
         organizationId = roles[0].scope[0].organisationId;
@@ -190,47 +189,48 @@ const LernModal = () => {
     }
   };
 
-  return (
-    <div>
-      {toasterMessage && (
-        <Box>
-          <ToasterCommon response={toasterMessage} />
+ return (
+  <div>
+    {toasterMessage && (
+      <Box>
+        <ToasterCommon response={toasterMessage} />
+      </Box>
+    )}
+    <Modal
+      open={isModalOpen}
+      onClose={handleClose}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
+      <Box sx={style}>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box>
+            <Box className="h2-title">{t("LERN_title")}</Box>
+          </Box>
+          <Box>
+            <IconButton onClick={handleClose}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
         </Box>
-      )}
-      <Modal
-        open={isModalOpen}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box sx={style}>
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <Box>
-              <Box className="h2-title">{t("LERN_title")}</Box>
+        <Box className="mt-10 xs-mb-10">
+          <Divider />
+        </Box>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={12} md={4}>
+            <Box className="profileBox">
+              <img
+                height="222px"
+                width="207px"
+                src={require("../../assets/Image_for_Pop_up.jpg")}
+                alt=""
+              />
             </Box>
-            <Box>
-              <IconButton onClick={handleClose}>
-                <CloseIcon />
-              </IconButton>
-            </Box>
-          </Box>
-          <Box className="mt-10 xs-mb-10">
-            <Divider />
-          </Box>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={12} md={4}>
-              <Box className="profileBox">
-                <img height="222px" width="207px" src={require("../../assets/Image_for_Pop_up.jpg")} alt="" />
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={12} md={8}>
-              <Box className="profileBox ml-20">
-                {/*Commented for Demo*/}
-               {/* {isParticipateNow && (
+          </Grid>
+          <Grid item xs={12} sm={12} md={8}>
+            <Box className="profileBox ml-20">
+              {/* Commented for Demo */}
+              {!learnathonUser && isParticipateNow && (
                     <Box>
                         <Box className="mt-20">{t("LERN_MESSAGE")}</Box>
                         <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
@@ -247,12 +247,16 @@ const LernModal = () => {
                         <Box className="mt-20">{t("VOTE_NOW")}</Box>
                         <Box className="mt-20">{t("VOTE_NOW_MESSEGE")}</Box>
                     </Box>
-                )} */}
-                <Box className="mt-20">{t("LERN_MESSAGE")}</Box>
-                <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
-                <Box className="lg-mt-30">
-                  {/*Commented for Demo*/}
-                  {/* {isParticipateNow || learnathonUser && (
+                )}
+              {learnathonUser && (
+                <>
+                  <Box className="mt-20">{t("LERN_MESSAGE")}</Box>
+                  <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
+                  <Box className="lg-mt-30"></Box>
+                </>
+              )}
+              {/* Commented for Demo */}
+              {isParticipateNow && !learnathonUser && (
                           <Button
                             className="viewAll"
                             onClick={handleCardClick}
@@ -260,7 +264,7 @@ const LernModal = () => {
                             {t("Click here to now more")}
                           </Button>
                       )}
-                  {isReviewNow && isReviewer && (
+                  {isReviewNow && !learnathonUser && isReviewer && (
                           <Button
                             className="viewAll"
                             onClick={handleCardClick}
@@ -268,32 +272,26 @@ const LernModal = () => {
                             {t("REVIEW_NOW")}
                           </Button>
                       )}
-                  {isVoteNow && (
+                  {isVoteNow && !learnathonUser && (
                         <Button
                           className="viewAll"
                           onClick={handleCardClick}
                         >
                           {t("VOTE_NOW")}
                         </Button>
-                    )} */}   
-                    
-                     {lernUser === "nulp-learn" ? (
-                    <Button className="viewAll" onClick={handleCardClick}>
-                      {t("Click here to know more")}
-                    </Button>
-                  ) : (
-                    <Button className="viewAll" onClick={handleCardClick}>
-                      {t("Click here to know more")}
-                    </Button>
-                  )}
-                </Box>
-              </Box>
-            </Grid>
+                    )}
+              {learnathonUser && (
+                <Button className="viewAll" onClick={handleCardClick}>
+                  {t("Click here to know more")}
+                </Button>
+              ) }
+            </Box>
           </Grid>
-        </Box>
-      </Modal>
-    </div>
-  );
+        </Grid>
+      </Box>
+    </Modal>
+  </div>
+);;
 };
 
 export default LernModal;

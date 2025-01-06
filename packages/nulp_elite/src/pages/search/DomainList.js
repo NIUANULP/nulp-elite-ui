@@ -73,7 +73,7 @@ const DomainList = ({ globalSearchQuery }) => {
   const [framework, setFramework] = useState();
   const [roleList, setRoleList] = useState([]);
   const [orgId, setOrgId] = useState([]);
-
+  const [isLearnathonUser , setIsLearnathonUser] = useState(false)
   const [searchQuery, setSearchQuery] = useState(globalSearchQuery || "");
 
   const [lernUser, setLernUser] = useState([]);
@@ -95,7 +95,7 @@ const DomainList = ({ globalSearchQuery }) => {
   );
 
   const isVoteNow = today.isBetween(
-    dayjs(formattedDate),
+    dayjs(urlConfig.LEARNATHON_DATES.VOTING_START_DATE),
     dayjs(urlConfig.LEARNATHON_DATES.VOTING_END_DATE),
     "minute"
   );
@@ -109,6 +109,8 @@ const DomainList = ({ globalSearchQuery }) => {
       const rolesData = data.result.response.channel;
       const roles = data.result.response.roles;
       let organizationId;
+      setIsLearnathonUser(data.result.response.firstName.includes("tekdiNulp11"))
+
       if (roles[0]?.scope[0]?.organisationId) {
         organizationId = roles[0].scope[0].organisationId;
       } else {
@@ -603,7 +605,8 @@ const DomainList = ({ globalSearchQuery }) => {
                 <Grid item xs={12} md={9}>
                   <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
                 </Grid>
-                <Grid item xs={12} md={3}>
+                {isLearnathonUser && (
+                  <Grid item xs={12} md={3}>
                     <Grid
                     container
                     direction="column"
@@ -646,6 +649,59 @@ const DomainList = ({ globalSearchQuery }) => {
                     </Grid>
                     </Grid>
                   </Grid>
+                )
+                  }
+                  {! isLearnathonUser &&
+                    (
+                      <Grid item xs={12} md={3}>
+                    <Grid
+                      container
+                      direction="column"
+                      spacing={2}
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      {isParticipateNow && (
+                        <Grid item xs={12}>
+                          <Button className="viewAllbtn" onClick={handleCheckUser}>
+                            {t("PARTICIPATE_NOW")}
+                          </Button>
+                        </Grid>
+                      )}
+                      {isReviewNow && (
+                        <Grid item xs={12}>
+                          <Button
+                            className="viewAllbtn"
+                            onClick={() => {
+                              window.open(
+                                routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
+                                "_blank"
+                              );
+                            }}
+                          >
+                            {t("REVIEW_NOW")}
+                          </Button>
+                        </Grid>
+                      )}
+                      {isVoteNow && (
+                        <Grid item xs={12}>
+                          <Button
+                            className="viewAllbtn"
+                            onClick={() => {
+                              window.open(
+                                routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
+                                "_blank"
+                              );
+                            }}
+                          >
+                            {t("VOTE_NOW")}
+                          </Button>
+                        </Grid>
+                      )}
+                    </Grid>
+                  </Grid>
+                    )
+                  }
                 <Grid item xs={12}>
                   {toasterMessage && (
                     <Box>
