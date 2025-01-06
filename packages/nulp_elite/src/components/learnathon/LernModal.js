@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import ToasterCommon from "pages/ToasterCommon";
 import dayjs from "dayjs";
+const routeConfig = require("../../configs/routeConfig.json");
+
 
 
 const LernModal = () => {
@@ -26,6 +28,7 @@ const LernModal = () => {
   const [lernUser, setLernUser] = useState([]);
   const [responseCode, setResponseCode] = useState([]);
   const [orgId, setOrgId] = useState([]);
+  const [learnathonUser ,isLearnathonUser]=useState()
   const _userId = util.userId();
   const handleClose = () => {
     setIsModalOpen(false);
@@ -33,6 +36,7 @@ const LernModal = () => {
   };
 
   const today = dayjs();
+  const formattedDate = today.subtract(1, 'hour').format('YYYY-MM-DD HH:mm:ss');
 
   const isParticipateNow = today.isBetween(
     dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_START_DATE),
@@ -47,7 +51,7 @@ const LernModal = () => {
   );
 
   const isVoteNow = today.isBetween(
-    dayjs(urlConfig.LEARNATHON_DATES.VOTING_START_DATE),
+    dayjs(formattedDate),
     dayjs(urlConfig.LEARNATHON_DATES.VOTING_END_DATE),
     "minute"
   );
@@ -60,6 +64,8 @@ const LernModal = () => {
       const rolesData = data.result.response.channel;
       const roles = data.result.response.roles;
       let organizationId;
+      isLearnathonUser(data.result.response.firstName.includes("tekdiNulp11"))
+      console.log(data.result.response.firstName.includes("tekdiNulp11"),"data.result.response---------------");
 
       if (roles[0]?.scope[0]?.organisationId) {
         organizationId = roles[0].scope[0].organisationId;
@@ -223,7 +229,8 @@ const LernModal = () => {
             </Grid>
             <Grid item xs={12} sm={12} md={8}>
               <Box className="profileBox ml-20">
-               {isParticipateNow && (
+                {/*Commented for Demo*/}
+               {/* {isParticipateNow && (
                     <Box>
                         <Box className="mt-20">{t("LERN_MESSAGE")}</Box>
                         <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
@@ -240,9 +247,12 @@ const LernModal = () => {
                         <Box className="mt-20">{t("VOTE_NOW")}</Box>
                         <Box className="mt-20">{t("VOTE_NOW_MESSEGE")}</Box>
                     </Box>
-                )}
+                )} */}
+                <Box className="mt-20">{t("LERN_MESSAGE")}</Box>
+                <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
                 <Box className="lg-mt-30">
-                  {isParticipateNow && (
+                  {/*Commented for Demo*/}
+                  {/* {isParticipateNow || learnathonUser && (
                           <Button
                             className="viewAll"
                             onClick={handleCardClick}
@@ -265,7 +275,17 @@ const LernModal = () => {
                         >
                           {t("VOTE_NOW")}
                         </Button>
-                    )}
+                    )} */}   
+                    
+                     {lernUser === "nulp-learn" ? (
+                    <Button className="viewAll" onClick={handleCardClick}>
+                      {t("Click here to know more")}
+                    </Button>
+                  ) : (
+                    <Button className="viewAll" onClick={handleCardClick}>
+                      {t("Click here to know more")}
+                    </Button>
+                  )}
                 </Box>
               </Box>
             </Grid>
