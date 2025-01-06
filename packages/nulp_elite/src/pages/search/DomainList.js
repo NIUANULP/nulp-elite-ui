@@ -79,7 +79,7 @@ const DomainList = ({ globalSearchQuery }) => {
   const [lernUser, setLernUser] = useState([]);
   const _userId = util.userId();
 
-   const today = dayjs();
+  const today = dayjs();
 
   const isParticipateNow = today.isBetween(
     dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_START_DATE),
@@ -98,7 +98,6 @@ const DomainList = ({ globalSearchQuery }) => {
     dayjs(urlConfig.LEARNATHON_DATES.VOTING_END_DATE),
     "minute"
   );
-
 
   const fetchData = async () => {
     try {
@@ -179,7 +178,8 @@ const DomainList = ({ globalSearchQuery }) => {
 
       responsecode = result;
       if (result === "OK") {
-        navigate("/webapp/mylernsubmissions");
+        // navigate("/webapp/mylernsubmissions");
+        navigateConsecutively();
         setIsModalOpen(false);
       } else {
         setToasterMessage("Something went wrong! Please try again later");
@@ -187,6 +187,16 @@ const DomainList = ({ globalSearchQuery }) => {
     } catch (error) {
       console.log("error", error);
     }
+  };
+  const navigateConsecutively = () => {
+    this.router.navigate(["/logout"]).then(() => {
+      this.router.navigate(["/webapp/mylernsubmissions"]);
+    });
+
+    // navigate("/first-route");
+    // setTimeout(() => {
+    //   navigate("/second-route");
+    // }, 1000); // Delay in milliseconds
   };
 
   const handleCheckUser = async () => {
@@ -603,52 +613,55 @@ const DomainList = ({ globalSearchQuery }) => {
                   <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
                 </Grid>
                 <Grid item xs={12} md={3}>
-                    <Grid
-                      container
-                      direction="column"
-                      spacing={2}
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      {isParticipateNow && (
-                        <Grid item xs={12}>
-                          <Button className="viewAllbtn" onClick={handleCheckUser}>
-                            {t("PARTICIPATE_NOW")}
-                          </Button>
-                        </Grid>
-                      )}
-                      {isReviewNow && (
-                        <Grid item xs={12}>
-                          <Button
-                            className="viewAllbtn"
-                            onClick={() => {
-                              window.open(
-                                routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
-                                "_blank"
-                              );
-                            }}
-                          >
-                            {t("REVIEW_NOW")}
-                          </Button>
-                        </Grid>
-                      )}
-                      {isVoteNow && (
-                        <Grid item xs={12}>
-                          <Button
-                            className="viewAllbtn"
-                            onClick={() => {
-                              window.open(
-                                routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
-                                "_blank"
-                              );
-                            }}
-                          >
-                            {t("VOTE_NOW")}
-                          </Button>
-                        </Grid>
-                      )}
-                    </Grid>
+                  <Grid
+                    container
+                    direction="column"
+                    spacing={2}
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    {isParticipateNow && (
+                      <Grid item xs={12}>
+                        <Button
+                          className="viewAllbtn"
+                          onClick={handleCheckUser}
+                        >
+                          {t("PARTICIPATE_NOW")}
+                        </Button>
+                      </Grid>
+                    )}
+                    {isReviewNow && (
+                      <Grid item xs={12}>
+                        <Button
+                          className="viewAllbtn"
+                          onClick={() => {
+                            window.open(
+                              routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
+                              "_blank"
+                            );
+                          }}
+                        >
+                          {t("REVIEW_NOW")}
+                        </Button>
+                      </Grid>
+                    )}
+                    {isVoteNow && (
+                      <Grid item xs={12}>
+                        <Button
+                          className="viewAllbtn"
+                          onClick={() => {
+                            window.open(
+                              routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
+                              "_blank"
+                            );
+                          }}
+                        >
+                          {t("VOTE_NOW")}
+                        </Button>
+                      </Grid>
+                    )}
                   </Grid>
+                </Grid>
                 <Grid item xs={12}>
                   {toasterMessage && (
                     <Box>
