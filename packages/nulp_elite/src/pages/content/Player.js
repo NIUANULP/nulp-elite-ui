@@ -309,7 +309,7 @@ const Player = () => {
             console.log(result.result);
 
             setLearnathonDetails(result.result.data[0]);
-            setCourseId(result.result.data[0].content_id);
+            // setCourseId(result.result.data[0].content_id);
             setPlayerContent(result.result.data[0].content_id);
             if (result.result.data[0].status == "Live") {
               setIsPublished(true);
