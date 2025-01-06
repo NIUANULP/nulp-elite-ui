@@ -165,17 +165,16 @@ const DomainList = ({ globalSearchQuery }) => {
       });
       if (response.ok) {
         localStorage.clear(); // Clear local storage if needed
-        navigate("/webapp/mylernsubmissions"); // Redirect to login
+        navigate("/webapp/mylernsubmissions");
+        setTimeout(() => {
+          window.location.reload(); // Reload the page
+        }, 1000);
       } else {
         console.error("Failed to log out");
       }
     } catch (error) {
       console.error("Error during logout:", error);
     }
-
-    // Simulate an async operation like data fetching
-    await new Promise((resolve) => setTimeout(resolve, 10000));
-    navigate("/webapp/mylernsubmissions");
 
     console.log("navigateConsecutively22222");
   };
