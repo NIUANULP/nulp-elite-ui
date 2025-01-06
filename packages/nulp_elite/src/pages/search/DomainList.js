@@ -189,8 +189,10 @@ const DomainList = ({ globalSearchQuery }) => {
     }
   };
   const navigateConsecutively = () => {
+    console.log("navigateConsecutively1111");
     this.router.navigate(["/logout"]).then(() => {
       this.router.navigate(["/webapp/mylernsubmissions"]);
+      console.log("navigateConsecutively22222");
     });
 
     // navigate("/first-route");

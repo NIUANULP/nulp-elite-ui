@@ -137,7 +137,8 @@ const LernModal = () => {
       setResponseCode(result);
 
       if (result === "OK") {
-        navigate("webapp/mylernsubmissions");
+        navigateConsecutively()
+        // navigate("webapp/mylernsubmissions");
         setIsModalOpen(false);
       } else {
         setToasterMessage("Something went wrong! Please try again later");
@@ -146,6 +147,13 @@ const LernModal = () => {
       console.log("error", error);
     }
   };
+
+  const navigateConsecutively = () => {
+    console.log("navigateConsecutively1111");
+    this.router.navigate(["/logout"]).then(() => {
+      this.router.navigate(["/webapp/mylernsubmissions"]);
+      console.log("navigateConsecutively22222");
+    });
 
   // Fetch data when the component mounts or _userId changes
   useEffect(() => {
