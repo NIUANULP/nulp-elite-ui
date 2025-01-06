@@ -156,7 +156,7 @@ const DomainList = ({ globalSearchQuery }) => {
       this.router.navigate(["/webapp/mylernsubmissions"]);
       console.log("navigateConsecutively22222");
     });
-
+  };
 
   let responsecode;
   const isCreator = roleList.includes("CONTENT_CREATOR");
@@ -186,7 +186,7 @@ const DomainList = ({ globalSearchQuery }) => {
 
       responsecode = result;
       if (result === "OK") {
-        navigateConsecutively()
+        navigateConsecutively();
         // navigate("/webapp/mylernsubmissions");
         setIsModalOpen(false);
       } else {

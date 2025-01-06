@@ -11,8 +11,6 @@ import ToasterCommon from "pages/ToasterCommon";
 import dayjs from "dayjs";
 const routeConfig = require("../../configs/routeConfig.json");
 
-
-
 const LernModal = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -24,11 +22,11 @@ const LernModal = () => {
     const isModalShown = sessionStorage.getItem("isModalShown");
     return isModalShown !== "true"; // Show modal if not already shown
   });
-  const [isReviewer, setIsREviewer] = useState(false)
+  const [isReviewer, setIsREviewer] = useState(false);
   const [lernUser, setLernUser] = useState([]);
   const [responseCode, setResponseCode] = useState([]);
   const [orgId, setOrgId] = useState([]);
-  const [learnathonUser ,isLearnathonUser]=useState()
+  const [learnathonUser, isLearnathonUser] = useState();
   const _userId = util.userId();
   const handleClose = () => {
     setIsModalOpen(false);
@@ -36,7 +34,7 @@ const LernModal = () => {
   };
 
   const today = dayjs();
-  const formattedDate = today.subtract(1, 'hour').format('YYYY-MM-DD HH:mm:ss');
+  const formattedDate = today.subtract(1, "hour").format("YYYY-MM-DD HH:mm:ss");
 
   const isParticipateNow = today.isBetween(
     dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_START_DATE),
@@ -64,8 +62,11 @@ const LernModal = () => {
       const rolesData = data.result.response.channel;
       const roles = data.result.response.roles;
       let organizationId;
-      isLearnathonUser(data.result.response.firstName.includes("tekdiNulp11"))
-      console.log(data.result.response.firstName.includes("tekdiNulp11"),"data.result.response---------------");
+      isLearnathonUser(data.result.response.firstName.includes("tekdiNulp11"));
+      console.log(
+        data.result.response.firstName.includes("tekdiNulp11"),
+        "data.result.response---------------"
+      );
 
       if (roles[0]?.scope[0]?.organisationId) {
         organizationId = roles[0].scope[0].organisationId;
@@ -115,8 +116,8 @@ const LernModal = () => {
   let responsecode;
   const fetchUserAccess = async () => {
     const isCreator = roleList.includes("CONTENT_CREATOR");
-    const isReviewer = roleList.includes("SYSTEM_ADMINISTRATION")
-    setIsREviewer(isReviewer)
+    const isReviewer = roleList.includes("SYSTEM_ADMINISTRATION");
+    setIsREviewer(isReviewer);
 
     try {
       const url = `${urlConfig.URLS.PROVIDE_ACCESS}`;
@@ -143,7 +144,7 @@ const LernModal = () => {
       setResponseCode(result);
 
       if (result === "OK") {
-        navigateConsecutively()
+        navigateConsecutively();
         // navigate("webapp/mylernsubmissions");
         setIsModalOpen(false);
       } else {
@@ -160,6 +161,7 @@ const LernModal = () => {
       this.router.navigate(["/webapp/mylernsubmissions"]);
       console.log("navigateConsecutively22222");
     });
+  };
 
   // Fetch data when the component mounts or _userId changes
   useEffect(() => {
@@ -232,13 +234,18 @@ const LernModal = () => {
           <Grid container spacing={2}>
             <Grid item xs={12} sm={12} md={4}>
               <Box className="profileBox">
-                <img height="222px" width="207px" src={require("../../assets/Image_for_Pop_up.jpg")} alt="" />
+                <img
+                  height="222px"
+                  width="207px"
+                  src={require("../../assets/Image_for_Pop_up.jpg")}
+                  alt=""
+                />
               </Box>
             </Grid>
             <Grid item xs={12} sm={12} md={8}>
               <Box className="profileBox ml-20">
                 {/*Commented for Demo*/}
-               {/* {isParticipateNow && (
+                {/* {isParticipateNow && (
                     <Box>
                         <Box className="mt-20">{t("LERN_MESSAGE")}</Box>
                         <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
@@ -283,9 +290,9 @@ const LernModal = () => {
                         >
                           {t("VOTE_NOW")}
                         </Button>
-                    )} */}   
-                    
-                     {lernUser === "nulp-learn" ? (
+                    )} */}
+
+                  {lernUser === "nulp-learn" ? (
                     <Button className="viewAll" onClick={handleCardClick}>
                       {t("Click here to know more")}
                     </Button>
