@@ -150,6 +150,14 @@ const DomainList = ({ globalSearchQuery }) => {
     }
   };
 
+  const navigateConsecutively = () => {
+    console.log("navigateConsecutively1111");
+    this.router.navigate(["/logout"]).then(() => {
+      this.router.navigate(["/webapp/mylernsubmissions"]);
+      console.log("navigateConsecutively22222");
+    });
+
+
   let responsecode;
   const isCreator = roleList.includes("CONTENT_CREATOR");
   const fetchUserAccess = async () => {
@@ -178,8 +186,8 @@ const DomainList = ({ globalSearchQuery }) => {
 
       responsecode = result;
       if (result === "OK") {
+        navigateConsecutively()
         // navigate("/webapp/mylernsubmissions");
-        navigateConsecutively();
         setIsModalOpen(false);
       } else {
         setToasterMessage("Something went wrong! Please try again later");
@@ -187,18 +195,6 @@ const DomainList = ({ globalSearchQuery }) => {
     } catch (error) {
       console.log("error", error);
     }
-  };
-  const navigateConsecutively = () => {
-    console.log("navigateConsecutively1111");
-    this.router.navigate(["/logout"]).then(() => {
-      this.router.navigate(["/webapp/mylernsubmissions"]);
-      console.log("navigateConsecutively22222");
-    });
-
-    // navigate("/first-route");
-    // setTimeout(() => {
-    //   navigate("/second-route");
-    // }, 1000); // Delay in milliseconds
   };
 
   const handleCheckUser = async () => {
