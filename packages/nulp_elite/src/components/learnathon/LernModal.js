@@ -11,8 +11,6 @@ import ToasterCommon from "pages/ToasterCommon";
 import dayjs from "dayjs";
 const routeConfig = require("../../configs/routeConfig.json");
 
-
-
 const LernModal = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -24,7 +22,7 @@ const LernModal = () => {
     const isModalShown = sessionStorage.getItem("isModalShown");
     return isModalShown !== "true"; // Show modal if not already shown
   });
-  const [isReviewer, setIsREviewer] = useState(false)
+  const [isReviewer, setIsREviewer] = useState(false);
   const [lernUser, setLernUser] = useState([]);
   const [responseCode, setResponseCode] = useState([]);
   const [orgId, setOrgId] = useState([]);
@@ -36,7 +34,7 @@ const LernModal = () => {
   };
 
   const today = dayjs();
-  const formattedDate = today.subtract(1, 'hour').format('YYYY-MM-DD HH:mm:ss');
+  const formattedDate = today.subtract(1, "hour").format("YYYY-MM-DD HH:mm:ss");
 
   const isParticipateNow = today.isBetween(
     dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_START_DATE),
@@ -114,8 +112,8 @@ const LernModal = () => {
   let responsecode;
   const fetchUserAccess = async () => {
     const isCreator = roleList.includes("CONTENT_CREATOR");
-    const isReviewer = roleList.includes("SYSTEM_ADMINISTRATION")
-    setIsREviewer(isReviewer)
+    const isReviewer = roleList.includes("SYSTEM_ADMINISTRATION");
+    setIsREviewer(isReviewer);
 
     try {
       const url = `${urlConfig.URLS.PROVIDE_ACCESS}`;
@@ -142,7 +140,8 @@ const LernModal = () => {
       setResponseCode(result);
 
       if (result === "OK") {
-        navigate("webapp/mylernsubmissions");
+        navigateConsecutively();
+        // navigate("webapp/mylernsubmissions");
         setIsModalOpen(false);
       } else {
         setToasterMessage("Something went wrong! Please try again later");
@@ -150,6 +149,17 @@ const LernModal = () => {
     } catch (error) {
       console.log("error", error);
     }
+  };
+
+  const navigateConsecutively = async () => {
+    console.log("navigateConsecutively1111");
+
+    navigate("/logout");
+    // Simulate an async operation like data fetching
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    navigate("/webapp/mylernsubmissions");
+
+    console.log("navigateConsecutively22222");
   };
 
   // Fetch data when the component mounts or _userId changes
