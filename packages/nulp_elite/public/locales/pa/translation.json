@@ -119,7 +119,7 @@
   "NIUA": "NIUA",
   "MOHUA": "MoHUA",
   "ABOUT_US": "About Us",
-  "CONTACT_US": "Helpdesk",
+  "CONTACT_US": "Contact Us",
   "LOG_OUT": "Log Out",
   "CENTER_FOR_DIGITAL_GOVERNANCE": "Center for Digital Governance",
   "NATIONAL_URBAN_DIGITAL_MISSION": "National Urban Digital Mission",
@@ -322,12 +322,10 @@
   "CREATE_CONTENT": "Create Content",
   "REQUEST_TO_CREATE": "Request to Create",
   "PARTICIPATE_NOW": "Participate Now",
-  "LERN_title": "The अrban Learnathon 2.0 has begun!",
-  "LERN_MESSAGE": "Call for Entries!",
-  "LERN_MESSAGE_LINE_TWO": "Learnathon 2.0 launched on 8th January 2025. The last date to submit your entry is 10th February 2025.",
-  "REVIEW_MESSEGE":"You can now review all the submitted entries submitted during the Learnathon 2.0",
-  "VOTE_NOW_MESSEGE":"Learnathon 2.o is concluded!! now you can explore the entries, cast your vote and help your favourite enrty win!! The last date to vote for the best entries is 25th February 2025.",
-  "CLICK_HERE_TO_KNOW_MORE":"Click here to now more",
+  "LERN_title": "The Learnathon 2.0 Has Begun!",
+  "LERN_MESSAGE": "Where urban practitioners share solutions to foster collaborative learning.",
+  "LERN_MESSAGE_LINE_TWO": "Learnathon 2.0 launched on 18th November 2024 and will continue until 20th December 2024. Submit your urban solutions now!",
+
   "NEW_NOTIFICATIONS": "New Notification (s)",
 
   "NO_NOTIFICATIONS_FOUND": "No Notifications Found",
@@ -412,6 +410,5 @@
   "ORGANISATION": "Organisation",
   "SUBMISSION_DATE": "Submission Date",
 
-  "VIEW": "View",
-  "REVIEW_NOW":"Review Now"
+  "VIEW": "View"
 }

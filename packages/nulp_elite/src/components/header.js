@@ -79,13 +79,9 @@ function Header({ globalSearchQuery }) {
       const data = await response.json();
       const userID = data.result.data;
 
-      console.log(userID);
-
       const user = userID.find(
         (user) => user.user_id === _userId && user.creator_access === false
       );
-      console.log(user);
-      console.log(roles);
       if (
         (roles.includes("COURSE_MENTOR") ||
           roles.includes("SYSTEM_ADMINISTRATION") ||
@@ -596,20 +592,21 @@ function Header({ globalSearchQuery }) {
                 >
                   {roleNames.some((role) =>
                     ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"].includes(role)
-                  ) && (
-                    <MenuItem
-                      className="ml-10"
-                      style={{ background: "#f9fafc" }}
-                    >
-                      <Link
-                        href={routeConfig.ROUTES.POLL.POLL_FORM}
-                        underline="none"
-                        textAlign="center"
+                  ) &&
+                    accessWorkspace && (
+                      <MenuItem
+                        className="ml-10"
+                        style={{ background: "#f9fafc" }}
                       >
-                        {t("CREATE_POLL")}
-                      </Link>
-                    </MenuItem>
-                  )}
+                        <Link
+                          href={routeConfig.ROUTES.POLL.POLL_FORM}
+                          underline="none"
+                          textAlign="center"
+                        >
+                          {t("CREATE_POLL")}
+                        </Link>
+                      </MenuItem>
+                    )}
                   <MenuItem className="ml-10">
                     <Link
                       href={routeConfig.ROUTES.POLL.POLL_LIST}

@@ -118,7 +118,7 @@
   "NIUA": "এনআইইউএ",
   "MOHUA": "মোহুয়া",
   "ABOUT_US": "আমাদের সম্পর্কে",
-  "CONTACT_US": "আমাদের সাথে যোগাযোগ করুন",
+  "CONTACT_US": "হেল্পডেস্ক",
   "LOG_OUT": "লগ আউট",
   "CENTER_FOR_DIGITAL_GOVERNANCE": "ডিজিটাল গভর্নেন্স সেন্টার",
   "NATIONAL_URBAN_DIGITAL_MISSION": "ন্যাশনাল আরবান ডিজিটাল মিশন",
@@ -418,5 +418,6 @@
   "ACEDEMIA": "Academia",
   "STATE_ULBS": "রাজ্য / ULBS ইত্যাদি",
   "INDUSTRY": "শিল্প",
-  "STATE_COUNT": "রাজ্য গণনা"
+  "STATE_COUNT": "রাজ্য গণনা",
+  "REVIEW_NOW":"এখন পর্যালোচনা করুন"
 }

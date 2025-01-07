@@ -118,7 +118,7 @@
   "NIUA": "NIUA",
   "MOHUA": "MoHUA",
   "ABOUT_US": "எங்கள் பற்றிய",
-  "CONTACT_US": "எங்களை தொடர்பு கொள்ளவும்",
+  "CONTACT_US": "உதவி மையம்",
   "LOG_OUT": "வெளியேறவும்",
   "CENTER_FOR_DIGITAL_GOVERNANCE": "டிஜிட்டல் ஆளும் மையம்",
   "NATIONAL_URBAN_DIGITAL_MISSION": "தேசிய நகர்வியல் டிஜிட்டல் பணியகம்",
@@ -424,5 +424,6 @@
   "ACEDEMIA": "அகாடமியா",
   "STATE_ULBS": "மாநிலங்கள் / ULBS போன்றவை",
   "INDUSTRY": "தொழில்",
-  "STATE_COUNT": "மாநில எண்ணிக்கை"
+  "STATE_COUNT": "மாநில எண்ணிக்கை",
+  "REVIEW_NOW":"இப்போது மதிப்பாய்வு செய்யவும்"
 }

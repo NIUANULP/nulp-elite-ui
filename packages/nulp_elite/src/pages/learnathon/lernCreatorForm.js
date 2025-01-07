@@ -25,9 +25,9 @@ import InputLabel from "@mui/material/InputLabel";
 import acdemiaguideline from "../../assets/academia-guidelines.pdf";
 import stateguideline from "../../assets/state-guidelines.pdf";
 import industryguideline from "../../assets/industry-guidelines.pdf";
-import industrytnc from "../../assets/industry-tnc.pdf";
-import acdemiatnc from "../../assets/academia-tnc.pdf";
-import statetnc from "../../assets/state-tnc.pdf";
+import industrytnc from "../../assets/tnc.pdf";
+import acdemiatnc from "../../assets/tnc.pdf";
+import statetnc from "../../assets/tnc.pdf";
 import Loader from "components/Loader";
 import Checkbox from '@mui/material/Checkbox';
 import Alert from "@mui/material/Alert";
@@ -309,6 +309,8 @@ const LernCreatorForm = () => {
       tempErrors.name_of_organisation = "Name of Organisation is required";
     if (!formData.indicative_theme)
       tempErrors.indicative_theme = "Indicative Theme is required";
+    if (!formData.indicative_sub_theme && formData.indicative_theme !=="Miscellaneous/ Others")
+      tempErrors.indicative_sub_theme = "Indicative Sub Theme is required";
     if (
       formData.indicative_theme == "Miscellaneous/ Others" &&
       !formData.other_indicative_themes
@@ -1392,6 +1394,7 @@ const LernCreatorForm = () => {
                         type="file"
                         fullWidth
                         onChange={(event) => handleFileChange(event, "file")}
+                        error={!!errors.content_id}
                         inputProps={{
                           accept: "video/mp4,application/pdf,text/html",
                         }}
@@ -1405,7 +1408,7 @@ const LernCreatorForm = () => {
                         fullWidth
                         placeholder="Enter URL"
                         onChange={(event) => handleUrlChange(event)}
-                        error={!!errors.youtube}
+                        error={!!errors.youtube || !!errors.content_id}
                         helperText={
                           !!errors.youtube
                             ? "Please enter a valid YouTube URL."
@@ -1654,102 +1657,201 @@ const LernCreatorForm = () => {
                       {t("TNC")}
                     </a>
 
-                    {TNCOpen && (
-                      <Modal
-                        open={TNCOpen}
-                        onClose={() => setTNCOpen(false)}
-                        aria-labelledby="confirmation-modal-title"
-                        aria-describedby="confirmation-modal-description"
+                   {TNCOpen && (
+                    <Modal
+                      open={TNCOpen}
+                      onClose={() => setTNCOpen(false)}
+                      aria-labelledby="confirmation-modal-title"
+                      aria-describedby="confirmation-modal-description"
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <div
                         style={{
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
+                          backgroundColor: "white",
+                          padding: "20px",
+                          borderRadius: "8px",
+                          boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                          width: "700px",
+                          maxHeight: "80vh", // Ensures modal does not exceed viewport height
+                          overflowY: "auto", // Enables vertical scrolling if content exceeds height
+                          textAlign: "justify",
                         }}
                       >
-                        <div
+                        <Typography
+                          variant="h6"
+                          id="confirmation-modal-title"
+                          gutterBottom
                           style={{
-                            backgroundColor: "white",
-                            padding: "20px",
-                            borderRadius: "8px",
-                            boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
-                            width: "600px",
-                            textAlign: "justify",
+                            textAlign: "center",
+                            fontWeight: "bold",
                           }}
                         >
-                          <Typography
-                            variant="h6"
-                            id="confirmation-modal-title"
-                            gutterBottom
-                            style={{
-                              textAlign: "center"
-                            }}
-                          >
-                            {t("TNC")}
-                          </Typography>
+                          {t("Terms and Conditions")}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          component="div"
+                          style={{
+                            whiteSpace: "pre-wrap", // Ensures formatted line breaks are retained
+                          }}
+                        >
                           <p>
-                            What is Lorem Ipsum? Lorem Ipsum is simply dummy
-                            text of the printing and typesetting industry. Lorem
-                            Ipsum has been the industry's standard dummy text
-                            ever since the 1500s, when an unknown printer took a
-                            galley of type and scrambled it to make a type
-                            specimen book. It has survived not only five
-                            centuries, but also the leap into electronic
-                            typesetting, remaining essentially unchanged. It was
-                            popularised in the 1960s with the release of
-                            Letraset sheets containing Lorem Ipsum passages, and
-                            more recently with desktop publishing software like
-                            Aldus PageMaker including versions of Lorem Ipsum.
-                            Why do we use it? It is a long established fact that
-                            a reader will be distracted by the readable content
-                            of a page when looking at its layout. The point of
-                            using Lorem Ipsum is that it has a more-or-less
-                            normal distribution of letters, as opposed to using
-                            'Content here, content here', making it look like
-                            readable English. Many desktop publishing packages
-                            and web page editors now use Lorem Ipsum as their
-                            default model text, and a search for 'lorem ipsum'
-                            will uncover many web sites still in their infancy.
-                            Various versions have evolved over the years,
-                            sometimes by accident, sometimes on purpose
-                            (injected humour and the like).
+                            <strong>Terms and Conditions for Content Submission on NULP</strong>
                           </p>
+                          <p>
+                            By submitting content (including but not limited to thumbnails, tags, audio, video, text, images, illustrations, or other
+                            resources) to the National Urban Learning Platform (NULP), the user agrees to the following terms and conditions. 
+                            Non-compliance with these terms may result in the removal of content and/or suspension of access to the platform 
+                            and participation in similar future competitions.
+                          </p>
+                          <ol>
+                            <li>
+                              <strong>Prohibition of Hate Speech</strong>
+                              <ul>
+                                <li>Content must not promote enmity, hatred, or ill-will against individuals or groups based on:</li>
+                                <ul>
+                                  <li>Caste, Class, Tribe, Race, Ethnicity</li>
+                                  <li>Sex, Gender, or Gender Identity</li>
+                                  <li>National Origin or Religious Affiliation</li>
+                                  <li>Sexual Orientation</li>
+                                  <li>Disabilities or Diseases</li>
+                                </ul>
+                              </ul>
+                            </li>
+                            <li>
+                              <strong>Sexually Explicit Content</strong>
+                              <ul>
+                                <li>Content must not include pornography, sexually explicit material, or depictions of sexual acts.</li>
+                              </ul>
+                            </li>
+                            <li>
+                              <strong>Sexual Violence and Exploitation</strong>
+                              <ul>
+                                <li>Content must not depict or promote the sexual exploitation of minors or incidents of sexual violence.</li>
+                              </ul>
+                            </li>
+                            <li>
+                              <strong>Nudity and Vulgarity</strong>
+                              <ul>
+                                <li>Content must not display nudity unless it is educational, documentary, scientific, or artistic with clear context.</li>
+                                <li>Content must not include vulgarity, obscenity, or degrading material.</li>
+                              </ul>
+                            </li>
+                            <li>
+                              <strong>Violence</strong>
+                              <ul>
+                                <li>Content must not promote, encourage, or glorify violent actions or behaviors.</li>
+                              </ul>
+                            </li>
+                            <li>
+                              <strong>Discrimination and Bullying</strong>
+                              <ul>
+                                <li>Content must not degrade, shame, or harass individuals or groups.</li>
+                              </ul>
+                            </li>
+                            <li>
+                              <strong>Harmful or Dangerous Content</strong>
+                              <ul>
+                                <li>Content must not incite dangerous or illegal activities.</li>
+                              </ul>
+                            </li>
+                            <li>
+                              <strong>Involvement of Children</strong>
+                              <ul>
+                                <li>Content must not depict children subjected to abuse or violence.</li>
+                              </ul>
+                            </li>
+                            <li>
+                              <strong>Substance Abuse</strong>
+                              <ul>
+                                <li>Content must not encourage or glorify the use of alcohol, drugs, or tobacco.</li>
+                              </ul>
+                            </li>
+                            <li>
+                              <strong>Defamation</strong>
+                              <ul>
+                                <li>Content must not defame or ridicule individuals, groups, or people with disabilities.</li>
+                              </ul>
+                            </li>
+                            <li>
+                              <strong>Content Sensitive to Children with Special Needs</strong>
+                              <ul>
+                                <li>Content must be accessible and sensitive to children with special needs.</li>
+                              </ul>
+                            </li>
+                            <li>
+                              <strong>Environmental Sensitivity</strong>
+                              <ul>
+                                <li>Content must not glorify activities causing environmental damage.</li>
+                              </ul>
+                            </li>
+                            <li>
+                              <strong>Copyright Compliance</strong>
+                              <ul>
+                                <li>You confirm that you own the rights to the submitted content or have the necessary permissions/licenses.</li>
+                                <li>NULP is not liable for copyright infringement claims arising from your content.</li>
+                              </ul>
+                            </li>
+                            <li>
+                              <strong>User Responsibility and Agreement</strong>
+                              <ul>
+                                <li>By submitting content, you certify that your submission complies with these terms and conditions.</li>
+                                <li>You agree to take full responsibility for any content you submit, including any consequences arising from non-compliance.</li>
+                                <li>NULP reserves the right to review, remove, or reject any content that violates these terms or fails to align with the platform's standards.</li>
+                                <li>Users submitting content that repeatedly violates these terms may face account suspension or termination.</li>
+                                <li>If any copyright issue or participation through unfair means is identified by competent authority, your entry will be deleted from NULP, prize money will be forfeited, and you will be banned from further participation.</li>
+                              </ul>
+                            </li>
+                          </ol>
+                          <p>
+                            <strong>Content Review and Moderation</strong>
+                          </p>
+                          <p>
+                            The NULP team reserves the right to moderate, monitor, and take action against any submitted
+                            content that breaches these terms. In this regard decisions made by the team will be final.
+                          </p>
+                          <p>
+                            By proceeding with the submission, you acknowledge and agree to abide by these Terms and
+                            Conditions.
+                          </p>
+                        </Typography>
 
-                          {/* Modal Actions */}
-                          <Box style={{ marginTop: "20px", textAlign: 'center' }}>
-                            <FormControlLabel control={<Checkbox />} label="I here by confirm that I accept the above mentioned terms and conditions " />
+                        {/* Modal Actions */}
+                        <Box style={{ marginTop: "20px", textAlign: "center" }}>
+                          <FormControlLabel
+                            control={<Checkbox />}
+                            label={t("I hereby confirm that I accept the above-mentioned terms and conditions.")}
+                          />
+                        </Box>
+
+                        <Box
+                          style={{
+                            marginTop: "20px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Box style={{ padding: "5px" }}>
+                            <Button variant="contained" className="viewAll" onClick={() => handleCheckboxChange(true)}>
+                              {t("CONFIRM")}
+                            </Button>
                           </Box>
-
-
-                          <Box style={{ marginTop: "20px", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Box
-                              style={{
-                                padding: "5px",
-                              }}
-                            >
-                              <Button
-                                variant="contained"
-                                className="viewAll"
-                                onClick={() => handleCheckboxChange(true)}
-                              >
-                                {t("CONFIRM")}
-                              </Button>
-                            </Box>
-                            <Box
-                              style={{
-                                padding: "5px",
-                              }}
-                            >
-                              <Button
-                                className="cancelBtn"
-                                onClick={() => setTNCOpen(false)}
-                              >
-                                {t("CANCEL")}
-                              </Button>
-                            </Box>
+                          <Box style={{ padding: "5px" }}>
+                            <Button className="cancelBtn" onClick={() => setTNCOpen(false)}>
+                              {t("CANCEL")}
+                            </Button>
                           </Box>
-                        </div>
-                      </Modal>
-                    )}
+                        </Box>
+                      </div>
+                    </Modal>
+                  )}
+
+
                   </Grid>
                   <Grid
                     container

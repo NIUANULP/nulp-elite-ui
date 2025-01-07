@@ -64,7 +64,7 @@ const Player = () => {
   const params = new URLSearchParams(window.location.search);
   const pageParam = params.get("page");
   let contentId = params.get("id");
-  const [playerContent, setPlayerContent] = useState(false);
+  const [playerContent, setPlayerContent] = useState();
   const [noPreviewAvailable, setNoPreviewAvailable] = useState(false);
   // const playerUrl = `${window.location.origin}/newplayer`;
   const playerUrl =
@@ -311,7 +311,7 @@ const Player = () => {
             console.log(result.result);
 
             setLearnathonDetails(result.result.data[0]);
-
+            // setCourseId(result.result.data[0].content_id);
             setPlayerContent(result.result.data[0].content_id);
             if (result.result.data[0].status == "Live") {
               setIsPublished(true);
@@ -494,7 +494,7 @@ const Player = () => {
         poll_options: ["I would like to vote this content"],
         poll_type: "Polls",
         start_date: updatedDateTime,
-        end_date: "2024-11-22T12:21:09.754Z",
+        end_date: "2025-01-22T12:21:09.754Z",
         is_live_poll_result: true,
         content_id: learnathonDetails?.learnathon_content_id,
         category: "Learnathon",
