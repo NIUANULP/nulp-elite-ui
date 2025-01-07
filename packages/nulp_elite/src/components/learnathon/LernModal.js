@@ -113,10 +113,10 @@ const LernModal = () => {
   };
 
   let responsecode;
-  const  = async () => {
+  const fetchUserAccesse = async () => {
     const isCreator = roleList.includes("CONTENT_CREATOR");
     const isReviewer = roleList.includes("SYSTEM_ADMINISTRATION");
-    setIsREviewfetchUserAccesser(isReviewer);
+    setIsREviewr(isReviewer);
 
     try {
       const url = `${urlConfig.URLS.PROVIDE_ACCESS}`;
