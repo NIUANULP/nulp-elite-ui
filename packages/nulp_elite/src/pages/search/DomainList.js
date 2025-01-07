@@ -145,7 +145,10 @@ const DomainList = ({ globalSearchQuery }) => {
 
       if (!user) {
         fetchUserAccess();
-      } else if (user.creator_access === true) {
+      } else if (
+        user.creator_access === true ||
+        user.creator_access === false
+      ) {
         navigate("/webapp/mylernsubmissions");
       }
       // else if (user.creator_access === false) {
