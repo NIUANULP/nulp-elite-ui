@@ -22,7 +22,7 @@ const LernModal = () => {
     const isModalShown = sessionStorage.getItem("isModalShown");
     return isModalShown !== "true"; // Show modal if not already shown
   });
-  const [isReviewer, setIsREviewer] = useState(false);
+  const [isReviewer, setIsReviewer] = useState(false);
   const [lernUser, setLernUser] = useState([]);
   const [responseCode, setResponseCode] = useState([]);
   const [orgId, setOrgId] = useState([]);
@@ -119,7 +119,7 @@ const LernModal = () => {
   const fetchUserAccess = async () => {
     const isCreator = roleList.includes("CONTENT_CREATOR");
     const isReviewer = roleList.includes("SYSTEM_ADMINISTRATION");
-    setIsREviewr(isReviewer);
+    setIsReviewer(isReviewer);
 
     try {
       const url = `${urlConfig.URLS.PROVIDE_ACCESS}`;
