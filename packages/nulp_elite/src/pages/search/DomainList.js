@@ -73,14 +73,14 @@ const DomainList = ({ globalSearchQuery }) => {
   const [framework, setFramework] = useState();
   const [roleList, setRoleList] = useState([]);
   const [orgId, setOrgId] = useState([]);
-  const [isLearnathonUser , setIsLearnathonUser] = useState(false)
+  const [isLearnathonUser, setIsLearnathonUser] = useState(false);
   const [searchQuery, setSearchQuery] = useState(globalSearchQuery || "");
 
   const [lernUser, setLernUser] = useState([]);
   const _userId = util.userId();
 
-   const today = dayjs();
-   const formattedDate = today.subtract(1, 'hour').format('YYYY-MM-DD HH:mm:ss');
+  const today = dayjs();
+  const formattedDate = today.subtract(1, "hour").format("YYYY-MM-DD HH:mm:ss");
 
   const isParticipateNow = today.isBetween(
     dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_START_DATE),
@@ -100,7 +100,6 @@ const DomainList = ({ globalSearchQuery }) => {
     "minute"
   );
 
-
   const fetchData = async () => {
     try {
       const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.GET_PROFILE}${_userId}`;
@@ -109,7 +108,9 @@ const DomainList = ({ globalSearchQuery }) => {
       const rolesData = data.result.response.channel;
       const roles = data.result.response.roles;
       let organizationId;
-      setIsLearnathonUser(data.result.response.firstName.includes("tekdiNulp11"))
+      setIsLearnathonUser(
+        data.result.response.firstName.includes("tekdiNulp11")
+      );
 
       if (roles[0]?.scope[0]?.organisationId) {
         organizationId = roles[0].scope[0].organisationId;
@@ -146,14 +147,14 @@ const DomainList = ({ globalSearchQuery }) => {
         fetchUserAccess();
       } else if (user.creator_access === true) {
         navigate("/webapp/mylernsubmissions");
-      } else if (user.creator_access === false) {
-        fetchUserAccess();
       }
+      // else if (user.creator_access === false) {
+      //   fetchUserAccess();
+      // }
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
   };
-
 
   const navigateConsecutively = async () => {
     console.log("navigateConsecutively1111");
@@ -167,6 +168,9 @@ const DomainList = ({ globalSearchQuery }) => {
         credentials: "include",
       });
       if (response.ok) {
+        showErrorMessage(
+          "Thank you for participation. Please relogin to get submission access"
+        );
         localStorage.clear(); // Clear local storage if needed
         navigate("/webapp/mylernsubmissions");
         setTimeout(() => {
@@ -181,7 +185,6 @@ const DomainList = ({ globalSearchQuery }) => {
 
     console.log("navigateConsecutively22222");
   };
-
 
   let responsecode;
   const isCreator = roleList.includes("CONTENT_CREATOR");
@@ -211,7 +214,8 @@ const DomainList = ({ globalSearchQuery }) => {
 
       responsecode = result;
       if (result === "OK") {
-        navigate("/webapp/mylernsubmissions");
+        navigateConsecutively();
+        // navigate("webapp/mylernsubmissions");
         setIsModalOpen(false);
       } else {
         setToasterMessage("Something went wrong! Please try again later");
@@ -637,52 +641,53 @@ const DomainList = ({ globalSearchQuery }) => {
                 {isLearnathonUser && (
                   <Grid item xs={12} md={3}>
                     <Grid
-                    container
-                    direction="column"
-                    spacing={2}
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Grid item xs={12}>
-                      <Button className="viewAllbtn" onClick={handleCheckUser}>
-                        {lernUser === "nulp-learn"
-                          ? t("PARTICIPATE_NOW")
-                          : t("PARTICIPATE_NOW")}
-                      </Button>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Button
-                        className="viewAllbtn"
-                        onClick={() => {
-                          window.open(
-                            routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
-                            "_blank"
-                          );
-                        }}
-                      >
-                        Review Now
-                      </Button>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Button
-                        className="viewAllbtn"
-                        onClick={() => {
-                          window.open(
-                            routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
-                            "_blank"
-                          );
-                        }}
-                      >
-                        Vote Now
-                      </Button>
-                    </Grid>
+                      container
+                      direction="column"
+                      spacing={2}
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Grid item xs={12}>
+                        <Button
+                          className="viewAllbtn"
+                          onClick={handleCheckUser}
+                        >
+                          {lernUser === "nulp-learn"
+                            ? t("PARTICIPATE_NOW")
+                            : t("PARTICIPATE_NOW")}
+                        </Button>
+                      </Grid>
+                      <Grid item xs={12}>
+                        <Button
+                          className="viewAllbtn"
+                          onClick={() => {
+                            window.open(
+                              routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
+                              "_blank"
+                            );
+                          }}
+                        >
+                          Review Now
+                        </Button>
+                      </Grid>
+                      <Grid item xs={12}>
+                        <Button
+                          className="viewAllbtn"
+                          onClick={() => {
+                            window.open(
+                              routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
+                              "_blank"
+                            );
+                          }}
+                        >
+                          Vote Now
+                        </Button>
+                      </Grid>
                     </Grid>
                   </Grid>
-                )
-                  }
-                  {! isLearnathonUser &&
-                    (
-                      <Grid item xs={12} md={3}>
+                )}
+                {!isLearnathonUser && (
+                  <Grid item xs={12} md={3}>
                     <Grid
                       container
                       direction="column"
@@ -692,7 +697,10 @@ const DomainList = ({ globalSearchQuery }) => {
                     >
                       {isParticipateNow && (
                         <Grid item xs={12}>
-                          <Button className="viewAllbtn" onClick={handleCheckUser}>
+                          <Button
+                            className="viewAllbtn"
+                            onClick={handleCheckUser}
+                          >
                             {t("PARTICIPATE_NOW")}
                           </Button>
                         </Grid>
@@ -729,8 +737,7 @@ const DomainList = ({ globalSearchQuery }) => {
                       )}
                     </Grid>
                   </Grid>
-                    )
-                  }
+                )}
                 <Grid item xs={12}>
                   {toasterMessage && (
                     <Box>
