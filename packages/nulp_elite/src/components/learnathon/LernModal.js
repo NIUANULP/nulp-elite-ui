@@ -26,7 +26,7 @@ const LernModal = () => {
   const [lernUser, setLernUser] = useState([]);
   const [responseCode, setResponseCode] = useState([]);
   const [orgId, setOrgId] = useState([]);
-  const [learnathonUser ,setIsLearnathonUser]=useState()
+  const [learnathonUser, setIsLearnathonUser] = useState();
   const _userId = util.userId();
   const handleClose = () => {
     setIsModalOpen(false);
@@ -62,7 +62,9 @@ const LernModal = () => {
       const rolesData = data.result.response.channel;
       const roles = data.result.response.roles;
       let organizationId;
-      setIsLearnathonUser(data.result.response.firstName.includes("tekdiNulp11"))
+      setIsLearnathonUser(
+        data.result.response.firstName.includes("tekdiNulp11")
+      );
 
       if (roles[0]?.scope[0]?.organisationId) {
         organizationId = roles[0].scope[0].organisationId;
@@ -98,22 +100,23 @@ const LernModal = () => {
         console.log(
           "User ID found with creator access. No need to call fetchUserAccess."
         );
-      } else if (user.creator_access === false) {
-        console.log(
-          "User ID found but no creator access. Calling fetchUserAccess..."
-        );
-        fetchUserAccess();
       }
+      // else if (user.creator_access === false) {
+      //   console.log(
+      //     "User ID found but no creator access. Calling fetchUserAccess..."
+      //   );
+      //   fetchUserAccess();
+      // }
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
   };
 
   let responsecode;
-  const fetchUserAccess = async () => {
+  const  = async () => {
     const isCreator = roleList.includes("CONTENT_CREATOR");
     const isReviewer = roleList.includes("SYSTEM_ADMINISTRATION");
-    setIsREviewer(isReviewer);
+    setIsREviewfetchUserAccesser(isReviewer);
 
     try {
       const url = `${urlConfig.URLS.PROVIDE_ACCESS}`;
@@ -153,16 +156,15 @@ const LernModal = () => {
 
   const navigateConsecutively = async () => {
     console.log("navigateConsecutively1111");
-
-    // navigate("/logoff");
-    // localStorage.clear();
-    // sessionStorage.clear();
     try {
       const response = await fetch("/logout", {
         method: "POST",
         credentials: "include",
       });
       if (response.ok) {
+        showErrorMessage(
+          "Thank you for participation. Please relogin to get submission access"
+        );
         localStorage.clear(); // Clear local storage if needed
         navigate("/webapp/mylernsubmissions"); // Redirect to login
         setTimeout(() => {
@@ -215,109 +217,104 @@ const LernModal = () => {
     }
   };
 
- return (
-  <div>
-    {toasterMessage && (
-      <Box>
-        <ToasterCommon response={toasterMessage} />
-      </Box>
-    )}
-    <Modal
-      open={isModalOpen}
-      onClose={handleClose}
-      aria-labelledby="modal-modal-title"
-      aria-describedby="modal-modal-description"
-    >
-      <Box sx={style}>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Box>
-            <Box className="h2-title">{t("LERN_title")}</Box>
-          </Box>
-          <Box>
-            <IconButton onClick={handleClose}>
-              <CloseIcon />
-            </IconButton>
-          </Box>
+  return (
+    <div>
+      {toasterMessage && (
+        <Box>
+          <ToasterCommon response={toasterMessage} />
         </Box>
-        <Box className="mt-10 xs-mb-10">
-          <Divider />
-        </Box>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={12} md={4}>
-            <Box className="profileBox">
-              <img
-                height="222px"
-                width="207px"
-                src={require("../../assets/Image_for_Pop_up.jpg")}
-                alt=""
-              />
+      )}
+      <Modal
+        open={isModalOpen}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Box>
+              <Box className="h2-title">{t("LERN_title")}</Box>
             </Box>
-          </Grid>
-          <Grid item xs={12} sm={12} md={8}>
-            <Box className="profileBox ml-20">
-              {/* Commented for Demo */}
-              {!learnathonUser && isParticipateNow && (
-                    <Box>
-                        <Box className="mt-20">{t("LERN_MESSAGE")}</Box>
-                        <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
-                    </Box>
+            <Box>
+              <IconButton onClick={handleClose}>
+                <CloseIcon />
+              </IconButton>
+            </Box>
+          </Box>
+          <Box className="mt-10 xs-mb-10">
+            <Divider />
+          </Box>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={12} md={4}>
+              <Box className="profileBox">
+                <img
+                  height="222px"
+                  width="207px"
+                  src={require("../../assets/Image_for_Pop_up.jpg")}
+                  alt=""
+                />
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={12} md={8}>
+              <Box className="profileBox ml-20">
+                {/* Commented for Demo */}
+                {!learnathonUser && isParticipateNow && (
+                  <Box>
+                    <Box className="mt-20">{t("LERN_MESSAGE")}</Box>
+                    <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
+                  </Box>
                 )}
                 {isReviewNow && isReviewer && (
-                    <Box>
-                        <Box className="mt-20">{t("REVIEW_NOW")}</Box>
-                        <Box className="mt-20">{t("REVIEW_MESSEGE")}</Box>
-                    </Box>
+                  <Box>
+                    <Box className="mt-20">{t("REVIEW_NOW")}</Box>
+                    <Box className="mt-20">{t("REVIEW_MESSEGE")}</Box>
+                  </Box>
                 )}
                 {isVoteNow && (
-                    <Box>
-                        <Box className="mt-20">{t("VOTE_NOW")}</Box>
-                        <Box className="mt-20">{t("VOTE_NOW_MESSEGE")}</Box>
-                    </Box>
+                  <Box>
+                    <Box className="mt-20">{t("VOTE_NOW")}</Box>
+                    <Box className="mt-20">{t("VOTE_NOW_MESSEGE")}</Box>
+                  </Box>
                 )}
-              {learnathonUser && (
-                <>
-                  <Box className="mt-20">{t("LERN_MESSAGE")}</Box>
-                  <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
-                  <Box className="lg-mt-30"></Box>
-                </>
-              )}
-              {/* Commented for Demo */}
-              {isParticipateNow && !learnathonUser && (
-                          <Button
-                            className="viewAll"
-                            onClick={handleCardClick}
-                          >
-                            {t("Click here to now more")}
-                          </Button>
-                      )}
-                  {isReviewNow && !learnathonUser && isReviewer && (
-                          <Button
-                            className="viewAll"
-                            onClick={handleCardClick}
-                          >
-                            {t("REVIEW_NOW")}
-                          </Button>
-                      )}
-                  {isVoteNow && !learnathonUser && (
-                        <Button
-                          className="viewAll"
-                          onClick={handleCardClick}
-                        >
-                          {t("VOTE_NOW")}
-                        </Button>
-                    )}
-              {learnathonUser && (
-                <Button className="viewAll" onClick={handleCardClick}>
-                  {t("Click here to know more")}
-                </Button>
-              ) }
-            </Box>
+                {learnathonUser && (
+                  <>
+                    <Box className="mt-20">{t("LERN_MESSAGE")}</Box>
+                    <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
+                    <Box className="lg-mt-30"></Box>
+                  </>
+                )}
+                {/* Commented for Demo */}
+                {isParticipateNow && !learnathonUser && (
+                  <Button className="viewAll" onClick={handleCardClick}>
+                    {t("Click here to now more")}
+                  </Button>
+                )}
+                {isReviewNow && !learnathonUser && isReviewer && (
+                  <Button className="viewAll" onClick={handleCardClick}>
+                    {t("REVIEW_NOW")}
+                  </Button>
+                )}
+                {isVoteNow && !learnathonUser && (
+                  <Button className="viewAll" onClick={handleCardClick}>
+                    {t("VOTE_NOW")}
+                  </Button>
+                )}
+                {learnathonUser && (
+                  <Button className="viewAll" onClick={handleCardClick}>
+                    {t("Click here to know more")}
+                  </Button>
+                )}
+              </Box>
+            </Grid>
           </Grid>
-        </Grid>
-      </Box>
-    </Modal>
-  </div>
-);;
+        </Box>
+      </Modal>
+    </div>
+  );
 };
 
 export default LernModal;
