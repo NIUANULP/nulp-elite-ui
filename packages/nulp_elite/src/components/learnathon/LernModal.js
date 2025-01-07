@@ -94,7 +94,10 @@ const LernModal = () => {
       if (!user) {
         console.log("User ID not found. Calling fetchUserAccess...");
         fetchUserAccess();
-      } else if (user.creator_access === true) {
+      } else if (
+        user.creator_access === true ||
+        user.creator_access === false
+      ) {
         navigate("/webapp/mylernsubmissions");
         setIsModalOpen(false);
         console.log(
