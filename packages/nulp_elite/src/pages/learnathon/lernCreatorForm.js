@@ -309,7 +309,7 @@ const LernCreatorForm = () => {
       tempErrors.name_of_organisation = "Name of Organisation is required";
     if (!formData.indicative_theme)
       tempErrors.indicative_theme = "Indicative Theme is required";
-    if (!formData.indicative_sub_theme)
+    if (!formData.indicative_sub_theme && formData.indicative_theme !=="Miscellaneous/ Others")
       tempErrors.indicative_sub_theme = "Indicative Sub Theme is required";
     if (
       formData.indicative_theme == "Miscellaneous/ Others" &&
