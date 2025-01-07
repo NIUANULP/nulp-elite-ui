@@ -81,6 +81,8 @@ const DomainList = ({ globalSearchQuery }) => {
 
   const today = dayjs();
   const formattedDate = today.subtract(1, "hour").format("YYYY-MM-DD HH:mm:ss");
+    const isLearnathonStarted = today.isAfter(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_START_DATE)
+
 
   const isParticipateNow = today.isBetween(
     dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_START_DATE),
@@ -632,7 +634,8 @@ const DomainList = ({ globalSearchQuery }) => {
           role="main"
         >
           {error && <Alert severity="error">{error}</Alert>}
-          <Box className="lern-box">
+          {(isLearnathonUser || isLearnathonStarted) && (
+            <Box className="lern-box">
             <Box>
               <Grid container>
                 <Grid item xs={12}>
@@ -641,7 +644,7 @@ const DomainList = ({ globalSearchQuery }) => {
                 <Grid item xs={12} md={9}>
                   <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
                 </Grid>
-                {isLearnathonUser && (
+                {(isLearnathonUser && !isLearnathonStarted) && (
                   <Grid item xs={12} md={3}>
                     <Grid
                       container
@@ -689,7 +692,7 @@ const DomainList = ({ globalSearchQuery }) => {
                     </Grid>
                   </Grid>
                 )}
-                {!isLearnathonUser && (
+                {isLearnathonStarted && (
                   <Grid item xs={12} md={3}>
                     <Grid
                       container
@@ -751,6 +754,8 @@ const DomainList = ({ globalSearchQuery }) => {
               </Grid>
             </Box>
           </Box>
+          )}
+          
 
           <Box textAlign="center">
             <p
