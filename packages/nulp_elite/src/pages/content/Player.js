@@ -491,7 +491,7 @@ const Player = () => {
         visibility: "PublicToAll",
         poll_options: ["I would like to vote this content"],
         poll_type: "Polls",
-        start_date: updatedDateTime,
+        start_date: urlConfig.LEARNATHON_DATES.VOTING_START_DATE,
         end_date: "2025-01-22T12:21:09.754Z",
         is_live_poll_result: true,
         content_id: learnathonDetails?.learnathon_content_id,
