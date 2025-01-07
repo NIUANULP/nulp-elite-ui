@@ -615,7 +615,7 @@ const DomainList = ({ globalSearchQuery }) => {
                     justifyContent="center"
                   >
                     <Grid item xs={12}>
-                      <Button className="viewAllbtn" onClick={handleCheckUser}>
+                      <Button className="viewAll" onClick={handleCheckUser}>
                         {lernUser === "nulp-learn"
                           ? t("PARTICIPATE_NOW")
                           : t("PARTICIPATE_NOW")}
@@ -623,7 +623,7 @@ const DomainList = ({ globalSearchQuery }) => {
                     </Grid>
                     <Grid item xs={12}>
                       <Button
-                        className="viewAllbtn"
+                        className="viewAll"
                         onClick={() => {
                           window.open(
                             routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
@@ -636,7 +636,7 @@ const DomainList = ({ globalSearchQuery }) => {
                     </Grid>
                     <Grid item xs={12}>
                       <Button
-                        className="viewAllbtn"
+                        className="viewAll"
                         onClick={() => {
                           window.open(
                             routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
@@ -663,7 +663,7 @@ const DomainList = ({ globalSearchQuery }) => {
                     >
                       {isParticipateNow && (
                         <Grid item xs={12}>
-                          <Button className="viewAllbtn" onClick={handleCheckUser}>
+                          <Button className="viewAll" onClick={handleCheckUser}>
                             {t("PARTICIPATE_NOW")}
                           </Button>
                         </Grid>
@@ -671,7 +671,7 @@ const DomainList = ({ globalSearchQuery }) => {
                       {isReviewNow && (
                         <Grid item xs={12}>
                           <Button
-                            className="viewAllbtn"
+                            className="viewAll"
                             onClick={() => {
                               window.open(
                                 routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
@@ -686,7 +686,7 @@ const DomainList = ({ globalSearchQuery }) => {
                       {isVoteNow && (
                         <Grid item xs={12}>
                           <Button
-                            className="viewAllbtn"
+                            className="viewAll"
                             onClick={() => {
                               window.open(
                                 routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
