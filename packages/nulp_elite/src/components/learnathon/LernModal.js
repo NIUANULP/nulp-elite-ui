@@ -156,6 +156,13 @@ const LernModal = () => {
       console.log("error", error);
     }
   };
+  const showErrorMessage = (msg) => {
+    setToasterMessage(msg);
+    setTimeout(() => {
+      setToasterMessage("");
+    }, 2000);
+    setToasterOpen(true);
+  };
 
   const navigateConsecutively = async () => {
     console.log("navigateConsecutively1111");
