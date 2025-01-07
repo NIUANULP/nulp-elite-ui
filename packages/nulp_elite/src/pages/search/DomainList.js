@@ -634,8 +634,9 @@ const DomainList = ({ globalSearchQuery }) => {
           role="main"
         >
           {error && <Alert severity="error">{error}</Alert>}
+
           {(isLearnathonUser || isLearnathonStarted) && (
-            <Box className="lern-box">
+
             <Box>
               <Grid container>
                 <Grid item xs={12}>
@@ -753,9 +754,10 @@ const DomainList = ({ globalSearchQuery }) => {
                 </Grid>
               </Grid>
             </Box>
+
           </Box>
           )}
-          
+  
 
           <Box textAlign="center">
             <p
