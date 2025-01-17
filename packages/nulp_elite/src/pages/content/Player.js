@@ -255,6 +255,21 @@ const Player = () => {
     [isEnrolled, _userId, contentId, courseId, batchId]
   );
 
+  const replaceDomain = (obj, oldDomain, newDomain) => {
+    if (typeof obj === "string") {
+      return obj.replace(new RegExp(oldDomain, "g"), newDomain);
+    } else if (Array.isArray(obj)) {
+      return obj.map((item) => replaceDomain(item, oldDomain, newDomain));
+    } else if (typeof obj === "object" && obj !== null) {
+      return Object.entries(obj).reduce((acc, [key, value]) => {
+        acc[key] = replaceDomain(value, oldDomain, newDomain);
+        return acc;
+      }, {});
+    }
+
+    return obj;
+  };
+
   useEffect(
     async () => {
       setPreviousRoute(sessionStorage.getItem("previousRoutes"));
@@ -270,7 +285,12 @@ const Player = () => {
             if (!response.ok) throw new Error("Failed to fetch course data");
             const data = await response.json();
             console.log("data.result.content", data.result.content);
-            setLesson(data.result.content);
+            const updatedResponse = replaceDomain(
+              data.result.content,
+              "devnewnulp.blob.core.windows.net",
+              "devnewnulpblob.blob.core.windows.net"
+            );
+            setLesson(updatedResponse);
           } catch (error) {
             console.error("Error fetching course data:", error);
           }
@@ -387,7 +407,12 @@ const Player = () => {
       if (!response.ok) throw new Error("Failed to fetch course data");
       const data = await response.json();
       console.log("data.result.content", data.result.content);
-      setLesson(data.result.content);
+      const updatedResponse = replaceDomain(
+        data.result.content,
+        "devnewnulp.blob.core.windows.net",
+        "devnewnulpblob.blob.core.windows.net"
+      );
+      setLesson(updatedResponse);
     } catch (error) {
       console.error("Error fetching course data:", error);
     }
