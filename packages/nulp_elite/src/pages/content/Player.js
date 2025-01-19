@@ -409,8 +409,8 @@ const Player = () => {
       console.log("data.result.content", data.result.content);
       const updatedResponse = replaceDomain(
         data.result.content,
-        "devnewnulp.blob.core.windows.net",
-        "devnewnulpblob.blob.core.windows.net"
+        "nulpstorage1.blob.core.windows.net",
+        "nulpstorage.blob.core.windows.net"
       );
       setLesson(updatedResponse);
     } catch (error) {
