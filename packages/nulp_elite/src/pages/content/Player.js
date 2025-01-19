@@ -290,6 +290,7 @@ const Player = () => {
               "nulpstorage1.blob.core.windows.net",
               "nulpstorage.blob.core.windows.net"
             );
+            console.log("updatedResponse", updatedResponse);
             setLesson(updatedResponse);
           } catch (error) {
             console.error("Error fetching course data:", error);
@@ -412,6 +413,7 @@ const Player = () => {
         "nulpstorage1.blob.core.windows.net",
         "nulpstorage.blob.core.windows.net"
       );
+      console.log("updatedResponse", updatedResponse);
       setLesson(updatedResponse);
     } catch (error) {
       console.error("Error fetching course data:", error);
