@@ -26,19 +26,19 @@ const FAQPage = () => {
   const setLanguage = localStorage.getItem('lang') || 'en';
   let url;
   if (setLanguage === 'en') {
-    url = "https://nulpstorage1.blob.core.windows.net/public/portal-faq/resources/res/faq-en.json";
+    url = "https://nulpstorage.blob.core.windows.net/public/portal-faq/resources/res/faq-en.json";
   } else if (setLanguage === 'hi') {
-    url = "https://nulpstorage1.blob.core.windows.net/public/portal-faq/resources/res/faq-hi.json";
+    url = "https://nulpstorage.blob.core.windows.net/public/portal-faq/resources/res/faq-hi.json";
   } else if (setLanguage === 'gg') {
-    url = "https://nulpstorage1.blob.core.windows.net/public/portal-faq/resources/res/faq-gu.json";
+    url = "https://nulpstorage.blob.core.windows.net/public/portal-faq/resources/res/faq-gu.json";
   } else if (setLanguage === 'ta') {
-    url = "https://nulpstorage1.blob.core.windows.net/public/portal-faq/resources/res/faq-ta.json";
+    url = "https://nulpstorage.blob.core.windows.net/public/portal-faq/resources/res/faq-ta.json";
   } else if (setLanguage === 'be') {
-    url = "https://nulpstorage1.blob.core.windows.net/public/portal-faq/resources/res/faq-be.json";
+    url = "https://nulpstorage.blob.core.windows.net/public/portal-faq/resources/res/faq-be.json";
   } else if (setLanguage === 'ma') {
-    url = "https://nulpstorage1.blob.core.windows.net/public/portal-faq/resources/res/faq-mr.json";
+    url = "https://nulpstorage.blob.core.windows.net/public/portal-faq/resources/res/faq-mr.json";
   } else if (setLanguage === 'mal') {
-    url = "https://nulpstorage1.blob.core.windows.net/public/portal-faq/resources/res/faq-ml.json";
+    url = "https://nulpstorage.blob.core.windows.net/public/portal-faq/resources/res/faq-ml.json";
   }
   
   useEffect(() => {
