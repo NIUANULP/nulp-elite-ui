@@ -1378,7 +1378,13 @@ const LernCreatorForm = () => {
 
                   {uploadType === "file" ? (
                     <Grid item xs={7}>
-                      {!loading ? (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          width: "100%",
+                        }}
+                      >
                         <TextField
                           type="file"
                           fullWidth
@@ -1389,9 +1395,11 @@ const LernCreatorForm = () => {
                           }}
                           sx={{ border: "1px dashed" }}
                         />
-                      ) : (
-                        <CircularProgress size />
-                      )}
+
+                        {loading && (
+                          <CircularProgress size={24} sx={{ marginLeft: 2 }} />
+                        )}
+                      </Box>
                     </Grid>
                   ) : (
                     <Grid item xs={6}>
