@@ -1378,16 +1378,28 @@ const LernCreatorForm = () => {
 
                   {uploadType === "file" ? (
                     <Grid item xs={7}>
-                      <TextField
-                        type="file"
-                        fullWidth
-                        onChange={(event) => handleFileChange(event, "file")}
-                        error={!!errors.content_id}
-                        inputProps={{
-                          accept: "video/mp4,application/pdf,text/html",
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          width: "100%",
                         }}
-                        sx={{ border: "1px dashed" }}
-                      />
+                      >
+                        <TextField
+                          type="file"
+                          fullWidth
+                          onChange={(event) => handleFileChange(event, "file")}
+                          error={!!errors.content_id}
+                          inputProps={{
+                            accept: "video/mp4,application/pdf,text/html",
+                          }}
+                          sx={{ border: "1px dashed" }}
+                        />
+
+                        {loading && (
+                          <CircularProgress size={24} sx={{ marginLeft: 2 }} />
+                        )}
+                      </Box>
                     </Grid>
                   ) : (
                     <Grid item xs={6}>
