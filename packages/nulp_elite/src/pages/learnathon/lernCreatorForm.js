@@ -608,7 +608,12 @@ const LernCreatorForm = () => {
                 );
 
                 if (!response.ok) {
+                  alert("Something went wrong while uploading file");
                   throw new Error("Something went wrong");
+                } 
+
+                if(response.ok){
+                  alert("File uploaded successfully");
                 }
 
                 const uploadResult = await response.json();
@@ -620,8 +625,8 @@ const LernCreatorForm = () => {
                 setErrors({ ...errors, icon: "" });
               } catch (error) {
                 console.log("error---", error);
+                alert("Something went wrong while uploading file");
               } finally{
-                alert("File uploaded successfully");
                 setLoading(false);
               }
             });
