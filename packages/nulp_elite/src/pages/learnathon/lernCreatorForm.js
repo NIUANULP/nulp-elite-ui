@@ -527,7 +527,6 @@ const LernCreatorForm = () => {
       };
       console.log("assetBody-----", assetBody);
       try {
-        setLoading(true);
         const response = await fetch(`${urlConfig.URLS.ASSET.CREATE}`, {
           method: "POST",
           headers: {
@@ -573,6 +572,7 @@ const LernCreatorForm = () => {
 
           const url = uploadResult.result.pre_signed_url;
           const file = e.target.files[0];
+          setLoading(true);
           const uploader = new SunbirdFileUploadLib.FileUploader();
 
           uploader
@@ -583,6 +583,7 @@ const LernCreatorForm = () => {
             })
             .on("error", (error) => {
               console.log("error", error);
+              setLoading(false);
             })
             .on("completed", async (completed) => {
               console.log("completed", completed);
@@ -619,20 +620,16 @@ const LernCreatorForm = () => {
                 setErrors({ ...errors, icon: "" });
               } catch (error) {
                 console.log("error---", error);
-              } finally {
+              } finally{
                 setLoading(false);
               }
             });
           setErrors({ ...errors, content_id: "" });
         } catch (error) {
           console.log("error---", error);
-        } finally {
-          setLoading(false);
         }
       } catch (error) {
         console.log("error---", error);
-      } finally {
-        setLoading(false);
       }
     } else if (type == "url") {
       const youtubeRegex =
@@ -659,7 +656,6 @@ const LernCreatorForm = () => {
           },
         };
         try {
-          setLoading(true);
           const response = await fetch(`${urlConfig.URLS.ASSET.CREATE}`, {
             method: "POST",
             headers: {
@@ -702,13 +698,9 @@ const LernCreatorForm = () => {
             setErrors({ ...errors, icon: "" });
           } catch (error) {
             console.log("error---", error);
-          } finally {
-            setLoading(false);
           }
         } catch (error) {
           console.log("error---", error);
-        } finally {
-          setLoading(false);
         }
       } else {
         let tempErrors = {};
