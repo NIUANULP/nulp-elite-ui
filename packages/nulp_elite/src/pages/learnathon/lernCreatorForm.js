@@ -621,6 +621,7 @@ const LernCreatorForm = () => {
               } catch (error) {
                 console.log("error---", error);
               } finally{
+                alert("File uploaded successfully");
                 setLoading(false);
               }
             });
