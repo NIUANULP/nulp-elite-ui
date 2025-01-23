@@ -11,6 +11,7 @@ import {
   Autocomplete,
   Radio,
   RadioGroup,
+  CircularProgress,
 } from "@mui/material";
 
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
@@ -29,7 +30,7 @@ import industrytnc from "../../assets/tnc.pdf";
 import acdemiatnc from "../../assets/tnc.pdf";
 import statetnc from "../../assets/tnc.pdf";
 import Loader from "components/Loader";
-import Checkbox from '@mui/material/Checkbox';
+import Checkbox from "@mui/material/Checkbox";
 import Alert from "@mui/material/Alert";
 const routeConfig = require("../../configs/routeConfig.json");
 
@@ -309,7 +310,10 @@ const LernCreatorForm = () => {
       tempErrors.name_of_organisation = "Name of Organisation is required";
     if (!formData.indicative_theme)
       tempErrors.indicative_theme = "Indicative Theme is required";
-    if (!formData.indicative_sub_theme && formData.indicative_theme !=="Miscellaneous/ Others")
+    if (
+      !formData.indicative_sub_theme &&
+      formData.indicative_theme !== "Miscellaneous/ Others"
+    )
       tempErrors.indicative_sub_theme = "Indicative Sub Theme is required";
     if (
       formData.indicative_theme == "Miscellaneous/ Others" &&
@@ -499,13 +503,6 @@ const LernCreatorForm = () => {
   };
   const handleFileChange = async (e, type) => {
     if (type == "file") {
-      // let mimeType;
-      // if (e.target.files[0].type == "application/zip") {
-      //   mimeType = "application/vnd.ekstep.html-archive";
-      // } else {
-      //    mimeType = e.target.files[0].type;
-      // }
-
       const _uuid = uuidv4();
       const assetBody = {
         request: {
@@ -522,7 +519,6 @@ const LernCreatorForm = () => {
               e.target.files[0].type == "application/zip"
                 ? "application/vnd.ekstep.html-archive"
                 : e.target.files[0].type,
-            // mimeType: mimeType,
             createdBy: _userId,
             organisation: [userInfo.rootOrg.channel],
             createdFor: [userInfo.rootOrg.id],
@@ -531,7 +527,6 @@ const LernCreatorForm = () => {
       };
       console.log("assetBody-----", assetBody);
       try {
-        setLoading(true);
         const response = await fetch(`${urlConfig.URLS.ASSET.CREATE}`, {
           method: "POST",
           headers: {
@@ -545,7 +540,8 @@ const LernCreatorForm = () => {
         }
 
         const result = await response.json();
-        console.log("suceesss----", result);
+        console.log("success----", result);
+
         const imgId = result.result.identifier;
         const uploadBody = {
           request: {
@@ -554,6 +550,7 @@ const LernCreatorForm = () => {
             },
           },
         };
+
         try {
           const response = await fetch(
             `${urlConfig.URLS.ASSET.UPLOADURL}/${result.result.identifier}`,
@@ -571,12 +568,11 @@ const LernCreatorForm = () => {
           }
 
           const uploadResult = await response.json();
-          console.log("upload suceesss------", uploadResult);
-          const imgId = result.result.identifier;
+          console.log("upload success------", uploadResult);
+
           const url = uploadResult.result.pre_signed_url;
           const file = e.target.files[0];
-          const csp = "azure"; // Cloud provider (azure, aws, etc.)
-
+          setLoading(true);
           const uploader = new SunbirdFileUploadLib.FileUploader();
 
           uploader
@@ -586,27 +582,21 @@ const LernCreatorForm = () => {
               csp: "azure",
             })
             .on("error", (error) => {
-              console.log("0000", error);
+              console.log("error", error);
+              setLoading(false);
             })
             .on("completed", async (completed) => {
-              console.log("1111", completed);
-
-              console.log("url", url);
-              // console.log("mimeType", mimeType);
-
+              console.log("completed", completed);
               const fileURL = url.split("?")[0];
-              console.log("fileUrl", fileURL);
+
               const data = new FormData();
               const mimeType =
                 e.target.files[0].type == "application/zip"
                   ? "application/vnd.ekstep.html-archive"
                   : e.target.files[0].type;
+
               data.append("fileUrl", fileURL);
               data.append("mimeType", mimeType);
-
-              data.forEach((value, key) => {
-                console.log(`${key}:`, value);
-              });
 
               try {
                 const response = await fetch(
@@ -618,11 +608,16 @@ const LernCreatorForm = () => {
                 );
 
                 if (!response.ok) {
+                  alert("Something went wrong while uploading file");
                   throw new Error("Something went wrong");
+                } 
+
+                if(response.ok){
+                  alert("File uploaded successfully");
                 }
 
                 const uploadResult = await response.json();
-                console.log("upload suceesss------", uploadResult);
+                console.log("final upload success------", uploadResult);
                 setFormData({
                   ...formData,
                   content_id: uploadResult.result.identifier,
@@ -630,21 +625,19 @@ const LernCreatorForm = () => {
                 setErrors({ ...errors, icon: "" });
               } catch (error) {
                 console.log("error---", error);
-              } finally {
+                alert("Something went wrong while uploading file");
+              } finally{
+                setLoading(false);
               }
             });
           setErrors({ ...errors, content_id: "" });
         } catch (error) {
           console.log("error---", error);
-        } finally {
         }
       } catch (error) {
         console.log("error---", error);
-        // setError(error.message);
-      } finally {
       }
     } else if (type == "url") {
-      console.log("------------------", youtubeUrl);
       const youtubeRegex =
         /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
 
@@ -682,15 +675,12 @@ const LernCreatorForm = () => {
           }
 
           const result = await response.json();
-          console.log("suceesss----", result);
+          console.log("success----", result);
+
           const cont_id = result.result.identifier;
           const data = new FormData();
           data.append("fileUrl", youtubeUrl);
           data.append("mimeType", "video/x-youtube");
-
-          data.forEach((value, key) => {
-            console.log(`${key}:`, value);
-          });
 
           try {
             const response = await fetch(
@@ -706,21 +696,17 @@ const LernCreatorForm = () => {
             }
 
             const uploadResult = await response.json();
-            console.log("upload suceesss------", uploadResult);
+            console.log("upload success------", uploadResult);
             setFormData({
               ...formData,
               content_id: uploadResult.result.identifier,
             });
-            setLoading(true);
             setErrors({ ...errors, icon: "" });
           } catch (error) {
             console.log("error---", error);
-          } finally {
           }
         } catch (error) {
           console.log("error---", error);
-          // setError(error.message);
-        } finally {
         }
       } else {
         let tempErrors = {};
@@ -1390,16 +1376,28 @@ const LernCreatorForm = () => {
 
                   {uploadType === "file" ? (
                     <Grid item xs={7}>
-                      <TextField
-                        type="file"
-                        fullWidth
-                        onChange={(event) => handleFileChange(event, "file")}
-                        error={!!errors.content_id}
-                        inputProps={{
-                          accept: "video/mp4,application/pdf,text/html",
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          width: "100%",
                         }}
-                        sx={{ border: "1px dashed" }}
-                      />
+                      >
+                        <TextField
+                          type="file"
+                          fullWidth
+                          onChange={(event) => handleFileChange(event, "file")}
+                          error={!!errors.content_id}
+                          inputProps={{
+                            accept: "video/mp4,application/pdf,text/html",
+                          }}
+                          sx={{ border: "1px dashed" }}
+                        />
+
+                        {loading && (
+                          <CircularProgress size={24} sx={{ marginLeft: 2 }} />
+                        )}
+                      </Box>
                     </Grid>
                   ) : (
                     <Grid item xs={6}>
@@ -1466,7 +1464,7 @@ const LernCreatorForm = () => {
               >
                 <Box mt={3}>
                   <Button
-                    disabled={isNotDraft || openPersonalForm}
+                    disabled={isNotDraft || openPersonalForm || loading}
                     className="custom-btn-default"
                     onClick={() => handleSubmit("draft")}
                   >
@@ -1474,7 +1472,7 @@ const LernCreatorForm = () => {
                   </Button>
 
                   <Button
-                    disabled={isNotDraft || openPersonalForm}
+                    disabled={isNotDraft || openPersonalForm || loading}
                     className="viewAll"
                     onClick={() => setOpenConfirmModal(true)}
                     sx={{ ml: 2, padding: "9px 35px" }} // Adds spacing between the buttons
@@ -1520,9 +1518,15 @@ const LernCreatorForm = () => {
                     </Typography>
 
                     {/* Modal Actions */}
-                    <Box style={{ marginTop: "20px", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Box
-                      >
+                    <Box
+                      style={{
+                        marginTop: "20px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Box>
                         <Button
                           variant="contained"
                           className="viewAll"
@@ -1534,9 +1538,7 @@ const LernCreatorForm = () => {
                           {t("PROCEED")}
                         </Button>
                       </Box>
-                      <Box
-                        ml={'20px'}
-                      >
+                      <Box ml={"20px"}>
                         <Button
                           className="cancelBtn"
                           onClick={() => setOpenConfirmModal(false)}
@@ -1657,201 +1659,307 @@ const LernCreatorForm = () => {
                       {t("TNC")}
                     </a>
 
-                   {TNCOpen && (
-                    <Modal
-                      open={TNCOpen}
-                      onClose={() => setTNCOpen(false)}
-                      aria-labelledby="confirmation-modal-title"
-                      aria-describedby="confirmation-modal-description"
-                      style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      <div
+                    {TNCOpen && (
+                      <Modal
+                        open={TNCOpen}
+                        onClose={() => setTNCOpen(false)}
+                        aria-labelledby="confirmation-modal-title"
+                        aria-describedby="confirmation-modal-description"
                         style={{
-                          backgroundColor: "white",
-                          padding: "20px",
-                          borderRadius: "8px",
-                          boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
-                          width: "700px",
-                          maxHeight: "80vh", // Ensures modal does not exceed viewport height
-                          overflowY: "auto", // Enables vertical scrolling if content exceeds height
-                          textAlign: "justify",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
                         }}
                       >
-                        <Typography
-                          variant="h6"
-                          id="confirmation-modal-title"
-                          gutterBottom
+                        <div
                           style={{
-                            textAlign: "center",
-                            fontWeight: "bold",
+                            backgroundColor: "white",
+                            padding: "20px",
+                            borderRadius: "8px",
+                            boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                            width: "700px",
+                            maxHeight: "80vh", // Ensures modal does not exceed viewport height
+                            overflowY: "auto", // Enables vertical scrolling if content exceeds height
+                            textAlign: "justify",
                           }}
                         >
-                          {t("Terms and Conditions")}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          component="div"
-                          style={{
-                            whiteSpace: "pre-wrap", // Ensures formatted line breaks are retained
-                          }}
-                        >
-                          <p>
-                            <strong>Terms and Conditions for Content Submission on NULP</strong>
-                          </p>
-                          <p>
-                            By submitting content (including but not limited to thumbnails, tags, audio, video, text, images, illustrations, or other
-                            resources) to the National Urban Learning Platform (NULP), the user agrees to the following terms and conditions. 
-                            Non-compliance with these terms may result in the removal of content and/or suspension of access to the platform 
-                            and participation in similar future competitions.
-                          </p>
-                          <ol>
-                            <li>
-                              <strong>Prohibition of Hate Speech</strong>
-                              <ul>
-                                <li>Content must not promote enmity, hatred, or ill-will against individuals or groups based on:</li>
+                          <Typography
+                            variant="h6"
+                            id="confirmation-modal-title"
+                            gutterBottom
+                            style={{
+                              textAlign: "center",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            {t("Terms and Conditions")}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            component="div"
+                            style={{
+                              whiteSpace: "pre-wrap", // Ensures formatted line breaks are retained
+                            }}
+                          >
+                            <p>
+                              <strong>
+                                Terms and Conditions for Content Submission on
+                                NULP
+                              </strong>
+                            </p>
+                            <p>
+                              By submitting content (including but not limited
+                              to thumbnails, tags, audio, video, text, images,
+                              illustrations, or other resources) to the National
+                              Urban Learning Platform (NULP), the user agrees to
+                              the following terms and conditions. Non-compliance
+                              with these terms may result in the removal of
+                              content and/or suspension of access to the
+                              platform and participation in similar future
+                              competitions.
+                            </p>
+                            <ol>
+                              <li>
+                                <strong>Prohibition of Hate Speech</strong>
                                 <ul>
-                                  <li>Caste, Class, Tribe, Race, Ethnicity</li>
-                                  <li>Sex, Gender, or Gender Identity</li>
-                                  <li>National Origin or Religious Affiliation</li>
-                                  <li>Sexual Orientation</li>
-                                  <li>Disabilities or Diseases</li>
+                                  <li>
+                                    Content must not promote enmity, hatred, or
+                                    ill-will against individuals or groups based
+                                    on:
+                                  </li>
+                                  <ul>
+                                    <li>
+                                      Caste, Class, Tribe, Race, Ethnicity
+                                    </li>
+                                    <li>Sex, Gender, or Gender Identity</li>
+                                    <li>
+                                      National Origin or Religious Affiliation
+                                    </li>
+                                    <li>Sexual Orientation</li>
+                                    <li>Disabilities or Diseases</li>
+                                  </ul>
                                 </ul>
-                              </ul>
-                            </li>
-                            <li>
-                              <strong>Sexually Explicit Content</strong>
-                              <ul>
-                                <li>Content must not include pornography, sexually explicit material, or depictions of sexual acts.</li>
-                              </ul>
-                            </li>
-                            <li>
-                              <strong>Sexual Violence and Exploitation</strong>
-                              <ul>
-                                <li>Content must not depict or promote the sexual exploitation of minors or incidents of sexual violence.</li>
-                              </ul>
-                            </li>
-                            <li>
-                              <strong>Nudity and Vulgarity</strong>
-                              <ul>
-                                <li>Content must not display nudity unless it is educational, documentary, scientific, or artistic with clear context.</li>
-                                <li>Content must not include vulgarity, obscenity, or degrading material.</li>
-                              </ul>
-                            </li>
-                            <li>
-                              <strong>Violence</strong>
-                              <ul>
-                                <li>Content must not promote, encourage, or glorify violent actions or behaviors.</li>
-                              </ul>
-                            </li>
-                            <li>
-                              <strong>Discrimination and Bullying</strong>
-                              <ul>
-                                <li>Content must not degrade, shame, or harass individuals or groups.</li>
-                              </ul>
-                            </li>
-                            <li>
-                              <strong>Harmful or Dangerous Content</strong>
-                              <ul>
-                                <li>Content must not incite dangerous or illegal activities.</li>
-                              </ul>
-                            </li>
-                            <li>
-                              <strong>Involvement of Children</strong>
-                              <ul>
-                                <li>Content must not depict children subjected to abuse or violence.</li>
-                              </ul>
-                            </li>
-                            <li>
-                              <strong>Substance Abuse</strong>
-                              <ul>
-                                <li>Content must not encourage or glorify the use of alcohol, drugs, or tobacco.</li>
-                              </ul>
-                            </li>
-                            <li>
-                              <strong>Defamation</strong>
-                              <ul>
-                                <li>Content must not defame or ridicule individuals, groups, or people with disabilities.</li>
-                              </ul>
-                            </li>
-                            <li>
-                              <strong>Content Sensitive to Children with Special Needs</strong>
-                              <ul>
-                                <li>Content must be accessible and sensitive to children with special needs.</li>
-                              </ul>
-                            </li>
-                            <li>
-                              <strong>Environmental Sensitivity</strong>
-                              <ul>
-                                <li>Content must not glorify activities causing environmental damage.</li>
-                              </ul>
-                            </li>
-                            <li>
-                              <strong>Copyright Compliance</strong>
-                              <ul>
-                                <li>You confirm that you own the rights to the submitted content or have the necessary permissions/licenses.</li>
-                                <li>NULP is not liable for copyright infringement claims arising from your content.</li>
-                              </ul>
-                            </li>
-                            <li>
-                              <strong>User Responsibility and Agreement</strong>
-                              <ul>
-                                <li>By submitting content, you certify that your submission complies with these terms and conditions.</li>
-                                <li>You agree to take full responsibility for any content you submit, including any consequences arising from non-compliance.</li>
-                                <li>NULP reserves the right to review, remove, or reject any content that violates these terms or fails to align with the platform's standards.</li>
-                                <li>Users submitting content that repeatedly violates these terms may face account suspension or termination.</li>
-                                <li>If any copyright issue or participation through unfair means is identified by competent authority, your entry will be deleted from NULP, prize money will be forfeited, and you will be banned from further participation.</li>
-                              </ul>
-                            </li>
-                          </ol>
-                          <p>
-                            <strong>Content Review and Moderation</strong>
-                          </p>
-                          <p>
-                            The NULP team reserves the right to moderate, monitor, and take action against any submitted
-                            content that breaches these terms. In this regard decisions made by the team will be final.
-                          </p>
-                          <p>
-                            By proceeding with the submission, you acknowledge and agree to abide by these Terms and
-                            Conditions.
-                          </p>
-                        </Typography>
+                              </li>
+                              <li>
+                                <strong>Sexually Explicit Content</strong>
+                                <ul>
+                                  <li>
+                                    Content must not include pornography,
+                                    sexually explicit material, or depictions of
+                                    sexual acts.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>
+                                  Sexual Violence and Exploitation
+                                </strong>
+                                <ul>
+                                  <li>
+                                    Content must not depict or promote the
+                                    sexual exploitation of minors or incidents
+                                    of sexual violence.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Nudity and Vulgarity</strong>
+                                <ul>
+                                  <li>
+                                    Content must not display nudity unless it is
+                                    educational, documentary, scientific, or
+                                    artistic with clear context.
+                                  </li>
+                                  <li>
+                                    Content must not include vulgarity,
+                                    obscenity, or degrading material.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Violence</strong>
+                                <ul>
+                                  <li>
+                                    Content must not promote, encourage, or
+                                    glorify violent actions or behaviors.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Discrimination and Bullying</strong>
+                                <ul>
+                                  <li>
+                                    Content must not degrade, shame, or harass
+                                    individuals or groups.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Harmful or Dangerous Content</strong>
+                                <ul>
+                                  <li>
+                                    Content must not incite dangerous or illegal
+                                    activities.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Involvement of Children</strong>
+                                <ul>
+                                  <li>
+                                    Content must not depict children subjected
+                                    to abuse or violence.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Substance Abuse</strong>
+                                <ul>
+                                  <li>
+                                    Content must not encourage or glorify the
+                                    use of alcohol, drugs, or tobacco.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Defamation</strong>
+                                <ul>
+                                  <li>
+                                    Content must not defame or ridicule
+                                    individuals, groups, or people with
+                                    disabilities.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>
+                                  Content Sensitive to Children with Special
+                                  Needs
+                                </strong>
+                                <ul>
+                                  <li>
+                                    Content must be accessible and sensitive to
+                                    children with special needs.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Environmental Sensitivity</strong>
+                                <ul>
+                                  <li>
+                                    Content must not glorify activities causing
+                                    environmental damage.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Copyright Compliance</strong>
+                                <ul>
+                                  <li>
+                                    You confirm that you own the rights to the
+                                    submitted content or have the necessary
+                                    permissions/licenses.
+                                  </li>
+                                  <li>
+                                    NULP is not liable for copyright
+                                    infringement claims arising from your
+                                    content.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>
+                                  User Responsibility and Agreement
+                                </strong>
+                                <ul>
+                                  <li>
+                                    By submitting content, you certify that your
+                                    submission complies with these terms and
+                                    conditions.
+                                  </li>
+                                  <li>
+                                    You agree to take full responsibility for
+                                    any content you submit, including any
+                                    consequences arising from non-compliance.
+                                  </li>
+                                  <li>
+                                    NULP reserves the right to review, remove,
+                                    or reject any content that violates these
+                                    terms or fails to align with the platform's
+                                    standards.
+                                  </li>
+                                  <li>
+                                    Users submitting content that repeatedly
+                                    violates these terms may face account
+                                    suspension or termination.
+                                  </li>
+                                  <li>
+                                    If any copyright issue or participation
+                                    through unfair means is identified by
+                                    competent authority, your entry will be
+                                    deleted from NULP, prize money will be
+                                    forfeited, and you will be banned from
+                                    further participation.
+                                  </li>
+                                </ul>
+                              </li>
+                            </ol>
+                            <p>
+                              <strong>Content Review and Moderation</strong>
+                            </p>
+                            <p>
+                              The NULP team reserves the right to moderate,
+                              monitor, and take action against any submitted
+                              content that breaches these terms. In this regard
+                              decisions made by the team will be final.
+                            </p>
+                            <p>
+                              By proceeding with the submission, you acknowledge
+                              and agree to abide by these Terms and Conditions.
+                            </p>
+                          </Typography>
 
-                        {/* Modal Actions */}
-                        <Box style={{ marginTop: "20px", textAlign: "center" }}>
-                          <FormControlLabel
-                            control={<Checkbox />}
-                            label={t("I hereby confirm that I accept the above-mentioned terms and conditions.")}
-                          />
-                        </Box>
-
-                        <Box
-                          style={{
-                            marginTop: "20px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <Box style={{ padding: "5px" }}>
-                            <Button variant="contained" className="viewAll" onClick={() => handleCheckboxChange(true)}>
-                              {t("CONFIRM")}
-                            </Button>
+                          {/* Modal Actions */}
+                          <Box
+                            style={{ marginTop: "20px", textAlign: "center" }}
+                          >
+                            <FormControlLabel
+                              control={<Checkbox />}
+                              label={t(
+                                "I hereby confirm that I accept the above-mentioned terms and conditions."
+                              )}
+                            />
                           </Box>
-                          <Box style={{ padding: "5px" }}>
-                            <Button className="cancelBtn" onClick={() => setTNCOpen(false)}>
-                              {t("CANCEL")}
-                            </Button>
+
+                          <Box
+                            style={{
+                              marginTop: "20px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <Box style={{ padding: "5px" }}>
+                              <Button
+                                variant="contained"
+                                className="viewAll"
+                                onClick={() => handleCheckboxChange(true)}
+                              >
+                                {t("CONFIRM")}
+                              </Button>
+                            </Box>
+                            <Box style={{ padding: "5px" }}>
+                              <Button
+                                className="cancelBtn"
+                                onClick={() => setTNCOpen(false)}
+                              >
+                                {t("CANCEL")}
+                              </Button>
+                            </Box>
                           </Box>
-                        </Box>
-                      </div>
-                    </Modal>
-                  )}
-
-
+                        </div>
+                      </Modal>
+                    )}
                   </Grid>
                   <Grid
                     container

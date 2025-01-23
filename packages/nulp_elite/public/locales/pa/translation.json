@@ -378,7 +378,7 @@
   "NAME_OF_ORG": "Name Of Organisation",
   "NEED_HELP": "Need help?",
   "CONFIRM_DELETE": "Are you sure you want to delete this submission?",
-  "CONT_FORMAT": "Supported formats: MP4, PDF, HTML5, YouTube links",
+  "CONT_FORMAT": "Supported formats: MP4, PDF, HTML5, YouTube links. Maximum file size for Video is 500 MB. Videos above 500 MB to be uploaded on YouTube and the link can be submitted.",
   "STAR_CITY_MSG": "State & City fields are not mandatory. Those submitting from Industry, Academia and other Non-Government entities may wish to avoid filling the same.",
   "IMG_GUIDELINES": "Upload png, jpeg (Max File size: 1MB)",
   "NO_CONTENT_TO_PLAY": "No content available to play",
