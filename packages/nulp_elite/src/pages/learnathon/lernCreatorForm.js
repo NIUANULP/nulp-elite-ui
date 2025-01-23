@@ -620,8 +620,10 @@ const LernCreatorForm = () => {
                 setErrors({ ...errors, icon: "" });
               } catch (error) {
                 console.log("error---", error);
+                alert("Something went wrong while uploading file");
               } finally{
                 setLoading(false);
+                alert("File uploaded successfully");
               }
             });
           setErrors({ ...errors, content_id: "" });
