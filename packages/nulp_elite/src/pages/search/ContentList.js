@@ -244,7 +244,6 @@ const ContentList = (props) => {
     const randomIndex = RandomImage;
     return randomIndex;
   };
-
   const handleChange = (event, value) => {
     if (value !== pageNumber) {
       setPageNumber(value);
@@ -257,9 +256,8 @@ const ContentList = (props) => {
       fetchData();
     }
   };
-
   const handleGoBack = () => {
-    navigate(-1); // Navigate back in history
+    navigate(-1);
   };
 
   const fetchGradeLevels = async () => {
@@ -372,6 +370,7 @@ const ContentList = (props) => {
     }
   };
 
+
   const handleDomainFilter = (query, domainName) => {
     setDomain(query);
     setPageNumber(1);
@@ -382,11 +381,14 @@ const ContentList = (props) => {
     //   state: { domain: query },
     // });
   };
+  
   const handleSearch = () => {
     navigate(`${routeConfig.ROUTES.CONTENTLIST_PAGE.CONTENTLIST}?1`, {
       state: { globalSearchQuery: searchQuery },
     });
   };
+  
+  
 
   const handleInputChange = (event) => {
     setSearchQuery(event.target.value);
@@ -608,6 +610,5 @@ const ContentList = (props) => {
       <Footer />
     </div>
   );
-};
-
+};                  
 export default ContentList;

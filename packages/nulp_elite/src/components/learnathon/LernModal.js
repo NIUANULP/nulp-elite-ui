@@ -300,7 +300,7 @@ const LernModal = () => {
                 {/* Commented for Demo */}
                 {isParticipateNow && !learnathonUser && (
                   <Button className="viewAll" onClick={handleCardClick}>
-                    {t("Click here to now more")}
+                    {t("CLICK_HERE_TO_KNOW_MORE")}
                   </Button>
                 )}
                 {isReviewNow && !learnathonUser && isReviewer && (
@@ -315,7 +315,7 @@ const LernModal = () => {
                 )}
                 {learnathonUser && (
                   <Button className="viewAll" onClick={handleCardClick}>
-                    {t("Click here to know more")}
+                    {t("CLICK_HERE_TO_KNOW_MORE")}
                   </Button>
                 )}
               </Box>
