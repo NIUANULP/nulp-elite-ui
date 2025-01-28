@@ -116,8 +116,6 @@ const citiesInIndia = [
   "Kalyan-Dombivli",
   "Vasai-Virar",
   "Varanasi",
-  "Kozhikode",
-  "Ponnani"
   // Add more cities as needed
 ];
 const LernCreatorForm = () => {
