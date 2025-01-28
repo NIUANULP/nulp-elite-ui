@@ -1629,7 +1629,7 @@ const AddConnections = () => {
                                         : `${item.messageRequest.substring(
                                             0,
                                             20
-                                          )}`}
+                                          )}....`}
                                       <span
                                         style={{
                                           color: "#0E7A9C",
