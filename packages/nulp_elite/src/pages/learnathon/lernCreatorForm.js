@@ -11,7 +11,6 @@ import {
   Autocomplete,
   Radio,
   RadioGroup,
-  CircularProgress,
 } from "@mui/material";
 
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
@@ -26,11 +25,11 @@ import InputLabel from "@mui/material/InputLabel";
 import acdemiaguideline from "../../assets/academia-guidelines.pdf";
 import stateguideline from "../../assets/state-guidelines.pdf";
 import industryguideline from "../../assets/industry-guidelines.pdf";
-import industrytnc from "../../assets/tnc.pdf";
-import acdemiatnc from "../../assets/tnc.pdf";
-import statetnc from "../../assets/tnc.pdf";
+import industrytnc from "../../assets/industry-tnc.pdf";
+import acdemiatnc from "../../assets/academia-tnc.pdf";
+import statetnc from "../../assets/state-tnc.pdf";
 import Loader from "components/Loader";
-import Checkbox from "@mui/material/Checkbox";
+
 import Alert from "@mui/material/Alert";
 const routeConfig = require("../../configs/routeConfig.json");
 
@@ -90,33 +89,65 @@ const IndianStates = [
 ];
 
 // List of some popular cities in India
-const citiesInIndia = [
-  "Mumbai",
-  "Delhi",
-  "Bangalore",
-  "Hyderabad",
-  "Ahmedabad",
-  "Chennai",
-  "Kolkata",
-  "Pune",
-  "Jaipur",
-  "Surat",
-  "Lucknow",
-  "Kanpur",
-  "Nagpur",
-  "Visakhapatnam",
-  "Bhopal",
-  "Patna",
-  "Ludhiana",
-  "Agra",
-  "Nashik",
-  "Faridabad",
-  "Meerut",
-  "Rajkot",
-  "Kalyan-Dombivli",
-  "Vasai-Virar",
-  "Varanasi",
-]; //  Add more cities as needed
+const citiesInIndia = {
+  "Andhra Pradesh": ["Anantapur", "Chittoor", "East Godavari", "Guntur", "Kadapa", "Krishna", "Kurnool", "Nellore", "Prakasam", "Srikakulam", "Visakhapatnam", "Vizianagaram", "West Godavari", "Alluri Sitarama Raju", "Anakapalli", "Bapatla", "Eluru", "Kakinada", "Konaseema", "Manyam", "Nandyal", "Palnadu", "Parvathipuram Manyam", "Sri Sathya Sai", "Tirupati"],
+
+  "Arunachal Pradesh": ["Tawang", "West Kameng", "East Kameng", "Papum Pare", "Kurung Kumey", "Kra Daadi", "Lower Subansiri", "Upper Subansiri", "West Siang", "East Siang", "Siang", "Upper Siang", "Lower Siang", "Lower Dibang Valley", "Dibang Valley", "Anjaw", "Lohit", "Namsai", "Changlang", "Tirap", "Longding"],
+
+  "Assam": ["Baksa", "Barpeta", "Biswanath", "Bongaigaon", "Cachar", "Charaideo", "Chirang", "Darrang", "Dhemaji", "Dhubri", "Dibrugarh", "Goalpara", "Golaghat", "Hailakandi", "Hojai", "Jorhat", "Kamrup Metropolitan", "Kamrup", "Karbi Anglong", "Karimganj", "Kokrajhar", "Lakhimpur", "Majuli", "Morigaon", "Nagaon", "Nalbari", "Sivasagar", "Sonitpur", "South Salmara-Mankachar", "Tinsukia", "Udalguri", "West Karbi Anglong"],
+
+  "Bihar": ["Araria", "Arwal", "Aurangabad", "Banka", "Begusarai", "Bhagalpur", "Bhojpur", "Buxar", "Darbhanga", "East Champaran", "Gaya", "Gopalganj", "Jamui", "Jehanabad", "Kaimur", "Katihar", "Khagaria", "Kishanganj", "Lakhisarai", "Madhepura", "Madhubani", "Munger", "Muzaffarpur", "Nalanda", "Nawada", "Patna", "Purnia", "Rohtas", "Saharsa", "Samastipur", "Saran", "Sheikhpura", "Sheohar", "Sitamarhi", "Siwan", "Supaul", "Vaishali", "West Champaran"],
+  
+  "Chhattisgarh": ["Balod", "Baloda Bazar", "Balrampur", "Bastar", "Bemetara", "Bijapur", "Bilaspur", "Dantewada", "Dhamtari", "Durg", "Gariaband", "Gaurela-Pendra-Marwahi", "Janjgir-Champa", "Jashpur", "Kabirdham", "Kanker", "Kondagaon", "Korba", "Koriya", "Mahasamund", "Mungeli", "Narayanpur", "Raigarh", "Raipur", "Rajnandgaon", "Sukma", "Surajpur", "Surguja"],
+  
+  "Goa": ["North Goa", "South Goa"],
+  
+  "Gujarat": ["Ahmedabad", "Amreli", "Anand", "Aravalli", "Banaskantha", "Bharuch", "Bhavnagar", "Botad", "Chhota Udaipur", "Dahod", "Dang", "Devbhoomi Dwarka", "Gandhinagar", "Gir Somnath", "Jamnagar", "Junagadh", "Kheda", "Kutch", "Mahisagar", "Mehsana", "Morbi", "Narmada", "Navsari", "Panchmahal", "Patan", "Porbandar", "Rajkot", "Sabarkantha", "Surat", "Surendranagar", "Tapi", "Vadodara", "Valsad"],
+  
+  "Haryana": ["Ambala", "Bhiwani", "Charkhi Dadri", "Faridabad", "Fatehabad", "Gurgaon", "Hisar", "Jhajjar", "Jind", "Kaithal", "Karnal", "Kurukshetra", "Mahendragarh", "Nuh", "Palwal", "Panchkula", "Panipat", "Rewari", "Rohtak", "Sirsa", "Sonipat", "Yamunanagar"],
+  
+  "Himachal Pradesh": ["Bilaspur", "Chamba", "Hamirpur", "Kangra", "Kinnaur", "Kullu", "Lahaul and Spiti", "Mandi", "Shimla", "Sirmaur", "Solan", "Una"],
+  
+  "Jharkhand": ["Bokaro", "Chatra", "Deoghar", "Dhanbad", "Dumka", "East Singhbhum", "Garhwa", "Giridih", "Godda", "Gumla", "Hazaribagh", "Jamtara", "Khunti", "Koderma", "Latehar", "Lohardaga", "Pakur", "Palamu", "Ramgarh", "Ranchi", "Sahebganj", "Seraikela-Kharsawan", "Simdega", "West Singhbhum"],
+  
+  "Karnataka": ["Bagalkote", "Ballari", "Belagavi", "Bengaluru Rural", "Bengaluru Urban", "Bidar", "Chamarajanagar", "Chikballapur", "Chikkamagaluru", "Chitradurga", "Dakshina Kannada", "Davanagere", "Dharwad", "Gadag", "Hassan", "Haveri", "Kalaburagi", "Kodagu", "Kolar", "Koppal", "Mandya", "Mysuru", "Raichur", "Ramanagara", "Shivamogga", "Tumakuru", "Udupi", "Uttara Kannada", "Vijayapura", "Yadgir"],
+  
+  "Kerala": ["Alappuzha", "Ernakulam", "Idukki", "Kottayam", "Kozhikode", "Malappuram", "Palakkad", "Pathanamthitta", "Thrissur", "Wayanad", "Kasaragod", "Kollam", "Thiruvananthapuram"],
+  
+  "Madhya Pradesh": ["Agar Malwa", "Alirajpur", "Anuppur", "Ashoknagar", "Balaghat", "Barwani", "Betul", "Bhind", "Bhopal", "Burhanpur", "Chhatarpur", "Chhindwara", "Damoh", "Datia", "Dewas", "Dhar", "Dindori", "Guna", "Gwalior", "Harda", "Hoshangabad", "Indore", "Jabalpur", "Jhabua", "Katni", "Khandwa", "Khargone", "Mandla", "Mandsaur", "Morena", "Narsinghpur", "Neemuch", "Panna", "Raisen", "Rajgarh", "Ratlam", "Rewa", "Sagar", "Satna", "Sehore", "Seoni", "Shahdol", "Shajapur", "Sheopur", "Shivpuri", "Singrauli", "Tikamgarh", "Ujjain", "Umaria", "Vidisha"],
+  
+  "Maharashtra": ["Ahmednagar", "Akola", "Amravati", "Aurangabad", "Beed", "Bhandara", "Buldhana", "Chandrapur", "Dhule", "Gadchiroli", "Gondia", "Hingoli", "Jalna", "Kolhapur", "Latur", "Mumbai", "Nagpur", "Nanded", "Nandurbar", "Nashik", "Osmanabad", "Palghar", "Parbhani", "Pune", "Raigad", "Ratnagiri", "Satara", "Sindhudurg", "Solapur", "Thane", "Wardha", "Washim", "Yavatmal"],
+  
+  "Manipur": ["Bishnupur", "Chandel", "Churachandpur", "Imphal East", "Imphal West", "Jiribam", "Kakching", "Kamjong", "Kangpokpi", "Noney", "Pherzawl", "Senapati", "Tamenglong", "Tengnoupal", "Thoubal", "Ukhrul"],
+  
+  "Meghalaya": ["East Garo Hills", "East Khasi Hills", "Jaintia Hills", "Ri Bhoi", "South Garo Hills", "South Khasi Hills", "West Garo Hills", "West Khasi Hills"],
+  
+  "Mizoram": ["Aizawl", "Champhai", "Kolasib", "Lawngtlai", "Lunglei", "Mamit", "Saiha", "Serchhip"],
+  
+  "Nagaland": ["Dimapur", "Kiphire", "Kohima", "Longleng", "Mokokchung", "Mon", "Peren", "Phek", "Tuensang", "Wokha", "Zunheboto"],
+  
+  "Odisha": ["Angul", "Balangir", "Balasore", "Bargarh", "Bhadrak", "Boudh", "Cuttack", "Deogarh", "Dhenkanal", "Gajapati", "Ganjam", "Jagatsinghpur", "Jajpur", "Jharsuguda", "Kalahandi", "Kandhamal", "Kendrapara", "Kendujhar", "Khurda", "Koraput", "Malkangiri", "Mayurbhanj", "Nabarangpur", "Nayagarh", "Nuapada", "Puri", "Rayagada", "Sambalpur", "Subarnapur", "Sundargarh"],
+  
+  "Punjab": ["Amritsar", "Barnala", "Bathinda", "Faridkot", "Fatehgarh Sahib", "Firozpur", "Gurdaspur", "Hoshiarpur", "Jalandhar", "Kapurthala", "Ludhiana", "Mansa", "Moga", "Muktsar", "Nawan Shehar", "Patiala", "Rupnagar", "Sangrur", "SBS Nagar", "Sri Muktsar Sahib", "Tarn Taran"],
+  
+  "Rajasthan": ["Ajmer", "Alwar", "Banswara", "Baran", "Barmer", "Bhilwara", "Bikaner", "Bundi", "Chittorgarh", "Churu", "Dholpur", "Dungarpur", "Hanumangarh", "Jaipur", "Jaisalmer", "Jalore", "Jhalawar", "Jhunjhunu", "Jodhpur", "Karauli", "Kota", "Nagaur", "Pali", "Rajsamand", "Sawai Madhopur", "Sikar", "Sirohi", "Tonk", "Udaipur"],
+  
+  "Sikkim": ["East Sikkim", "North Sikkim", "South Sikkim", "West Sikkim"],
+  
+  "Tamil Nadu": ["Chennai", "Coimbatore", "Cuddalore", "Dharmapuri", "Dindigul", "Erode", "Kanchipuram", "Kanyakumari", "Karur", "Krishnagiri", "Madurai", "Nagapattinam", "Namakkal", "Perambalur", "Pudukkottai", "Ramanathapuram", "Salem", "Sivagangai", "Tenkasi", "Thanjavur", "The Nilgiris", "Theni", "Tiruchirappalli", "Tirunelveli", "Tiruppur", "Vellore", "Villupuram", "Virudhunagar"],
+  
+  "Telangana": ["Adilabad", "Hyderabad", "Jagtial", "Jangaon", "Jayashankar", "Jogulamba", "Kamareddy", "Karimnagar", "Khammam", "Mahabubabad", "Mahabubnagar", "Mancherial", "Medak", "Medchal", "Nalgonda", "Nagarkurnool", "Nirmal", "Nizamabad", "Peddapalli", "Rangareddy", "Sangareddy", "Siddipet", "Suryapet", "Vikarabad", "Warangal", "Khammam"],
+  
+  "Tripura": ["Dhalai", "Khowai", "North Tripura", "South Tripura", "West Tripura"],
+  
+  "Uttar Pradesh": ["Agra", "Aligarh", "Allahabad", "Ambedkar Nagar", "Amethi", "Amroha", "Auraiya", "Azamgarh", "Baghpat", "Bahraich", "Ballia", "Banda", "Barabanki", "Bareilly", "Basti", "Bhadohi", "Bijnor", "Budaun", "Bulandshahr", "Chandauli", "Chitrakoot", "Deoria", "Etah", "Etawah", "Faizabad", "Farrukhabad", "Fatehpur", "Firozabad", "Gautam Buddh Nagar", "Ghaziabad", "Ghazipur", "Gonda", "Gorakhpur", "Hamirpur", "Hapur", "Hardoi", "Hathras", "Jalaun", "Jaunpur", "Jhansi", "Kannauj", "Kanpur", "Kasganj", "Kaushambi", "Kushinagar", "Lakhimpur Kheri", "Lalitpur", "Lucknow", "Maharajganj", "Mahoba", "Mainpuri", "Mathura", "Mau", "Meerut", "Mirzapur", "Moradabad", "Muzaffarnagar", "Pilibhit", "Pratapgarh", "Rae Bareli", "Rampur", "Saharanpur", "Sambhal", "Sant Kabir Nagar", "Shahjahanpur", "Shamli", "Siddharthnagar", "Sitapur", "Sonbhadra", "Sultanpur", "Unnao", "Varanasi"],
+  
+  "Uttarakhand": ["Almora", "Bageshwar", "Chamoli", "Champawat", "Dehradun", "Haridwar", "Nainital", "Pauri Garhwal", "Pithoragarh", "Rudraprayag", "Tehri Garhwal", "Udham Singh Nagar", "Uttarkashi"],
+  
+  "West Bengal": ["Alipurduar", "Bankura", "Bardhaman", "Birbhum", "Cooch Behar", "Dakshin Dinajpur", "Hooghly", "Howrah", "Jalpaiguri", "Jhargram", "Kalimpong", "Koch Bihar", "Kolkata", "Maldah", "Murshidabad", "Nadia", "North 24 Parganas", "Purba Medinipur", "Paschim Medinipur", "Purulia", "South 24 Parganas", "Uttar Dinajpur"],
+  
+  "Telangana": ["Adilabad", "Hyderabad", "Jagtial", "Jangaon", "Jayashankar", "Jogulamba", "Kamareddy", "Karimnagar", "Khammam", "Mahabubabad", "Mahabubnagar", "Mancherial", "Medak", "Medchal", "Nalgonda", "Nagarkurnool", "Nirmal", "Nizamabad", "Peddapalli", "Rangareddy", "Sangareddy", "Siddipet", "Suryapet", "Vikarabad", "Warangal", "Khammam"],
+};
 const LernCreatorForm = () => {
   const _userId = util.userId(); // Assuming util.userId() is defined
   const [isEdit, setIsEdit] = useState(false);
@@ -310,11 +341,6 @@ const LernCreatorForm = () => {
     if (!formData.indicative_theme)
       tempErrors.indicative_theme = "Indicative Theme is required";
     if (
-      !formData.indicative_sub_theme &&
-      formData.indicative_theme !== "Miscellaneous/ Others"
-    )
-      tempErrors.indicative_sub_theme = "Indicative Sub Theme is required";
-    if (
       formData.indicative_theme == "Miscellaneous/ Others" &&
       !formData.other_indicative_themes
     )
@@ -327,7 +353,7 @@ const LernCreatorForm = () => {
       tempErrors.title_of_submission = "Title of Submission is required";
     if (!formData.description)
       tempErrors.description = "Description is required";
-    if (!formData.content_id) tempErrors.content_id = "File upload is required";
+    // if (!formData.content_id) tempErrors.content_id = "File upload is required";
     if (!formData.consent_checkbox)
       tempErrors.consent_checkbox = "You must accept the terms and conditions";
 
@@ -405,9 +431,7 @@ const LernCreatorForm = () => {
           primaryCategory: "asset",
           language: ["English"],
           code: _uuid,
-          name: formData.title_of_submission
-            ? formData.title_of_submission
-            : "Untitled Content",
+          name: e.target.files[0].name,
           mediaType: "image",
           mimeType: "image/png",
           createdBy: _userId,
@@ -502,6 +526,12 @@ const LernCreatorForm = () => {
   };
   const handleFileChange = async (e, type) => {
     if (type == "file") {
+      if (e.target.files[0].type == "application/zip") {
+        const mimeType = "application/vnd.ekstep.html-archive";
+      } else {
+        const mimeType = e.target.files[0].type;
+      }
+
       const _uuid = uuidv4();
       const assetBody = {
         request: {
@@ -510,22 +540,17 @@ const LernCreatorForm = () => {
             contentType: "Resource",
             language: ["English"],
             code: _uuid,
-            name: formData.title_of_submission
-              ? formData.title_of_submission
-              : "Untitled Content",
+            name: e.target.files[0].name,
             framework: "nulp-learn",
-            mimeType:
-              e.target.files[0].type == "application/zip"
-                ? "application/vnd.ekstep.html-archive"
-                : e.target.files[0].type,
+            mimeType: mimeType,
             createdBy: _userId,
             organisation: [userInfo.rootOrg.channel],
             createdFor: [userInfo.rootOrg.id],
           },
         },
       };
-      console.log("assetBody-----", assetBody);
       try {
+        setLoading(true);
         const response = await fetch(`${urlConfig.URLS.ASSET.CREATE}`, {
           method: "POST",
           headers: {
@@ -539,8 +564,7 @@ const LernCreatorForm = () => {
         }
 
         const result = await response.json();
-        console.log("success----", result);
-
+        console.log("suceesss----", result);
         const imgId = result.result.identifier;
         const uploadBody = {
           request: {
@@ -549,7 +573,6 @@ const LernCreatorForm = () => {
             },
           },
         };
-
         try {
           const response = await fetch(
             `${urlConfig.URLS.ASSET.UPLOADURL}/${result.result.identifier}`,
@@ -567,11 +590,12 @@ const LernCreatorForm = () => {
           }
 
           const uploadResult = await response.json();
-          console.log("upload success------", uploadResult);
-
+          console.log("upload suceesss------", uploadResult);
+          const imgId = result.result.identifier;
           const url = uploadResult.result.pre_signed_url;
           const file = e.target.files[0];
-          setLoading(true);
+          const csp = "azure"; // Cloud provider (azure, aws, etc.)
+
           const uploader = new SunbirdFileUploadLib.FileUploader();
 
           uploader
@@ -581,22 +605,33 @@ const LernCreatorForm = () => {
               csp: "azure",
             })
             .on("error", (error) => {
-              console.log("error", error);
-              setLoading(false);
+              console.log("0000", error);
             })
             .on("completed", async (completed) => {
-              console.log("completed", completed);
+              console.log("1111", completed);
+
+              console.log("url", url);
+              console.log("mimeType", mimeType);
+
               const fileURL = url.split("?")[0];
-
+              console.log("fileUrl", fileURL);
               const data = new FormData();
-              const mimeType =
-                e.target.files[0].type == "application/zip"
-                  ? "application/vnd.ekstep.html-archive"
-                  : e.target.files[0].type;
-
               data.append("fileUrl", fileURL);
               data.append("mimeType", mimeType);
 
+              data.forEach((value, key) => {
+                console.log(`${key}:`, value);
+              });
+              // const config1 = {
+              //   enctype: "multipart/form-data",
+              //   processData: false,
+              //   contentType: false,
+              //   cache: false,
+              // };
+              // const uploadMediaConfig = {
+              //   data,
+              //   param: config1,
+              // };
               try {
                 const response = await fetch(
                   `${urlConfig.URLS.ASSET.UPLOAD}/${imgId}`,
@@ -607,16 +642,11 @@ const LernCreatorForm = () => {
                 );
 
                 if (!response.ok) {
-                  alert("Something went wrong while uploading file");
                   throw new Error("Something went wrong");
-                } 
-
-                if(response.ok){
-                  alert("File uploaded successfully");
                 }
 
                 const uploadResult = await response.json();
-                console.log("final upload success------", uploadResult);
+                console.log("upload suceesss------", uploadResult);
                 setFormData({
                   ...formData,
                   content_id: uploadResult.result.identifier,
@@ -624,19 +654,21 @@ const LernCreatorForm = () => {
                 setErrors({ ...errors, icon: "" });
               } catch (error) {
                 console.log("error---", error);
-                alert("Something went wrong while uploading file");
-              } finally{
-                setLoading(false);
+              } finally {
               }
             });
           setErrors({ ...errors, content_id: "" });
         } catch (error) {
           console.log("error---", error);
+        } finally {
         }
       } catch (error) {
         console.log("error---", error);
+        // setError(error.message);
+      } finally {
       }
     } else if (type == "url") {
+      console.log("------------------", youtubeUrl);
       const youtubeRegex =
         /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
 
@@ -674,12 +706,15 @@ const LernCreatorForm = () => {
           }
 
           const result = await response.json();
-          console.log("success----", result);
-
+          console.log("suceesss----", result);
           const cont_id = result.result.identifier;
           const data = new FormData();
           data.append("fileUrl", youtubeUrl);
           data.append("mimeType", "video/x-youtube");
+
+          data.forEach((value, key) => {
+            console.log(`${key}:`, value);
+          });
 
           try {
             const response = await fetch(
@@ -695,17 +730,21 @@ const LernCreatorForm = () => {
             }
 
             const uploadResult = await response.json();
-            console.log("upload success------", uploadResult);
+            console.log("upload suceesss------", uploadResult);
             setFormData({
               ...formData,
               content_id: uploadResult.result.identifier,
             });
+            setLoading(true);
             setErrors({ ...errors, icon: "" });
           } catch (error) {
             console.log("error---", error);
+          } finally {
           }
         } catch (error) {
           console.log("error---", error);
+          // setError(error.message);
+        } finally {
         }
       } else {
         let tempErrors = {};
@@ -738,7 +777,6 @@ const LernCreatorForm = () => {
       ...formData,
       consent_checkbox: true,
     });
-    setTNCOpen(false);
   };
 
   const handleCategoryChange = (e) => {
@@ -846,8 +884,6 @@ const LernCreatorForm = () => {
       formData.status = "review";
       if (!validate()) return;
 
-      console.log("submit-form---", formData);
-
       if (isEdit == false) {
         try {
           const response = await fetch(`${urlConfig.URLS.LEARNATHON.CREATE}`, {
@@ -928,26 +964,18 @@ const LernCreatorForm = () => {
       );
       if (preIndicativeTheme) {
         const selectedBoard = preIndicativeTheme;
-        const categories = data?.result?.framework?.categories;
-
-        if (categories?.[Categoryindex]?.terms) {
-          const terms = categories[Categoryindex].terms;
-
-          const selectedIndex = terms.findIndex(
-            (category) => category.name === selectedBoard
+        console.log(
+          data?.result?.framework?.categories[Categoryindex]?.terms,
+          "indicativeThemes--------"
+        );
+        const selectedIndex = data?.result?.framework?.categories[
+          Categoryindex
+        ]?.terms.findIndex((category) => category.name === selectedBoard);
+        if (selectedIndex !== -1) {
+          setIndicativeSubThemes(
+            indicativeThemes[selectedIndex]?.associations || []
           );
-
-          if (selectedIndex !== -1) {
-            setIndicativeSubThemes(
-              data?.result?.framework?.categories[Categoryindex]?.terms[
-                selectedIndex
-              ]?.associations || []
-            );
-          } else {
-            setIndicativeSubThemes([]);
-          }
         } else {
-          console.error("No terms found in the specified category index");
           setIndicativeSubThemes([]);
         }
       }
@@ -975,7 +1003,7 @@ const LernCreatorForm = () => {
         <Grid container>
           <Grid item xs={10}>
             <Typography variant="h6" gutterBottom className="fw-600 mt-20">
-              {t("UPLOAD_LEARN_SUBMISSION")}
+              Upload Learnathon Submission
             </Typography>
           </Grid>
           <Grid item xs={2}>
@@ -995,7 +1023,7 @@ const LernCreatorForm = () => {
                   borderRadius: "20px !important",
                 }}
               >
-                {t("NEED_HELP")}
+                Need Help
               </Button>
             </Box>
           </Grid>
@@ -1011,14 +1039,14 @@ const LernCreatorForm = () => {
         >
           <Grid item xs={12} sx={{ borderBottom: "2px solid #057184" }}>
             <Typography variant="h6" gutterBottom style={{ marginTop: "30px" }}>
-              {t("SUBMISSION_DETAILS")}
+              Submission Details
             </Typography>
           </Grid>
           <Grid item xs={12} style={{ marginTop: "30px" }}>
             <Grid container>
               <Grid item xs={2} className="center-align">
                 <InputLabel htmlFor="Name of Organisation">
-                  {t("SUBMISSION_ICON")}
+                  Submission Icon
                 </InputLabel>
               </Grid>
 
@@ -1040,13 +1068,13 @@ const LernCreatorForm = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {t("PREVIEW")}
+                    Preview
                   </a>
                 )}
               </Grid>
               <Grid item xs={10}>
                 <Alert className="mt-9" everity="info">
-                  {t("IMG_GUIDELINES")}
+                  Upload png, jpeg (Max File size: 1MB)
                 </Alert>
               </Grid>
             </Grid>
@@ -1055,7 +1083,7 @@ const LernCreatorForm = () => {
             <Grid container>
               <Grid item xs={2} className="center-align">
                 <InputLabel htmlFor="Title of Submission">
-                  {t("TITLE_OF_SUBMISSION")}{" "}
+                  Title of Submission{" "}
                   <span className="mandatory-symbol"> *</span>
                 </InputLabel>
               </Grid>
@@ -1078,8 +1106,7 @@ const LernCreatorForm = () => {
             <Grid container>
               <Grid item xs={2} className="center-align">
                 <InputLabel htmlFor="Description">
-                  {t("DESCRIPTION")}{" "}
-                  <span className="mandatory-symbol"> *</span>
+                  Description <span className="mandatory-symbol"> *</span>
                 </InputLabel>
               </Grid>
               <Grid item xs={10}>
@@ -1106,7 +1133,7 @@ const LernCreatorForm = () => {
                 <Grid container>
                   <Grid item xs={2} className="center-align">
                     <InputLabel htmlFor="Category of Participation">
-                      {t("CATEGORY_OF_PARTICIPATION")}
+                      Category of Participation
                       <span className="mandatory-symbol"> *</span>
                     </InputLabel>
                   </Grid>
@@ -1130,7 +1157,7 @@ const LernCreatorForm = () => {
                       ))}
                     </TextField>
                   </Grid>
-                  <Grid item style={{ padding: "30px" }} xs={3}>
+                  <Grid item xs={3}>
                     <Box>
                       {guidelineLink && (
                         <a
@@ -1138,7 +1165,7 @@ const LernCreatorForm = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          {t("VIEW_AND_DOWLOAD_GUIDELINES")}
+                          View and Download Guidelines
                         </a>
                       )}
                     </Box>
@@ -1147,7 +1174,9 @@ const LernCreatorForm = () => {
               </Grid>
               <Grid item xs={12}>
                 <Alert className="mt-9" severity="info">
-                  {t("STAR_CITY_MSG")}
+                  State & City fields are not mandatory. Those submitting from
+                  Industry, Academia and other Non-Government entities may wish
+                  to avoid filling the same.
                 </Alert>
               </Grid>
               <Grid item xs={12}>
@@ -1186,7 +1215,9 @@ const LernCreatorForm = () => {
                   <Grid item xs={10}>
                     <Autocomplete
                       freeSolo
-                      options={citiesInIndia}
+                      options={formData.state
+                        ? citiesInIndia[formData.state] || []
+      : []}
                       value={formData.city}
                       onChange={handleCityChange}
                       onInputChange={handleCityChange}
@@ -1199,6 +1230,7 @@ const LernCreatorForm = () => {
                           name="city"
                           error={!!errors.city}
                           helperText={errors.city}
+                          disabled={!formData.state}
                         />
                       )}
                     />
@@ -1209,7 +1241,7 @@ const LernCreatorForm = () => {
                 <Grid container>
                   <Grid item xs={2} className="center-align">
                     <InputLabel htmlFor="Name of Organisation">
-                      {t("NAME_OF_ORG")}{" "}
+                      Name of Organisation{" "}
                       <span className="mandatory-symbol"> *</span>
                     </InputLabel>
                   </Grid>
@@ -1232,7 +1264,7 @@ const LernCreatorForm = () => {
                 <Grid container>
                   <Grid item xs={2} className="center-align">
                     <InputLabel htmlFor="Name of Department/Group">
-                      {t("NAME_OF_DEPT/GROUP")}
+                      Name of Department/Group
                     </InputLabel>
                   </Grid>
                   <Grid item xs={10}>
@@ -1251,7 +1283,7 @@ const LernCreatorForm = () => {
                 <Grid container>
                   <Grid item xs={2} className="center-align">
                     <InputLabel htmlFor="indicative_theme">
-                      {t("INDICATIVE_THEME")}{" "}
+                      Indicative Theme{" "}
                       <span className="mandatory-symbol"> *</span>
                     </InputLabel>
                   </Grid>
@@ -1276,7 +1308,7 @@ const LernCreatorForm = () => {
                         ))
                       ) : (
                         <MenuItem disabled value="">
-                          {t("NO_OPTION_AVAILABLE")}
+                          No options available
                         </MenuItem>
                       )}
                     </TextField>
@@ -1288,7 +1320,7 @@ const LernCreatorForm = () => {
                   <Grid container>
                     <Grid item xs={2} className="center-align">
                       <InputLabel htmlFor="other_indicative_themes">
-                        {t("OTHER_INDICATIVE_THEME")}{" "}
+                        Other Indicative Theme{" "}
                         <span className="mandatory-symbol"> *</span>
                       </InputLabel>
                     </Grid>
@@ -1313,7 +1345,7 @@ const LernCreatorForm = () => {
                   <Grid container>
                     <Grid item xs={2} className="center-align">
                       <InputLabel htmlFor="indicative_sub_theme">
-                        {t("INDICATIVE_SUBTHEME")}{" "}
+                        Indicative SubTheme{" "}
                         <span className="mandatory-symbol"> *</span>
                       </InputLabel>
                     </Grid>
@@ -1375,28 +1407,15 @@ const LernCreatorForm = () => {
 
                   {uploadType === "file" ? (
                     <Grid item xs={7}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          width: "100%",
+                      <TextField
+                        type="file"
+                        fullWidth
+                        onChange={(event) => handleFileChange(event, "file")}
+                        inputProps={{
+                          accept: "video/mp4,application/pdf,text/html",
                         }}
-                      >
-                        <TextField
-                          type="file"
-                          fullWidth
-                          onChange={(event) => handleFileChange(event, "file")}
-                          error={!!errors.content_id}
-                          inputProps={{
-                            accept: "video/mp4,application/pdf,text/html",
-                          }}
-                          sx={{ border: "1px dashed" }}
-                        />
-
-                        {loading && (
-                          <CircularProgress size={24} sx={{ marginLeft: 2 }} />
-                        )}
-                      </Box>
+                        sx={{ border: "1px dashed" }}
+                      />
                     </Grid>
                   ) : (
                     <Grid item xs={6}>
@@ -1405,7 +1424,7 @@ const LernCreatorForm = () => {
                         fullWidth
                         placeholder="Enter URL"
                         onChange={(event) => handleUrlChange(event)}
-                        error={!!errors.youtube || !!errors.content_id}
+                        error={!!errors.youtube}
                         helperText={
                           !!errors.youtube
                             ? "Please enter a valid YouTube URL."
@@ -1424,7 +1443,7 @@ const LernCreatorForm = () => {
                           className="custom-btn-default"
                           onClick={() => handleFileChange(youtubeUrl, "url")}
                         >
-                          {t("UPLOAD")}
+                          upload
                         </Button>
                       </Grid>
                     )}
@@ -1439,14 +1458,14 @@ const LernCreatorForm = () => {
                             );
                           }}
                         >
-                          {t("PREVIEW")}
+                          Preview
                         </a>
                       </Grid>
                     )}
                   </Grid>
                   <Grid item xs={10}>
                     <Alert className="mt-9" severity="info">
-                      {t("CONT_FORMAT")}
+                      Supported formats: MP4, PDF, HTML5, YouTube links
                     </Alert>
                   </Grid>
                 </Grid>
@@ -1463,20 +1482,20 @@ const LernCreatorForm = () => {
               >
                 <Box mt={3}>
                   <Button
-                    disabled={isNotDraft || openPersonalForm || loading}
+                    disabled={isNotDraft || openPersonalForm}
                     className="custom-btn-default"
                     onClick={() => handleSubmit("draft")}
                   >
-                    {t("SAVE_AS_DRAFT")}
+                    Save as Draft
                   </Button>
 
                   <Button
-                    disabled={isNotDraft || openPersonalForm || loading}
+                    disabled={isNotDraft || openPersonalForm}
                     className="viewAll"
                     onClick={() => setOpenConfirmModal(true)}
                     sx={{ ml: 2, padding: "9px 35px" }} // Adds spacing between the buttons
                   >
-                    {t("PROCEED_TO_SUBMIT")}
+                    Proceed to Submit
                   </Button>
                 </Box>
               </Grid>
@@ -1517,35 +1536,24 @@ const LernCreatorForm = () => {
                     </Typography>
 
                     {/* Modal Actions */}
-                    <Box
-                      style={{
-                        marginTop: "20px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Box>
-                        <Button
-                          variant="contained"
-                          className="viewAll"
-                          onClick={() => {
-                            setOpenPersonalForm(true); // Proceed action
-                            setOpenConfirmModal(false); // Close modal after proceeding
-                          }}
-                        >
-                          {t("PROCEED")}
-                        </Button>
-                      </Box>
-                      <Box ml={"20px"}>
-                        <Button
-                          className="cancelBtn"
-                          onClick={() => setOpenConfirmModal(false)}
-                        >
-                          {t("CANCEL")}
-                        </Button>
-                      </Box>
-                    </Box>
+                    <div style={{ marginTop: "20px" }}>
+                      <Button
+                        variant="contained"
+                        className="viewAll"
+                        onClick={() => {
+                          setOpenPersonalForm(true); // Proceed action
+                          setOpenConfirmModal(false); // Close modal after proceeding
+                        }}
+                      >
+                        {t("PROCEED")}
+                      </Button>
+                      <Button
+                        className="custom-btn-default"
+                        onClick={() => setOpenConfirmModal(false)}
+                      >
+                        {"CANCEL"}
+                      </Button>
+                    </div>
                   </div>
                 </Modal>
               )}
@@ -1562,7 +1570,7 @@ const LernCreatorForm = () => {
                       }}
                     >
                       <Typography variant="h6" gutterBottom>
-                        {t("PARTICIPAION_DETAILS")}
+                        Participant Details
                       </Typography>
                     </Grid>
                   </Grid>
@@ -1572,8 +1580,7 @@ const LernCreatorForm = () => {
                       <Grid container>
                         <Grid item xs={2} className="center-align">
                           <InputLabel htmlFor="Participant Name">
-                            {t("PARTICIPANT")}
-                            <br /> {t("NAME")}
+                            Participant <br /> Name
                             <span className="mandatory-symbol"> *</span>
                           </InputLabel>
                         </Grid>
@@ -1596,8 +1603,7 @@ const LernCreatorForm = () => {
                       <Grid container>
                         <Grid item xs={2} className="center-align">
                           <InputLabel htmlFor="Email">
-                            {t("EMAIL")}{" "}
-                            <span className="mandatory-symbol"> *</span>
+                            Email <span className="mandatory-symbol"> *</span>
                           </InputLabel>
                         </Grid>
                         <Grid item xs={10}>
@@ -1621,8 +1627,7 @@ const LernCreatorForm = () => {
                       <Grid container>
                         <Grid item xs={2} className="center-align">
                           <InputLabel htmlFor="Mobile Number">
-                            {t("MOBILE")} <br /> {t("NUMBER")}
-                            <span className="red"> *</span>
+                            Mobile <br /> Number<span className="red"> *</span>
                           </InputLabel>
                         </Grid>
                         <Grid item xs={10}>
@@ -1652,10 +1657,13 @@ const LernCreatorForm = () => {
                     textAlign="center"
                     className="mb-30"
                   >
-                    <Box>{t("NULP_DECLARE")}</Box>
+                    <Box>
+                      Your submission will be used for NULP purposes only and
+                      your personal details will not be disclosed to any entity.
+                    </Box>
 
                     <a href="#" onClick={openTNC}>
-                      {t("TNC")}
+                      Accept terms and conditions
                     </a>
 
                     {TNCOpen && (
@@ -1676,286 +1684,63 @@ const LernCreatorForm = () => {
                             padding: "20px",
                             borderRadius: "8px",
                             boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
-                            width: "700px",
-                            maxHeight: "80vh", // Ensures modal does not exceed viewport height
-                            overflowY: "auto", // Enables vertical scrolling if content exceeds height
-                            textAlign: "justify",
+                            width: "400px",
+                            textAlign: "center",
                           }}
                         >
                           <Typography
                             variant="h6"
                             id="confirmation-modal-title"
                             gutterBottom
-                            style={{
-                              textAlign: "center",
-                              fontWeight: "bold",
-                            }}
                           >
-                            {t("Terms and Conditions")}
+                            TNC
                           </Typography>
-                          <Typography
-                            variant="body2"
-                            component="div"
-                            style={{
-                              whiteSpace: "pre-wrap", // Ensures formatted line breaks are retained
-                            }}
-                          >
-                            <p>
-                              <strong>
-                                Terms and Conditions for Content Submission on
-                                NULP
-                              </strong>
-                            </p>
-                            <p>
-                              By submitting content (including but not limited
-                              to thumbnails, tags, audio, video, text, images,
-                              illustrations, or other resources) to the National
-                              Urban Learning Platform (NULP), the user agrees to
-                              the following terms and conditions. Non-compliance
-                              with these terms may result in the removal of
-                              content and/or suspension of access to the
-                              platform and participation in similar future
-                              competitions.
-                            </p>
-                            <ol>
-                              <li>
-                                <strong>Prohibition of Hate Speech</strong>
-                                <ul>
-                                  <li>
-                                    Content must not promote enmity, hatred, or
-                                    ill-will against individuals or groups based
-                                    on:
-                                  </li>
-                                  <ul>
-                                    <li>
-                                      Caste, Class, Tribe, Race, Ethnicity
-                                    </li>
-                                    <li>Sex, Gender, or Gender Identity</li>
-                                    <li>
-                                      National Origin or Religious Affiliation
-                                    </li>
-                                    <li>Sexual Orientation</li>
-                                    <li>Disabilities or Diseases</li>
-                                  </ul>
-                                </ul>
-                              </li>
-                              <li>
-                                <strong>Sexually Explicit Content</strong>
-                                <ul>
-                                  <li>
-                                    Content must not include pornography,
-                                    sexually explicit material, or depictions of
-                                    sexual acts.
-                                  </li>
-                                </ul>
-                              </li>
-                              <li>
-                                <strong>
-                                  Sexual Violence and Exploitation
-                                </strong>
-                                <ul>
-                                  <li>
-                                    Content must not depict or promote the
-                                    sexual exploitation of minors or incidents
-                                    of sexual violence.
-                                  </li>
-                                </ul>
-                              </li>
-                              <li>
-                                <strong>Nudity and Vulgarity</strong>
-                                <ul>
-                                  <li>
-                                    Content must not display nudity unless it is
-                                    educational, documentary, scientific, or
-                                    artistic with clear context.
-                                  </li>
-                                  <li>
-                                    Content must not include vulgarity,
-                                    obscenity, or degrading material.
-                                  </li>
-                                </ul>
-                              </li>
-                              <li>
-                                <strong>Violence</strong>
-                                <ul>
-                                  <li>
-                                    Content must not promote, encourage, or
-                                    glorify violent actions or behaviors.
-                                  </li>
-                                </ul>
-                              </li>
-                              <li>
-                                <strong>Discrimination and Bullying</strong>
-                                <ul>
-                                  <li>
-                                    Content must not degrade, shame, or harass
-                                    individuals or groups.
-                                  </li>
-                                </ul>
-                              </li>
-                              <li>
-                                <strong>Harmful or Dangerous Content</strong>
-                                <ul>
-                                  <li>
-                                    Content must not incite dangerous or illegal
-                                    activities.
-                                  </li>
-                                </ul>
-                              </li>
-                              <li>
-                                <strong>Involvement of Children</strong>
-                                <ul>
-                                  <li>
-                                    Content must not depict children subjected
-                                    to abuse or violence.
-                                  </li>
-                                </ul>
-                              </li>
-                              <li>
-                                <strong>Substance Abuse</strong>
-                                <ul>
-                                  <li>
-                                    Content must not encourage or glorify the
-                                    use of alcohol, drugs, or tobacco.
-                                  </li>
-                                </ul>
-                              </li>
-                              <li>
-                                <strong>Defamation</strong>
-                                <ul>
-                                  <li>
-                                    Content must not defame or ridicule
-                                    individuals, groups, or people with
-                                    disabilities.
-                                  </li>
-                                </ul>
-                              </li>
-                              <li>
-                                <strong>
-                                  Content Sensitive to Children with Special
-                                  Needs
-                                </strong>
-                                <ul>
-                                  <li>
-                                    Content must be accessible and sensitive to
-                                    children with special needs.
-                                  </li>
-                                </ul>
-                              </li>
-                              <li>
-                                <strong>Environmental Sensitivity</strong>
-                                <ul>
-                                  <li>
-                                    Content must not glorify activities causing
-                                    environmental damage.
-                                  </li>
-                                </ul>
-                              </li>
-                              <li>
-                                <strong>Copyright Compliance</strong>
-                                <ul>
-                                  <li>
-                                    You confirm that you own the rights to the
-                                    submitted content or have the necessary
-                                    permissions/licenses.
-                                  </li>
-                                  <li>
-                                    NULP is not liable for copyright
-                                    infringement claims arising from your
-                                    content.
-                                  </li>
-                                </ul>
-                              </li>
-                              <li>
-                                <strong>
-                                  User Responsibility and Agreement
-                                </strong>
-                                <ul>
-                                  <li>
-                                    By submitting content, you certify that your
-                                    submission complies with these terms and
-                                    conditions.
-                                  </li>
-                                  <li>
-                                    You agree to take full responsibility for
-                                    any content you submit, including any
-                                    consequences arising from non-compliance.
-                                  </li>
-                                  <li>
-                                    NULP reserves the right to review, remove,
-                                    or reject any content that violates these
-                                    terms or fails to align with the platform's
-                                    standards.
-                                  </li>
-                                  <li>
-                                    Users submitting content that repeatedly
-                                    violates these terms may face account
-                                    suspension or termination.
-                                  </li>
-                                  <li>
-                                    If any copyright issue or participation
-                                    through unfair means is identified by
-                                    competent authority, your entry will be
-                                    deleted from NULP, prize money will be
-                                    forfeited, and you will be banned from
-                                    further participation.
-                                  </li>
-                                </ul>
-                              </li>
-                            </ol>
-                            <p>
-                              <strong>Content Review and Moderation</strong>
-                            </p>
-                            <p>
-                              The NULP team reserves the right to moderate,
-                              monitor, and take action against any submitted
-                              content that breaches these terms. In this regard
-                              decisions made by the team will be final.
-                            </p>
-                            <p>
-                              By proceeding with the submission, you acknowledge
-                              and agree to abide by these Terms and Conditions.
-                            </p>
+                          <Typography>
+                            What is Lorem Ipsum? Lorem Ipsum is simply dummy
+                            text of the printing and typesetting industry. Lorem
+                            Ipsum has been the industry's standard dummy text
+                            ever since the 1500s, when an unknown printer took a
+                            galley of type and scrambled it to make a type
+                            specimen book. It has survived not only five
+                            centuries, but also the leap into electronic
+                            typesetting, remaining essentially unchanged. It was
+                            popularised in the 1960s with the release of
+                            Letraset sheets containing Lorem Ipsum passages, and
+                            more recently with desktop publishing software like
+                            Aldus PageMaker including versions of Lorem Ipsum.
+                            Why do we use it? It is a long established fact that
+                            a reader will be distracted by the readable content
+                            of a page when looking at its layout. The point of
+                            using Lorem Ipsum is that it has a more-or-less
+                            normal distribution of letters, as opposed to using
+                            'Content here, content here', making it look like
+                            readable English. Many desktop publishing packages
+                            and web page editors now use Lorem Ipsum as their
+                            default model text, and a search for 'lorem ipsum'
+                            will uncover many web sites still in their infancy.
+                            Various versions have evolved over the years,
+                            sometimes by accident, sometimes on purpose
+                            (injected humour and the like).
                           </Typography>
 
                           {/* Modal Actions */}
-                          <Box
-                            style={{ marginTop: "20px", textAlign: "center" }}
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => handleCheckboxChange(true)}
+                            style={{ marginRight: "10px" }}
                           >
-                            <FormControlLabel
-                              control={<Checkbox />}
-                              label={t(
-                                "I hereby confirm that I accept the above-mentioned terms and conditions."
-                              )}
-                            />
-                          </Box>
-
-                          <Box
-                            style={{
-                              marginTop: "20px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <Box style={{ padding: "5px" }}>
-                              <Button
-                                variant="contained"
-                                className="viewAll"
-                                onClick={() => handleCheckboxChange(true)}
-                              >
-                                {t("CONFIRM")}
-                              </Button>
-                            </Box>
-                            <Box style={{ padding: "5px" }}>
-                              <Button
-                                className="cancelBtn"
-                                onClick={() => setTNCOpen(false)}
-                              >
-                                {t("CANCEL")}
-                              </Button>
-                            </Box>
-                          </Box>
+                            Confirm
+                          </Button>
+                          <div style={{ marginTop: "20px" }}>
+                            <Button
+                              variant="outlined"
+                              color="secondary"
+                              onClick={() => setTNCOpen(false)}
+                            >
+                              {"CANCEL"}
+                            </Button>
+                          </div>
                         </div>
                       </Modal>
                     )}
@@ -1977,7 +1762,7 @@ const LernCreatorForm = () => {
                         onClick={() => handleSubmit("review")}
                         sx={{ ml: 2, padding: "9px 35px" }} // Adds spacing between the buttons
                       >
-                        {t("SUBMIT")}
+                        Submit
                       </Button>
                     </Box>
                   </Grid>
