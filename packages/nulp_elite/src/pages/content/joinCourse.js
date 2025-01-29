@@ -530,7 +530,7 @@ const JoinCourse = () => {
   };
 
   const handleGoBack = () => {
-    navigate(-1); // Navigate back in history
+    navigate(routeConfig.ROUTES.DOMAINLIST_PAGE.DOMAINLIST); // Navigate back in history
   };
 
   const formatDate = (dateString) => {
