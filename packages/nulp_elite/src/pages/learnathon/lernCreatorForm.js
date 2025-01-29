@@ -116,9 +116,7 @@ const citiesInIndia = [
   "Kalyan-Dombivli",
   "Vasai-Virar",
   "Varanasi",
-  "Kozhikode",
-  "Ponnani"
-];
+]; // Add Cities
 const LernCreatorForm = () => {
   const _userId = util.userId(); // Assuming util.userId() is defined
   const [isEdit, setIsEdit] = useState(false);
