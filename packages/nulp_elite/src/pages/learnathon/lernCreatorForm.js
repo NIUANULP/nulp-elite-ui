@@ -31,8 +31,11 @@ import acdemiatnc from "../../assets/tnc.pdf";
 import statetnc from "../../assets/tnc.pdf";
 import Loader from "components/Loader";
 import Checkbox from "@mui/material/Checkbox";
+
+import citiesInIndia from './learnCities.json';
 import Alert from "@mui/material/Alert";
 const routeConfig = require("../../configs/routeConfig.json");
+
 
 import { Observable } from "rxjs";
 
@@ -90,33 +93,10 @@ const IndianStates = [
 ];
 
 // List of some popular cities in India
-const citiesInIndia = [
-  "Mumbai",
-  "Delhi",
-  "Bangalore",
-  "Hyderabad",
-  "Ahmedabad",
-  "Chennai",
-  "Kolkata",
-  "Pune",
-  "Jaipur",
-  "Surat",
-  "Lucknow",
-  "Kanpur",
-  "Nagpur",
-  "Visakhapatnam",
-  "Bhopal",
-  "Patna",
-  "Ludhiana",
-  "Agra",
-  "Nashik",
-  "Faridabad",
-  "Meerut",
-  "Rajkot",
-  "Kalyan-Dombivli",
-  "Vasai-Virar",
-  "Varanasi",
-]; //  Add more cities as needed
+
+  
+
+//  Add more cities as needed
 const LernCreatorForm = () => {
   const _userId = util.userId(); // Assuming util.userId() is defined
   const [isEdit, setIsEdit] = useState(false);
@@ -1186,7 +1166,9 @@ const LernCreatorForm = () => {
                   <Grid item xs={10}>
                     <Autocomplete
                       freeSolo
-                      options={citiesInIndia}
+                      options={formData.state
+                        ? citiesInIndia[formData.state] || []
+      : []}
                       value={formData.city}
                       onChange={handleCityChange}
                       onInputChange={handleCityChange}
@@ -1199,6 +1181,7 @@ const LernCreatorForm = () => {
                           name="city"
                           error={!!errors.city}
                           helperText={errors.city}
+                          disabled={!formData.state}
                         />
                       )}
                     />
