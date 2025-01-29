@@ -560,7 +560,7 @@ function Header({ globalSearchQuery }) {
 
               {/* Check if roles array is empty or contains "PUBLIC" */}
 
-
+              {roles && roles.length > 0 && (
                 <Link
                   target="_blank"
                   href="/workspace/content/create"
@@ -569,7 +569,7 @@ function Header({ globalSearchQuery }) {
                 >
                   <MenuItem>{t("WORKSPACE")}</MenuItem>
                 </Link>
-
+              )}
               <MenuItem
                 onClick={handleSubmenuToggle}
                 style={{ background: "#f9fafc", color: "#1976d2" }}
