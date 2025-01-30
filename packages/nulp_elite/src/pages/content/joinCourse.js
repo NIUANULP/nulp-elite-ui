@@ -531,13 +531,8 @@ const JoinCourse = () => {
   };
 
   const handleGoBack = () => {
-    if (!debouncedNavigate) {
-      setDebouncedNavigate(true);
-      navigate(-1);
-      setTimeout(() => setDebouncedNavigate(false), 1000); // Reset after 1 second
-    }
+    navigate(-1); // Navigate back in history
   };
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-GB", {
