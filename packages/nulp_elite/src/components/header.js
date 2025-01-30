@@ -560,7 +560,7 @@ function Header({ globalSearchQuery }) {
 
               {/* Check if roles array is empty or contains "PUBLIC" */}
 
-              {roles && roles.length > 0 && (
+              {accessWorkspace && (
                 <Link
                   target="_blank"
                   href="/workspace/content/create"

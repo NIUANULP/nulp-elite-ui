@@ -105,6 +105,7 @@ const JoinCourse = () => {
   const [completedContents, setCompletedContents] = useState([]);
   const [isCompleted, setIsCompleted] = useState();
   const [copyrightOpen, setcopyrightOpen] = useState(false);
+  const [debouncedNavigate, setDebouncedNavigate] = useState(false);
   const toggleShowMore = () => {
     setShowMore((prevShowMore) => !prevShowMore);
   };
@@ -530,7 +531,11 @@ const JoinCourse = () => {
   };
 
   const handleGoBack = () => {
-    navigate(routeConfig.ROUTES.DOMAINLIST_PAGE.DOMAINLIST); // Navigate back in history
+    if (!debouncedNavigate) {
+      setDebouncedNavigate(true);
+      navigate(-1);
+      setTimeout(() => setDebouncedNavigate(false), 1000); // Reset after 1 second
+    }
   };
 
   const formatDate = (dateString) => {
