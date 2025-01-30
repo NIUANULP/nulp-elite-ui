@@ -105,7 +105,6 @@ const JoinCourse = () => {
   const [completedContents, setCompletedContents] = useState([]);
   const [isCompleted, setIsCompleted] = useState();
   const [copyrightOpen, setcopyrightOpen] = useState(false);
-  const [debouncedNavigate, setDebouncedNavigate] = useState(false);
   const toggleShowMore = () => {
     setShowMore((prevShowMore) => !prevShowMore);
   };
