@@ -56,8 +56,8 @@ const themes = [
   "Social Aspects",
   "Municipal Finance",
   "General Administration",
-  "Governance and Urban Management",
-  "Miscellaneous/ Others",
+  "Governance and Urban Management"
+  //"Miscellaneous/ Others",
 ];
 const IndianStates = [
   "Andhra Pradesh",
@@ -289,15 +289,15 @@ const LernCreatorForm = () => {
       tempErrors.name_of_organisation = "Name of Organisation is required";
     if (!formData.indicative_theme)
       tempErrors.indicative_theme = "Indicative Theme is required";
-    if (
-      !formData.indicative_sub_theme &&
-      formData.indicative_theme !== "Miscellaneous/ Others"
-    )
+    // if (
+    //   !formData.indicative_sub_theme &&
+    //   formData.indicative_theme !== "Miscellaneous/ Others"
+    // )
       tempErrors.indicative_sub_theme = "Indicative Sub Theme is required";
-    if (
-      formData.indicative_theme == "Miscellaneous/ Others" &&
-      !formData.other_indicative_themes
-    )
+    // if (
+    //   formData.indicative_theme == "Miscellaneous/ Others" &&
+    //   !formData.other_indicative_themes
+    // )
       tempErrors.other_indicative_themes = "Provide other indicative theme";
 
     // if (!formData.state) tempErrors.state = "Provide state";
@@ -1252,7 +1252,7 @@ const LernCreatorForm = () => {
                       required
                     >
                       {indicativeThemes.length > 0 ? (
-                        indicativeThemes.map((theme, index) => (
+                        indicativeThemes.filter((theme) => theme?.name !== "Miscellaneous/ Others").map((theme, index) => (
                           <MenuItem key={theme?.name} value={theme?.name}>
                             {theme?.name}
                           </MenuItem>
