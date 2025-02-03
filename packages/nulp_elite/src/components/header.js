@@ -99,8 +99,9 @@ function Header({ globalSearchQuery }) {
   };
 
   // Retrieve roles from sessionStorage
-  const rolesJson = sessionStorage.getItem("roles");
+  //const rolesJson = sessionStorage.getItem("roles");
   useEffect(() => {
+    const rolesJson = sessionStorage.getItem("roles");
     if (rolesJson) {
       parsedRoles = JSON.parse(rolesJson);
       setRoles(parsedRoles);
