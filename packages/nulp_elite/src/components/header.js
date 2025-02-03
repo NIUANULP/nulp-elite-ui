@@ -557,11 +557,13 @@ function Header({ globalSearchQuery }) {
                 >
                   <MenuItem>{t("DASHBOARD")}</MenuItem>
                 </Link>
+                
               )}
 
               {/* Check if roles array is empty or contains "PUBLIC" */}
 
-              {accessWorkspace && (
+              {/* {accessWorkspace && ( */}
+              {roleNames.some((role) => ["CONTENT_CREATOR"].includes(role)) && (
                 <Link
                   target="_blank"
                   href="/workspace/content/create"
