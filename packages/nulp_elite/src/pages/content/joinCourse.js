@@ -105,7 +105,6 @@ const JoinCourse = () => {
   const [completedContents, setCompletedContents] = useState([]);
   const [isCompleted, setIsCompleted] = useState();
   const [copyrightOpen, setcopyrightOpen] = useState(false);
-  const [debouncedNavigate, setDebouncedNavigate] = useState(false);
   const toggleShowMore = () => {
     setShowMore((prevShowMore) => !prevShowMore);
   };
@@ -530,13 +529,9 @@ const JoinCourse = () => {
     }
   };
 
-  // const handleGoBack = () => {
-  //   navigate(-1); // Navigate back in history
-  // };
-  // 
   const handleGoBack = () => {
-       navigate(routeConfig.ROUTES.ALL_CONTENT_PAGE.ALL_CONTENT); // Navigate back in history
-     };
+    navigate(-1); // Navigate back in history
+  };
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-GB", {
