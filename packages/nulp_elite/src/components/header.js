@@ -922,7 +922,7 @@ function Header({ globalSearchQuery }) {
                   )}
 
                     {roleNames.some((role) =>
-                    ["ORG_ADMIN", "SYSTEM_ADMINISTRATION"].includes(role)
+                    ["ORG_ADMIN", "SYSTEM_ADMINISTRATION","CONTENT_CREATOR"].includes(role)
                   ) && (
                     <Link
                       target="_blank"
@@ -935,7 +935,7 @@ function Header({ globalSearchQuery }) {
                   )}
 
                         {roleNames.some((role) =>
-                        ["ORG_ADMIN","CONTENT_CREATOR"].includes(
+                        ["ORG_ADMIN","SYSTEM_ADMINISTRATION"].includes(
                           role
                         )
                       ) && (
@@ -1001,31 +1001,6 @@ function Header({ globalSearchQuery }) {
                       </Link>
                     </List>
                   </Collapse>
-                  {/* {roleNames.some((role) =>
-                        ["ORG_ADMIN","CONTENT_CREATOR"].includes(
-                          role
-                        )
-                      ) && (
-                        <Link
-                          href={routeConfig.ROUTES.LEARNATHON.DASHBOARD}
-                          className={
-                            activePath ===
-                            `${routeConfig.ROUTES.LEARNATHON.DASHBOARD}`
-                              ? "Menuactive"
-                              : "headerMenu"
-                          }
-                          underline="none"
-                          textAlign="center"
-                          disablePadding
-          
-                        >
-                          
-                    
-                          <MenuItem className="ml-10"style={{ background: "#f9fafc", color: "#1976d2" }}>
-                            {t("LEARNATHON")}
-                          </MenuItem>
-                        </Link>
-                      )} */}
                   <Link
                     href={routeConfig.ROUTES.HELP_PAGE.HELP}
                     underline="none"
