@@ -88,7 +88,7 @@ function Header({ globalSearchQuery }) {
           roles.includes("CONTENT_CREATOR") ||
           roles.includes("CONTENT_CREATION") ||
           roles.includes("CONTENT_REVIEWER") ||
-          roles.includes("FLAG_REVIEWER")) &&
+          roles.includes("FLAG_REVIEWER")|| roles.includes("ORG_ADMIN")) &&
         (!userID.some((item) => item.user_id === _userId) || user != undefined)
       ) {
         setAccessWorkspace(true);
@@ -921,7 +921,9 @@ function Header({ globalSearchQuery }) {
                     </Link>
                   )}
 
-                  {accessWorkspace && (
+                    {roleNames.some((role) =>
+                    ["ORG_ADMIN", "SYSTEM_ADMINISTRATION","CONTENT_CREATOR"].includes(role)
+                  ) && (
                     <Link
                       target="_blank"
                       href="/workspace/content/create"
@@ -931,6 +933,27 @@ function Header({ globalSearchQuery }) {
                       <MenuItem>{t("WORKSPACE")}</MenuItem>
                     </Link>
                   )}
+
+                        {roleNames.some((role) =>
+                        ["ORG_ADMIN","SYSTEM_ADMINISTRATION"].includes(
+                          role
+                        )
+                      ) && (
+                        <Link
+                          href={routeConfig.ROUTES.LEARNATHON.DASHBOARD}
+                          
+                          underline="none"
+                          textAlign="center"
+                          disablePadding
+          
+                        >
+                          
+                    
+                          <MenuItem style={{ color: "#1976d2" }}>
+                            {t("LEARNATHON")}
+                          </MenuItem>
+                        </Link>
+                      )}
 
                   {/* <NotificationsNoneOutlinedIcon />
                     ekta */}
