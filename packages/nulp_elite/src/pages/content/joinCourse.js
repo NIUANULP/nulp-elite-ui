@@ -530,7 +530,7 @@ const JoinCourse = () => {
   };
 
   const handleGoBack = () => {
-    navigate(-3); 
+    navigate(-1)
   };
   const formatDate = (dateString) => {
     const date = new Date(dateString);
