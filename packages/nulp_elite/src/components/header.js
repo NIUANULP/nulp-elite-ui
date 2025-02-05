@@ -953,28 +953,6 @@ function Header({ globalSearchQuery }) {
                       <MenuItem>{t("WORKSPACE")}</MenuItem>
                     </Link>
                   )}
-
-                        {/* {roleNames.some((role) =>
-                        ["ORG_ADMIN","SYSTEM_ADMINISTRATION"].includes(
-                          role
-                        )
-                      ) && (
-                        <Link
-                          href={routeConfig.ROUTES.LEARNATHON.DASHBOARD}
-                          
-                          underline="none"
-                          textAlign="center"
-                          disablePadding
-          
-                        >
-                          
-                    
-                          <MenuItem style={{ color: "#1976d2" }}>
-                            {t("LEARNATHON")}
-                          </MenuItem>
-                        </Link>
-                      )} */}
-
                   {/* <NotificationsNoneOutlinedIcon />
                     ekta */}
 

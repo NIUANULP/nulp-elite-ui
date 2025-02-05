@@ -221,7 +221,7 @@ const LearnathonDashboard = () => {
         setExportData(result.result.data);
         const states = result.result.data
           .map((item) => item.state)
-          .filter((state) => state.trim !== null);
+          .filter((state) => state !== null);
         const uniqueStates = [...new Set(states)]; // Removing duplicates
         const stateCount = uniqueStates.length;
         setStateCount(stateCount);
