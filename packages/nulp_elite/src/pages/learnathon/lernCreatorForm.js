@@ -94,7 +94,7 @@ const IndianStates = [
 
 // List of some popular cities in India
 
-  
+
 
 //  Add more cities as needed
 const LernCreatorForm = () => {
@@ -294,12 +294,12 @@ const LernCreatorForm = () => {
     //   !formData.indicative_sub_theme &&
     //   formData.indicative_theme !== "Miscellaneous/ Others"
     // )
-      tempErrors.indicative_sub_theme = "Indicative Sub Theme is required";
+    tempErrors.indicative_sub_theme = "Indicative Sub Theme is required";
     // if (
     //   formData.indicative_theme == "Miscellaneous/ Others" &&
     //   !formData.other_indicative_themes
     // )
-      tempErrors.other_indicative_themes = "Provide other indicative theme";
+    tempErrors.other_indicative_themes = "Provide other indicative theme";
 
     // if (!formData.state) tempErrors.state = "Provide state";
 
@@ -590,9 +590,9 @@ const LernCreatorForm = () => {
                 if (!response.ok) {
                   alert("Something went wrong while uploading file");
                   throw new Error("Something went wrong");
-                } 
+                }
 
-                if(response.ok){
+                if (response.ok) {
                   alert("File uploaded successfully");
                 }
 
@@ -606,7 +606,7 @@ const LernCreatorForm = () => {
               } catch (error) {
                 console.log("error---", error);
                 alert("Something went wrong while uploading file");
-              } finally{
+              } finally {
                 setLoading(false);
               }
             });
@@ -1169,7 +1169,7 @@ const LernCreatorForm = () => {
                       freeSolo
                       options={formData.state
                         ? citiesInIndia[formData.state] || []
-      : []}
+                        : []}
                       value={formData.city}
                       onChange={handleCityChange}
                       onInputChange={handleCityChange}
@@ -1232,100 +1232,100 @@ const LernCreatorForm = () => {
                 </Grid>
               </Grid>
               <Grid item xs={12}>
-  <Grid container>
-    <Grid item xs={2} className="center-align">
-      <InputLabel htmlFor="indicative_theme">
-        {t("INDICATIVE_THEME")}{" "}
-        <span className="mandatory-symbol"> *</span>
-      </InputLabel>
-    </Grid>
-    <Grid item xs={10}>
-      <TextField
-        select
-        fullWidth
-        margin="normal"
-        label="Indicative Theme"
-        name="indicative_theme"
-        value={formData.indicative_theme}
-        onChange={handleThemeChange}
-        error={!!errors.indicative_theme}
-        helperText={errors.indicative_theme}
-        required
-      >
-        {indicativeThemes.length > 0 ? (
-          indicativeThemes
-            .filter((theme) => theme?.name !== "Miscellaneous/ Others") // Exclude "Miscellaneous/ Others"
-            .map((theme, index) => (
-              <MenuItem key={theme?.name} value={theme?.name}>
-                {theme?.name}
-              </MenuItem>
-            ))
-        ) : (
-          <MenuItem disabled value="">
-            {t("NO_OPTION_AVAILABLE")}
-          </MenuItem>
-        )}
-      </TextField>
-    </Grid>
-  </Grid>
-</Grid>
-{formData.indicative_theme === "Miscellaneous/ Others" && (
-  <Grid item xs={12}>
-    <Grid container>
-      <Grid item xs={2} className="center-align">
-        <InputLabel htmlFor="other_indicative_themes">
-          {t("OTHER_INDICATIVE_THEME")}{" "}
-          <span className="mandatory-symbol"> *</span>
-        </InputLabel>
-      </Grid>
-      <Grid item xs={10}>
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Other Indicative Theme"
-          name="other_indicative_themes"
-          value={formData.other_indicative_themes}
-          onChange={handleChange}
-          error={!!errors.other_indicative_themes}
-          helperText={errors.other_indicative_themes}
-          required
-        />
-      </Grid>
-    </Grid>
-  </Grid>
-)}
-{formData.indicative_theme !== "Miscellaneous/ Others" && (
-  <Grid item xs={12}>
-    <Grid container>
-      <Grid item xs={2} className="center-align">
-        <InputLabel htmlFor="indicative_sub_theme">
-          {t("INDICATIVE_SUBTHEME")}{" "}
-          <span className="mandatory-symbol"> *</span>
-        </InputLabel>
-      </Grid>
-      <Grid item xs={10}>
-        <TextField
-          select
-          fullWidth
-          margin="normal"
-          label="Indicative SubTheme"
-          name="indicative_sub_theme"
-          value={formData.indicative_sub_theme}
-          onChange={handlesubthemeChange}
-          error={!!errors.indicative_sub_theme}
-          helperText={errors.indicative_sub_theme}
-          required
-        >
-          {indicativeSubThemes.map((theme) => (
-            <MenuItem key={theme?.name} value={theme?.name}>
-              {theme?.name}
-            </MenuItem>
-          ))}
-        </TextField>
-      </Grid>
-    </Grid>
-  </Grid>
-)}
+                <Grid container>
+                  <Grid item xs={2} className="center-align">
+                    <InputLabel htmlFor="indicative_theme">
+                      {t("INDICATIVE_THEME")}{" "}
+                      <span className="mandatory-symbol"> *</span>
+                    </InputLabel>
+                  </Grid>
+                  <Grid item xs={10}>
+                    <TextField
+                      select
+                      fullWidth
+                      margin="normal"
+                      label="Indicative Theme"
+                      name="indicative_theme"
+                      value={formData.indicative_theme}
+                      onChange={handleThemeChange}
+                      error={!!errors.indicative_theme}
+                      helperText={errors.indicative_theme}
+                      required
+                    >
+                      {indicativeThemes.length > 0 ? (
+                        indicativeThemes
+                          .filter((theme) => theme?.name !== "Miscellaneous/ Others") // Exclude "Miscellaneous/ Others"
+                          .map((theme, index) => (
+                            <MenuItem key={theme?.name} value={theme?.name}>
+                              {theme?.name}
+                            </MenuItem>
+                          ))
+                      ) : (
+                        <MenuItem disabled value="">
+                          {t("NO_OPTION_AVAILABLE")}
+                        </MenuItem>
+                      )}
+                    </TextField>
+                  </Grid>
+                </Grid>
+              </Grid>
+              {formData.indicative_theme === "Miscellaneous/ Others" && (
+                <Grid item xs={12}>
+                  <Grid container>
+                    <Grid item xs={2} className="center-align">
+                      <InputLabel htmlFor="other_indicative_themes">
+                        {t("OTHER_INDICATIVE_THEME")}{" "}
+                        <span className="mandatory-symbol"> *</span>
+                      </InputLabel>
+                    </Grid>
+                    <Grid item xs={10}>
+                      <TextField
+                        fullWidth
+                        margin="normal"
+                        label="Other Indicative Theme"
+                        name="other_indicative_themes"
+                        value={formData.other_indicative_themes}
+                        onChange={handleChange}
+                        error={!!errors.other_indicative_themes}
+                        helperText={errors.other_indicative_themes}
+                        required
+                      />
+                    </Grid>
+                  </Grid>
+                </Grid>
+              )}
+              {formData.indicative_theme !== "Miscellaneous/ Others" && (
+                <Grid item xs={12}>
+                  <Grid container>
+                    <Grid item xs={2} className="center-align">
+                      <InputLabel htmlFor="indicative_sub_theme">
+                        {t("INDICATIVE_SUBTHEME")}{" "}
+                        <span className="mandatory-symbol"> *</span>
+                      </InputLabel>
+                    </Grid>
+                    <Grid item xs={10}>
+                      <TextField
+                        select
+                        fullWidth
+                        margin="normal"
+                        label="Indicative SubTheme"
+                        name="indicative_sub_theme"
+                        value={formData.indicative_sub_theme}
+                        onChange={handlesubthemeChange}
+                        error={!!errors.indicative_sub_theme}
+                        helperText={errors.indicative_sub_theme}
+                        required
+                      >
+                        {indicativeSubThemes.map((theme) => (
+                          <MenuItem key={theme?.name} value={theme?.name}>
+                            {theme?.name}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              )}
 
               <Grid item xs={12}>
                 <Grid container spacing={2}>
