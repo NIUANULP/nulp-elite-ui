@@ -939,7 +939,9 @@ function Header({ globalSearchQuery }) {
                     </Link>
                   )}
 
-                  {accessWorkspace && (
+                  {roleNames.some((role) =>
+                    ["ORG_ADMIN", "SYSTEM_ADMINISTRATION","CONTENT_CREATOR"].includes(role)
+                  ) && (
                     <Link
                       target="_blank"
                       href="/workspace/content/create"
