@@ -88,7 +88,8 @@ function Header({ globalSearchQuery }) {
           roles.includes("CONTENT_CREATOR") ||
           roles.includes("CONTENT_CREATION") ||
           roles.includes("CONTENT_REVIEWER") ||
-          roles.includes("FLAG_REVIEWER")) &&
+          roles.includes("FLAG_REVIEWER") ||
+          roles.includes("ORG_ADMIN") ) &&
         (!userID.some((item) => item.user_id === _userId) || user != undefined)
       ) {
         setAccessWorkspace(true);
