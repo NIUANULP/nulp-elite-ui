@@ -31,8 +31,11 @@ import acdemiatnc from "../../assets/tnc.pdf";
 import statetnc from "../../assets/tnc.pdf";
 import Loader from "components/Loader";
 import Checkbox from "@mui/material/Checkbox";
+
+import citiesInIndia from './learnCities.json';
 import Alert from "@mui/material/Alert";
 const routeConfig = require("../../configs/routeConfig.json");
+
 
 import { Observable } from "rxjs";
 
@@ -53,8 +56,8 @@ const themes = [
   "Social Aspects",
   "Municipal Finance",
   "General Administration",
-  "Governance and Urban Management",
-  "Miscellaneous/ Others",
+  "Governance and Urban Management"
+  //"Miscellaneous/ Others",
 ];
 const IndianStates = [
   "Andhra Pradesh",
@@ -90,34 +93,10 @@ const IndianStates = [
 ];
 
 // List of some popular cities in India
-const citiesInIndia = [
-  "Mumbai",
-  "Delhi",
-  "Bangalore",
-  "Hyderabad",
-  "Ahmedabad",
-  "Chennai",
-  "Kolkata",
-  "Pune",
-  "Jaipur",
-  "Surat",
-  "Lucknow",
-  "Kanpur",
-  "Nagpur",
-  "Visakhapatnam",
-  "Bhopal",
-  "Patna",
-  "Ludhiana",
-  "Agra",
-  "Nashik",
-  "Faridabad",
-  "Meerut",
-  "Rajkot",
-  "Kalyan-Dombivli",
-  "Vasai-Virar",
-  "Varanasi",
-  // Add more cities as needed
-];
+
+  
+
+//  Add more cities as needed
 const LernCreatorForm = () => {
   const _userId = util.userId(); // Assuming util.userId() is defined
   const [isEdit, setIsEdit] = useState(false);
@@ -310,15 +289,15 @@ const LernCreatorForm = () => {
       tempErrors.name_of_organisation = "Name of Organisation is required";
     if (!formData.indicative_theme)
       tempErrors.indicative_theme = "Indicative Theme is required";
-    if (
-      !formData.indicative_sub_theme &&
-      formData.indicative_theme !== "Miscellaneous/ Others"
-    )
+    // if (
+    //   !formData.indicative_sub_theme &&
+    //   formData.indicative_theme !== "Miscellaneous/ Others"
+    // )
       tempErrors.indicative_sub_theme = "Indicative Sub Theme is required";
-    if (
-      formData.indicative_theme == "Miscellaneous/ Others" &&
-      !formData.other_indicative_themes
-    )
+    // if (
+    //   formData.indicative_theme == "Miscellaneous/ Others" &&
+    //   !formData.other_indicative_themes
+    // )
       tempErrors.other_indicative_themes = "Provide other indicative theme";
 
     // if (!formData.state) tempErrors.state = "Provide state";
@@ -1187,7 +1166,9 @@ const LernCreatorForm = () => {
                   <Grid item xs={10}>
                     <Autocomplete
                       freeSolo
-                      options={citiesInIndia}
+                      options={formData.state
+                        ? citiesInIndia[formData.state] || []
+      : []}
                       value={formData.city}
                       onChange={handleCityChange}
                       onInputChange={handleCityChange}
@@ -1200,6 +1181,7 @@ const LernCreatorForm = () => {
                           name="city"
                           error={!!errors.city}
                           helperText={errors.city}
+                          disabled={!formData.state}
                         />
                       )}
                     />
@@ -1270,7 +1252,7 @@ const LernCreatorForm = () => {
                       required
                     >
                       {indicativeThemes.length > 0 ? (
-                        indicativeThemes.map((theme, index) => (
+                        indicativeThemes.filter((theme) => theme?.name !== "Miscellaneous/ Others").map((theme, index) => (
                           <MenuItem key={theme?.name} value={theme?.name}>
                             {theme?.name}
                           </MenuItem>
