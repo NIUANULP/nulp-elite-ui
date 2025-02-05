@@ -906,6 +906,26 @@ function Header({ globalSearchQuery }) {
                       >
                         {t("LEARNING_REPORT")}
                       </MenuItem>
+                      {roleNames.some((role) =>
+                        ["ORG_ADMIN","SYSTEM_ADMINISTRATION"].includes(
+                          role
+                        )
+                      ) && (
+                        <Link
+                          href={routeConfig.ROUTES.LEARNATHON.DASHBOARD}
+                          
+                          underline="none"
+                          textAlign="center"
+                          disablePadding
+          
+                        >
+                          
+                    
+                          <MenuItem  className="ml-10" style={{ color: "#1976d2" }}>
+                            {t("LEARNATHON")}
+                          </MenuItem>
+                        </Link>
+                      )}
                     </List>
                   </Collapse>
                   {roleNames.some((role) =>
@@ -934,7 +954,7 @@ function Header({ globalSearchQuery }) {
                     </Link>
                   )}
 
-                        {roleNames.some((role) =>
+                        {/* {roleNames.some((role) =>
                         ["ORG_ADMIN","SYSTEM_ADMINISTRATION"].includes(
                           role
                         )
@@ -953,7 +973,7 @@ function Header({ globalSearchQuery }) {
                             {t("LEARNATHON")}
                           </MenuItem>
                         </Link>
-                      )}
+                      )} */}
 
                   {/* <NotificationsNoneOutlinedIcon />
                     ekta */}
