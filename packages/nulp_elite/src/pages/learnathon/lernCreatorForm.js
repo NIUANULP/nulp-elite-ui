@@ -300,9 +300,9 @@ const LernCreatorForm = () => {
      )
       tempErrors.other_indicative_themes = "Provide other indicative theme";
 
-     if (!formData.state) tempErrors.state = "Provide state";
+     //if (!formData.state) tempErrors.state = "Provide state";
 
-     if (!formData.city) tempErrors.city = "Provide city";
+     //if (!formData.city) tempErrors.city = "Provide city";
     if (!formData.title_of_submission)
       tempErrors.title_of_submission = "Title of Submission is required";
     if (!formData.description)
