@@ -289,20 +289,20 @@ const LernCreatorForm = () => {
       tempErrors.name_of_organisation = "Name of Organisation is required";
     if (!formData.indicative_theme)
       tempErrors.indicative_theme = "Indicative Theme is required";
-    // if (
-    //   !formData.indicative_sub_theme &&
-    //   formData.indicative_theme !== "Miscellaneous/ Others"
-    // )
+    if (
+       !formData.indicative_sub_theme &&
+       formData.indicative_theme !== "Miscellaneous/ Others"
+     )
       tempErrors.indicative_sub_theme = "Indicative Sub Theme is required";
-    // if (
-    //   formData.indicative_theme == "Miscellaneous/ Others" &&
-    //   !formData.other_indicative_themes
-    // )
+     if (
+       formData.indicative_theme == "Miscellaneous/ Others" &&
+       !formData.other_indicative_themes
+     )
       tempErrors.other_indicative_themes = "Provide other indicative theme";
 
-    // if (!formData.state) tempErrors.state = "Provide state";
+     if (!formData.state) tempErrors.state = "Provide state";
 
-    // if (!formData.city) tempErrors.city = "Provide city";
+     if (!formData.city) tempErrors.city = "Provide city";
     if (!formData.title_of_submission)
       tempErrors.title_of_submission = "Title of Submission is required";
     if (!formData.description)

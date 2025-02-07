@@ -530,8 +530,13 @@ const JoinCourse = () => {
   };
 
   const handleGoBack = () => {
-    navigate(-1)
+    if (window.history.length > 1) {
+      navigate(-1); // Go back to the previous page
+    } else {
+      navigate('/webapp/domainlist'); // Fallback to the courses page
+    }
   };
+  
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-GB", {
@@ -543,7 +548,8 @@ const JoinCourse = () => {
 
   const handleLinkClick = (id) => {
     if (isEnroll) {
-      navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${id}`, {
+      window.location.replace(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${id}`, {
+        //replace: true, 
         state: {
           coursename: userData?.result?.content?.name,
           batchid: batchDetails?.batchId,
