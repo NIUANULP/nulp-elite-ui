@@ -417,5 +417,6 @@
   "REVIEW_NOW":"Review Now",
 
   "LEARNATHON":"Learnathon",
-  "MOBILE_NUMBER":"Mobile Number"
+  "MOBILE_NUMBER":"Mobile Number",
+  "ROLE_REVIEW_RESTRICT":"No review available for your role. You can enter the contest"
 }
