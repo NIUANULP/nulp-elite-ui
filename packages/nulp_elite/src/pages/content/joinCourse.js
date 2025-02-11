@@ -530,9 +530,9 @@ const JoinCourse = () => {
   };
 
   const handleGoBack = () => {
-    navigate(-1); // Navigate back in history
+    navigate(-1); // Go back to the previous page
   };
-
+  
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-GB", {

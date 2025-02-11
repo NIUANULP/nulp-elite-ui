@@ -342,6 +342,7 @@
   "CREATED_BY": "Created By",
   "VOTE_NOW_LEARNATHON_SUBMISSIONS": "Vote Now: Learnathon Submissions",
   "SUBMISSION_NAME": "Submission Name",
+  "MOBILE_NUMBER":"Mobile Number",
   "VOTING_DEADLINE": "Voting Deadline",
   "VOTE_COUNT": "Vote Count",
   "VOTE_NOW": "Vote Now",
@@ -414,6 +415,7 @@
 
   "VIEW": "View",
   "REVIEW_NOW":"Review Now",
+
   "LEARNATHON":"Learnathon",
   "MOBILE_NUMBER":"Mobile Number"
 }
