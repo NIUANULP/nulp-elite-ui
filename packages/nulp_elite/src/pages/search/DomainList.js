@@ -110,6 +110,7 @@ const DomainList = ({ globalSearchQuery }) => {
       const data = await response.json();
       const rolesData = data.result.response.channel;
       const roles = data.result.response.roles;
+
       let organizationId;
       setIsLearnathonUser(
         data.result.response.firstName.includes("tekdiNulp11")
@@ -122,6 +123,8 @@ const DomainList = ({ globalSearchQuery }) => {
           data?.result?.response?.organisations[0]?.organisationId;
       }
       const extractedRoles = roles.map((roleObj) => roleObj.role);
+      const isReviewer = roleList.includes("SYSTEM_ADMINISTRATION");
+
       setRoleList(extractedRoles);
       setOrgId(organizationId);
       setLernUser(rolesData);
@@ -710,7 +713,7 @@ const DomainList = ({ globalSearchQuery }) => {
                             </Button>
                           </Grid>
                         )}
-                        {isReviewNow && (
+                        {isReviewNow && isReviewer && (
                           <Grid item xs={12}>
                             <Button
                               className="viewAll"
