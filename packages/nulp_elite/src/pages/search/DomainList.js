@@ -78,7 +78,7 @@ const DomainList = ({ globalSearchQuery }) => {
 
   const [lernUser, setLernUser] = useState([]);
   const _userId = util.userId();
-
+  const [isReviewer, setIsReviewer] = useState(false);
   const today = dayjs();
   const formattedDate = today.subtract(1, "hour").format("YYYY-MM-DD HH:mm:ss");
   const isLearnathonStarted = today.isAfter(
@@ -110,6 +110,7 @@ const DomainList = ({ globalSearchQuery }) => {
       const data = await response.json();
       const rolesData = data.result.response.channel;
       const roles = data.result.response.roles;
+
       let organizationId;
       setIsLearnathonUser(
         data.result.response.firstName.includes("tekdiNulp11")
@@ -122,6 +123,8 @@ const DomainList = ({ globalSearchQuery }) => {
           data?.result?.response?.organisations[0]?.organisationId;
       }
       const extractedRoles = roles.map((roleObj) => roleObj.role);
+      setIsReviewer(roleList.includes("SYSTEM_ADMINISTRATION"));
+
       setRoleList(extractedRoles);
       setOrgId(organizationId);
       setLernUser(rolesData);
@@ -710,7 +713,7 @@ const DomainList = ({ globalSearchQuery }) => {
                             </Button>
                           </Grid>
                         )}
-                        {isReviewNow && (
+                        {isReviewNow && isReviewer && (
                           <Grid item xs={12}>
                             <Button
                               className="viewAll"
