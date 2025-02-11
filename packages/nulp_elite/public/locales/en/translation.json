@@ -415,5 +415,6 @@
 
   "VIEW": "View",
   "REVIEW_NOW":"Review Now",
-  "LEARNATHON":"Learnathon"
+  "LEARNATHON":"Learnathon",
+  "ROLE_REVIEW_RESTRICT":"No review available for your role. You can enter the contest"
 }
