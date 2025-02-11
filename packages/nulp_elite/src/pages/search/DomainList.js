@@ -78,7 +78,7 @@ const DomainList = ({ globalSearchQuery }) => {
 
   const [lernUser, setLernUser] = useState([]);
   const _userId = util.userId();
-
+  const [isReviewer, setIsReviewer] = useState(false);
   const today = dayjs();
   const formattedDate = today.subtract(1, "hour").format("YYYY-MM-DD HH:mm:ss");
   const isLearnathonStarted = today.isAfter(
@@ -123,7 +123,7 @@ const DomainList = ({ globalSearchQuery }) => {
           data?.result?.response?.organisations[0]?.organisationId;
       }
       const extractedRoles = roles.map((roleObj) => roleObj.role);
-      const isReviewer = roleList.includes("SYSTEM_ADMINISTRATION");
+      setIsReviewer(roleList.includes("SYSTEM_ADMINISTRATION"));
 
       setRoleList(extractedRoles);
       setOrgId(organizationId);
