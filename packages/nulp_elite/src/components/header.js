@@ -82,7 +82,6 @@ function Header({ globalSearchQuery }) {
       const user = userID.find(
         (user) => user.user_id === _userId && user.creator_access === false
       );
-      console.log(" user details:", user); 
       if (
         (roles.includes("COURSE_MENTOR") ||
           roles.includes("SYSTEM_ADMINISTRATION") ||
