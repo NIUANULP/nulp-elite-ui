@@ -88,7 +88,10 @@ function Header({ globalSearchQuery }) {
           roles.includes("CONTENT_CREATOR") ||
           roles.includes("CONTENT_CREATION") ||
           roles.includes("CONTENT_REVIEWER") ||
-          roles.includes("FLAG_REVIEWER")) &&
+
+          roles.includes("FLAG_REVIEWER") ||
+          roles.includes("ORG_ADMIN") ) &&
+
         (!userID.some((item) => item.user_id === _userId) || user != undefined)
       ) {
         setAccessWorkspace(true);
@@ -99,8 +102,9 @@ function Header({ globalSearchQuery }) {
   };
 
   // Retrieve roles from sessionStorage
-  const rolesJson = sessionStorage.getItem("roles");
+  //const rolesJson = sessionStorage.getItem("roles");
   useEffect(() => {
+    const rolesJson = sessionStorage.getItem("roles");
     if (rolesJson) {
       parsedRoles = JSON.parse(rolesJson);
       setRoles(parsedRoles);
@@ -556,11 +560,13 @@ function Header({ globalSearchQuery }) {
                 >
                   <MenuItem>{t("DASHBOARD")}</MenuItem>
                 </Link>
+                
               )}
 
               {/* Check if roles array is empty or contains "PUBLIC" */}
 
-              {accessWorkspace && (
+              {/* {accessWorkspace && ( */}
+              {roleNames.some((role) => ["CONTENT_CREATOR"].includes(role)) && (
                 <Link
                   target="_blank"
                   href="/workspace/content/create"
@@ -903,6 +909,26 @@ function Header({ globalSearchQuery }) {
                       >
                         {t("LEARNING_REPORT")}
                       </MenuItem>
+                      {roleNames.some((role) =>
+                        ["ORG_ADMIN","SYSTEM_ADMINISTRATION"].includes(
+                          role
+                        )
+                      ) && (
+                        <Link
+                          href={routeConfig.ROUTES.LEARNATHON.DASHBOARD}
+
+
+                          underline="none"
+                          textAlign="center"
+                          disablePadding
+
+                        >
+                          <MenuItem  className="ml-10" style={{ color: "#1976d2" }}>
+                            {t("LEARNATHON")}
+                          </MenuItem>
+                        </Link>
+                      )}
+
                     </List>
                   </Collapse>
                   {roleNames.some((role) =>
@@ -918,7 +944,11 @@ function Header({ globalSearchQuery }) {
                     </Link>
                   )}
 
-                  {accessWorkspace && (
+
+                    {roleNames.some((role) =>
+
+                    ["ORG_ADMIN", "SYSTEM_ADMINISTRATION","CONTENT_CREATOR"].includes(role)
+                  ) && (
                     <Link
                       target="_blank"
                       href="/workspace/content/create"
@@ -928,7 +958,6 @@ function Header({ globalSearchQuery }) {
                       <MenuItem>{t("WORKSPACE")}</MenuItem>
                     </Link>
                   )}
-
                   {/* <NotificationsNoneOutlinedIcon />
                     ekta */}
 

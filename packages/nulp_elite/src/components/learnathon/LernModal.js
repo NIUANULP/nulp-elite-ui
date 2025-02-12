@@ -284,6 +284,11 @@ const LernModal = () => {
                     <Box className="mt-20">{t("REVIEW_MESSEGE")}</Box>
                   </Box>
                 )}
+                {isReviewNow && !isReviewer && (
+                  <Box>
+                    <Box className="mt-20">Review is going On</Box>
+                  </Box>
+                )}
                 {isVoteNow && (
                   <Box>
                     <Box className="mt-20">{t("VOTE_NOW")}</Box>

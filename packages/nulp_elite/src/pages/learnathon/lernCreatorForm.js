@@ -57,7 +57,11 @@ const themes = [
   "Municipal Finance",
   "General Administration",
   "Governance and Urban Management"
+<<<<<<< HEAD
   // "Miscellaneous/ Others",
+=======
+  //"Miscellaneous/ Others",
+>>>>>>> b4a7373f60b294364063346fcca9e3b3fa83672c
 ];
 const IndianStates = [
   "Andhra Pradesh",
@@ -289,6 +293,7 @@ const LernCreatorForm = () => {
       tempErrors.name_of_organisation = "Name of Organisation is required";
     if (!formData.indicative_theme)
       tempErrors.indicative_theme = "Indicative Theme is required";
+<<<<<<< HEAD
 
     // if (
     //   !formData.indicative_sub_theme &&
@@ -300,10 +305,22 @@ const LernCreatorForm = () => {
     //   !formData.other_indicative_themes
     // )
     tempErrors.other_indicative_themes = "Provide other indicative theme";
+=======
+    if (
+       !formData.indicative_sub_theme &&
+       formData.indicative_theme !== "Miscellaneous/ Others"
+     )
+      tempErrors.indicative_sub_theme = "Indicative Sub Theme is required";
+     if (
+       formData.indicative_theme == "Miscellaneous/ Others" &&
+       !formData.other_indicative_themes
+     )
+      tempErrors.other_indicative_themes = "Provide other indicative theme";
+>>>>>>> b4a7373f60b294364063346fcca9e3b3fa83672c
 
-    // if (!formData.state) tempErrors.state = "Provide state";
+     //if (!formData.state) tempErrors.state = "Provide state";
 
-    // if (!formData.city) tempErrors.city = "Provide city";
+     //if (!formData.city) tempErrors.city = "Provide city";
     if (!formData.title_of_submission)
       tempErrors.title_of_submission = "Title of Submission is required";
     if (!formData.description)
@@ -1253,6 +1270,7 @@ const LernCreatorForm = () => {
                       required
                     >
                       {indicativeThemes.length > 0 ? (
+<<<<<<< HEAD
                         indicativeThemes
                           .filter((theme) => theme?.name !== "Miscellaneous/ Others") // Exclude "Miscellaneous/ Others"
                           .map((theme, index) => (
@@ -1260,6 +1278,13 @@ const LernCreatorForm = () => {
                               {theme?.name}
                             </MenuItem>
                           ))
+=======
+                        indicativeThemes.filter((theme) => theme?.name !== "Miscellaneous/ Others").map((theme, index) => (
+                          <MenuItem key={theme?.name} value={theme?.name}>
+                            {theme?.name}
+                          </MenuItem>
+                        ))
+>>>>>>> b4a7373f60b294364063346fcca9e3b3fa83672c
                       ) : (
                         <MenuItem disabled value="">
                           {t("NO_OPTION_AVAILABLE")}
