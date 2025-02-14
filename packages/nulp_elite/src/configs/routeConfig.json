@@ -94,6 +94,9 @@
       "LERNVOTINGLIST": "/webapp/lernvotinglist",
       "LERNREVIEWLIST": "/webapp/lernreviewlist",
       "DASHBOARD": "/webapp/learndashboard"
+    },
+    "USERLIST_PAGE":{
+      "USERLIST":"/webapp/userList"
     }
   }
 }
