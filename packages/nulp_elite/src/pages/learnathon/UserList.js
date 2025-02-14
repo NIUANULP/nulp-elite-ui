@@ -95,7 +95,7 @@ const UserList = () => {
                 <Table>
                 <TableHead sx={{ background: "#D8F6FF" }}>
                     <TableRow>
-                      <TableCell>{t("Name")}</TableCell>
+                      <TableCell>{t("User Id")}</TableCell>
                       <TableCell>{t("Designation")}</TableCell>
                       <TableCell>{t("User Type")}</TableCell>
                       <TableCell>{t("Organization")}</TableCell>
@@ -105,10 +105,10 @@ const UserList = () => {
                     {paginatedData.length > 0 ? (
                       paginatedData.map((row, index) => (
                         <TableRow key={index}>
-                          <TableCell>{row.name}</TableCell>
+                          <TableCell>{row.user_id}</TableCell>
                           <TableCell>{row.designation}</TableCell>
-                          <TableCell>{row.userType}</TableCell>
-                          <TableCell>{row.organization}</TableCell>
+                          <TableCell>{row.user_type}</TableCell>
+                          <TableCell>{row.organisation}</TableCell>
                         </TableRow>
                       ))
                     ) : (
