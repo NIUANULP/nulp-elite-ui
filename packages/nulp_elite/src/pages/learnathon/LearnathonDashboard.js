@@ -22,6 +22,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { Visibility } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
 import { Pagination } from "@mui/material";
+import { useNavigate } from 'react-router-dom';
 
 import Footer from "components/Footer";
 import Header from "components/header";
@@ -350,6 +351,13 @@ const LearnathonDashboard = () => {
     fetchPublishedContent();
     setCurrentPage(1);
   };
+  const navigate = useNavigate(); 
+  const handleClick = () => {
+    navigate('/webapp/userList');
+  };
+  const clickableTextStyle = {
+    cursor: "pointer"
+  };
 
   return (
     <>
@@ -357,8 +365,8 @@ const LearnathonDashboard = () => {
       <div style={dashboardStyle}>
         <h1>{t("LERN_DASHBOARD")}</h1>
         <div style={gridStyle}>
-          <div style={boxStyle}>
-            <h3>{t("TOTAL_PARTICIPANTS")}</h3>
+          <div style={boxStyle} onClick={handleClick}>
+            <h3 style={clickableTextStyle}>{t("TOTAL_PARTICIPANTS")}</h3>
             <p style={countStyle}>{totalParticipants}</p>
           </div>
           <div style={boxStyle}>
