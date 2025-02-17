@@ -62,17 +62,24 @@ const UserList = () => {
     }
   };
  
-  const filteredData = data.filter((row) =>
-    row.name.toLowerCase().includes(search.toLowerCase())
-  );
+  // const filteredData = data.filter((row) =>
+  //   row.name.toLowerCase().includes(search.toLowerCase())
+  // );
+  
   const handleBack = () => {
     navigate('/webapp/learndashboard');
   };
  
-  const paginatedData = filteredData.slice(
+  // const paginatedData = filteredData.slice(
+  //   (currentPage - 1) * rowsPerPage,
+  //   currentPage * rowsPerPage
+  // );
+
+  const paginatedData = data.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
+  
  
   return (
     <div>
