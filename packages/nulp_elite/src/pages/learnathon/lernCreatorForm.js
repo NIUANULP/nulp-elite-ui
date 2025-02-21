@@ -94,7 +94,7 @@ const IndianStates = [
 
 // List of some popular cities in India
 
-  
+
 
 //  Add more cities as needed
 const LernCreatorForm = () => {
@@ -589,9 +589,9 @@ const LernCreatorForm = () => {
                 if (!response.ok) {
                   alert("Something went wrong while uploading file");
                   throw new Error("Something went wrong");
-                } 
+                }
 
-                if(response.ok){
+                if (response.ok) {
                   alert("File uploaded successfully");
                 }
 
@@ -605,7 +605,7 @@ const LernCreatorForm = () => {
               } catch (error) {
                 console.log("error---", error);
                 alert("Something went wrong while uploading file");
-              } finally{
+              } finally {
                 setLoading(false);
               }
             });
@@ -1168,7 +1168,7 @@ const LernCreatorForm = () => {
                       freeSolo
                       options={formData.state
                         ? citiesInIndia[formData.state] || []
-      : []}
+                        : []}
                       value={formData.city}
                       onChange={handleCityChange}
                       onInputChange={handleCityChange}
@@ -1323,6 +1323,7 @@ const LernCreatorForm = () => {
                   </Grid>
                 </Grid>
               )}
+
               <Grid item xs={12}>
                 <Grid container spacing={2}>
                   {/* Toggle between URL and File */}
