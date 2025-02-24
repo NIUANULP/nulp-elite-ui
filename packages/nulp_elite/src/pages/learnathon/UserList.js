@@ -55,7 +55,11 @@ const UserList = () => {
       const result = await response.json();
       setData(result.result.data || []);
       setTotalRows(result.result.totalCount || 0);
+      
+        console.log(`fullName:`, result.result.data);
+     
     } catch (error) {
+      console.log (error)
       setError(error.message);
     } finally {
       setIsLoading(false);
@@ -112,7 +116,7 @@ const UserList = () => {
                     {paginatedData.length > 0 ? (
                       paginatedData.map((row, index) => (
                         <TableRow key={index}>
-                         <TableCell>{row.name}</TableCell>
+                         <TableCell>{row.fullName}</TableCell>
                           <TableCell>{row.designation}</TableCell>
                           <TableCell>{row.user_type}</TableCell>
                           <TableCell>{row.organisation}</TableCell>
@@ -125,6 +129,7 @@ const UserList = () => {
                         </TableCell>
                       </TableRow>
                     )}
+                   
                   </TableBody>
                 </Table>
               </TableContainer>
