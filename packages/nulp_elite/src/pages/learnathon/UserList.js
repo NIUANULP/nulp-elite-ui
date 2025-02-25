@@ -10,91 +10,120 @@ import {
   Container,
   Box,
   Pagination,
-  Button
+  Button,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import Footer from "components/Footer";
 import Header from "components/header";
 const urlConfig = require("../../configs/urlConfig.json");
 import NoResult from "../content/noResultFound";
-import { useNavigate } from "react-router-dom"; 
- 
+import { useNavigate } from "react-router-dom";
+
 const UserList = () => {
   const { t } = useTranslation();
   const rowsPerPage = 10;
- 
+
   const [currentPage, setCurrentPage] = useState(1);
   const [data, setData] = useState([]);
   const [totalRows, setTotalRows] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [userDetails, setUserDetails] = useState({});
   const navigate = useNavigate();
- 
+
   useEffect(() => {
     fetchUserDetails();
   }, [currentPage]);
- 
+
   const fetchUserDetails = async () => {
     setIsLoading(true);
     setError(null);
- 
+
     try {
-      const response = await fetch(`${urlConfig.LEARNATHON_USERLIST.USERLIST}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
- 
+      const response = await fetch(`${urlConfig.LEARNATHON_USERLIST.USERLIST}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
       if (!response.ok) {
         throw new Error("Failed to fetch user details");
       }
- 
+
       const result = await response.json();
       setData(result.result.data || []);
       setTotalRows(result.result.totalCount || 0);
-      
-        console.log(`fullName:`, result.result.data);
-     
+
+      const userIds = result.result.data.map((user) => user.userId);
+      fetchUserNames(userIds);
     } catch (error) {
-      console.log (error)
+      console.log(error);
       setError(error.message);
     } finally {
       setIsLoading(false);
     }
   };
- 
-  // const filteredData = data.filter((row) =>
-  //   row.name.toLowerCase().includes(search.toLowerCase())
-  // );
-  
-  const handleBack = () => {
-    navigate('/webapp/learndashboard');
+
+  const fetchUserNames = async (userIds) => {
+    const requestBody = {
+      request: {
+        query: "",
+        filters: {},
+        
+        
+      },
+    };
+    try {
+      const response = await fetch(
+        `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.ADMIN.USER_SEARCH}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+            
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(t("FAILED_TO_FETCH_DATA"));
+      }
+
+      const result = await response.json();
+      const userMap = {};
+      result?.result?.response?.content?.forEach((user) => {
+        userMap[user.userId] = {
+          firstName: user.firstName?.trim() || "",
+          lastName: user.lastName?.trim() || "",
+        };
+      });
+      setUserDetails(userMap);
+    } catch (error) {
+      console.error("Error fetching user names:", error);
+    }
   };
- 
-  // const paginatedData = filteredData.slice(
-  //   (currentPage - 1) * rowsPerPage,
-  //   currentPage * rowsPerPage
-  // );
+
+  const handleBack = () => {
+    navigate("/webapp/learndashboard");
+  };
 
   const paginatedData = data.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
-  
- 
+
   return (
     <div>
       <Header />
       <Box mt={8}>
         <Container>
-        <Button 
+          <Button
             onClick={handleBack}
             className="custom-btn-primary"
             sx={{ mb: 3 }}
-        >
+          >
             {t("Back")}
           </Button>
           {error && <div style={{ color: "red" }}>{t(error)}</div>}
@@ -104,7 +133,7 @@ const UserList = () => {
             <>
               <TableContainer component={Paper}>
                 <Table>
-                <TableHead sx={{ background: "#D8F6FF" }}>
+                  <TableHead sx={{ background: "#D8F6FF" }}>
                     <TableRow>
                       <TableCell>{t("Name")}</TableCell>
                       <TableCell>{t("Designation")}</TableCell>
@@ -116,7 +145,11 @@ const UserList = () => {
                     {paginatedData.length > 0 ? (
                       paginatedData.map((row, index) => (
                         <TableRow key={index}>
-                         <TableCell>{row.fullName}</TableCell>
+                          <TableCell>
+                            {`${userDetails[row.userId]?.firstName || ""} ${
+                              userDetails[row.userId]?.lastName || ""
+                            }`.trim() || "Unknown User"}
+                          </TableCell>
                           <TableCell>{row.designation}</TableCell>
                           <TableCell>{row.user_type}</TableCell>
                           <TableCell>{row.organisation}</TableCell>
@@ -125,11 +158,10 @@ const UserList = () => {
                     ) : (
                       <TableRow>
                         <TableCell colSpan={4} align="center">
-                        <NoResult />
+                          <NoResult />
                         </TableCell>
                       </TableRow>
                     )}
-                   
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -148,6 +180,5 @@ const UserList = () => {
     </div>
   );
 };
- 
+
 export default UserList;
- 
