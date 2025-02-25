@@ -24,6 +24,8 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import { useTranslation } from "react-i18next";
 import * as util from "../services/utilService";
+import * as contentService from "../services/contentService";
+import appConfig from "../configs/appConfig.json";
 
 // const DrawerFilter = ({ SelectedFilters, renderedPage }) => {
 const DrawerFilter = ({ SelectedFilters, renderedPage, domain,domainName,domainCode }) => {
@@ -52,6 +54,91 @@ const contentTypeList = [
   const { t } = useTranslation();
   const [orgId, setOrgId] = useState();
   const [userPreferanceSubCategories, setUserPreferanceSubCategories] = useState([])
+  const [subDomainCounts, setSubDomainCounts] = useState({});
+
+
+
+  const fetchSubDomainCount = async (subDomainName) => {
+    console.log("subdomain:", subDomainName);
+    console.log("domain:", domainName);
+    
+    let requestData = {
+      request: {
+        filters: {
+          status: ["Live"],
+                primaryCategory: [
+                  "Collection",
+                  "Resource",
+                  "Course",
+                  "eTextbook",
+                  "Explanation Content",
+                  "Learning Resource",
+                  "Practice Question Set",
+                  "ExplanationResource",
+                  "Practice Resource",
+                  "Exam Question",
+                  "Good Practices",
+                  "Reports",
+                  "Manual/SOPs",
+                ],
+          board: [domainName],
+          gradeLevel:
+          [subDomainName],
+        },
+        limit: 20,
+        sort_by: {
+          lastUpdatedOn: "desc",
+        },
+      },
+    };
+
+    let req = JSON.stringify(requestData);
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    
+      const url = `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CONTENT.SEARCH}?orgdetails=${appConfig.ContentPlayer.contentApiQueryParams.orgdetails}&licenseDetails=${appConfig.ContentPlayer.contentApiQueryParams.licenseDetails}`;
+      const response = await contentService.getAllContents(url, req, headers);
+
+      return {  count: response.data.result.count };
+   
+  };
+
+  useEffect(() => {
+
+    const uniqueFilteredSubCategories = [...new Set(subCategory.map(item => item.name))].map(name => 
+      subCategory.find(item => item.name === name)
+    );
+    console.log("subCategory", uniqueFilteredSubCategories);
+
+      const fetchCounts = async () => {
+      const counts = {};
+
+      for (let i = 0; i < uniqueFilteredSubCategories.length; i++) {
+        const item = uniqueFilteredSubCategories[i];
+
+        try{
+          const response = await fetchSubDomainCount(item.name);
+          console.log(` Count for ${item.name}:`, response?.count);  
+          counts[item.name] = response?.count || 0;
+        } catch(error){
+          console.log("error", error);
+        }
+         
+        
+      }
+      console.log("Final counts :", counts); 
+      setSubDomainCounts(counts); 
+    };
+
+    if (uniqueFilteredSubCategories.length > 0) {
+      fetchCounts();
+    }
+
+  }, [subCategory]);
+
 
   useEffect(() => {
     fetchUserData();
@@ -589,7 +676,7 @@ const uniqueFilteredSubCategories = [...new Set(filteredSubCategories.map(item =
         />
       </FormControl>
           <List>
-           {uniqueFilteredSubCategories.map((item) => (
+         {uniqueFilteredSubCategories.filter((item) => subDomainCounts[item.name] > 0) .map((item) => ( 
           <ListItem className="filter-ul-text" key={item.name}>
             <FormControlLabel
               control={
