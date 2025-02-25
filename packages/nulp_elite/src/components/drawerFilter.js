@@ -110,7 +110,6 @@ const contentTypeList = [
     const uniqueFilteredSubCategories = [...new Set(subCategory.map(item => item.name))].map(name => 
       subCategory.find(item => item.name === name)
     );
-    //console.log("subCategory", uniqueFilteredSubCategories);
 
       const fetchCounts = async () => {
       const counts = {};
@@ -120,7 +119,6 @@ const contentTypeList = [
 
         try{
           const response = await fetchSubDomainCount(item.name);
-          //console.log(` Count for ${item.name}:`, response?.count);  
           counts[item.name] = response?.count || 0;
         } catch(error){
           console.log("error", error);
@@ -128,7 +126,6 @@ const contentTypeList = [
          
         
       }
-      //console.log("Final counts :", counts); 
       setSubDomainCounts(counts); 
     };
 
