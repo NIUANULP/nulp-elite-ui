@@ -46,7 +46,6 @@ const UserList = () => {
           "Content-Type": "application/json",
         },
       });
-
       if (!response.ok) {
         throw new Error("Failed to fetch user details");
       }
@@ -70,8 +69,6 @@ const UserList = () => {
       request: {
         query: "",
         filters: {},
-        
-        
       },
     };
     try {
@@ -95,10 +92,23 @@ const UserList = () => {
       const userMap = {};
       result?.result?.response?.content?.forEach((user) => {
         userMap[user.userId] = {
+          id: user.userId,
           firstName: user.firstName?.trim() || "",
           lastName: user.lastName?.trim() || "",
         };
       });
+
+      // console.log(userMap)
+      // const userId = '0c7b7142-b4ba-4b10-8ec9-3a0dfc11aa00';
+      // const user = userMap[userId]; // Accessing user details
+
+      // if (user) {
+      //   console.log(`User Details:`, user);
+      //   console.log(`First Name: ${user.firstName}`);
+      //   console.log(`Last Name: ${user.lastName}`);
+      // } else {
+      //   console.log('User not found');
+      // }
       setUserDetails(userMap);
     } catch (error) {
       console.error("Error fetching user names:", error);
@@ -146,9 +156,12 @@ const UserList = () => {
                       paginatedData.map((row, index) => (
                         <TableRow key={index}>
                           <TableCell>
-                            {`${userDetails[row.userId]?.firstName || ""} ${
-                              userDetails[row.userId]?.lastName || ""
-                            }`.trim() || "Unknown User"}
+                            {/* {
+                              console.log(userDetails[row.userId].firstName)
+                            }
+                            {`${userDetails.id == row.userId ? firstName : ""} ${userDetails.id == row.userId ? lastName : ""
+                              }`} */}
+                            {userDetails.find((user) => user.id === row.userId)?.firstname + " " + userDetails.find((user) => user.id === row.userId)?.lastname || ""}
                           </TableCell>
                           <TableCell>{row.designation}</TableCell>
                           <TableCell>{row.user_type}</TableCell>
