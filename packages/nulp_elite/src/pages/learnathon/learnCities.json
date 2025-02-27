@@ -57,6 +57,20 @@
     "Uttarakhand": ["Almora", "Bageshwar", "Chamoli", "Champawat", "Dehradun", "Haridwar", "Nainital", "Pauri Garhwal", "Pithoragarh", "Rudraprayag", "Tehri Garhwal", "Udham Singh Nagar", "Uttarkashi"],
     
     "West Bengal": ["Alipurduar", "Bankura", "Bardhaman", "Birbhum", "Cooch Behar", "Dakshin Dinajpur", "Hooghly", "Howrah", "Jalpaiguri", "Jhargram", "Kalimpong", "Koch Bihar", "Kolkata", "Maldah", "Murshidabad", "Nadia", "North 24 Parganas", "Purba Medinipur", "Paschim Medinipur", "Purulia", "South 24 Parganas", "Uttar Dinajpur"],
+
+    "Andaman and Nicobar Islands": ["Port Blair"],
+
+    "Chandigarh": ["Chandigarh"],
+
+    "Dadra and Nagar Haveli and Daman and Diu": ["Silvassa", "Daman", "Diu"],
+
+    "Lakshadweep": ["Kavaratti"],
+
+    "Delhi": ["New Delhi"],
+
+    "Puducherry": ["Puducherry", "Karaikal", "Mahe", "Yanam"],
+    
+    "Ladakh": ["Leh", "Kargil"],
   
     "Jammu and Kashmir": ["Jammu", "Kathua", "Samba", "Poonch", "Rajouri", "Udhampur", "Reasi", "Ramban", "Doda", "Kishtwar", "Bandipora", "Kupwara", "Baramulla", "Ganderbal", "Srinagar", "Budgam", "Pulwama", "Shopian", "Kulgam", "Anantnag"]
 
