@@ -40,7 +40,7 @@ const UserList = () => {
    
     const start = (currentPage - 1) * rowsPerPage;
     const end = currentPage * rowsPerPage;
-    setPaginatedData(data.slice(start, end));
+    setPaginatedData(data?.slice(start, end));
    
     }, 
   [data, currentPage]);
