@@ -88,7 +88,6 @@ const IndianStates = [
   "Uttar Pradesh",
   "Uttarakhand",
   "West Bengal",
-  "Delhi",
   "Jammu and Kashmir",
 ];
 
