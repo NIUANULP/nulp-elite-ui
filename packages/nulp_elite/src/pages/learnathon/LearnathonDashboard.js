@@ -22,6 +22,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { Visibility } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
 import { Pagination } from "@mui/material";
+import { useNavigate } from 'react-router-dom';
 
 import Footer from "components/Footer";
 import Header from "components/header";
@@ -234,7 +235,7 @@ const LearnathonDashboard = () => {
         setExportData(result.result.data);
         const states = result.result.data
           .map((item) => item.state)
-          .filter((state) => state !== null);
+          .filter((state) => state !== null&& state !== "");
         const uniqueStates = [...new Set(states)]; // Removing duplicates
         const stateCount = uniqueStates.length;
         setStateCount(stateCount);
@@ -363,6 +364,13 @@ const LearnathonDashboard = () => {
     fetchPublishedContent();
     setCurrentPage(1);
   };
+  const navigate = useNavigate(); 
+  const handleClick = () => {
+    navigate('/webapp/userList');
+  };
+  const clickableTextStyle = {
+    cursor: "pointer"
+  };
 
   return (
     <>
@@ -370,8 +378,8 @@ const LearnathonDashboard = () => {
       <div style={dashboardStyle}>
         <h1>{t("LERN_DASHBOARD")}</h1>
         <div style={gridStyle}>
-          <div style={boxStyle}>
-            <h3>{t("TOTAL_PARTICIPANTS")}</h3>
+          <div style={boxStyle} onClick={handleClick}>
+            <h3 style={clickableTextStyle}>{t("TOTAL_PARTICIPANTS")}</h3>
             <p style={countStyle}>{totalParticipants}</p>
           </div>
           <div style={boxStyle}>
@@ -512,6 +520,7 @@ const LearnathonDashboard = () => {
                       <TableCell>{t("STATE")}</TableCell>
                       <TableCell>{t("CITY")}</TableCell>
                       <TableCell>{t("MOBILE_NUMBER")}</TableCell>  
+
                       <TableCell>{t("ORGANISATION")}</TableCell>
                       <TableCell>{t("SUBMISSION_DATE")}</TableCell>
                       <TableCell>{t("STATUS")}</TableCell>
@@ -526,7 +535,9 @@ const LearnathonDashboard = () => {
                         <TableCell>{row.indicative_sub_theme}</TableCell>
                         <TableCell>{row.state}</TableCell>
                         <TableCell>{row.city}</TableCell>
+
                          <TableCell>{row.mobile_number? row.mobile_number :null}</TableCell> 
+
                         <TableCell>{row.name_of_organisation}</TableCell>
                         <TableCell>
                           {formatDate(

@@ -100,7 +100,7 @@ const IndianStates = [
 
 // List of some popular cities in India
 
-  
+
 
 //  Add more cities as needed
 const LernCreatorForm = () => {
@@ -296,19 +296,19 @@ const LernCreatorForm = () => {
     if (!formData.indicative_theme)
       tempErrors.indicative_theme = "Indicative Theme is required";
     if (
-      !formData.indicative_sub_theme &&
-      formData.indicative_theme !== "Miscellaneous/ Others"
-    )
+       !formData.indicative_sub_theme &&
+       formData.indicative_theme !== "Miscellaneous/ Others"
+     )
       tempErrors.indicative_sub_theme = "Indicative Sub Theme is required";
-    if (
-      formData.indicative_theme == "Miscellaneous/ Others" &&
-      !formData.other_indicative_themes
-    )
+     if (
+       formData.indicative_theme == "Miscellaneous/ Others" &&
+       !formData.other_indicative_themes
+     )
       tempErrors.other_indicative_themes = "Provide other indicative theme";
 
-    // if (!formData.state) tempErrors.state = "Provide state";
+     //if (!formData.state) tempErrors.state = "Provide state";
 
-    // if (!formData.city) tempErrors.city = "Provide city";
+     //if (!formData.city) tempErrors.city = "Provide city";
     if (!formData.title_of_submission)
       tempErrors.title_of_submission = "Title of Submission is required";
     if (!formData.description)
@@ -595,9 +595,9 @@ const LernCreatorForm = () => {
                 if (!response.ok) {
                   alert("Something went wrong while uploading file");
                   throw new Error("Something went wrong");
-                } 
+                }
 
-                if(response.ok){
+                if (response.ok) {
                   alert("File uploaded successfully");
                 }
 
@@ -611,7 +611,7 @@ const LernCreatorForm = () => {
               } catch (error) {
                 console.log("error---", error);
                 alert("Something went wrong while uploading file");
-              } finally{
+              } finally {
                 setLoading(false);
               }
             });
@@ -1174,7 +1174,7 @@ const LernCreatorForm = () => {
                       freeSolo
                       options={formData.state
                         ? citiesInIndia[formData.state] || []
-      : []}
+                        : []}
                       value={formData.city}
                       onChange={handleCityChange}
                       onInputChange={handleCityChange}
@@ -1329,6 +1329,7 @@ const LernCreatorForm = () => {
                   </Grid>
                 </Grid>
               )}
+
               <Grid item xs={12}>
                 <Grid container spacing={2}>
                   {/* Toggle between URL and File */}

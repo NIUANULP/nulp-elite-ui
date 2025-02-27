@@ -88,7 +88,10 @@ function Header({ globalSearchQuery }) {
           roles.includes("CONTENT_CREATOR") ||
           roles.includes("CONTENT_CREATION") ||
           roles.includes("CONTENT_REVIEWER") ||
-          roles.includes("FLAG_REVIEWER")|| roles.includes("ORG_ADMIN")) &&
+
+          roles.includes("FLAG_REVIEWER") ||
+          roles.includes("ORG_ADMIN") ) &&
+
         (!userID.some((item) => item.user_id === _userId) || user != undefined)
       ) {
         setAccessWorkspace(true);
@@ -906,6 +909,26 @@ function Header({ globalSearchQuery }) {
                       >
                         {t("LEARNING_REPORT")}
                       </MenuItem>
+                      {roleNames.some((role) =>
+                        ["ORG_ADMIN","SYSTEM_ADMINISTRATION"].includes(
+                          role
+                        )
+                      ) && (
+                        <Link
+                          href={routeConfig.ROUTES.LEARNATHON.DASHBOARD}
+
+
+                          underline="none"
+                          textAlign="center"
+                          disablePadding
+
+                        >
+                          <MenuItem  className="ml-10" style={{ color: "#1976d2" }}>
+                            {t("LEARNATHON")}
+                          </MenuItem>
+                        </Link>
+                      )}
+
                     </List>
                   </Collapse>
                   {roleNames.some((role) =>
@@ -921,7 +944,9 @@ function Header({ globalSearchQuery }) {
                     </Link>
                   )}
 
+
                     {roleNames.some((role) =>
+
                     ["ORG_ADMIN", "SYSTEM_ADMINISTRATION","CONTENT_CREATOR"].includes(role)
                   ) && (
                     <Link
@@ -933,28 +958,6 @@ function Header({ globalSearchQuery }) {
                       <MenuItem>{t("WORKSPACE")}</MenuItem>
                     </Link>
                   )}
-
-                        {roleNames.some((role) =>
-                        ["ORG_ADMIN","SYSTEM_ADMINISTRATION"].includes(
-                          role
-                        )
-                      ) && (
-                        <Link
-                          href={routeConfig.ROUTES.LEARNATHON.DASHBOARD}
-                          
-                          underline="none"
-                          textAlign="center"
-                          disablePadding
-          
-                        >
-                          
-                    
-                          <MenuItem style={{ color: "#1976d2" }}>
-                            {t("LEARNATHON")}
-                          </MenuItem>
-                        </Link>
-                      )}
-
                   {/* <NotificationsNoneOutlinedIcon />
                     ekta */}
 
