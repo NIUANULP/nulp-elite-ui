@@ -112,6 +112,19 @@ const LearnathonDashboard = () => {
     { value: "Delhi", label: "Delhi" },
     { value: "Jammu and Kashmir", label: "Jammu and Kashmir" },
   ];
+  const decryptPhoneNumber =async(encryptedPhoneNumber) =>{
+    try {
+      const decipher = crypto.createDecipher(
+        "aes-256-cbc",
+        Buffer.from(secretKey, "hex")
+      );
+      let decrypted = decipher?.update(encryptedPhoneNumber, "base64", "utf8");
+      decrypted += decipher.final("utf8");
+      return decrypted;
+    } catch (error) {
+      throw new Error("Decryption failed: " + error.message);
+    }
+  }
   useEffect(() => {
     const fetchTotalSubmissions = async () => {
       const assetBody = {
