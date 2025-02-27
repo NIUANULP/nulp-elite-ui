@@ -24,7 +24,8 @@ const UserList = () => {
   const rowsPerPage = 10;
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [data, setData] = useState([]);
+  const [paginatedData, setPaginatedData] = useState([]);
+  const [data, setData] = useState();
   const [totalRows, setTotalRows] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -34,6 +35,15 @@ const UserList = () => {
   useEffect(() => {
     fetchUserDetails();
   }, [currentPage]);
+
+  useEffect(() => {
+   
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = currentPage * rowsPerPage;
+    setPaginatedData(data.slice(start, end));
+   
+    }, 
+  [data, currentPage]);
 
   const fetchUserDetails = async () => {
     setIsLoading(true);
@@ -51,6 +61,7 @@ const UserList = () => {
       }
 
       const result = await response.json();
+      
       setData(result.result.data || []);
       setTotalRows(result.result.totalCount || 0);
 
@@ -99,19 +110,17 @@ const UserList = () => {
       });
 
       setUserDetails(userMap);
+      
     } catch (error) {
       console.error("Error fetching user names:", error);
     }
   };
-
+  
   const handleBack = () => {
     navigate("/webapp/learndashboard");
   };
 
-  const paginatedData = data.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
+ 
 
   return (
     <div>
@@ -145,8 +154,7 @@ const UserList = () => {
                       paginatedData.map((row, index) => (
                         <TableRow key={index}>
                           <TableCell>
-                           
-                            {userDetails.find((user) => user.id === row.userId)?.firstname + " " + userDetails.find((user) => user.id === row.userId)?.lastname || ""}
+                          {userDetails[row.user_id]?.firstName + " " + userDetails[row.user_id]?.lastName || ""}
                           </TableCell>
                           <TableCell>{row.designation}</TableCell>
                           <TableCell>{row.user_type}</TableCell>
