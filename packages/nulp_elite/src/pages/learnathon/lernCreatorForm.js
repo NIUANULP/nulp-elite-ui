@@ -88,8 +88,14 @@ const IndianStates = [
   "Uttar Pradesh",
   "Uttarakhand",
   "West Bengal",
-  "Delhi",
-  "Jammu and Kashmir",
+  "Andaman and Nicobar Islands",
+"Chandigarh",
+"Dadra and Nagar Haveli and Daman and Diu",
+"Lakshadweep",
+"Delhi",
+"Puducherry",
+"Ladakh",
+"Jammu and Kashmir",
 ];
 
 // List of some popular cities in India
