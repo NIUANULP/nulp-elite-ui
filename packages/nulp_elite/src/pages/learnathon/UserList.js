@@ -46,7 +46,6 @@ const UserList = () => {
           "Content-Type": "application/json",
         },
       });
-
       if (!response.ok) {
         throw new Error("Failed to fetch user details");
       }
@@ -70,8 +69,6 @@ const UserList = () => {
       request: {
         query: "",
         filters: {},
-        
-        
       },
     };
     try {
@@ -95,10 +92,12 @@ const UserList = () => {
       const userMap = {};
       result?.result?.response?.content?.forEach((user) => {
         userMap[user.userId] = {
+          id: user.userId,
           firstName: user.firstName?.trim() || "",
           lastName: user.lastName?.trim() || "",
         };
       });
+
       setUserDetails(userMap);
     } catch (error) {
       console.error("Error fetching user names:", error);
@@ -146,9 +145,8 @@ const UserList = () => {
                       paginatedData.map((row, index) => (
                         <TableRow key={index}>
                           <TableCell>
-                            {`${userDetails[row.userId]?.firstName || ""} ${
-                              userDetails[row.userId]?.lastName || ""
-                            }`.trim() || "Unknown User"}
+                           
+                            {userDetails.find((user) => user.id === row.userId)?.firstname + " " + userDetails.find((user) => user.id === row.userId)?.lastname || ""}
                           </TableCell>
                           <TableCell>{row.designation}</TableCell>
                           <TableCell>{row.user_type}</TableCell>
