@@ -90,6 +90,10 @@ const DomainList = ({ globalSearchQuery }) => {
     dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE),
     "minute"
   );
+  const isAfterSubmission = today.isAfter(
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE),
+    "minute"
+  );
 
   const isReviewNow = today.isBetween(
     dayjs(urlConfig.LEARNATHON_DATES.CONTENT_REVIEW_START_DATE),
@@ -691,6 +695,15 @@ const DomainList = ({ globalSearchQuery }) => {
                             Vote Now
                           </Button>
                         </Grid>
+                        {isAfterSubmission && (
+                        <Grid item xs={12}>
+                          <Button 
+                             className="viewAll" 
+                             onClick={handleCheckUser}>
+                             {t("SEE_YOUR_SUBMISSION")}
+                          </Button>
+                        </Grid>
+                        )}
                       </Grid>
                     </Grid>
                   )}
@@ -712,6 +725,15 @@ const DomainList = ({ globalSearchQuery }) => {
                               {t("PARTICIPATE_NOW")}
                             </Button>
                           </Grid>
+                        )}
+                        {isAfterSubmission && (
+                          <Grid item xs={12}>
+                            <Button 
+                             className="viewAll" 
+                             onClick={handleCheckUser}>
+                            {t("SEE_YOUR_SUBMISSION")}
+                            </Button>
+                          </Grid>  
                         )}
                         {isReviewNow && isReviewer && (
                           <Grid item xs={12}>
