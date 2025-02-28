@@ -19,8 +19,10 @@ const LernModal = () => {
   const [roleList, setRoleList] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(() => {
     // Check if the modal has been shown in the current session
-    const isModalShown = sessionStorage.getItem("isModalShown");
-    return isModalShown !== "true"; // Show modal if not already shown
+    const isModalShown = sessionStorage.getItem("isModalShown") === "true"; // Check if modal was already shown
+    const isLearnathonActive = dayjs().isBefore(dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE)); // Check if within allowed time
+
+    return !isModalShown && isLearnathonActive; // Open modal only if not shown before AND within submission time
   });
   const [isReviewer, setIsReviewer] = useState(false);
   const [lernUser, setLernUser] = useState([]);

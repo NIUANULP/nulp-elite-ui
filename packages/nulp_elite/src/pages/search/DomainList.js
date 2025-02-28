@@ -103,6 +103,11 @@ const DomainList = ({ globalSearchQuery }) => {
     "minute"
   );
 
+  const isAfterSubmission = today.isAfter(
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE),
+    "minute"
+  );
+
   const fetchData = async () => {
     try {
       const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.GET_PROFILE}${_userId}`;
@@ -644,10 +649,10 @@ const DomainList = ({ globalSearchQuery }) => {
               <Box>
                 <Grid container>
                   <Grid item xs={12}>
-                    <Box className="h1-title">{t("LERN_title")}</Box>
+                    <Box className="h1-title">{ isAfterSubmission ? t("LERN_title_New") : t("LERN_title")}</Box>
                   </Grid>
                   <Grid item xs={12} md={9}>
-                    <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
+                    <Box className="mt-20">{ isAfterSubmission ? t("LERN_MESSAGE_LINE_TWO_New") : t("LERN_MESSAGE_LINE_TWO")}</Box>
                   </Grid>
                   {isLearnathonUser && !isLearnathonStarted && (
                     <Grid item xs={12} md={3}>
@@ -665,6 +670,15 @@ const DomainList = ({ globalSearchQuery }) => {
                               : t("PARTICIPATE_NOW")}
                           </Button>
                         </Grid>
+                        {isAfterSubmission && (
+                        <Grid item xs={12}>
+                          <Button 
+                             className="viewAll" 
+                             onClick={handleCheckUser}>
+                             {t("SEE_YOUR_SUBMISSION")}
+                          </Button>
+                        </Grid>
+                        )}
                         <Grid item xs={12}>
                           <Button
                             className="viewAll"
@@ -712,6 +726,15 @@ const DomainList = ({ globalSearchQuery }) => {
                               {t("PARTICIPATE_NOW")}
                             </Button>
                           </Grid>
+                        )}
+                        {isAfterSubmission && (
+                        <Grid item xs={12}>
+                          <Button 
+                             className="viewAll" 
+                             onClick={handleCheckUser}>
+                             {t("SEE_YOUR_SUBMISSION")}
+                          </Button>
+                        </Grid>
                         )}
                         {isReviewNow && isReviewer && (
                           <Grid item xs={12}>
