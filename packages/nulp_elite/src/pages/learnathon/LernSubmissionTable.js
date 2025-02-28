@@ -29,6 +29,7 @@ import { Pagination } from "@mui/material";
 
 import Footer from "components/Footer";
 import Header from "components/header";
+import dayjs from "dayjs";
 
 const LernSubmissionTable = () => {
   const { t } = useTranslation();
@@ -52,6 +53,12 @@ const LernSubmissionTable = () => {
   };
 
   const routeConfig = require("../../configs/routeConfig.json");
+
+
+const isSubmissionClosed = dayjs().isAfter(
+  dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE),
+  "minute"
+);
 
   useEffect(() => {
     fetchData();
@@ -176,6 +183,7 @@ const LernSubmissionTable = () => {
           </Grid>
           <Grid item xs={5}></Grid>
           <Grid item xs={2}>
+          {!isSubmissionClosed && (
             <Button
               className="viewAll"
               onClick={() =>
@@ -186,6 +194,7 @@ const LernSubmissionTable = () => {
             >
               {t("UPLOAD_SUBMISSION")}
             </Button>
+          )}
           </Grid>
         </Grid>
         {!emptySubmission && (
@@ -198,6 +207,7 @@ const LernSubmissionTable = () => {
                   <TableCell>{t("CATEGORY")}</TableCell>
                   <TableCell>{t("STATUS")}</TableCell>
                   <TableCell>{t("ACTION")}</TableCell>
+                  {!isSubmissionClosed && <TableCell>{t("ACTION")}</TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -222,6 +232,7 @@ const LernSubmissionTable = () => {
                     >
                       {row.status}
                     </TableCell>
+                    {!isSubmissionClosed &&(
                     <TableCell>
                       {row.status == "draft" && (
                         <IconButton
@@ -270,6 +281,7 @@ const LernSubmissionTable = () => {
                         </IconButton>
                       )}
                     </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>
