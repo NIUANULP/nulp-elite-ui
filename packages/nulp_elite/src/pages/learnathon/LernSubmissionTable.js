@@ -288,7 +288,7 @@ const isSubmissionClosed = dayjs().isAfter(
             </Table>
           </TableContainer>
         )}
-        {emptySubmission && (
+        {emptySubmission &&  isSubmissionClosed && (
           <Box marginLeft={"550px"} padding={"32px"}>
             <Box>{t("NO_SUBMISSION")}</Box>
             <Button
