@@ -533,6 +533,8 @@ const DomainList = ({ globalSearchQuery }) => {
       onMobileSearch();
     }
   };
+  console.log("isReviewNow:", isReviewNow);
+console.log("isReviewer:", isReviewer);
 
   return (
     <div>
