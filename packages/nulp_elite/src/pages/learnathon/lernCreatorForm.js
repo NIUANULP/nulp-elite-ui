@@ -1446,7 +1446,7 @@ const LernCreatorForm = () => {
                   </Grid>
                 </Grid>
               </Grid>
-              {isFormClosed &&(
+              {!isFormClosed &&(
               <Grid
                 container
                 item
