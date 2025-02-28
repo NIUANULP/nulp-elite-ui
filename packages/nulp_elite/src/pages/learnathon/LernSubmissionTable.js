@@ -206,7 +206,6 @@ const isSubmissionClosed = dayjs().isAfter(
                   <TableCell>{t("LAST_UPDATED")}</TableCell>
                   <TableCell>{t("CATEGORY")}</TableCell>
                   <TableCell>{t("STATUS")}</TableCell>
-                  <TableCell>{t("ACTION")}</TableCell>
                   {!isSubmissionClosed && <TableCell>{t("ACTION")}</TableCell>}
                 </TableRow>
               </TableHead>
