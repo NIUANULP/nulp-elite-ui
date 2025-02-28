@@ -232,6 +232,7 @@ const isSubmissionClosed = dayjs().isAfter(
                     >
                       {row.status}
                     </TableCell>
+                    {!isSubmissionClosed &&(
                     <TableCell>
                       {row.status == "draft" && (
                         <IconButton
@@ -280,6 +281,7 @@ const isSubmissionClosed = dayjs().isAfter(
                         </IconButton>
                       )}
                     </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>
