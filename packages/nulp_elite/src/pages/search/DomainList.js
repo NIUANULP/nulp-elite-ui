@@ -90,6 +90,10 @@ const DomainList = ({ globalSearchQuery }) => {
     dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE),
     "minute"
   );
+  const isAfterSubmission = today.isAfter(
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE),
+    "minute"
+  );
 
   const isReviewNow = today.isBetween(
     dayjs(urlConfig.LEARNATHON_DATES.CONTENT_REVIEW_START_DATE),
@@ -100,11 +104,6 @@ const DomainList = ({ globalSearchQuery }) => {
   const isVoteNow = today.isBetween(
     dayjs(urlConfig.LEARNATHON_DATES.VOTING_START_DATE),
     dayjs(urlConfig.LEARNATHON_DATES.VOTING_END_DATE),
-    "minute"
-  );
-
-  const isAfterSubmission = today.isAfter(
-    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE),
     "minute"
   );
 
@@ -128,9 +127,8 @@ const DomainList = ({ globalSearchQuery }) => {
           data?.result?.response?.organisations[0]?.organisationId;
       }
       const extractedRoles = roles.map((roleObj) => roleObj.role);
-      setIsReviewer(roleList.includes("SYSTEM_ADMINISTRATION"));
-
       setRoleList(extractedRoles);
+      setIsReviewer(extractedRoles.includes("SYSTEM_ADMINISTRATION"));
       setOrgId(organizationId);
       setLernUser(rolesData);
     } catch (error) {
@@ -644,17 +642,17 @@ const DomainList = ({ globalSearchQuery }) => {
         >
           {error && <Alert severity="error">{error}</Alert>}
 
-          {(isLearnathonUser || isLearnathonStarted) && (
+          {(isLearnathonStarted) && (
             <Box className="lern-box">
               <Box>
                 <Grid container>
                   <Grid item xs={12}>
-                    <Box className="h1-title">{ isAfterSubmission ? t("LERN_title_New") : t("LERN_title")}</Box>
+                    <Box className="h1-title">{t("LERN_title")}</Box>
                   </Grid>
                   <Grid item xs={12} md={9}>
-                    <Box className="mt-20">{ isAfterSubmission ? t("LERN_MESSAGE_LINE_TWO_New") : t("LERN_MESSAGE_LINE_TWO")}</Box>
+                    <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
                   </Grid>
-                  {isLearnathonUser && !isLearnathonStarted && (
+                  {!isLearnathonStarted && (
                     <Grid item xs={12} md={3}>
                       <Grid
                         container
@@ -670,15 +668,6 @@ const DomainList = ({ globalSearchQuery }) => {
                               : t("PARTICIPATE_NOW")}
                           </Button>
                         </Grid>
-                        {isAfterSubmission && (
-                        <Grid item xs={12}>
-                          <Button 
-                             className="viewAll" 
-                             onClick={handleCheckUser}>
-                             {t("SEE_YOUR_SUBMISSION")}
-                          </Button>
-                        </Grid>
-                        )}
                         <Grid item xs={12}>
                           <Button
                             className="viewAll"
@@ -705,6 +694,15 @@ const DomainList = ({ globalSearchQuery }) => {
                             Vote Now
                           </Button>
                         </Grid>
+                        {isAfterSubmission && (
+                        <Grid item xs={12}>
+                          <Button 
+                             className="viewAll" 
+                             onClick={handleCheckUser}>
+                             {t("SEE_YOUR_SUBMISSION")}
+                          </Button>
+                        </Grid>
+                        )}
                       </Grid>
                     </Grid>
                   )}
@@ -728,13 +726,13 @@ const DomainList = ({ globalSearchQuery }) => {
                           </Grid>
                         )}
                         {isAfterSubmission && (
-                        <Grid item xs={12}>
-                          <Button 
+                          <Grid item xs={12}>
+                            <Button 
                              className="viewAll" 
                              onClick={handleCheckUser}>
-                             {t("SEE_YOUR_SUBMISSION")}
-                          </Button>
-                        </Grid>
+                            {t("SEE_YOUR_SUBMISSION")}
+                            </Button>
+                          </Grid>  
                         )}
                         {isReviewNow && isReviewer && (
                           <Grid item xs={12}>
