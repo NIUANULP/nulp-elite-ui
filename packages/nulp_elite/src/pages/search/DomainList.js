@@ -127,9 +127,11 @@ const DomainList = ({ globalSearchQuery }) => {
           data?.result?.response?.organisations[0]?.organisationId;
       }
       const extractedRoles = roles.map((roleObj) => roleObj.role);
-      setIsReviewer(roleList.includes("SYSTEM_ADMINISTRATION"));
-
       setRoleList(extractedRoles);
+      setIsReviewer(extractedRoles.includes("SYSTEM_ADMINISTRATION"));
+      console.log("isisReviewNow", isReviewNow, isReviewer);
+      console.log("rolesData", roleList, extractedRoles);
+      console.log("isLearnathonUser", isLearnathonUser);
       setOrgId(organizationId);
       setLernUser(rolesData);
     } catch (error) {
@@ -643,7 +645,7 @@ const DomainList = ({ globalSearchQuery }) => {
         >
           {error && <Alert severity="error">{error}</Alert>}
 
-          {(isLearnathonUser || isLearnathonStarted) && (
+          {(isLearnathonStarted) && (
             <Box className="lern-box">
               <Box>
                 <Grid container>
@@ -653,7 +655,7 @@ const DomainList = ({ globalSearchQuery }) => {
                   <Grid item xs={12} md={9}>
                     <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
                   </Grid>
-                  {isLearnathonUser && !isLearnathonStarted && (
+                  {!isLearnathonStarted && (
                     <Grid item xs={12} md={3}>
                       <Grid
                         container
