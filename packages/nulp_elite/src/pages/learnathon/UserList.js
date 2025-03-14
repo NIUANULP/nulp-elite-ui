@@ -79,12 +79,12 @@ const UserList = () => {
     const requestBody = {
       request: {
         query: "",
-        filters: {},
+        filters: {userIds: userIds },
       },
     };
     try {
       const response = await fetch(
-        `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.ADMIN.USER_SEARCH}`,
+        `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.ADMIN.USER_LIST}`,
         {
           method: "POST",
           headers: {

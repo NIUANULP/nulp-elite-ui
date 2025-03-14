@@ -228,6 +228,7 @@
     },
     "ADMIN": {
       "USER_SEARCH": "user/v3/search",
+      "USER_LIST":"user/v1/search",
       "ORG_SEARCH": "org/v2/search",
       "ORG_SEARCH_OLD": "org/v2/search",
       "ORG_CREATE": "org/v1/create",
