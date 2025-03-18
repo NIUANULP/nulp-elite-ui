@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Paper from "@mui/material/Paper";
+const envVariables=require ( "../../../../../../helpers/environmentVariablesHelper.js");
+
+
+
+
 import {
   Table,
   TableBody,
@@ -84,11 +89,15 @@ const UserList = () => {
     };
     try {
       const response = await fetch(
-        `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.ADMIN.USER_LIST}`,
+        `${envVariables.api_base_url}/api/user/v1/search`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${
+              envVariables.PORTAL_API_AUTH_TOKEN ||
+              envVariables.sunbird_logged_default_token
+            }`,
           },
           body: JSON.stringify(requestBody),
             
