@@ -85,11 +85,9 @@ const UserList = () => {
     // };
     const requestBody = {
       request: {
-        request: {
-          filters: {
-            status: "1",
-            userId: userIds,
-          },
+        filters: {
+          status: "1",
+          userId: userIds,
         },
       },
     };
