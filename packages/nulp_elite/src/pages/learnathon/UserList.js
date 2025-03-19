@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Paper from "@mui/material/Paper";
+
 import {
   Table,
   TableBody,
@@ -84,7 +85,7 @@ const UserList = () => {
     };
     try {
       const response = await fetch(
-        `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.ADMIN.USER_LIST}`,
+        `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.ADMIN.USER_SEARCH}`,
         {
           method: "POST",
           headers: {
