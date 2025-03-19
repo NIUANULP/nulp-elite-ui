@@ -77,10 +77,20 @@ const UserList = () => {
   };
 
   const fetchUserNames = async (userIds) => {
+    // const requestBody = {
+    //   request: {
+    //     query: "",
+    //     filters: {userIds: userIds },
+    //   },
+    // };
     const requestBody = {
       request: {
-        query: "",
-        filters: {userIds: userIds },
+        request: {
+          filters: {
+            status: "1",
+            userId: userIds,
+          },
+        },
       },
     };
     try {
