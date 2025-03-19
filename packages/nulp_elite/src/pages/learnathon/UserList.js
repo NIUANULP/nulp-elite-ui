@@ -95,7 +95,7 @@ const UserList = () => {
     };
     try {
       const response = await fetch(
-        `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.ADMIN.USER_SEARCH}`,
+        `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.ADMIN.USER_SEARCH}`,
         {
           method: "POST",
           headers: {
