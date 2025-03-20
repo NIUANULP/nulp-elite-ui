@@ -35,11 +35,18 @@ import Checkbox from "@mui/material/Checkbox";
 import citiesInIndia from './learnCities.json';
 import Alert from "@mui/material/Alert";
 const routeConfig = require("../../configs/routeConfig.json");
+import dayjs from "dayjs";
 
 
 import { Observable } from "rxjs";
 
 import { useTranslation } from "react-i18next";
+
+const isFormClosed = dayjs().isAfter(
+  dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE),
+  "minute"
+);
+
 
 const categories = [
   "State / UT / SPVs / ULBs / Any Other",
@@ -1441,6 +1448,7 @@ const LernCreatorForm = () => {
                   </Grid>
                 </Grid>
               </Grid>
+              {!isFormClosed &&(
               <Grid
                 container
                 item
@@ -1470,6 +1478,7 @@ const LernCreatorForm = () => {
                   </Button>
                 </Box>
               </Grid>
+              )}
               {openConfirmModal && (
                 <Modal
                   open={openConfirmModal}
