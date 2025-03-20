@@ -66,8 +66,11 @@ const UserList = () => {
       setData(result.result.data || []);
       setTotalRows(result.result.totalCount || 0);
 
-      const userIds = result.result.data.map((user) => user.userId);
-      fetchUserNames(userIds);
+      const userIds = result.result.data.map((user) => user.userId).filter((id) => id !== null && id !== undefined);
+
+      if (userIds.length > 0) {
+        fetchUserNames(userIds);
+      }
     } catch (error) {
       console.log(error);
       setError(error.message);
