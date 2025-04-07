@@ -40,29 +40,41 @@ const LernVotingList = () => {
   const [voteCounts, setVoteCounts] = useState({}); // Object to store vote counts
   const [pageNumber, setPageNumber] = useState(1);
   // const [pageNumber, setCurrentPage] = useState(1);
-  const [value, setValue] = React.useState('1');
+  const [value, setValue] = React.useState("1");
+  const [selectedTab, setSelectedTab] = useState("1");
 
   const tabChange = (event, newValue) => {
     setValue(newValue);
+    setSelectedTab(newValue);
   };
+
 
   useEffect(() => {
     fetchData();
-  }, [pageNumber, rowsPerPage, search]);
+  }, [selectedTab, pageNumber, search]);
 
   const fetchData = async () => {
+    let selectedCategory = "";
+    if (selectedTab === "1") {
+      selectedCategory = "State / UT / SPVs / ULBs / Any Other";
+    } else if (selectedTab === "2") {
+      selectedCategory = "Industry";
+    } else if (selectedTab === "3") {
+      selectedCategory = "Academia";
+    }
+
     const assetBody = {
       request: {
         filters: {
           category: "Learnathon",
-          // status: ["Live"],
+          content_category: selectedCategory,
         },
-
         limit: rowsPerPage,
         offset: 10 * (pageNumber - 1),
         search: search,
       },
     };
+
     try {
       const response = await fetch(`${urlConfig.URLS.POLL.LIST}`, {
         method: "POST",
@@ -82,12 +94,12 @@ const LernVotingList = () => {
       setPollData(pollIds);
       setTotalRows(Math.ceil(result.result.totalCount / 10));
 
-      // Fetch vote counts for each poll
       getVoteCounts(pollIds);
     } catch (error) {
       console.log("Error fetching data:", error);
     }
   };
+
 
   const getVoteCounts = async (pollIds) => {
     try {
@@ -212,47 +224,48 @@ const LernVotingList = () => {
               </TableContainer>
 
             </TabPanel>
-            <TabPanel value="2"> <TableContainer component={Paper}>
-              <Table aria-label="simple table">
-                <TableHead sx={{ background: "#D8F6FF" }}>
-                  <TableRow>
-                    <TableCell>{t("SUBMISSION_NAME")}</TableCell>
-                    <TableCell>{t("VOTING_DEADLINE")}</TableCell>
-                    <TableCell>{t("VOTE_COUNT")}</TableCell>
-                    <TableCell>{t("VOTE_NOW")}</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {data.filter((row) => row.content_category === "Industry")
-                    .map((row) => (
-                      <TableRow key={row.id}>
+            <TabPanel value="2">
+              <TableContainer component={Paper}>
+                <Table aria-label="simple table">
+                  <TableHead sx={{ background: "#D8F6FF" }}>
+                    <TableRow>
+                      <TableCell>{t("SUBMISSION_NAME")}</TableCell>
+                      <TableCell>{t("VOTING_DEADLINE")}</TableCell>
+                      <TableCell>{t("VOTE_COUNT")}</TableCell>
+                      <TableCell>{t("VOTE_NOW")}</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {data.filter((row) => row.content_category === "Industry")
+                      .map((row) => (
+                        <TableRow key={row.id}>
 
-                        <TableCell>{row.title}</TableCell>
-                        <TableCell>
-                          {new Date(row.end_date).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          {voteCounts[row.poll_id] || 0}
-                          <span style={{ fontSize: "1.5rem", marginLeft: "5px" }}>
-                            👍
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <Box>
-                            <Button
-                              type="button"
-                              className="custom-btn-primary ml-20"
-                              onClick={() => handleClick(row.content_id)}
-                            >
-                              {t("VIEW_AND_VOTE")}
-                            </Button>
-                          </Box>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                          <TableCell>{row.title}</TableCell>
+                          <TableCell>
+                            {new Date(row.end_date).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            {voteCounts[row.poll_id] || 0}
+                            <span style={{ fontSize: "1.5rem", marginLeft: "5px" }}>
+                              👍
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <Box>
+                              <Button
+                                type="button"
+                                className="custom-btn-primary ml-20"
+                                onClick={() => handleClick(row.content_id)}
+                              >
+                                {t("VIEW_AND_VOTE")}
+                              </Button>
+                            </Box>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
 
             </TabPanel>
             <TabPanel value="3"><TableContainer component={Paper}>
