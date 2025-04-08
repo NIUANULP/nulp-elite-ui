@@ -82,6 +82,7 @@ const LernVotingList = () => {
       },
     };
 
+
     try {
       const response = await fetch(`${urlConfig.URLS.POLL.LIST}`, {
         method: "POST",
@@ -106,6 +107,7 @@ const LernVotingList = () => {
       console.log("Error fetching data:", error);
     }
   };
+
 
 
   const getVoteCounts = async (pollIds) => {
@@ -179,12 +181,15 @@ const LernVotingList = () => {
           </Grid>
         </Grid>
         <Box sx={{ width: '100%', typography: 'body1' }}>
-          <TabContext value={value}>
+          <TabContext value={value} centered>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }} mb={4}>
-              <TabList onChange={tabChange} aria-label="lab API tabs example">
+              <TabList onChange={tabChange} aria-label="lab API tabs example" sx={{
+                justifyContent: 'center',
+                display: 'flex',
+              }}>
                 <Tab label="State / UT / SPVs / ULBs / Any Other" value="1" />
                 <Tab label="Industry" value="2" />
-                <Tab label="Academia" value="3" />
+                {/* <Tab label="Academia" value="3" /> */}
               </TabList>
             </Box>
             <TabPanel value={value}>
