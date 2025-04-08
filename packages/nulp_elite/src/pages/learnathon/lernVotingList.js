@@ -82,6 +82,7 @@ const LernVotingList = () => {
       },
     };
 
+
     try {
       const response = await fetch(`${urlConfig.URLS.POLL.LIST}`, {
         method: "POST",
@@ -106,6 +107,7 @@ const LernVotingList = () => {
       console.log("Error fetching data:", error);
     }
   };
+
 
 
   const getVoteCounts = async (pollIds) => {
