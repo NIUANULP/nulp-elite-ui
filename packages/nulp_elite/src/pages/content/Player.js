@@ -529,6 +529,7 @@ const Player = () => {
         is_live_poll_result: true,
         content_id: learnathonDetails?.learnathon_content_id,
         category: "Learnathon",
+        content_category: learnathonDetails?.category_of_participation
       };
       try {
         const response = await fetch(`${urlConfig.URLS.POLL.CREATE}`, {
