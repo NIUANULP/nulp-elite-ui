@@ -116,6 +116,7 @@
       "CREATE_V2": "user/v2/create",
       "SIGN_UP_V1": "user/v2/signup",
       "LOCATION_SEARCH": "data/v1/location/search",
+      "LOCATION_SEARCH_API": "/custom/data/v1/location/search",
       "TYPE": "user/v1/type/list",
       "VALIDATE_CERTIFICATE": "certreg/v1/certs/validate",
       "DOWNLOAD_CERTIFICATE": "rc/certificate/v1/download",
