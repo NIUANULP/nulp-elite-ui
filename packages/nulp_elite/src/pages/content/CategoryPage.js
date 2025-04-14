@@ -90,15 +90,21 @@ const CategoryPage = () => {
     let data = JSON.stringify({
       request: {
         filters: {
+          status: ["Live"],
           primaryCategory: [category],
           visibility: [],
-          board: domainName
-            ? [domainName]
-            : clearDomains && clearDomains !== "null"
-            ? [clearDomains]
-            : undefined,
+          // board: domainName
+          //   ? [domainName]
+          //   : clearDomains && clearDomains !== "null"
+          //   ? [clearDomains]
+          //   : undefined,
+          se_boards: domainName
+          ? [domainName]
+          : clearDomains && clearDomains !== "null"
+          ? [clearDomains]
+          : undefined,
         },
-        limit: 20,
+        limit: 50,
         sort_by: {
           lastPublishedOn: "desc",
         },
@@ -122,7 +128,7 @@ const CategoryPage = () => {
           "primaryCategory",
         ],
         facets: ["channel", "gradeLevel", "subject", "medium"],
-        offset: 20 * (currentPage - 1),
+        offset: 50 * (currentPage - 1),
       },
     });
 
