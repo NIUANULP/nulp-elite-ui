@@ -339,6 +339,7 @@ const DomainList = ({ globalSearchQuery }) => {
     let requestData = {
       request: {
         filters: {
+          status: ["Live"],
           se_boards: [null],
           primaryCategory: ["Good Practices", "Reports", "Manual/SOPs"],
           visibility: ["Default", "Parent"],
@@ -447,6 +448,7 @@ const DomainList = ({ globalSearchQuery }) => {
     let requestData = {
       request: {
         filters: {
+          status: ["Live"],
           se_boards: [null],
           primaryCategory: ["Course"],
           visibility: ["Default", "Parent"],
