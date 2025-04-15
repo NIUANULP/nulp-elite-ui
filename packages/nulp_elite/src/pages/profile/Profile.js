@@ -643,13 +643,11 @@ const Profile = () => {
                                         "Designation: NA"
                                       )}
                                       <Box className="cardLabelEllips1">
-                                        {userInfo?.length &&
-                                          userInfo[0]?.designation
+                                        {userInfo?.length && userInfo[0]?.designation
                                           ? " "
                                           : " "}
                                         {t("ID")}:{" "}
-                                        {userData?.result?.response?.userName ||
-                                          "NA"}
+                                        {userData?.result?.response?.userName || "NA"}
                                       </Box>
                                     </Typography>
                                     {userInfo?.length ? (
