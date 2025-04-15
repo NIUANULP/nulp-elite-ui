@@ -166,7 +166,7 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    setTimeout(() => {PUBLIC_PREFIX
+    setTimeout(() => {
       setLoad(true);
     }, DELAY);
     setDesignationsList(designations);
