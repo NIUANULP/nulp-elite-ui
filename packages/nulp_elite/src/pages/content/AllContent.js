@@ -119,7 +119,10 @@ const AllContent = () => {
     let data = JSON.stringify({
       request: {
         filters: {
-          board: [domainName],
+          status: ["Live"],
+          se_boards: [domainName],
+          // board: [domainName],
+
           primaryCategory: [
             "course",
             "Manuals/SOPs",
