@@ -76,8 +76,8 @@ const modalstyle = {
   boxShadow: 24,
   p: 4,
   height: "80%",
-  overflowX: "scroll"
-}
+  overflowX: "scroll",
+};
 const MAX_FILE_SIZE_MB = 1;
 const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024; // 1 MB in bytes
 const SUPPORTED_FILE_TYPES = ["image/jpeg", "image/png"];
@@ -107,6 +107,10 @@ const Profile = () => {
     userType: "",
     otherUserType: "",
     organisation: "",
+    state: "",
+    state_id: "",
+    district: "",
+    district_id: ""
   });
   const [originalUserInfo, setOriginalUserInfo] = useState({});
   const [isFormDirty, setIsFormDirty] = useState(false);
@@ -132,6 +136,9 @@ const Profile = () => {
     "Any Other Government Entities",
     "Others",
   ];
+
+  const [statesList, setStatesList] = useState([]);
+  const [districtsList, setDistrictsList] = useState([]);
 
   // for bar charts
   const defaultCertData = {
@@ -159,7 +166,7 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    setTimeout(() => {
+    setTimeout(() => {PUBLIC_PREFIX
       setLoad(true);
     }, DELAY);
     setDesignationsList(designations);
@@ -176,6 +183,10 @@ const Profile = () => {
         userType: userInfo[0]?.user_type,
         otherUserType: "",
         organisation: userInfo[0]?.organisation,
+        state: userInfo[0]?.state,
+        state_id: userInfo[0]?.state_id,
+        district: userInfo[0]?.state_id,
+        district_id: userInfo[0]?.district_id,
       });
       setOriginalUserInfo({
         firstName: userData?.result?.response.firstName,
@@ -186,6 +197,10 @@ const Profile = () => {
         userType: userInfo[0]?.user_type,
         otherUserType: "",
         organisation: userInfo[0]?.organisation,
+        state: userInfo[0]?.state,
+        state_id: userInfo[0]?.state_id,
+        district: userInfo[0]?.state_id,
+        district_id: userInfo[0]?.district_id,
       });
     }
     setDomain(userData?.result?.response.framework.board);
@@ -232,6 +247,7 @@ const Profile = () => {
     const fetchUserInfo = async () => {
       try {
         const url = `${urlConfig.URLS.POFILE_PAGE.USER_READ}`;
+        console.log("url", url)
         const response = await axios.post(
           url,
           { user_ids: [_userId] },
@@ -242,6 +258,7 @@ const Profile = () => {
             },
           }
         );
+        console.log("response?.data?.result", response?.data?.result)
         setUserInfo(response?.data?.result);
       } catch (error) {
         console.error(error);
@@ -259,6 +276,64 @@ const Profile = () => {
       fetchUserDataAndSetCustodianOrgData();
     }
   }, [orgId]);
+
+  //statelist api
+
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        const res = await axios.post(
+          `${urlConfig.URLS.USER.LOCATION_SEARCH_API}`,
+          {
+            request: {
+              filters: { type: "state" },
+            },
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        setStatesList(res?.data?.result?.response || []);
+      } catch (err) {
+        console.error("Error fetching states", err);
+      }
+    };
+  
+    fetchStates();
+  }, []);
+
+  //districtlist api
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      if (!editedUserInfo?.state_id) return;
+  
+      try {
+        const res = await axios.post(
+          `${urlConfig.URLS.USER.LOCATION_SEARCH_API}`,
+          {
+            request: {
+              filters: {
+                type: "district",
+                parentId: editedUserInfo.state_id,
+              },
+            },
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        setDistrictsList(res?.data?.result?.response || []);
+      } catch (err) {
+        console.error("Error fetching districts", err);
+      }
+    };
+  
+    fetchDistricts();
+  }, [editedUserInfo?.state_id]);
 
   const fetchUserDataAndSetCustodianOrgData = async () => {
     try {
@@ -346,6 +421,10 @@ const Profile = () => {
           ? editedUserInfo.otherUserType
           : editedUserInfo.userType,
       organisation: editedUserInfo.organisation,
+      state: editedUserInfo.state,
+      state_id: editedUserInfo.state_id,
+      district: editedUserInfo.district,
+      district_id: editedUserInfo.district_id,
     };
     try {
       const url = `${urlConfig.URLS.POFILE_PAGE.USER_UPDATE}?user_id=${_userId}`;
@@ -467,14 +546,14 @@ const Profile = () => {
   // Use default data if certData or courseData is undefined or empty
   const finalCertData =
     certData &&
-      certData.certificatesReceived !== undefined &&
-      certData.courseWithCertificate !== undefined
+    certData.certificatesReceived !== undefined &&
+    certData.courseWithCertificate !== undefined
       ? certData
       : defaultCertData;
   const finalCourseData =
     courseData &&
-      courseData.enrolledLastMonth !== undefined &&
-      courseData.enrolledThisMonth !== undefined
+    courseData.enrolledLastMonth !== undefined &&
+    courseData.enrolledThisMonth !== undefined
       ? courseData
       : defaultCourseData;
   // Check if data is empty or zero
@@ -558,17 +637,19 @@ const Profile = () => {
                                     </Typography>
                                     <Typography className="h6-title">
                                       {userInfo?.length &&
-                                        userInfo[0]?.designation ? (
+                                      userInfo[0]?.designation ? (
                                         <>{userInfo[0].designation}</>
                                       ) : (
                                         "Designation: NA"
                                       )}
                                       <Box className="cardLabelEllips1">
-                                        {userInfo?.length && userInfo[0]?.designation
+                                        {userInfo?.length &&
+                                        userInfo[0]?.designation
                                           ? " "
                                           : " "}
                                         {t("ID")}:{" "}
-                                        {userData?.result?.response?.userName || "NA"}
+                                        {userData?.result?.response?.userName ||
+                                          "NA"}
                                       </Box>
                                     </Typography>
                                     {userInfo?.length ? (
@@ -593,7 +674,7 @@ const Profile = () => {
                                                 fontSize: "10px",
                                                 margin: "0 10px 3px 6px",
                                                 background: "#e3f5ff",
-                                                cursor: 'auto',
+                                                cursor: "auto",
                                               }}
                                             >
                                               {roleName}
@@ -993,6 +1074,126 @@ const Profile = () => {
                               /{MAX_CHARS}
                             </Typography>
                           </Box>
+
+                          {/* <Box py={1}>
+                            <FormControl
+                              fullWidth
+                              style={{ marginTop: "10px" }}
+                            >
+                              <InputLabel
+                                id="state-label"
+                                className="year-select"
+                              >
+                                {t("STATE")}
+                              </InputLabel>
+                              <Select
+                                labelId="state-label"
+                                id="state"
+                                value={editedUserInfo.state}
+                                onChange={(e) =>
+                                  setEditedUserInfo({
+                                    ...editedUserInfo,
+                                    state: e.target.value,
+                                    district: "", // reset district when state changes
+                                  })
+                                }
+                              >
+                                {statesList.map((state, index) => (
+                                  <MenuItem key={index} value={state}>
+                                    {state}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                            </FormControl>
+                          </Box>
+
+                          <Box py={1}>
+                          <FormControl fullWidth style={{ marginTop: "10px" }}>
+                            <InputLabel id="district-label" className="year-select">
+                              {t("DISTRICT")}
+                            </InputLabel>
+                            <Select
+                              labelId="district-label"
+                              id="district"
+                              value={editedUserInfo.district}
+                              onChange={(e) =>
+                                setEditedUserInfo({
+                                  ...editedUserInfo,
+                                  district: e.target.value,
+                                })
+                              }
+                              disabled={!editedUserInfo.state}
+                            >
+                              {(districtsMap[editedUserInfo.state] || []).map((district, index) => (
+                                <MenuItem key={index} value={district}>
+                                  {district}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                          </Box> */}
+
+
+                          <Box py={1}>
+                            <FormControl fullWidth style={{ marginTop: "10px" }}>
+                              <InputLabel id="state-label" className="year-select">
+                                {t("STATE")}
+                              </InputLabel>
+                              <Select
+                                labelId="state-label"
+                                id="state"
+                                value={editedUserInfo.state_id}
+                                onChange={(e) => {
+                                  const selectedState = statesList.find((s) => s.id === e.target.value);
+                                  setEditedUserInfo({
+                                    ...editedUserInfo,
+                                    state: selectedState?.name || "",
+                                    state_id: selectedState?.id || "",
+                                    district: "",
+                                    district_id: "",
+                                  });
+                                }}
+                              >
+                                {statesList.map((state) => (
+                                  <MenuItem key={state.id} value={state.id}>
+                                    {state.name}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+
+                            </FormControl>
+                          </Box>
+
+                          <Box py={1}>
+                            <FormControl fullWidth style={{ marginTop: "10px" }}>
+                              <InputLabel id="district-label" className="year-select">
+                                {t("DISTRICT")}
+                              </InputLabel>
+                              <Select
+                                labelId="district-label"
+                                id="district"
+                                value={editedUserInfo.district_id}
+                                onChange={(e) => {
+                                  const selectedDistrict = districtsList.find((d) => d.id === e.target.value);
+                                  setEditedUserInfo({
+                                    ...editedUserInfo,
+                                    district: selectedDistrict?.name || "",
+                                    district_id: selectedDistrict?.id || "",
+                                  });
+                                }}
+                                disabled={!editedUserInfo.state_id}
+                              >
+                                {districtsList.map((district) => (
+                                  <MenuItem key={district.id} value={district.id}>
+                                    {district.name}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+
+                            </FormControl>
+                          </Box>
+
+
                           <Box pt={4} className="d-flex jc-en">
                             <Button
                               className="custom-btn-default mr-5"
