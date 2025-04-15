@@ -110,7 +110,7 @@ const Profile = () => {
     state: "",
     state_id: "",
     district: "",
-    district_id: ""
+    district_id: "",
   });
   const [originalUserInfo, setOriginalUserInfo] = useState({});
   const [isFormDirty, setIsFormDirty] = useState(false);
@@ -247,7 +247,7 @@ const Profile = () => {
     const fetchUserInfo = async () => {
       try {
         const url = `${urlConfig.URLS.POFILE_PAGE.USER_READ}`;
-        console.log("url", url)
+        console.log("url", url);
         const response = await axios.post(
           url,
           { user_ids: [_userId] },
@@ -258,7 +258,7 @@ const Profile = () => {
             },
           }
         );
-        console.log("response?.data?.result", response?.data?.result)
+        console.log("response?.data?.result", response?.data?.result);
         setUserInfo(response?.data?.result);
       } catch (error) {
         console.error(error);
@@ -300,7 +300,7 @@ const Profile = () => {
         console.error("Error fetching states", err);
       }
     };
-  
+
     fetchStates();
   }, []);
 
@@ -308,7 +308,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchDistricts = async () => {
       if (!editedUserInfo?.state_id) return;
-  
+
       try {
         const res = await axios.post(
           `${urlConfig.URLS.USER.LOCATION_SEARCH_API}`,
@@ -331,7 +331,7 @@ const Profile = () => {
         console.error("Error fetching districts", err);
       }
     };
-  
+
     fetchDistricts();
   }, [editedUserInfo?.state_id]);
 
@@ -546,14 +546,14 @@ const Profile = () => {
   // Use default data if certData or courseData is undefined or empty
   const finalCertData =
     certData &&
-    certData.certificatesReceived !== undefined &&
-    certData.courseWithCertificate !== undefined
+      certData.certificatesReceived !== undefined &&
+      certData.courseWithCertificate !== undefined
       ? certData
       : defaultCertData;
   const finalCourseData =
     courseData &&
-    courseData.enrolledLastMonth !== undefined &&
-    courseData.enrolledThisMonth !== undefined
+      courseData.enrolledLastMonth !== undefined &&
+      courseData.enrolledThisMonth !== undefined
       ? courseData
       : defaultCourseData;
   // Check if data is empty or zero
@@ -637,14 +637,14 @@ const Profile = () => {
                                     </Typography>
                                     <Typography className="h6-title">
                                       {userInfo?.length &&
-                                      userInfo[0]?.designation ? (
+                                        userInfo[0]?.designation ? (
                                         <>{userInfo[0].designation}</>
                                       ) : (
                                         "Designation: NA"
                                       )}
                                       <Box className="cardLabelEllips1">
                                         {userInfo?.length &&
-                                        userInfo[0]?.designation
+                                          userInfo[0]?.designation
                                           ? " "
                                           : " "}
                                         {t("ID")}:{" "}
@@ -1075,7 +1075,7 @@ const Profile = () => {
                             </Typography>
                           </Box>
 
-                          {/* <Box py={1}>
+                          <Box py={1}>
                             <FormControl
                               fullWidth
                               style={{ marginTop: "10px" }}
@@ -1089,62 +1089,11 @@ const Profile = () => {
                               <Select
                                 labelId="state-label"
                                 id="state"
-                                value={editedUserInfo.state}
-                                onChange={(e) =>
-                                  setEditedUserInfo({
-                                    ...editedUserInfo,
-                                    state: e.target.value,
-                                    district: "", // reset district when state changes
-                                  })
-                                }
-                              >
-                                {statesList.map((state, index) => (
-                                  <MenuItem key={index} value={state}>
-                                    {state}
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                            </FormControl>
-                          </Box>
-
-                          <Box py={1}>
-                          <FormControl fullWidth style={{ marginTop: "10px" }}>
-                            <InputLabel id="district-label" className="year-select">
-                              {t("DISTRICT")}
-                            </InputLabel>
-                            <Select
-                              labelId="district-label"
-                              id="district"
-                              value={editedUserInfo.district}
-                              onChange={(e) =>
-                                setEditedUserInfo({
-                                  ...editedUserInfo,
-                                  district: e.target.value,
-                                })
-                              }
-                              disabled={!editedUserInfo.state}
-                            >
-                              {(districtsMap[editedUserInfo.state] || []).map((district, index) => (
-                                <MenuItem key={index} value={district}>
-                                  {district}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </FormControl>
-                          </Box> */}
-
-
-                          <Box py={1}>
-                            <FormControl fullWidth style={{ marginTop: "10px" }}>
-                              <InputLabel id="state-label" className="year-select">
-                                {t("STATE")}
-                              </InputLabel>
-                              <Select
-                                labelId="state-label"
-                                id="state"
                                 value={editedUserInfo.state_id}
                                 onChange={(e) => {
-                                  const selectedState = statesList.find((s) => s.id === e.target.value);
+                                  const selectedState = statesList.find(
+                                    (s) => s.id === e.target.value
+                                  );
                                   setEditedUserInfo({
                                     ...editedUserInfo,
                                     state: selectedState?.name || "",
@@ -1160,13 +1109,18 @@ const Profile = () => {
                                   </MenuItem>
                                 ))}
                               </Select>
-
                             </FormControl>
                           </Box>
 
                           <Box py={1}>
-                            <FormControl fullWidth style={{ marginTop: "10px" }}>
-                              <InputLabel id="district-label" className="year-select">
+                            <FormControl
+                              fullWidth
+                              style={{ marginTop: "10px" }}
+                            >
+                              <InputLabel
+                                id="district-label"
+                                className="year-select"
+                              >
                                 {t("DISTRICT")}
                               </InputLabel>
                               <Select
@@ -1174,7 +1128,9 @@ const Profile = () => {
                                 id="district"
                                 value={editedUserInfo.district_id}
                                 onChange={(e) => {
-                                  const selectedDistrict = districtsList.find((d) => d.id === e.target.value);
+                                  const selectedDistrict = districtsList.find(
+                                    (d) => d.id === e.target.value
+                                  );
                                   setEditedUserInfo({
                                     ...editedUserInfo,
                                     district: selectedDistrict?.name || "",
@@ -1184,15 +1140,16 @@ const Profile = () => {
                                 disabled={!editedUserInfo.state_id}
                               >
                                 {districtsList.map((district) => (
-                                  <MenuItem key={district.id} value={district.id}>
+                                  <MenuItem
+                                    key={district.id}
+                                    value={district.id}
+                                  >
                                     {district.name}
                                   </MenuItem>
                                 ))}
                               </Select>
-
                             </FormControl>
                           </Box>
-
 
                           <Box pt={4} className="d-flex jc-en">
                             <Button
