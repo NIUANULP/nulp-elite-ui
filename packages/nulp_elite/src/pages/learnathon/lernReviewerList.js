@@ -6,60 +6,58 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TablePagination,
   TextField,
   Button,
-  IconButton,
   Typography,
   Box,
-  DialogActions,
   Grid,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 import * as util from "../../services/utilService";
-import Dialog from "@mui/material/Dialog";
-import DialogContent from "@mui/material/DialogContent";
-import { Edit, Visibility, Delete } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
-import submissions from "./lernSubmission.json";
 import Paper from "@mui/material/Paper";
-import { useNavigate, useLocation } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { Pagination } from "@mui/material";
-
+import { useNavigate, useLocation } from "react-router-dom";
 import Footer from "components/Footer";
 import Header from "components/header";
 
 const LernReviewList = () => {
+  const location = useLocation();
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
   const [search, setSearch] = useState("");
-  const _userId = util.userId(); // Assuming util.userId() is defined
+  const _userId = util.userId();
   const urlConfig = require("../../configs/urlConfig.json");
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [isSystemAdmin, setIsSystemAdmin] = useState(false);
-  // const [pageNumber, setPageNumber] = useState(1);
+  const navigate = useNavigate(); // Navigation hook
+  const [backPage, setBackPage] = useState(location.state?.backPage);
 
-  const handleDialogOpen = () => {
-    setDialogOpen(true);
-  };
+  console.log(backPage);
 
   const routeConfig = require("../../configs/routeConfig.json");
-  window.location.reload();
+
   useEffect(() => {
     fetchData();
     fetchUserData();
   }, [currentPage, rowsPerPage, search]);
 
+  useEffect(() => {
+    if (backPage === "player") {
+      // Clear `location.state.backPage` and reload the page
+      navigate("/webapp/lernreviewlist", { replace: true, state: null });
+      window.location.reload(); // Reload the page only once
+    }
+  }, [backPage, location.pathname, navigate]);
+
   const fetchData = async () => {
     const assetBody = {
       request: {
         filters: {
-          //   created_by: _userId,
           status: "review",
         },
         sort_by: {
@@ -104,11 +102,6 @@ const LernReviewList = () => {
       const rootOrgId = data.result.response.rootOrgId;
       console.log(" data.result.response -----", data.result.response);
 
-      //   sessionStorage.setItem("rootOrgId", rootOrgId);
-      //   sessionStorage.setItem(
-      //     "userDomain",
-      //     data.result.response.framework.board
-      //   );
       const rolesData = data.result.response.roles;
       const roles = rolesData?.map((roleObject) => roleObject.role);
       setIsSystemAdmin(roles.includes("SYSTEM_ADMINISTRATION"));
@@ -213,12 +206,12 @@ const LernReviewList = () => {
             <Table aria-label="simple table">
               <TableHead sx={{ background: "#D8F6FF" }}>
                 <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Last Updated</TableCell>
-                  <TableCell>Category</TableCell>
+                  <TableCell> {t("NAME")}</TableCell>
+                  <TableCell> {t("LAST_UPDATED")}</TableCell>
+                  <TableCell> {t("CATEGORY")}</TableCell>
 
-                  <TableCell>Status</TableCell>
-                  <TableCell>Actions</TableCell>
+                  <TableCell> {t("STATUS")}</TableCell>
+                  <TableCell> {t("ACTION")}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -228,6 +221,8 @@ const LernReviewList = () => {
                     <TableCell>
                       {new Date(row.updated_on).toLocaleDateString()}
                     </TableCell>
+                    <TableCell>{row.category_of_participation}</TableCell>
+
                     <TableCell
                       style={{
                         color:
@@ -241,7 +236,6 @@ const LernReviewList = () => {
                     >
                       {row.status}
                     </TableCell>
-                    <TableCell>{row.category_of_participation}</TableCell>
                     <TableCell>
                       {row.status == "review" && (
                         <Button
@@ -287,8 +281,8 @@ const LernReviewList = () => {
             alignItems="center"
             mb={2}
           >
-            Review is not available for your role. You can participate in
-            contest
+            {t("ROLE_REVIEW_RESTRICT")}
+
             <Button className="viewAll" onClick={handleCardClick}>
               {t("PARTICIPATE_NOW")}
             </Button>

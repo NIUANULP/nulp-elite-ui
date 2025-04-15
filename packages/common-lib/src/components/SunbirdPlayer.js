@@ -12,9 +12,14 @@ const SunbirdPlayer = ({
   telemetryData,
   ...props
 }) => {
+  console.log('props----', props)
   const { mimeType } = props
   let trackData = []
   const [url, setUrl] = React.useState()
+  const questionListUrl =
+    window.location.origin != 'http://localhost:3000'
+      ? `${window.location.origin}/api/question/v1/list`
+      : 'https://devnulp.niua.org/api/question/v1/list'
   React.useEffect(() => {
     if (mimeType === 'application/pdf') {
       setUrl(`/pdf`)
@@ -23,7 +28,7 @@ const SunbirdPlayer = ({
     } else if (['application/vnd.sunbird.questionset'].includes(mimeType)) {
       setUrl(`/quml`)
     } else if (
-      [        
+      [
         'application/vnd.ekstep.ecml-archive',
         'application/vnd.ekstep.html-archive',
         'application/vnd.ekstep.content-collection',
@@ -33,19 +38,18 @@ const SunbirdPlayer = ({
       ].includes(mimeType)
     ) {
       setUrl(`/content-player`)
-    } 
+    }
   }, [mimeType])
 
   React.useEffect(() => {
     const fetchData = () => {
-      console.log("url-------------------",url)
+      console.log('url-------------------', url)
       if ([`/content-player`, `/quml`, `/pdf`, `/video`].includes(url)) {
         window.addEventListener(
           'message',
           (event) => {
             handleEvent(event)
-      console.log("event-------------------",event)
-
+            console.log('event-------------------', event)
           },
           false
         )
@@ -69,7 +73,7 @@ const SunbirdPlayer = ({
     } else if (data?.eid) {
       telemetry = data
     }
-telemetryData(telemetry)
+    telemetryData(telemetry)
 
     if (telemetry?.eid === 'EXDATA') {
       try {
@@ -122,7 +126,8 @@ telemetryData(telemetry)
           setTrackData({ score: score?.score, trackData })
         } else {
           setTrackData(telemetry?.edata)
-          handleExitButton()
+          console.log('end event---', event)
+          // handleExitButton()
         }
       } else {
         setTrackData(telemetry?.edata)
@@ -137,7 +142,9 @@ telemetryData(telemetry)
         telemetry?.edata?.id === 'exit' ||
         telemetry?.edata?.type === 'EXIT'
       ) {
-        handleExitButton()
+        console.log('interact event---', event)
+
+        // handleExitButton()
       }
     }
   }
@@ -174,7 +181,7 @@ telemetryData(telemetry)
           width='100%'
           name={JSON.stringify({
             ...props,
-            questionListUrl: 'https://nulp.niua.org/api/question/v1/list'
+            questionListUrl: questionListUrl
             // questionListUrl: `${process.env.REACT_APP_API_URL}/course/questionset`
           })}
           src={`${public_url ? public_url : process.env.PUBLIC_URL}${url}`}

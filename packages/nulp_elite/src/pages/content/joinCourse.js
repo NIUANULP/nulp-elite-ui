@@ -164,8 +164,9 @@ const JoinCourse = () => {
         let identifiers;
         if (data?.result?.content?.children[0]?.children[0]?.children) {
           identifiers =
-            data?.result?.content?.children[0]?.children[0]?.children[0]?.identifier;
-        }else if(data?.result?.content?.children[0]?.children){
+            data?.result?.content?.children[0]?.children[0]?.children[0]
+              ?.identifier;
+        } else if (data?.result?.content?.children[0]?.children) {
           identifiers =
             data?.result?.content?.children[0]?.children[0]?.identifier;
         } else {
@@ -529,9 +530,9 @@ const JoinCourse = () => {
   };
 
   const handleGoBack = () => {
-    navigate(-1); // Navigate back in history
+    navigate(-1); // Go back to the previous page
   };
-
+  
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-GB", {
@@ -543,7 +544,7 @@ const JoinCourse = () => {
 
   const handleLinkClick = (id) => {
     if (isEnroll) {
-      navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?${id}`, {
+      navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${id}`, {
         state: {
           coursename: userData?.result?.content?.name,
           batchid: batchDetails?.batchId,
@@ -635,7 +636,7 @@ const JoinCourse = () => {
                     {" "}
                     {t("LEAVE_COURSE")}
                   </Button>
-               ) }
+                )}
               </Box>
             </div>
 
@@ -1668,7 +1669,7 @@ const JoinCourse = () => {
                       </AccordionSummary>
 
                       <AccordionDetails
-                        style={{ 'padding': '12px',margin: '-10px 0px'}}
+                        style={{ padding: "12px", margin: "-10px 0px" }}
                       >
                         {/* If it's not a content collection, render it like a clickable child */}
                         {faqIndex.mimeType !==
@@ -1699,7 +1700,7 @@ const JoinCourse = () => {
                             <AccordionDetails
                               key={faqIndexname.identifier || faqIndexname.name}
                               className="border-bottom"
-                              style={{ 'padding': '12px',margin: '-10px 0px'}}
+                              style={{ padding: "12px", margin: "-10px 0px" }}
                             >
                               {faqIndexname.children &&
                               faqIndexname.children.length > 0 ? (
@@ -1742,7 +1743,10 @@ const JoinCourse = () => {
                                       <AccordionDetails
                                         key={child.identifier || child.name}
                                         className="border-bottom"
-                                        style={{ 'padding': '12px',margin: '-10px 0px'}}
+                                        style={{
+                                          padding: "12px",
+                                          margin: "-10px 0px",
+                                        }}
                                       >
                                         {child.children &&
                                         child.children.length > 0 ? (

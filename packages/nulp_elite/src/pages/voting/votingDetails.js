@@ -447,13 +447,13 @@ const VotingDetails = () => {
                         <TextField
                           label={
                             <>
-                              {t("Remark")}{" "}
+                              {t("Reason to vote")}{" "}
                               <span style={{ color: "red" }}>*</span>
                             </>
                           }
                           variant="outlined"
                           fullWidth
-                          placeholder={t("Enter your remark")}
+                          placeholder={t("Enter reason to vote")}
                           value={enteredRemark || remark}
                           onChange={handleRemarkChange}
                           disabled={userVote?.length > 0}

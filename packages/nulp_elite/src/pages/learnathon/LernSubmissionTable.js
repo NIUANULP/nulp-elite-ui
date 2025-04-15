@@ -23,20 +23,20 @@ import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import { Edit, Visibility, Delete } from "@mui/icons-material";
 import SearchIcon from "@mui/icons-material/Search";
-import submissions from "./lernSubmission.json";
 import Paper from "@mui/material/Paper";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Pagination } from "@mui/material";
 
 import Footer from "components/Footer";
 import Header from "components/header";
+import dayjs from "dayjs";
 
 const LernSubmissionTable = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [data, setData] = useState([]);
 
-  const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
   const [search, setSearch] = useState("");
   const _userId = util.userId(); // Assuming util.userId() is defined
@@ -53,6 +53,12 @@ const LernSubmissionTable = () => {
   };
 
   const routeConfig = require("../../configs/routeConfig.json");
+
+
+const isSubmissionClosed = dayjs().isAfter(
+  dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE),
+  "minute"
+);
 
   useEffect(() => {
     fetchData();
@@ -103,7 +109,7 @@ const LernSubmissionTable = () => {
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
-    setCurrentPage(0); // Reset to first page on search
+    setCurrentPage(1); // Reset to first page on search
   };
 
   const handleDialogClose = () => {
@@ -156,7 +162,7 @@ const LernSubmissionTable = () => {
             className="fw-600 mt-20"
             color={"#484848"}
           >
-            Learnathon Submissions List
+            {t("LEARN_SUBMISSION_LIST")}
           </Typography>
         </Box>
         <Grid container>
@@ -177,6 +183,7 @@ const LernSubmissionTable = () => {
           </Grid>
           <Grid item xs={5}></Grid>
           <Grid item xs={2}>
+          {!isSubmissionClosed && (
             <Button
               className="viewAll"
               onClick={() =>
@@ -185,8 +192,9 @@ const LernSubmissionTable = () => {
               }
               sx={{ padding: "7px 45px", borderRadius: "90px !important" }}
             >
-              Upload Submission
+              {t("UPLOAD_SUBMISSION")}
             </Button>
+          )}
           </Grid>
         </Grid>
         {!emptySubmission && (
@@ -194,11 +202,11 @@ const LernSubmissionTable = () => {
             <Table aria-label="simple table">
               <TableHead sx={{ background: "#D8F6FF" }}>
                 <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Last Updated</TableCell>
-                  <TableCell>Category</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Actions</TableCell>
+                  <TableCell>{t("NAME")}</TableCell>
+                  <TableCell>{t("LAST_UPDATED")}</TableCell>
+                  <TableCell>{t("CATEGORY")}</TableCell>
+                  <TableCell>{t("STATUS")}</TableCell>
+                  {!isSubmissionClosed && <TableCell>{t("ACTION")}</TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -223,6 +231,7 @@ const LernSubmissionTable = () => {
                     >
                       {row.status}
                     </TableCell>
+                    {!isSubmissionClosed &&(
                     <TableCell>
                       {row.status == "draft" && (
                         <IconButton
@@ -247,7 +256,7 @@ const LernSubmissionTable = () => {
                               routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
                               "?id=" +
                               row.learnathon_content_id +
-                              "&page=lern")
+                              "&page=lernpreview")
                           }
                           sx={{ color: "#054753" }}
                           className="table-icon"
@@ -271,15 +280,16 @@ const LernSubmissionTable = () => {
                         </IconButton>
                       )}
                     </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
         )}
-        {emptySubmission && (
+        {!isSubmissionClosed && (
           <Box marginLeft={"550px"} padding={"32px"}>
-            <Box>No Submissions yet please submit content</Box>
+            <Box>{t("NO_SUBMISSION")}</Box>
             <Button
               className="viewAll"
               onClick={() =>
@@ -293,7 +303,7 @@ const LernSubmissionTable = () => {
                 marginTop: "23px",
               }}
             >
-              Upload Submission
+              {t("UPLAOD_SUBMISSION")}
             </Button>
           </Box>
         )}
@@ -305,9 +315,7 @@ const LernSubmissionTable = () => {
         />
         <Dialog open={dialogOpen} onClose={handleDialogClose}>
           <DialogContent>
-            <Box className="h5-title">
-              Are you sure you want to delete this submission
-            </Box>
+            <Box className="h5-title">{t("CONFIRM_DELETE")}</Box>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleDialogClose} className="custom-btn-default">

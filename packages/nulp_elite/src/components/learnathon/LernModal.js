@@ -8,6 +8,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import ToasterCommon from "pages/ToasterCommon";
+import dayjs from "dayjs";
+const routeConfig = require("../../configs/routeConfig.json");
 
 const LernModal = () => {
   const { t } = useTranslation();
@@ -17,18 +19,42 @@ const LernModal = () => {
   const [roleList, setRoleList] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(() => {
     // Check if the modal has been shown in the current session
-    const isModalShown = sessionStorage.getItem("isModalShown");
-    return isModalShown !== "true"; // Show modal if not already shown
-  });
+    const isModalShown = sessionStorage.getItem("isModalShown") === "true"; // Check if modal was already shown
+    const isLearnathonActive = dayjs().isBefore(dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE)); // Check if within allowed time
 
+    return !isModalShown && isLearnathonActive; // Open modal only if not shown before AND within submission time
+  });
+  const [isReviewer, setIsReviewer] = useState(false);
   const [lernUser, setLernUser] = useState([]);
   const [responseCode, setResponseCode] = useState([]);
   const [orgId, setOrgId] = useState([]);
+  const [learnathonUser, setIsLearnathonUser] = useState();
   const _userId = util.userId();
   const handleClose = () => {
     setIsModalOpen(false);
     sessionStorage.setItem("isModalShown", "true"); // Set flag to not show modal again
   };
+
+  const today = dayjs();
+  const formattedDate = today.subtract(1, "hour").format("YYYY-MM-DD HH:mm:ss");
+
+  const isParticipateNow = today.isBetween(
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_START_DATE),
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE),
+    "minute"
+  );
+
+  const isReviewNow = today.isBetween(
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_REVIEW_START_DATE),
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_REVIEW_END_DATE),
+    "minute"
+  );
+
+  const isVoteNow = today.isBetween(
+    dayjs(urlConfig.LEARNATHON_DATES.VOTING_START_DATE),
+    dayjs(urlConfig.LEARNATHON_DATES.VOTING_END_DATE),
+    "minute"
+  );
 
   const fetchData = async () => {
     try {
@@ -38,12 +64,16 @@ const LernModal = () => {
       const rolesData = data.result.response.channel;
       const roles = data.result.response.roles;
       let organizationId;
+      setIsLearnathonUser(
+        data.result.response.firstName.includes("tekdiNulp11")
+      );
 
       if (roles[0]?.scope[0]?.organisationId) {
         organizationId = roles[0].scope[0].organisationId;
       } else {
-          organizationId = data?.result?.response?.organisations[0]?.organisationId;
-        }
+        organizationId =
+          data?.result?.response?.organisations[0]?.organisationId;
+      }
 
       const extractedRoles = roles.map((roleObj) => roleObj.role);
       setRoleList(extractedRoles);
@@ -66,18 +96,22 @@ const LernModal = () => {
       if (!user) {
         console.log("User ID not found. Calling fetchUserAccess...");
         fetchUserAccess();
-      } else if (user.creator_access === true) {
+      } else if (
+        user.creator_access === true ||
+        user.creator_access === false
+      ) {
         navigate("/webapp/mylernsubmissions");
         setIsModalOpen(false);
         console.log(
           "User ID found with creator access. No need to call fetchUserAccess."
         );
-      } else if (user.creator_access === false) {
-        console.log(
-          "User ID found but no creator access. Calling fetchUserAccess..."
-        );
-        fetchUserAccess();
       }
+      // else if (user.creator_access === false) {
+      //   console.log(
+      //     "User ID found but no creator access. Calling fetchUserAccess..."
+      //   );
+      //   fetchUserAccess();
+      // }
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
@@ -86,6 +120,9 @@ const LernModal = () => {
   let responsecode;
   const fetchUserAccess = async () => {
     const isCreator = roleList.includes("CONTENT_CREATOR");
+    const isReviewer = roleList.includes("SYSTEM_ADMINISTRATION");
+    setIsReviewer(isReviewer);
+
     try {
       const url = `${urlConfig.URLS.PROVIDE_ACCESS}`;
       const role = isCreator ? roleList : ["CONTENT_CREATOR", ...roleList];
@@ -98,6 +135,8 @@ const LernModal = () => {
       };
 
       if (isCreator) {
+        requestPayload.isCreator = false;
+      } else {
         requestPayload.isCreator = true;
       }
 
@@ -109,7 +148,8 @@ const LernModal = () => {
       setResponseCode(result);
 
       if (result === "OK") {
-        navigate("webapp/mylernsubmissions");
+        navigateConsecutively();
+        // navigate("webapp/mylernsubmissions");
         setIsModalOpen(false);
       } else {
         setToasterMessage("Something went wrong! Please try again later");
@@ -117,6 +157,39 @@ const LernModal = () => {
     } catch (error) {
       console.log("error", error);
     }
+  };
+  const showErrorMessage = (msg) => {
+    setToasterMessage(msg);
+    setTimeout(() => {
+      setToasterMessage("");
+    }, 2000);
+    setToasterOpen(true);
+  };
+
+  const navigateConsecutively = async () => {
+    console.log("navigateConsecutively1111");
+    try {
+      const response = await fetch("/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (response.ok) {
+        showErrorMessage(
+          "Thank you for participation. Please relogin to get submission access"
+        );
+        localStorage.clear(); // Clear local storage if needed
+        navigate("/webapp/mylernsubmissions"); // Redirect to login
+        setTimeout(() => {
+          window.location.reload(); // Reload the page
+        }, 1000);
+      } else {
+        console.error("Failed to log out");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+
+    console.log("navigateConsecutively22222");
   };
 
   // Fetch data when the component mounts or _userId changes
@@ -146,6 +219,8 @@ const LernModal = () => {
   };
 
   const handleCardClick = async () => {
+    sessionStorage.setItem("isModalShown", "true"); // Set flag to not show modal again
+
     if (lernUser === "nulp-learn") {
       navigate("/webapp/mylernsubmissions");
       setIsModalOpen(false); // Close the modal
@@ -188,25 +263,68 @@ const LernModal = () => {
           <Grid container spacing={2}>
             <Grid item xs={12} sm={12} md={4}>
               <Box className="profileBox">
-                <img src={require("../../assets/image24.png")} alt="" />
+                <img
+                  height="222px"
+                  width="207px"
+                  src={require("../../assets/Image_for_Pop_up.jpg")}
+                  alt=""
+                />
               </Box>
             </Grid>
             <Grid item xs={12} sm={12} md={8}>
               <Box className="profileBox ml-20">
-                <Box className="mt-20">{t("LERN_MESSAGE")}</Box>
-                <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
-
-                <Box className="lg-mt-30">
-                  {lernUser === "nulp-learn" ? (
-                    <Button className="viewAll" onClick={handleCardClick}>
-                      {t("PARTICIPATE_NOW")}
-                    </Button>
-                  ) : (
-                    <Button className="viewAll" onClick={handleCardClick}>
-                      {t("PARTICIPATE_NOW")}
-                    </Button>
-                  )}
-                </Box>
+                {/* Commented for Demo */}
+                {!learnathonUser && isParticipateNow && (
+                  <Box>
+                    <Box className="mt-20">{t("LERN_MESSAGE")}</Box>
+                    <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
+                  </Box>
+                )}
+                {isReviewNow && isReviewer && (
+                  <Box>
+                    <Box className="mt-20">{t("REVIEW_NOW")}</Box>
+                    <Box className="mt-20">{t("REVIEW_MESSEGE")}</Box>
+                  </Box>
+                )}
+                {isReviewNow && !isReviewer && (
+                  <Box>
+                    <Box className="mt-20">Review is going On</Box>
+                  </Box>
+                )}
+                {isVoteNow && (
+                  <Box>
+                    <Box className="mt-20">{t("VOTE_NOW")}</Box>
+                    <Box className="mt-20">{t("VOTE_NOW_MESSEGE")}</Box>
+                  </Box>
+                )}
+                {learnathonUser && (
+                  <>
+                    <Box className="mt-20">{t("LERN_MESSAGE")}</Box>
+                    <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
+                    <Box className="lg-mt-30"></Box>
+                  </>
+                )}
+                {/* Commented for Demo */}
+                {isParticipateNow && !learnathonUser && (
+                  <Button className="viewAll" onClick={handleCardClick}>
+                    {t("CLICK_HERE_TO_KNOW_MORE")}
+                  </Button>
+                )}
+                {isReviewNow && !learnathonUser && isReviewer && (
+                  <Button className="viewAll" onClick={handleCardClick}>
+                    {t("REVIEW_NOW")}
+                  </Button>
+                )}
+                {isVoteNow && !learnathonUser && (
+                  <Button className="viewAll" onClick={handleCardClick}>
+                    {t("VOTE_NOW")}
+                  </Button>
+                )}
+                {learnathonUser && (
+                  <Button className="viewAll" onClick={handleCardClick}>
+                    {t("CLICK_HERE_TO_KNOW_MORE")}
+                  </Button>
+                )}
               </Box>
             </Grid>
           </Grid>

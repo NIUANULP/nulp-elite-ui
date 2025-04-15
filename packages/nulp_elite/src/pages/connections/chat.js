@@ -107,6 +107,7 @@ const Chat = ({
 }) => {
   console.log(showCloseIcon, 'showCloseIcon');
 
+  const { t } = useTranslation();
   const classes = useStyles();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
@@ -131,6 +132,8 @@ const Chat = ({
   );
   const [textValue, setTextValue] = useState("");
 
+  const chatRef = useRef(null);
+
   const location = useLocation();
   const {
     senderUserId: routeSenderUserId,
@@ -141,7 +144,6 @@ const Chat = ({
   const receiverUserId = propReceiverUserId || routeReceiverUserId;
   const _userId = util.userId();
 
-  const { t } = useTranslation();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [customReason, setCustomReason] = useState("");
   const [activePath, setActivePath] = useState(location.pathname);
@@ -188,6 +190,15 @@ const Chat = ({
       fetchBlockUserStatus();
     }
   }, [receiverUserId, _userId]);
+
+  useEffect(() => {
+  if (messages.length > 0 && chatRef.current) {
+    chatRef.current.scrollTo({
+      top: chatRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }
+}, [messages,message]);
 
   useEffect(() => {
     const getInvitationNotAcceptedUserByIds = async () => {
@@ -717,7 +728,7 @@ const Chat = ({
           </Box>
         </div>
       ) : messages.length > 0 ? (
-        <div className={classes.chat}>
+        <div ref={chatRef} className={classes.chat}>
           <Alert severity="info" style={{ margin: "10px 0" }}>
             {t("YOUR_CHAT_WILL_DISAPPEAR")}
           </Alert>

@@ -11,6 +11,7 @@ import {
   Autocomplete,
   Radio,
   RadioGroup,
+  CircularProgress,
 } from "@mui/material";
 
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
@@ -25,17 +26,26 @@ import InputLabel from "@mui/material/InputLabel";
 import acdemiaguideline from "../../assets/academia-guidelines.pdf";
 import stateguideline from "../../assets/state-guidelines.pdf";
 import industryguideline from "../../assets/industry-guidelines.pdf";
-import industrytnc from "../../assets/industry-tnc.pdf";
-import acdemiatnc from "../../assets/academia-tnc.pdf";
-import statetnc from "../../assets/state-tnc.pdf";
+import industrytnc from "../../assets/tnc.pdf";
+import acdemiatnc from "../../assets/tnc.pdf";
+import statetnc from "../../assets/tnc.pdf";
 import Loader from "components/Loader";
+import Checkbox from "@mui/material/Checkbox";
 
+import citiesInIndia from './learnCities.json';
 import Alert from "@mui/material/Alert";
 const routeConfig = require("../../configs/routeConfig.json");
+import dayjs from "dayjs";
+
 
 import { Observable } from "rxjs";
 
 import { useTranslation } from "react-i18next";
+
+const isFormClosed = dayjs().isAfter(
+  dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE),
+  "minute"
+);
 
 const categories = [
   "State / UT / SPVs / ULBs / Any Other",
@@ -52,8 +62,8 @@ const themes = [
   "Social Aspects",
   "Municipal Finance",
   "General Administration",
-  "Governance and Urban Management",
-  "Miscellaneous/ Others",
+  "Governance and Urban Management"
+  //"Miscellaneous/ Others",
 ];
 const IndianStates = [
   "Andhra Pradesh",
@@ -86,37 +96,19 @@ const IndianStates = [
   "West Bengal",
   "Delhi",
   "Jammu and Kashmir",
+  "Andaman and Nicobar Islands",
+  "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Lakshadweep",
+  "Puducherry",
+  "Ladakh"
 ];
 
 // List of some popular cities in India
-const citiesInIndia = [
-  "Mumbai",
-  "Delhi",
-  "Bangalore",
-  "Hyderabad",
-  "Ahmedabad",
-  "Chennai",
-  "Kolkata",
-  "Pune",
-  "Jaipur",
-  "Surat",
-  "Lucknow",
-  "Kanpur",
-  "Nagpur",
-  "Visakhapatnam",
-  "Bhopal",
-  "Patna",
-  "Ludhiana",
-  "Agra",
-  "Nashik",
-  "Faridabad",
-  "Meerut",
-  "Rajkot",
-  "Kalyan-Dombivli",
-  "Vasai-Virar",
-  "Varanasi",
-  // Add more cities as needed
-];
+
+  
+
+//  Add more cities as needed
 const LernCreatorForm = () => {
   const _userId = util.userId(); // Assuming util.userId() is defined
   const [isEdit, setIsEdit] = useState(false);
@@ -310,19 +302,24 @@ const LernCreatorForm = () => {
     if (!formData.indicative_theme)
       tempErrors.indicative_theme = "Indicative Theme is required";
     if (
-      formData.indicative_theme == "Miscellaneous/ Others" &&
-      !formData.other_indicative_themes
-    )
+       !formData.indicative_sub_theme &&
+       formData.indicative_theme !== "Miscellaneous/ Others"
+     )
+      tempErrors.indicative_sub_theme = "Indicative Sub Theme is required";
+     if (
+       formData.indicative_theme == "Miscellaneous/ Others" &&
+       !formData.other_indicative_themes
+     )
       tempErrors.other_indicative_themes = "Provide other indicative theme";
 
-    // if (!formData.state) tempErrors.state = "Provide state";
+     //if (!formData.state) tempErrors.state = "Provide state";
 
-    // if (!formData.city) tempErrors.city = "Provide city";
+     //if (!formData.city) tempErrors.city = "Provide city";
     if (!formData.title_of_submission)
       tempErrors.title_of_submission = "Title of Submission is required";
     if (!formData.description)
       tempErrors.description = "Description is required";
-    // if (!formData.content_id) tempErrors.content_id = "File upload is required";
+    if (!formData.content_id) tempErrors.content_id = "File upload is required";
     if (!formData.consent_checkbox)
       tempErrors.consent_checkbox = "You must accept the terms and conditions";
 
@@ -400,7 +397,9 @@ const LernCreatorForm = () => {
           primaryCategory: "asset",
           language: ["English"],
           code: _uuid,
-          name: e.target.files[0].name,
+          name: formData.title_of_submission
+            ? formData.title_of_submission
+            : "Untitled Content",
           mediaType: "image",
           mimeType: "image/png",
           createdBy: _userId,
@@ -495,12 +494,6 @@ const LernCreatorForm = () => {
   };
   const handleFileChange = async (e, type) => {
     if (type == "file") {
-      if (e.target.files[0].type == "application/zip") {
-        const mimeType = "application/vnd.ekstep.html-archive";
-      } else {
-        const mimeType = e.target.files[0].type;
-      }
-
       const _uuid = uuidv4();
       const assetBody = {
         request: {
@@ -509,17 +502,22 @@ const LernCreatorForm = () => {
             contentType: "Resource",
             language: ["English"],
             code: _uuid,
-            name: e.target.files[0].name,
+            name: formData.title_of_submission
+              ? formData.title_of_submission
+              : "Untitled Content",
             framework: "nulp-learn",
-            mimeType: mimeType,
+            mimeType:
+              e.target.files[0].type == "application/zip"
+                ? "application/vnd.ekstep.html-archive"
+                : e.target.files[0].type,
             createdBy: _userId,
             organisation: [userInfo.rootOrg.channel],
             createdFor: [userInfo.rootOrg.id],
           },
         },
       };
+      console.log("assetBody-----", assetBody);
       try {
-        setLoading(true);
         const response = await fetch(`${urlConfig.URLS.ASSET.CREATE}`, {
           method: "POST",
           headers: {
@@ -533,7 +531,8 @@ const LernCreatorForm = () => {
         }
 
         const result = await response.json();
-        console.log("suceesss----", result);
+        console.log("success----", result);
+
         const imgId = result.result.identifier;
         const uploadBody = {
           request: {
@@ -542,6 +541,7 @@ const LernCreatorForm = () => {
             },
           },
         };
+
         try {
           const response = await fetch(
             `${urlConfig.URLS.ASSET.UPLOADURL}/${result.result.identifier}`,
@@ -559,12 +559,11 @@ const LernCreatorForm = () => {
           }
 
           const uploadResult = await response.json();
-          console.log("upload suceesss------", uploadResult);
-          const imgId = result.result.identifier;
+          console.log("upload success------", uploadResult);
+
           const url = uploadResult.result.pre_signed_url;
           const file = e.target.files[0];
-          const csp = "azure"; // Cloud provider (azure, aws, etc.)
-
+          setLoading(true);
           const uploader = new SunbirdFileUploadLib.FileUploader();
 
           uploader
@@ -574,33 +573,22 @@ const LernCreatorForm = () => {
               csp: "azure",
             })
             .on("error", (error) => {
-              console.log("0000", error);
+              console.log("error", error);
+              setLoading(false);
             })
             .on("completed", async (completed) => {
-              console.log("1111", completed);
-
-              console.log("url", url);
-              console.log("mimeType", mimeType);
-
+              console.log("completed", completed);
               const fileURL = url.split("?")[0];
-              console.log("fileUrl", fileURL);
+
               const data = new FormData();
+              const mimeType =
+                e.target.files[0].type == "application/zip"
+                  ? "application/vnd.ekstep.html-archive"
+                  : e.target.files[0].type;
+
               data.append("fileUrl", fileURL);
               data.append("mimeType", mimeType);
 
-              data.forEach((value, key) => {
-                console.log(`${key}:`, value);
-              });
-              // const config1 = {
-              //   enctype: "multipart/form-data",
-              //   processData: false,
-              //   contentType: false,
-              //   cache: false,
-              // };
-              // const uploadMediaConfig = {
-              //   data,
-              //   param: config1,
-              // };
               try {
                 const response = await fetch(
                   `${urlConfig.URLS.ASSET.UPLOAD}/${imgId}`,
@@ -611,11 +599,16 @@ const LernCreatorForm = () => {
                 );
 
                 if (!response.ok) {
+                  alert("Something went wrong while uploading file");
                   throw new Error("Something went wrong");
+                } 
+
+                if(response.ok){
+                  alert("File uploaded successfully");
                 }
 
                 const uploadResult = await response.json();
-                console.log("upload suceesss------", uploadResult);
+                console.log("final upload success------", uploadResult);
                 setFormData({
                   ...formData,
                   content_id: uploadResult.result.identifier,
@@ -623,21 +616,19 @@ const LernCreatorForm = () => {
                 setErrors({ ...errors, icon: "" });
               } catch (error) {
                 console.log("error---", error);
-              } finally {
+                alert("Something went wrong while uploading file");
+              } finally{
+                setLoading(false);
               }
             });
           setErrors({ ...errors, content_id: "" });
         } catch (error) {
           console.log("error---", error);
-        } finally {
         }
       } catch (error) {
         console.log("error---", error);
-        // setError(error.message);
-      } finally {
       }
     } else if (type == "url") {
-      console.log("------------------", youtubeUrl);
       const youtubeRegex =
         /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
 
@@ -675,15 +666,12 @@ const LernCreatorForm = () => {
           }
 
           const result = await response.json();
-          console.log("suceesss----", result);
+          console.log("success----", result);
+
           const cont_id = result.result.identifier;
           const data = new FormData();
           data.append("fileUrl", youtubeUrl);
           data.append("mimeType", "video/x-youtube");
-
-          data.forEach((value, key) => {
-            console.log(`${key}:`, value);
-          });
 
           try {
             const response = await fetch(
@@ -699,21 +687,17 @@ const LernCreatorForm = () => {
             }
 
             const uploadResult = await response.json();
-            console.log("upload suceesss------", uploadResult);
+            console.log("upload success------", uploadResult);
             setFormData({
               ...formData,
               content_id: uploadResult.result.identifier,
             });
-            setLoading(true);
             setErrors({ ...errors, icon: "" });
           } catch (error) {
             console.log("error---", error);
-          } finally {
           }
         } catch (error) {
           console.log("error---", error);
-          // setError(error.message);
-        } finally {
         }
       } else {
         let tempErrors = {};
@@ -746,6 +730,7 @@ const LernCreatorForm = () => {
       ...formData,
       consent_checkbox: true,
     });
+    setTNCOpen(false);
   };
 
   const handleCategoryChange = (e) => {
@@ -853,6 +838,8 @@ const LernCreatorForm = () => {
       formData.status = "review";
       if (!validate()) return;
 
+      console.log("submit-form---", formData);
+
       if (isEdit == false) {
         try {
           const response = await fetch(`${urlConfig.URLS.LEARNATHON.CREATE}`, {
@@ -933,18 +920,26 @@ const LernCreatorForm = () => {
       );
       if (preIndicativeTheme) {
         const selectedBoard = preIndicativeTheme;
-        console.log(
-          data?.result?.framework?.categories[Categoryindex]?.terms,
-          "indicativeThemes--------"
-        );
-        const selectedIndex = data?.result?.framework?.categories[
-          Categoryindex
-        ]?.terms.findIndex((category) => category.name === selectedBoard);
-        if (selectedIndex !== -1) {
-          setIndicativeSubThemes(
-            indicativeThemes[selectedIndex]?.associations || []
+        const categories = data?.result?.framework?.categories;
+
+        if (categories?.[Categoryindex]?.terms) {
+          const terms = categories[Categoryindex].terms;
+
+          const selectedIndex = terms.findIndex(
+            (category) => category.name === selectedBoard
           );
+
+          if (selectedIndex !== -1) {
+            setIndicativeSubThemes(
+              data?.result?.framework?.categories[Categoryindex]?.terms[
+                selectedIndex
+              ]?.associations || []
+            );
+          } else {
+            setIndicativeSubThemes([]);
+          }
         } else {
+          console.error("No terms found in the specified category index");
           setIndicativeSubThemes([]);
         }
       }
@@ -972,7 +967,7 @@ const LernCreatorForm = () => {
         <Grid container>
           <Grid item xs={10}>
             <Typography variant="h6" gutterBottom className="fw-600 mt-20">
-              Upload Learnathon Submission
+              {t("UPLOAD_LEARN_SUBMISSION")}
             </Typography>
           </Grid>
           <Grid item xs={2}>
@@ -992,7 +987,7 @@ const LernCreatorForm = () => {
                   borderRadius: "20px !important",
                 }}
               >
-                Need Help
+                {t("NEED_HELP")}
               </Button>
             </Box>
           </Grid>
@@ -1008,14 +1003,14 @@ const LernCreatorForm = () => {
         >
           <Grid item xs={12} sx={{ borderBottom: "2px solid #057184" }}>
             <Typography variant="h6" gutterBottom style={{ marginTop: "30px" }}>
-              Submission Details
+              {t("SUBMISSION_DETAILS")}
             </Typography>
           </Grid>
           <Grid item xs={12} style={{ marginTop: "30px" }}>
             <Grid container>
               <Grid item xs={2} className="center-align">
                 <InputLabel htmlFor="Name of Organisation">
-                  Submission Icon
+                  {t("SUBMISSION_ICON")}
                 </InputLabel>
               </Grid>
 
@@ -1037,13 +1032,13 @@ const LernCreatorForm = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Preview
+                    {t("PREVIEW")}
                   </a>
                 )}
               </Grid>
               <Grid item xs={10}>
                 <Alert className="mt-9" everity="info">
-                  Upload png, jpeg (Max File size: 1MB)
+                  {t("IMG_GUIDELINES")}
                 </Alert>
               </Grid>
             </Grid>
@@ -1052,7 +1047,7 @@ const LernCreatorForm = () => {
             <Grid container>
               <Grid item xs={2} className="center-align">
                 <InputLabel htmlFor="Title of Submission">
-                  Title of Submission{" "}
+                  {t("TITLE_OF_SUBMISSION")}{" "}
                   <span className="mandatory-symbol"> *</span>
                 </InputLabel>
               </Grid>
@@ -1075,7 +1070,8 @@ const LernCreatorForm = () => {
             <Grid container>
               <Grid item xs={2} className="center-align">
                 <InputLabel htmlFor="Description">
-                  Description <span className="mandatory-symbol"> *</span>
+                  {t("DESCRIPTION")}{" "}
+                  <span className="mandatory-symbol"> *</span>
                 </InputLabel>
               </Grid>
               <Grid item xs={10}>
@@ -1102,7 +1098,7 @@ const LernCreatorForm = () => {
                 <Grid container>
                   <Grid item xs={2} className="center-align">
                     <InputLabel htmlFor="Category of Participation">
-                      Category of Participation
+                      {t("CATEGORY_OF_PARTICIPATION")}
                       <span className="mandatory-symbol"> *</span>
                     </InputLabel>
                   </Grid>
@@ -1126,7 +1122,7 @@ const LernCreatorForm = () => {
                       ))}
                     </TextField>
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item style={{ padding: "30px" }} xs={3}>
                     <Box>
                       {guidelineLink && (
                         <a
@@ -1134,7 +1130,7 @@ const LernCreatorForm = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          View and Download Guidelines
+                          {t("VIEW_AND_DOWLOAD_GUIDELINES")}
                         </a>
                       )}
                     </Box>
@@ -1143,9 +1139,7 @@ const LernCreatorForm = () => {
               </Grid>
               <Grid item xs={12}>
                 <Alert className="mt-9" severity="info">
-                  State & City fields are not mandatory. Those submitting from
-                  Industry, Academia and other Non-Government entities may wish
-                  to avoid filling the same.
+                  {t("STAR_CITY_MSG")}
                 </Alert>
               </Grid>
               <Grid item xs={12}>
@@ -1184,7 +1178,9 @@ const LernCreatorForm = () => {
                   <Grid item xs={10}>
                     <Autocomplete
                       freeSolo
-                      options={citiesInIndia}
+                      options={formData.state
+                        ? citiesInIndia[formData.state] || []
+      : []}
                       value={formData.city}
                       onChange={handleCityChange}
                       onInputChange={handleCityChange}
@@ -1197,6 +1193,7 @@ const LernCreatorForm = () => {
                           name="city"
                           error={!!errors.city}
                           helperText={errors.city}
+                          disabled={!formData.state}
                         />
                       )}
                     />
@@ -1207,7 +1204,7 @@ const LernCreatorForm = () => {
                 <Grid container>
                   <Grid item xs={2} className="center-align">
                     <InputLabel htmlFor="Name of Organisation">
-                      Name of Organisation{" "}
+                      {t("NAME_OF_ORG")}{" "}
                       <span className="mandatory-symbol"> *</span>
                     </InputLabel>
                   </Grid>
@@ -1230,7 +1227,7 @@ const LernCreatorForm = () => {
                 <Grid container>
                   <Grid item xs={2} className="center-align">
                     <InputLabel htmlFor="Name of Department/Group">
-                      Name of Department/Group
+                      {t("NAME_OF_DEPT/GROUP")}
                     </InputLabel>
                   </Grid>
                   <Grid item xs={10}>
@@ -1249,7 +1246,7 @@ const LernCreatorForm = () => {
                 <Grid container>
                   <Grid item xs={2} className="center-align">
                     <InputLabel htmlFor="indicative_theme">
-                      Indicative Theme{" "}
+                      {t("INDICATIVE_THEME")}{" "}
                       <span className="mandatory-symbol"> *</span>
                     </InputLabel>
                   </Grid>
@@ -1267,14 +1264,14 @@ const LernCreatorForm = () => {
                       required
                     >
                       {indicativeThemes.length > 0 ? (
-                        indicativeThemes.map((theme, index) => (
+                        indicativeThemes.filter((theme) => theme?.name !== "Miscellaneous/ Others").map((theme, index) => (
                           <MenuItem key={theme?.name} value={theme?.name}>
                             {theme?.name}
                           </MenuItem>
                         ))
                       ) : (
                         <MenuItem disabled value="">
-                          No options available
+                          {t("NO_OPTION_AVAILABLE")}
                         </MenuItem>
                       )}
                     </TextField>
@@ -1286,7 +1283,7 @@ const LernCreatorForm = () => {
                   <Grid container>
                     <Grid item xs={2} className="center-align">
                       <InputLabel htmlFor="other_indicative_themes">
-                        Other Indicative Theme{" "}
+                        {t("OTHER_INDICATIVE_THEME")}{" "}
                         <span className="mandatory-symbol"> *</span>
                       </InputLabel>
                     </Grid>
@@ -1311,7 +1308,7 @@ const LernCreatorForm = () => {
                   <Grid container>
                     <Grid item xs={2} className="center-align">
                       <InputLabel htmlFor="indicative_sub_theme">
-                        Indicative SubTheme{" "}
+                        {t("INDICATIVE_SUBTHEME")}{" "}
                         <span className="mandatory-symbol"> *</span>
                       </InputLabel>
                     </Grid>
@@ -1373,15 +1370,28 @@ const LernCreatorForm = () => {
 
                   {uploadType === "file" ? (
                     <Grid item xs={7}>
-                      <TextField
-                        type="file"
-                        fullWidth
-                        onChange={(event) => handleFileChange(event, "file")}
-                        inputProps={{
-                          accept: "video/mp4,application/pdf,text/html",
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          width: "100%",
                         }}
-                        sx={{ border: "1px dashed" }}
-                      />
+                      >
+                        <TextField
+                          type="file"
+                          fullWidth
+                          onChange={(event) => handleFileChange(event, "file")}
+                          error={!!errors.content_id}
+                          inputProps={{
+                            accept: "video/mp4,application/pdf,text/html",
+                          }}
+                          sx={{ border: "1px dashed" }}
+                        />
+
+                        {loading && (
+                          <CircularProgress size={24} sx={{ marginLeft: 2 }} />
+                        )}
+                      </Box>
                     </Grid>
                   ) : (
                     <Grid item xs={6}>
@@ -1390,7 +1400,7 @@ const LernCreatorForm = () => {
                         fullWidth
                         placeholder="Enter URL"
                         onChange={(event) => handleUrlChange(event)}
-                        error={!!errors.youtube}
+                        error={!!errors.youtube || !!errors.content_id}
                         helperText={
                           !!errors.youtube
                             ? "Please enter a valid YouTube URL."
@@ -1409,7 +1419,7 @@ const LernCreatorForm = () => {
                           className="custom-btn-default"
                           onClick={() => handleFileChange(youtubeUrl, "url")}
                         >
-                          upload
+                          {t("UPLOAD")}
                         </Button>
                       </Grid>
                     )}
@@ -1424,18 +1434,19 @@ const LernCreatorForm = () => {
                             );
                           }}
                         >
-                          Preview
+                          {t("PREVIEW")}
                         </a>
                       </Grid>
                     )}
                   </Grid>
                   <Grid item xs={10}>
                     <Alert className="mt-9" severity="info">
-                      Supported formats: MP4, PDF, HTML5, YouTube links
+                      {t("CONT_FORMAT")}
                     </Alert>
                   </Grid>
                 </Grid>
               </Grid>
+              {!isFormClosed &&(
               <Grid
                 container
                 item
@@ -1448,23 +1459,24 @@ const LernCreatorForm = () => {
               >
                 <Box mt={3}>
                   <Button
-                    disabled={isNotDraft || openPersonalForm}
+                    disabled={isNotDraft || openPersonalForm || loading}
                     className="custom-btn-default"
                     onClick={() => handleSubmit("draft")}
                   >
-                    Save as Draft
+                    {t("SAVE_AS_DRAFT")}
                   </Button>
 
                   <Button
-                    disabled={isNotDraft || openPersonalForm}
+                    disabled={isNotDraft || openPersonalForm || loading}
                     className="viewAll"
                     onClick={() => setOpenConfirmModal(true)}
                     sx={{ ml: 2, padding: "9px 35px" }} // Adds spacing between the buttons
                   >
-                    Proceed to Submit
+                    {t("PROCEED_TO_SUBMIT")}
                   </Button>
                 </Box>
               </Grid>
+              )}
               {openConfirmModal && (
                 <Modal
                   open={openConfirmModal}
@@ -1502,24 +1514,35 @@ const LernCreatorForm = () => {
                     </Typography>
 
                     {/* Modal Actions */}
-                    <div style={{ marginTop: "20px" }}>
-                      <Button
-                        variant="contained"
-                        className="viewAll"
-                        onClick={() => {
-                          setOpenPersonalForm(true); // Proceed action
-                          setOpenConfirmModal(false); // Close modal after proceeding
-                        }}
-                      >
-                        {t("PROCEED")}
-                      </Button>
-                      <Button
-                        className="custom-btn-default"
-                        onClick={() => setOpenConfirmModal(false)}
-                      >
-                        {"CANCEL"}
-                      </Button>
-                    </div>
+                    <Box
+                      style={{
+                        marginTop: "20px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Box>
+                        <Button
+                          variant="contained"
+                          className="viewAll"
+                          onClick={() => {
+                            setOpenPersonalForm(true); // Proceed action
+                            setOpenConfirmModal(false); // Close modal after proceeding
+                          }}
+                        >
+                          {t("PROCEED")}
+                        </Button>
+                      </Box>
+                      <Box ml={"20px"}>
+                        <Button
+                          className="cancelBtn"
+                          onClick={() => setOpenConfirmModal(false)}
+                        >
+                          {t("CANCEL")}
+                        </Button>
+                      </Box>
+                    </Box>
                   </div>
                 </Modal>
               )}
@@ -1536,7 +1559,7 @@ const LernCreatorForm = () => {
                       }}
                     >
                       <Typography variant="h6" gutterBottom>
-                        Participant Details
+                        {t("PARTICIPAION_DETAILS")}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -1546,7 +1569,8 @@ const LernCreatorForm = () => {
                       <Grid container>
                         <Grid item xs={2} className="center-align">
                           <InputLabel htmlFor="Participant Name">
-                            Participant <br /> Name
+                            {t("PARTICIPANT")}
+                            <br /> {t("NAME")}
                             <span className="mandatory-symbol"> *</span>
                           </InputLabel>
                         </Grid>
@@ -1569,7 +1593,8 @@ const LernCreatorForm = () => {
                       <Grid container>
                         <Grid item xs={2} className="center-align">
                           <InputLabel htmlFor="Email">
-                            Email <span className="mandatory-symbol"> *</span>
+                            {t("EMAIL")}{" "}
+                            <span className="mandatory-symbol"> *</span>
                           </InputLabel>
                         </Grid>
                         <Grid item xs={10}>
@@ -1593,7 +1618,8 @@ const LernCreatorForm = () => {
                       <Grid container>
                         <Grid item xs={2} className="center-align">
                           <InputLabel htmlFor="Mobile Number">
-                            Mobile <br /> Number<span className="red"> *</span>
+                            {t("MOBILE")} <br /> {t("NUMBER")}
+                            <span className="red"> *</span>
                           </InputLabel>
                         </Grid>
                         <Grid item xs={10}>
@@ -1623,13 +1649,10 @@ const LernCreatorForm = () => {
                     textAlign="center"
                     className="mb-30"
                   >
-                    <Box>
-                      Your submission will be used for NULP purposes only and
-                      your personal details will not be disclosed to any entity.
-                    </Box>
+                    <Box>{t("NULP_DECLARE")}</Box>
 
                     <a href="#" onClick={openTNC}>
-                      Accept terms and conditions
+                      {t("TNC")}
                     </a>
 
                     {TNCOpen && (
@@ -1650,63 +1673,286 @@ const LernCreatorForm = () => {
                             padding: "20px",
                             borderRadius: "8px",
                             boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
-                            width: "400px",
-                            textAlign: "center",
+                            width: "700px",
+                            maxHeight: "80vh", // Ensures modal does not exceed viewport height
+                            overflowY: "auto", // Enables vertical scrolling if content exceeds height
+                            textAlign: "justify",
                           }}
                         >
                           <Typography
                             variant="h6"
                             id="confirmation-modal-title"
                             gutterBottom
+                            style={{
+                              textAlign: "center",
+                              fontWeight: "bold",
+                            }}
                           >
-                            TNC
+                            {t("Terms and Conditions")}
                           </Typography>
-                          <Typography>
-                            What is Lorem Ipsum? Lorem Ipsum is simply dummy
-                            text of the printing and typesetting industry. Lorem
-                            Ipsum has been the industry's standard dummy text
-                            ever since the 1500s, when an unknown printer took a
-                            galley of type and scrambled it to make a type
-                            specimen book. It has survived not only five
-                            centuries, but also the leap into electronic
-                            typesetting, remaining essentially unchanged. It was
-                            popularised in the 1960s with the release of
-                            Letraset sheets containing Lorem Ipsum passages, and
-                            more recently with desktop publishing software like
-                            Aldus PageMaker including versions of Lorem Ipsum.
-                            Why do we use it? It is a long established fact that
-                            a reader will be distracted by the readable content
-                            of a page when looking at its layout. The point of
-                            using Lorem Ipsum is that it has a more-or-less
-                            normal distribution of letters, as opposed to using
-                            'Content here, content here', making it look like
-                            readable English. Many desktop publishing packages
-                            and web page editors now use Lorem Ipsum as their
-                            default model text, and a search for 'lorem ipsum'
-                            will uncover many web sites still in their infancy.
-                            Various versions have evolved over the years,
-                            sometimes by accident, sometimes on purpose
-                            (injected humour and the like).
+                          <Typography
+                            variant="body2"
+                            component="div"
+                            style={{
+                              whiteSpace: "pre-wrap", // Ensures formatted line breaks are retained
+                            }}
+                          >
+                            <p>
+                              <strong>
+                                Terms and Conditions for Content Submission on
+                                NULP
+                              </strong>
+                            </p>
+                            <p>
+                              By submitting content (including but not limited
+                              to thumbnails, tags, audio, video, text, images,
+                              illustrations, or other resources) to the National
+                              Urban Learning Platform (NULP), the user agrees to
+                              the following terms and conditions. Non-compliance
+                              with these terms may result in the removal of
+                              content and/or suspension of access to the
+                              platform and participation in similar future
+                              competitions.
+                            </p>
+                            <ol>
+                              <li>
+                                <strong>Prohibition of Hate Speech</strong>
+                                <ul>
+                                  <li>
+                                    Content must not promote enmity, hatred, or
+                                    ill-will against individuals or groups based
+                                    on:
+                                  </li>
+                                  <ul>
+                                    <li>
+                                      Caste, Class, Tribe, Race, Ethnicity
+                                    </li>
+                                    <li>Sex, Gender, or Gender Identity</li>
+                                    <li>
+                                      National Origin or Religious Affiliation
+                                    </li>
+                                    <li>Sexual Orientation</li>
+                                    <li>Disabilities or Diseases</li>
+                                  </ul>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Sexually Explicit Content</strong>
+                                <ul>
+                                  <li>
+                                    Content must not include pornography,
+                                    sexually explicit material, or depictions of
+                                    sexual acts.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>
+                                  Sexual Violence and Exploitation
+                                </strong>
+                                <ul>
+                                  <li>
+                                    Content must not depict or promote the
+                                    sexual exploitation of minors or incidents
+                                    of sexual violence.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Nudity and Vulgarity</strong>
+                                <ul>
+                                  <li>
+                                    Content must not display nudity unless it is
+                                    educational, documentary, scientific, or
+                                    artistic with clear context.
+                                  </li>
+                                  <li>
+                                    Content must not include vulgarity,
+                                    obscenity, or degrading material.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Violence</strong>
+                                <ul>
+                                  <li>
+                                    Content must not promote, encourage, or
+                                    glorify violent actions or behaviors.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Discrimination and Bullying</strong>
+                                <ul>
+                                  <li>
+                                    Content must not degrade, shame, or harass
+                                    individuals or groups.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Harmful or Dangerous Content</strong>
+                                <ul>
+                                  <li>
+                                    Content must not incite dangerous or illegal
+                                    activities.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Involvement of Children</strong>
+                                <ul>
+                                  <li>
+                                    Content must not depict children subjected
+                                    to abuse or violence.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Substance Abuse</strong>
+                                <ul>
+                                  <li>
+                                    Content must not encourage or glorify the
+                                    use of alcohol, drugs, or tobacco.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Defamation</strong>
+                                <ul>
+                                  <li>
+                                    Content must not defame or ridicule
+                                    individuals, groups, or people with
+                                    disabilities.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>
+                                  Content Sensitive to Children with Special
+                                  Needs
+                                </strong>
+                                <ul>
+                                  <li>
+                                    Content must be accessible and sensitive to
+                                    children with special needs.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Environmental Sensitivity</strong>
+                                <ul>
+                                  <li>
+                                    Content must not glorify activities causing
+                                    environmental damage.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>Copyright Compliance</strong>
+                                <ul>
+                                  <li>
+                                    You confirm that you own the rights to the
+                                    submitted content or have the necessary
+                                    permissions/licenses.
+                                  </li>
+                                  <li>
+                                    NULP is not liable for copyright
+                                    infringement claims arising from your
+                                    content.
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <strong>
+                                  User Responsibility and Agreement
+                                </strong>
+                                <ul>
+                                  <li>
+                                    By submitting content, you certify that your
+                                    submission complies with these terms and
+                                    conditions.
+                                  </li>
+                                  <li>
+                                    You agree to take full responsibility for
+                                    any content you submit, including any
+                                    consequences arising from non-compliance.
+                                  </li>
+                                  <li>
+                                    NULP reserves the right to review, remove,
+                                    or reject any content that violates these
+                                    terms or fails to align with the platform's
+                                    standards.
+                                  </li>
+                                  <li>
+                                    Users submitting content that repeatedly
+                                    violates these terms may face account
+                                    suspension or termination.
+                                  </li>
+                                  <li>
+                                    If any copyright issue or participation
+                                    through unfair means is identified by
+                                    competent authority, your entry will be
+                                    deleted from NULP, prize money will be
+                                    forfeited, and you will be banned from
+                                    further participation.
+                                  </li>
+                                </ul>
+                              </li>
+                            </ol>
+                            <p>
+                              <strong>Content Review and Moderation</strong>
+                            </p>
+                            <p>
+                              The NULP team reserves the right to moderate,
+                              monitor, and take action against any submitted
+                              content that breaches these terms. In this regard
+                              decisions made by the team will be final.
+                            </p>
+                            <p>
+                              By proceeding with the submission, you acknowledge
+                              and agree to abide by these Terms and Conditions.
+                            </p>
                           </Typography>
 
                           {/* Modal Actions */}
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => handleCheckboxChange(true)}
-                            style={{ marginRight: "10px" }}
+                          <Box
+                            style={{ marginTop: "20px", textAlign: "center" }}
                           >
-                            Confirm
-                          </Button>
-                          <div style={{ marginTop: "20px" }}>
-                            <Button
-                              variant="outlined"
-                              color="secondary"
-                              onClick={() => setTNCOpen(false)}
-                            >
-                              {"CANCEL"}
-                            </Button>
-                          </div>
+                            <FormControlLabel
+                              control={<Checkbox />}
+                              label={t(
+                                "I hereby confirm that I accept the above-mentioned terms and conditions."
+                              )}
+                            />
+                          </Box>
+
+                          <Box
+                            style={{
+                              marginTop: "20px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <Box style={{ padding: "5px" }}>
+                              <Button
+                                variant="contained"
+                                className="viewAll"
+                                onClick={() => handleCheckboxChange(true)}
+                              >
+                                {t("CONFIRM")}
+                              </Button>
+                            </Box>
+                            <Box style={{ padding: "5px" }}>
+                              <Button
+                                className="cancelBtn"
+                                onClick={() => setTNCOpen(false)}
+                              >
+                                {t("CANCEL")}
+                              </Button>
+                            </Box>
+                          </Box>
                         </div>
                       </Modal>
                     )}
@@ -1728,7 +1974,7 @@ const LernCreatorForm = () => {
                         onClick={() => handleSubmit("review")}
                         sx={{ ml: 2, padding: "9px 35px" }} // Adds spacing between the buttons
                       >
-                        Submit
+                        {t("SUBMIT")}
                       </Button>
                     </Box>
                   </Grid>

@@ -63,20 +63,52 @@ function Header({ globalSearchQuery }) {
   const [show, setShow] = React.useState(false);
   const [openNotification, setOpenNotification] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
-
+  const [accessWorkspace, setAccessWorkspace] = useState(false);
+  let parsedRoles;
   const handleSubmenuToggle = () => {
     setOpenSubmenu(!openSubmenu);
-
   };
   const handleDashboardmenuToggle = () => {
     setopenDashboardmenu(!openDashboardmenu);
-  }
+  };
+
+  const checkAccess = async (roles) => {
+    try {
+      const url = `${urlConfig.URLS.CHECK_USER_ACCESS}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      const userID = data.result.data;
+
+      const user = userID.find(
+        (user) => user.user_id === _userId && user.creator_access === false
+      );
+      if (
+        (roles.includes("COURSE_MENTOR") ||
+          roles.includes("SYSTEM_ADMINISTRATION") ||
+          roles.includes("CONTENT_CREATOR") ||
+          roles.includes("CONTENT_CREATION") ||
+          roles.includes("CONTENT_REVIEWER") ||
+
+          roles.includes("FLAG_REVIEWER") ||
+          roles.includes("ORG_ADMIN") ) &&
+
+        (!userID.some((item) => item.user_id === _userId) || user != undefined)
+      ) {
+        setAccessWorkspace(true);
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
   // Retrieve roles from sessionStorage
-  const rolesJson = sessionStorage.getItem("roles");
+  //const rolesJson = sessionStorage.getItem("roles");
   useEffect(() => {
+    const rolesJson = sessionStorage.getItem("roles");
     if (rolesJson) {
-      const parsedRoles = JSON.parse(rolesJson);
+      parsedRoles = JSON.parse(rolesJson);
       setRoles(parsedRoles);
+      checkAccess(JSON.parse(sessionStorage.getItem("roles")));
     }
   }, []);
   const handleOpenNavMenu = (event) => {
@@ -211,14 +243,14 @@ function Header({ globalSearchQuery }) {
     userData?.result?.response?.roles.map((role) => role.role) || [];
 
   const textFieldStyle = {
-    fontSize: '12px',
-    backgroundColor: searchQuery ? '#065872' : 'transparent',
-    boxShadow: searchQuery ? '0 2px 4px rgba(0, 0, 0, 0.2)' : 'none',
-    color: searchQuery ? '#fff' : "#000"
+    fontSize: "12px",
+    backgroundColor: searchQuery ? "#065872" : "transparent",
+    boxShadow: searchQuery ? "0 2px 4px rgba(0, 0, 0, 0.2)" : "none",
+    color: searchQuery ? "#fff" : "#000",
   };
   const handleLogout = () => {
-    sessionStorage.setItem('isModalShown', 'false');
-  }
+    sessionStorage.setItem("isModalShown", "false");
+  };
   return (
     <>
       <Box
@@ -269,11 +301,13 @@ function Header({ globalSearchQuery }) {
                       aria-label="search"
                       onClick={onGlobalSearch}
                     >
-                      <SearchIcon style={{ color: searchQuery ? '#fff' : '#000' }} />
+                      <SearchIcon
+                        style={{ color: searchQuery ? "#fff" : "#000" }}
+                      />
                     </IconButton>
                   ),
                   style: {
-                    color: searchQuery ? '#fff' : '#000',
+                    color: searchQuery ? "#fff" : "#000",
                   },
                 }}
               />
@@ -301,11 +335,12 @@ function Header({ globalSearchQuery }) {
               href={routeConfig.ROUTES.DOMAINLIST_PAGE.DOMAINLIST}
               className={
                 activePath ===
-                  `${routeConfig.ROUTES.DOMAINLIST_PAGE.DOMAINLIST ||
+                `${
+                  routeConfig.ROUTES.DOMAINLIST_PAGE.DOMAINLIST ||
                   activePath.startsWith(
                     routeConfig.ROUTES.CONTENTLIST_PAGE.CONTENTLIST
                   )
-                  }`
+                }`
                   ? "Menuactive"
                   : "headerMenu"
               }
@@ -326,7 +361,7 @@ function Header({ globalSearchQuery }) {
               className={
                 activePath ===
                   routeConfig.ROUTES.ALL_CONTENT_PAGE.ALL_CONTENT ||
-                  activePath.startsWith(routeConfig.ROUTES.VIEW_ALL_PAGE.VIEW_ALL)
+                activePath.startsWith(routeConfig.ROUTES.VIEW_ALL_PAGE.VIEW_ALL)
                   ? "Menuactive"
                   : "headerMenu"
               }
@@ -345,7 +380,7 @@ function Header({ globalSearchQuery }) {
               href={routeConfig.ROUTES.ADDCONNECTION_PAGE.ADDCONNECTION}
               className={
                 activePath ===
-                  `${routeConfig.ROUTES.ADDCONNECTION_PAGE.ADDCONNECTION}`
+                `${routeConfig.ROUTES.ADDCONNECTION_PAGE.ADDCONNECTION}`
                   ? "Menuactive"
                   : "headerMenu"
               }
@@ -382,7 +417,9 @@ function Header({ globalSearchQuery }) {
               target="_blank"
               href="/my-groups?selectedTab=myGroups"
               className={
-                activePath === `/my-groups?selectedTab=myGroups` ? "Menuactive" : "headerMenu"
+                activePath === `/my-groups?selectedTab=myGroups`
+                  ? "Menuactive"
+                  : "headerMenu"
               }
               underline="none"
             >
@@ -443,17 +480,26 @@ function Header({ globalSearchQuery }) {
             <Tooltip title={t("Notification")} placement="bottom" arrow>
               <Box className="notification-circle xs-hide">
                 <Tooltip>
-                  <IconButton sx={{ p: 0 }} onClick={handleClickOpenNotification}>
-                    <Badge badgeContent={notificationCount} color="error"></Badge>
+                  <IconButton
+                    sx={{ p: 0 }}
+                    onClick={handleClickOpenNotification}
+                  >
+                    <Badge
+                      badgeContent={notificationCount}
+                      color="error"
+                    ></Badge>
                     <NotificationsNoneOutlinedIcon />
                   </IconButton>
                 </Tooltip>
               </Box>
             </Tooltip>
-            <NotificationPopup open={openNotification} handleClose={handleCloseNotification} updateNotificationCount={updateNotificationCount} />
+            <NotificationPopup
+              open={openNotification}
+              handleClose={handleCloseNotification}
+              updateNotificationCount={updateNotificationCount}
+            />
             <Tooltip title={t("Notification")} placement="bottom" arrow>
-              <Box className="notification-circle xs-hide">
-              </Box>
+              <Box className="notification-circle xs-hide"></Box>
             </Tooltip>
 
             {/* User Profile */}
@@ -463,7 +509,7 @@ function Header({ globalSearchQuery }) {
               arrow
               className={
                 activePath === `${routeConfig.ROUTES.POFILE_PAGE.PROFILE}` ||
-                  activePath === `${routeConfig.ROUTES.HELP_PAGE.HELP}`
+                activePath === `${routeConfig.ROUTES.HELP_PAGE.HELP}`
                   ? "Menuactive"
                   : ""
               }
@@ -504,11 +550,7 @@ function Header({ globalSearchQuery }) {
                 underline="none"
                 textAlign="center"
               >
-                <MenuItem>
-
-                  {t("PROFILE")}
-
-                </MenuItem>
+                <MenuItem>{t("PROFILE")}</MenuItem>
               </Link>
               {roleNames.some((role) => ["CONTENT_CREATOR"].includes(role)) && (
                 <Link
@@ -516,38 +558,29 @@ function Header({ globalSearchQuery }) {
                   underline="none"
                   textAlign="center"
                 >
-                  <MenuItem>
-
-                    {t("DASHBOARD")}
-
-                  </MenuItem>
+                  <MenuItem>{t("DASHBOARD")}</MenuItem>
                 </Link>
+                
               )}
 
               {/* Check if roles array is empty or contains "PUBLIC" */}
-              {(roleNames && roleNames.length === 0) ||
-                (roleNames.length === 1 &&
-                  roleNames.includes("PUBLIC")) ? null : (
+
+              {/* {accessWorkspace && ( */}
+              {roleNames.some((role) => ["CONTENT_CREATOR"].includes(role)) && (
                 <Link
                   target="_blank"
                   href="/workspace/content/create"
                   underline="none"
                   textAlign="center"
                 >
-                  <MenuItem>
-
-                    {t("WORKSPACE")}
-
-                  </MenuItem>
+                  <MenuItem>{t("WORKSPACE")}</MenuItem>
                 </Link>
               )}
-
               <MenuItem
                 onClick={handleSubmenuToggle}
                 style={{ background: "#f9fafc", color: "#1976d2" }}
                 className="lg-hide"
               >
-
                 {t("POLL")}
                 <Link primary="Submenu" />
                 {openSubmenu ? <ExpandLess /> : <ExpandMore />}
@@ -565,7 +598,8 @@ function Header({ globalSearchQuery }) {
                 >
                   {roleNames.some((role) =>
                     ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"].includes(role)
-                  ) && (
+                  ) &&
+                    accessWorkspace && (
                       <MenuItem
                         className="ml-10"
                         style={{ background: "#f9fafc" }}
@@ -591,16 +625,16 @@ function Header({ globalSearchQuery }) {
                   {roleNames.some((role) =>
                     ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"].includes(role)
                   ) && (
-                      <MenuItem className="ml-10">
-                        <Link
-                          href={routeConfig.ROUTES.POLL.POLL_DASHBOARD}
-                          underline="none"
-                          textAlign="center"
-                        >
-                          {t("DASHBOARD")}
-                        </Link>
-                      </MenuItem>
-                    )}
+                    <MenuItem className="ml-10">
+                      <Link
+                        href={routeConfig.ROUTES.POLL.POLL_DASHBOARD}
+                        underline="none"
+                        textAlign="center"
+                      >
+                        {t("DASHBOARD")}
+                      </Link>
+                    </MenuItem>
+                  )}
                 </List>
               </Collapse>
               <Link
@@ -608,20 +642,15 @@ function Header({ globalSearchQuery }) {
                 underline="none"
                 textAlign="center"
               >
-                <MenuItem>
-
-                  {t("HELP")}
-
-                </MenuItem>
+                <MenuItem>{t("HELP")}</MenuItem>
               </Link>
-              <Link href="/logoff" underline="none" textAlign="center"
-                onClick={handleLogout}>
-                <MenuItem>
-
-
-                  {t("LOGOUT")}
-
-                </MenuItem>
+              <Link
+                href="/logoff"
+                underline="none"
+                textAlign="center"
+                onClick={handleLogout}
+              >
+                <MenuItem>{t("LOGOUT")}</MenuItem>
               </Link>
             </Menu>
           </Box>
@@ -668,22 +697,23 @@ function Header({ globalSearchQuery }) {
                       underline="none"
                     >
                       <MenuItem>
-
                         <LiveHelpOutlinedIcon
                           style={{ verticalAlign: "bottom", color: "#000" }}
                         />{" "}
                         {t("HELP")}
-
                       </MenuItem>
                     </Link>
-                    <Link href="/logoff" textAlign="center" underline="none" onClick={handleLogout}>
+                    <Link
+                      href="/logoff"
+                      textAlign="center"
+                      underline="none"
+                      onClick={handleLogout}
+                    >
                       <MenuItem>
-
                         <LogoutOutlinedIcon
                           style={{ verticalAlign: "bottom", color: "#000" }}
                         />{" "}
                         {t("LOGOUT")}
-
                       </MenuItem>
                     </Link>
                   </Menu>
@@ -769,8 +799,8 @@ function Header({ globalSearchQuery }) {
                   className={
                     activePath ===
                       `${routeConfig.ROUTES.POFILE_PAGE.PROFILE}` ||
-                      activePath === `${routeConfig.ROUTES.HELP_PAGE.HELP}` ||
-                      activePath ===
+                    activePath === `${routeConfig.ROUTES.HELP_PAGE.HELP}` ||
+                    activePath ===
                       `${routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}`
                       ? "Menuactive"
                       : ""
@@ -808,7 +838,7 @@ function Header({ globalSearchQuery }) {
                   onClose={handleCloseUserMenu}
                   PaperProps={{
                     sx: {
-                      width: '170px',
+                      width: "170px",
                     },
                   }}
                 >
@@ -817,9 +847,7 @@ function Header({ globalSearchQuery }) {
                     underline="none"
                     textAlign="center"
                   >
-                    <MenuItem>
-                      {t("PROFILE")}
-                    </MenuItem>
+                    <MenuItem>{t("PROFILE")}</MenuItem>
                   </Link>
                   <MenuItem
                     onClick={handleDashboardmenuToggle}
@@ -845,82 +873,91 @@ function Header({ globalSearchQuery }) {
                           role
                         )
                       ) && (
-                          <Link
-                            href={routeConfig.ROUTES.POLL.POLL_DASHBOARD}
-                            underline="none"
-                            textAlign="center"
-                          >
-                            <MenuItem className="ml-10">
-
-                              {t("POLL")}
-
-                            </MenuItem>
-                          </Link>
-                        )}
+                        <Link
+                          href={routeConfig.ROUTES.POLL.POLL_DASHBOARD}
+                          underline="none"
+                          textAlign="center"
+                        >
+                          <MenuItem className="ml-10">{t("POLL")}</MenuItem>
+                        </Link>
+                      )}
                       {roleNames.some((role) =>
-                        ["ORG_ADMIN", "SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"].includes(
-                          role
-                        )
+                        [
+                          "ORG_ADMIN",
+                          "SYSTEM_ADMINISTRATION",
+                          "CONTENT_CREATOR",
+                        ].includes(role)
                       ) && (
-                          <Link
-                            href={routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}
-                            underline="none"
-                            textAlign="center"
-                          >
-                            <MenuItem className="ml-10">
-
-                              {t("EVENTS")}
-
-                            </MenuItem>
-                          </Link>
-                        )}
+                        <Link
+                          href={routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}
+                          underline="none"
+                          textAlign="center"
+                        >
+                          <MenuItem className="ml-10">{t("EVENTS")}</MenuItem>
+                        </Link>
+                      )}
                       <MenuItem
                         className="ml-10"
                         onClick={() => {
                           sessionStorage.setItem("urlPath", "learningreport");
-                          window.open(routeConfig.ROUTES.LEARNING_REPORT, "_blank");
+                          window.open(
+                            routeConfig.ROUTES.LEARNING_REPORT,
+                            "_blank"
+                          );
                         }}
-                        style={{ color: '#1976d2' }}
+                        style={{ color: "#1976d2" }}
                       >
                         {t("LEARNING_REPORT")}
                       </MenuItem>
+                      {roleNames.some((role) =>
+                        ["ORG_ADMIN","SYSTEM_ADMINISTRATION"].includes(
+                          role
+                        )
+                      ) && (
+                        <Link
+                          href={routeConfig.ROUTES.LEARNATHON.DASHBOARD}
+
+
+                          underline="none"
+                          textAlign="center"
+                          disablePadding
+
+                        >
+                          <MenuItem  className="ml-10" style={{ color: "#1976d2" }}>
+                            {t("LEARNATHON")}
+                          </MenuItem>
+                        </Link>
+                      )}
+
                     </List>
                   </Collapse>
                   {roleNames.some((role) =>
-                    ["ORG_ADMIN", "SYSTEM_ADMINISTRATION"].includes(
-                      role
-                    )
+                    ["ORG_ADMIN", "SYSTEM_ADMINISTRATION"].includes(role)
                   ) && (
-                      <Link
-                        href={routeConfig.ROUTES.ADMIN}
-                        underline="none"
-                        textAlign="center"
-                        target="_blank"
-                      >
-                        <MenuItem>
-                          {t("ADMIN")}
-                        </MenuItem>
-                      </Link>
-                    )}
+                    <Link
+                      href={routeConfig.ROUTES.ADMIN}
+                      underline="none"
+                      textAlign="center"
+                      target="_blank"
+                    >
+                      <MenuItem>{t("ADMIN")}</MenuItem>
+                    </Link>
+                  )}
 
-                  {/* Check if roles array is empty or contains "PUBLIC" */}
-                  {(roleNames && roleNames?.length === 0) ||
-                    (roleNames.length === 1 &&
-                      roleNames.includes("PUBLIC")) ? null : (
+
+                    {roleNames.some((role) =>
+
+                    ["ORG_ADMIN", "SYSTEM_ADMINISTRATION","CONTENT_CREATOR"].includes(role)
+                  ) && (
                     <Link
                       target="_blank"
                       href="/workspace/content/create"
                       underline="none"
                       textAlign="center"
                     >
-                      <MenuItem>
-
-                        {t("WORKSPACE")}
-
-                      </MenuItem>
+                      <MenuItem>{t("WORKSPACE")}</MenuItem>
                     </Link>
                   )}
-
                   {/* <NotificationsNoneOutlinedIcon />
                     ekta */}
 
@@ -948,26 +985,22 @@ function Header({ globalSearchQuery }) {
                           role
                         )
                       ) && (
-                          <Link
-                            href={routeConfig.ROUTES.POLL.POLL_FORM}
-                            underline="none"
-                            textAlign="center"
-                          >
-                            <MenuItem className="ml-10">
-
-                              {t("CREATE_POLL")}
-
-                            </MenuItem>
-                          </Link>
-                        )}
+                        <Link
+                          href={routeConfig.ROUTES.POLL.POLL_FORM}
+                          underline="none"
+                          textAlign="center"
+                        >
+                          <MenuItem className="ml-10">
+                            {t("CREATE_POLL")}
+                          </MenuItem>
+                        </Link>
+                      )}
                       <Link
                         href={routeConfig.ROUTES.POLL.POLL_LIST}
                         underline="none"
                         textAlign="center"
                       >
-                        <MenuItem className="ml-10">
-                          {t("POLL_LIST")}
-                        </MenuItem>
+                        <MenuItem className="ml-10">{t("POLL_LIST")}</MenuItem>
                       </Link>
                     </List>
                   </Collapse>
@@ -976,14 +1009,15 @@ function Header({ globalSearchQuery }) {
                     underline="none"
                     textAlign="center"
                   >
-                    <MenuItem>
-                      {t("HELP")}
-                    </MenuItem>
+                    <MenuItem>{t("HELP")}</MenuItem>
                   </Link>
-                  <Link href="/logoff" underline="none" textAlign="center" onClick={handleLogout}>
-                    <MenuItem>
-                      {t("LOGOUT")}
-                    </MenuItem>
+                  <Link
+                    href="/logoff"
+                    underline="none"
+                    textAlign="center"
+                    onClick={handleLogout}
+                  >
+                    <MenuItem>{t("LOGOUT")}</MenuItem>
                   </Link>
                 </Menu>
               </Box>

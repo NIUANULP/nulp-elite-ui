@@ -57,7 +57,6 @@ const Player = () => {
   const [propLength, setPropLength] = useState();
   const _userId = util.userId();
   const [isLearnathon, setIsLearnathon] = useState(false);
-  const [isLearnathonContent, setIsLearnathonContent] = useState(false);
   const [alreadyVoted, setAlreadyVoted] = useState(false);
   const [pollId, setPollId] = useState();
   const [learnathonDetails, setLearnathonDetails] = useState();
@@ -65,8 +64,14 @@ const Player = () => {
   const params = new URLSearchParams(window.location.search);
   const pageParam = params.get("page");
   let contentId = params.get("id");
-  const [playerContent, setPlayerContent] = useState(false);
+  const [playerContent, setPlayerContent] = useState();
   const [noPreviewAvailable, setNoPreviewAvailable] = useState(false);
+  // const playerUrl = `${window.location.origin}/newplayer`;
+  const playerUrl =
+    window.location.origin != "http://localhost:3000"
+      ? `${window.location.origin}/newplayer`
+      : "https://devnulp.niua.org/newplayer";
+
   let extractedRoles;
   if (contentId && contentId.endsWith("=")) {
     contentId = contentId.slice(0, -1);
@@ -89,6 +94,7 @@ const Player = () => {
 
   const handleTrackData = useCallback(
     async ({ score, trackData, attempts, ...props }, playerType = "quml") => {
+      console.log("assestrack", Object.keys(props).length);
       setPropLength(Object.keys(props).length);
       CheckfeedBackSubmitted();
 
@@ -97,19 +103,26 @@ const Player = () => {
         props.currentPage === props.totalPages
       ) {
         setIsCompleted(true);
+      } else if (playerType === "ecml" && propLength === assessEvents.length) {
+        await updateContentStateForAssessment();
       }
     },
     [assessEvents]
   );
   const handleAssessmentData = async (data) => {
+    console.log("data  handleAssessmentData----", data);
     if (data.eid === "ASSESS") {
       setAssessEvents((prevAssessEvents) => {
         const updatedAssessEvents = [...prevAssessEvents, data];
         return updatedAssessEvents;
       });
     } else if (data.eid === "END") {
+      console.log("data  assessEvents----", assessEvents);
+
       await updateContentState(2);
-    } else if (data.eid === "START") {
+    } else if (data.eid === "START" && playerType === "ecml") {
+      await updateContentState(1);
+    } else if (data.eid === "START" && playerType != "ecml") {
       await updateContentState(2);
     }
   };
@@ -192,7 +205,7 @@ const Player = () => {
   }
 
   const updateContentStateForAssessment = async () => {
-    await updateContentState(2);
+    // await updateContentState(2);
     try {
       const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
       const requestBody = {
@@ -221,6 +234,7 @@ const Player = () => {
         },
       };
       const response = await axios.patch(url, requestBody);
+      console.log("assesment state updated");
     } catch (error) {
       console.error("Error fetching course data:", error);
     }
@@ -241,6 +255,21 @@ const Player = () => {
     [isEnrolled, _userId, contentId, courseId, batchId]
   );
 
+  const replaceDomain = (obj, oldDomain, newDomain) => {
+    if (typeof obj === "string") {
+      return obj.replace(new RegExp(oldDomain, "g"), newDomain);
+    } else if (Array.isArray(obj)) {
+      return obj.map((item) => replaceDomain(item, oldDomain, newDomain));
+    } else if (typeof obj === "object" && obj !== null) {
+      return Object.entries(obj).reduce((acc, [key, value]) => {
+        acc[key] = replaceDomain(value, oldDomain, newDomain);
+        return acc;
+      }, {});
+    }
+
+    return obj;
+  };
+
   useEffect(
     async () => {
       setPreviousRoute(sessionStorage.getItem("previousRoutes"));
@@ -256,13 +285,26 @@ const Player = () => {
             if (!response.ok) throw new Error("Failed to fetch course data");
             const data = await response.json();
             console.log("data.result.content", data.result.content);
-            setLesson(data.result.content);
+            const updatedResponse = replaceDomain(
+              data.result.content,
+
+              "nulpstorage1.blob.core.windows.net",
+              "nulpstorage.blob.core.windows.net"
+            );
+            console.log("updatedResponse", updatedResponse);
+
+            setLesson(updatedResponse);
           } catch (error) {
             console.error("Error fetching course data:", error);
           }
         };
 
-        if (pageParam == "review" || pageParam == "lern") {
+        if (
+          pageParam == "review" ||
+          pageParam == "lern" ||
+          pageParam == "lernpreview" ||
+          pageParam == "dashboard"
+        ) {
           setIsLearnathon(true);
 
           const assetBody = {
@@ -292,7 +334,7 @@ const Player = () => {
             console.log(result.result);
 
             setLearnathonDetails(result.result.data[0]);
-
+            // setCourseId(result.result.data[0].content_id);
             setPlayerContent(result.result.data[0].content_id);
             if (result.result.data[0].status == "Live") {
               setIsPublished(true);
@@ -330,7 +372,31 @@ const Player = () => {
   const handleClose = () => setOpenFeedBack(false);
   const handleGoBack = () => navigate(sessionStorage.getItem("previousRoutes"));
   const handleBackNavigation = () => {
-    navigate(-1); // Navigate back in history
+    console.log("pageParam - ", pageParam);
+    if (pageParam == "vote") {
+      navigate("/webapp/lernvotinglist");
+      window.location.reload();
+    } else if (pageParam == "lern") {
+      navigate("/webapp/lernreviewlist", { state: { backPage: "player" } });
+      window.location.reload();
+    } else if (pageParam == "lernpreview") {
+      navigate("/webapp/mylernsubmissions");
+      window.location.reload();
+    } else if (pageParam == "dashboard") {
+      navigate("/webapp/learndashboard");
+      window.location.reload();
+    } else {
+      console.log(
+        "sessionStorage.getItem(previousRoutes) - ",
+        sessionStorage.getItem("previousRoutes")
+      );
+      if (sessionStorage.getItem("previousRoutes")) {
+        navigate(sessionStorage.getItem("previousRoutes"));
+        window.location.reload();
+      } else {
+        navigate(-1); // Navigate back in history
+      }
+    }
   };
 
   const fetchData = async (content_Id) => {
@@ -344,7 +410,15 @@ const Player = () => {
       if (!response.ok) throw new Error("Failed to fetch course data");
       const data = await response.json();
       console.log("data.result.content", data.result.content);
-      setLesson(data.result.content);
+      const updatedResponse = replaceDomain(
+        data.result.content,
+
+        "nulpstorage1.blob.core.windows.net",
+        "nulpstorage.blob.core.windows.net"
+      );
+      console.log("updatedResponse", updatedResponse);
+
+      setLesson(updatedResponse);
     } catch (error) {
       console.error("Error fetching course data:", error);
     }
@@ -398,12 +472,12 @@ const Player = () => {
   };
 
   useEffect(() => {
-    if (pageParam == "vote") {
+    if (pageParam == "vote" || pageParam == "dashboard") {
       CheckLearnathonContent();
     }
   }, [contentId]);
   useEffect(() => {
-    if (pageParam == "vote") {
+    if (pageParam == "vote" || pageParam == "dashboard") {
       CheckAlreadyVoted();
     }
   }, [pollId]);
@@ -439,7 +513,6 @@ const Player = () => {
       const result = await response.json();
       console.log("suceesss----", result);
       console.log(result.result);
-      alert("Published successfully");
       const currentDateTime = new Date();
       currentDateTime.setMinutes(currentDateTime.getMinutes() + 2);
       const updatedDateTime = currentDateTime.toISOString();
@@ -451,11 +524,12 @@ const Player = () => {
         visibility: "PublicToAll",
         poll_options: ["I would like to vote this content"],
         poll_type: "Polls",
-        start_date: updatedDateTime,
-        end_date: "2024-11-22T12:21:09.754Z",
+        start_date: urlConfig.LEARNATHON_DATES.VOTING_START_DATE,
+        end_date: urlConfig.LEARNATHON_DATES.VOTING_END_DATE,
         is_live_poll_result: true,
         content_id: learnathonDetails?.learnathon_content_id,
         category: "Learnathon",
+        content_category: learnathonDetails?.category_of_participation
       };
       try {
         const response = await fetch(`${urlConfig.URLS.POLL.CREATE}`, {
@@ -475,6 +549,7 @@ const Player = () => {
             status: "Live",
             created_by: learnathonDetails.created_by,
             title_of_submission: learnathonDetails.title_of_submission,
+            created_by: learnathonDetails.created_by,
           };
 
           try {
@@ -490,15 +565,17 @@ const Player = () => {
             );
 
             if (!response.ok) {
-              throw new Error("Something went wrong");
+              throw new Error(t("SOMETHING_WENT_WRONG"));
             } else {
-              navigate("/webapp/lernreviewlist");
             }
 
             const result = await response.json();
             console.log("suceesss");
-            navigate("/webapp/mylernsubmissions");
+            alert("Published successfully");
+            handleBackNavigation();
+            window.location.reload();
           } catch (error) {
+            throw new Error(t("SOMETHING_WENT_WRONG"));
           } finally {
           }
         } else {
@@ -506,10 +583,10 @@ const Player = () => {
         }
       } catch (error) {
         // setToasterMessage(error.message);
-        setToasterOpen(true);
       }
 
-      navigate(routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST);
+      // navigate(routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST);
+      // window.location.reload();
       // setData(result.result.data);
       // setTotalRows(result.result.totalCount);
     } catch (error) {
@@ -547,9 +624,38 @@ const Player = () => {
       const result = await response.json();
       console.log("suceesss----", result);
       console.log(result.result);
-      alert("Content Rejected");
+      const formData = {
+        status: "Reject",
+        title_of_submission: learnathonDetails.title_of_submission,
+        created_by: learnathonDetails.created_by,
+      };
+      try {
+        const response = await fetch(
+          `${urlConfig.URLS.LEARNATHON.UPDATE}?id=${contentId}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          }
+        );
 
-      navigate(routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST);
+        if (!response.ok) {
+          throw new Error("Something went wrong");
+        }
+
+        const result = await response.json();
+        console.log("suceesss");
+        alert("Content Rejected");
+
+        handleBackNavigation();
+
+        window.location.reload();
+      } catch (error) {
+      } finally {
+      }
+
       // setData(result.result.data);
       // setTotalRows(result.result.totalCount);
     } catch (error) {
@@ -671,7 +777,9 @@ const Player = () => {
                         </Button>
                       ))}
 
-                    {isLearnathon ? (
+                    {isLearnathon &&
+                    learnathonDetails.indicative_sub_theme &&
+                    learnathonDetails.indicative_sub_theme != null ? (
                       <Button
                         key={`board`}
                         size="small"
@@ -703,6 +811,23 @@ const Player = () => {
                         </Button>
                       ))
                     )}
+                    {isLearnathon &&
+                      learnathonDetails.other_indicative_themes &&
+                      learnathonDetails.other_indicative_themes != null && (
+                        <Button
+                          key={`board`}
+                          size="small"
+                          style={{
+                            color: "#424242",
+                            fontSize: "10px",
+                            margin: "0 10px 3px 6px",
+                            cursor: "auto",
+                          }}
+                          className="bg-blueShade3"
+                        >
+                          {learnathonDetails.other_indicative_themes}
+                        </Button>
+                      )}
 
                     {!isLearnathon &&
                       !lesson.gradeLevel &&
@@ -812,10 +937,10 @@ const Player = () => {
                     setTrackData(data);
                   }
                 }}
-                public_url="https://nulp.niua.org/newplayer"
+                public_url={playerUrl}
               />
             ) : (
-              <Box>No content available to play</Box>
+              <Box>{t("NO_CONTENT_TO_PLAY")}</Box>
             )}
           </Box>
           <Box

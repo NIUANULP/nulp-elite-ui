@@ -29,6 +29,7 @@ const FloatingChatIcon = () => {
 
   const open = Boolean(anchorEl);
   const id = open ? "chat-popover" : undefined;
+  const chatBotUrl = `${window.location.origin}/chatbot`
 
   return (
     <>
@@ -43,7 +44,7 @@ const FloatingChatIcon = () => {
         }}
       >
         <iframe
-          src="https://devnulp.niua.org/chatbot"
+          src={chatBotUrl}
           width="350"
           height="500"
           title="ChatBot"

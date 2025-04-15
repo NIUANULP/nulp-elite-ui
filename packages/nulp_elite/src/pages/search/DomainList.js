@@ -31,6 +31,7 @@ import * as util from "../../services/utilService";
 import { Loading } from "@shiksha/common-lib";
 import { Button } from "@mui/material";
 import axios from "axios";
+import dayjs from "dayjs";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -72,11 +73,40 @@ const DomainList = ({ globalSearchQuery }) => {
   const [framework, setFramework] = useState();
   const [roleList, setRoleList] = useState([]);
   const [orgId, setOrgId] = useState([]);
-
+  const [isLearnathonUser, setIsLearnathonUser] = useState(false);
   const [searchQuery, setSearchQuery] = useState(globalSearchQuery || "");
 
   const [lernUser, setLernUser] = useState([]);
   const _userId = util.userId();
+  const [isReviewer, setIsReviewer] = useState(false);
+  const today = dayjs();
+  const formattedDate = today.subtract(1, "hour").format("YYYY-MM-DD HH:mm:ss");
+  const isLearnathonStarted = today.isAfter(
+    urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_START_DATE
+  );
+
+  const isParticipateNow = today.isBetween(
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_START_DATE),
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE),
+    "minute"
+  );
+  const isAfterSubmission = today.isAfter(
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE),
+    "minute"
+  );
+
+  const isReviewNow = today.isBetween(
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_REVIEW_START_DATE),
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_REVIEW_END_DATE),
+    "minute"
+  );
+
+  const isVoteNow = today.isBetween(
+    dayjs(urlConfig.LEARNATHON_DATES.VOTING_START_DATE),
+    dayjs(urlConfig.LEARNATHON_DATES.VOTING_END_DATE),
+    "minute"
+  );
+
   const fetchData = async () => {
     try {
       const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.GET_PROFILE}${_userId}`;
@@ -84,13 +114,21 @@ const DomainList = ({ globalSearchQuery }) => {
       const data = await response.json();
       const rolesData = data.result.response.channel;
       const roles = data.result.response.roles;
+
       let organizationId;
+      setIsLearnathonUser(
+        data.result.response.firstName.includes("tekdiNulp11")
+      );
+
       if (roles[0]?.scope[0]?.organisationId) {
         organizationId = roles[0].scope[0].organisationId;
       } else {
-          organizationId = data?.result?.response?.organisations[0]?.organisationId;
-        }      const extractedRoles = roles.map((roleObj) => roleObj.role);
+        organizationId =
+          data?.result?.response?.organisations[0]?.organisationId;
+      }
+      const extractedRoles = roles.map((roleObj) => roleObj.role);
       setRoleList(extractedRoles);
+      setIsReviewer(extractedRoles.includes("SYSTEM_ADMINISTRATION"));
       setOrgId(organizationId);
       setLernUser(rolesData);
     } catch (error) {
@@ -116,14 +154,48 @@ const DomainList = ({ globalSearchQuery }) => {
 
       if (!user) {
         fetchUserAccess();
-      } else if (user.creator_access === true) {
+      } else if (
+        user.creator_access === true ||
+        user.creator_access === false
+      ) {
         navigate("/webapp/mylernsubmissions");
-      } else if (user.creator_access === false) {
-        fetchUserAccess();
       }
+      // else if (user.creator_access === false) {
+      //   fetchUserAccess();
+      // }
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
+  };
+
+  const navigateConsecutively = async () => {
+    console.log("navigateConsecutively1111");
+    // navigate("/logoff");
+    // localStorage.clear();
+    // sessionStorage.clear();
+
+    try {
+      const response = await fetch("/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (response.ok) {
+        showErrorMessage(
+          "Thank you for participation. Please relogin to get submission access"
+        );
+        localStorage.clear(); // Clear local storage if needed
+        navigate("/webapp/mylernsubmissions");
+        setTimeout(() => {
+          window.location.reload(); // Reload the page
+        }, 1000);
+      } else {
+        console.error("Failed to log out");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+
+    console.log("navigateConsecutively22222");
   };
 
   let responsecode;
@@ -140,7 +212,11 @@ const DomainList = ({ globalSearchQuery }) => {
         },
       };
 
+      console.log("rolesss", roleList, isCreator);
+
       if (isCreator) {
+        requestPayload.isCreator = false;
+      } else {
         requestPayload.isCreator = true;
       }
 
@@ -150,7 +226,8 @@ const DomainList = ({ globalSearchQuery }) => {
 
       responsecode = result;
       if (result === "OK") {
-        navigate("/webapp/mylernsubmissions");
+        navigateConsecutively();
+        // navigate("webapp/mylernsubmissions");
         setIsModalOpen(false);
       } else {
         setToasterMessage("Something went wrong! Please try again later");
@@ -565,73 +642,142 @@ const DomainList = ({ globalSearchQuery }) => {
         >
           {error && <Alert severity="error">{error}</Alert>}
 
-          <Box className="lern-box">
-            <Box>
-              <Grid container>
-                <Grid item xs={12}>
-                  <Box className="h1-title">{t("LERN_title")}</Box>
-                </Grid>
-
-                <Grid item xs={12} md={9}>
-                  <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
-                </Grid>
-
-                <Grid item xs={12} md={3}>
-                  <Grid
-                    container
-                    direction="column"
-                    spacing={2}
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Grid item xs={12}>
-                      <Button className="viewAllbtn" onClick={handleCheckUser}>
-                        {lernUser === "nulp-learn"
-                          ? t("PARTICIPATE_NOW")
-                          : t("PARTICIPATE_NOW")}
-                      </Button>
-                    </Grid>
-
-                    <Grid item xs={12}>
-                      <Button
-                        className="viewAllbtn"
-                        onClick={() => {
-                          window.open(
-                            routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
-                            "_blank"
-                          );
-                        }}
+          {(isLearnathonStarted) && (
+            <Box className="lern-box">
+              <Box>
+                <Grid container>
+                  <Grid item xs={12}>
+                    <Box className="h1-title">{t("LERN_title")}</Box>
+                  </Grid>
+                  <Grid item xs={12} md={9}>
+                    <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
+                  </Grid>
+                  {!isLearnathonStarted && (
+                    <Grid item xs={12} md={3}>
+                      <Grid
+                        container
+                        direction="column"
+                        spacing={2}
+                        alignItems="center"
+                        justifyContent="center"
                       >
-                        Review Now
-                      </Button>
+                        <Grid item xs={12}>
+                          <Button className="viewAll" onClick={handleCheckUser}>
+                            {lernUser === "nulp-learn"
+                              ? t("PARTICIPATE_NOW")
+                              : t("PARTICIPATE_NOW")}
+                          </Button>
+                        </Grid>
+                        <Grid item xs={12}>
+                          <Button
+                            className="viewAll"
+                            onClick={() => {
+                              window.open(
+                                routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
+                                "_blank"
+                              );
+                            }}
+                          >
+                            Review Now
+                          </Button>
+                        </Grid>
+                        <Grid item xs={12}>
+                          <Button
+                            className="viewAll"
+                            onClick={() => {
+                              window.open(
+                                routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
+                                "_blank"
+                              );
+                            }}
+                          >
+                            Vote Now
+                          </Button>
+                        </Grid>
+                        {isAfterSubmission && (
+                        <Grid item xs={12}>
+                          <Button 
+                             className="viewAll" 
+                             onClick={handleCheckUser}>
+                             {t("SEE_YOUR_SUBMISSION")}
+                          </Button>
+                        </Grid>
+                        )}
+                      </Grid>
                     </Grid>
-
-                    <Grid item xs={12}>
-                      <Button
-                        className="viewAllbtn"
-                        onClick={() => {
-                          window.open(
-                            routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
-                            "_blank"
-                          );
-                        }}
+                  )}
+                  {isLearnathonStarted && (
+                    <Grid item xs={12} md={3}>
+                      <Grid
+                        container
+                        direction="column"
+                        spacing={2}
+                        alignItems="center"
+                        justifyContent="center"
                       >
-                        Vote Now
-                      </Button>
+                        {isParticipateNow && (
+                          <Grid item xs={12}>
+                            <Button
+                              className="viewAll"
+                              onClick={handleCheckUser}
+                            >
+                              {t("PARTICIPATE_NOW")}
+                            </Button>
+                          </Grid>
+                        )}
+                        {isAfterSubmission && (
+                          <Grid item xs={12}>
+                            <Button 
+                             className="viewAll" 
+                             onClick={handleCheckUser}>
+                            {t("SEE_YOUR_SUBMISSION")}
+                            </Button>
+                          </Grid>  
+                        )}
+                        {isReviewNow && isReviewer && (
+                          <Grid item xs={12}>
+                            <Button
+                              className="viewAll"
+                              onClick={() => {
+                                window.open(
+                                  routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
+                                  "_blank"
+                                );
+                              }}
+                            >
+                              {t("REVIEW_NOW")}
+                            </Button>
+                          </Grid>
+                        )}
+                        {isVoteNow && (
+                          <Grid item xs={12}>
+                            <Button
+                              className="viewAll"
+                              onClick={() => {
+                                window.open(
+                                  routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
+                                  "_blank"
+                                );
+                              }}
+                            >
+                              {t("VOTE_NOW")}
+                            </Button>
+                          </Grid>
+                        )}
+                      </Grid>
                     </Grid>
+                  )}
+                  <Grid item xs={12}>
+                    {toasterMessage && (
+                      <Box>
+                        <ToasterCommon response={toasterMessage} />
+                      </Box>
+                    )}
                   </Grid>
                 </Grid>
-
-                <Grid item xs={12}>
-                  {toasterMessage && (
-                    <Box>
-                      <ToasterCommon response={toasterMessage} />
-                    </Box>
-                  )}
-                </Grid>
-              </Grid>
+              </Box>
             </Box>
-          </Box> 
+          )}
 
           <Box textAlign="center">
             <p
