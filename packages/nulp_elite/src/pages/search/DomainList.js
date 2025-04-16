@@ -129,9 +129,6 @@ const DomainList = ({ globalSearchQuery }) => {
       const extractedRoles = roles.map((roleObj) => roleObj.role);
       setRoleList(extractedRoles);
       setIsReviewer(extractedRoles.includes("SYSTEM_ADMINISTRATION"));
-      console.log("isisReviewNow", isReviewNow, isReviewer);
-      console.log("rolesData", roleList, extractedRoles);
-      console.log("isLearnathonUser", isLearnathonUser);
       setOrgId(organizationId);
       setLernUser(rolesData);
     } catch (error) {
@@ -342,6 +339,7 @@ const DomainList = ({ globalSearchQuery }) => {
     let requestData = {
       request: {
         filters: {
+          status: ["Live"],
           se_boards: [null],
           primaryCategory: ["Good Practices", "Reports", "Manual/SOPs"],
           visibility: ["Default", "Parent"],
@@ -450,6 +448,7 @@ const DomainList = ({ globalSearchQuery }) => {
     let requestData = {
       request: {
         filters: {
+          status: ["Live"],
           se_boards: [null],
           primaryCategory: ["Course"],
           visibility: ["Default", "Parent"],

@@ -47,7 +47,6 @@ const isFormClosed = dayjs().isAfter(
   "minute"
 );
 
-
 const categories = [
   "State / UT / SPVs / ULBs / Any Other",
   "Industry",
@@ -95,14 +94,14 @@ const IndianStates = [
   "Uttar Pradesh",
   "Uttarakhand",
   "West Bengal",
+  "Delhi",
+  "Jammu and Kashmir",
   "Andaman and Nicobar Islands",
-"Chandigarh",
-"Dadra and Nagar Haveli and Daman and Diu",
-"Lakshadweep",
-"Delhi",
-"Puducherry",
-"Ladakh",
-"Jammu and Kashmir",
+  "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Lakshadweep",
+  "Puducherry",
+  "Ladakh"
 ];
 
 // List of some popular cities in India

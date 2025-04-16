@@ -53,12 +53,12 @@ const LernSubmissionTable = () => {
   };
 
   const routeConfig = require("../../configs/routeConfig.json");
-  
 
-const isSubmissionClosed = dayjs().isAfter(
-  dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE),
-  "minute"
-);
+
+  const isSubmissionClosed = dayjs().isAfter(
+    dayjs(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_END_DATE),
+    "minute"
+  );
 
 
   useEffect(() => {
@@ -184,18 +184,18 @@ const isSubmissionClosed = dayjs().isAfter(
           </Grid>
           <Grid item xs={5}></Grid>
           <Grid item xs={2}>
-          {!isSubmissionClosed && (
-            <Button
-              className="viewAll"
-              onClick={() =>
+            {!isSubmissionClosed && (
+              <Button
+                className="viewAll"
+                onClick={() =>
                 (window.location.href =
                   routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT)
-              }
-              sx={{ padding: "7px 45px", borderRadius: "90px !important" }}
-            >
-              {t("UPLOAD_SUBMISSION")}
-            </Button>
-          )}
+                }
+                sx={{ padding: "7px 45px", borderRadius: "90px !important" }}
+              >
+                {t("UPLOAD_SUBMISSION")}
+              </Button>
+            )}
           </Grid>
         </Grid>
         {!emptySubmission && (
@@ -225,62 +225,62 @@ const isSubmissionClosed = dayjs().isAfter(
                           row.status === "live"
                             ? "green"
                             : row.status === "review"
-                            ? "orange"
-                            : "red",
+                              ? "orange"
+                              : "red",
                         textTransform: "capitalize",
                       }}
                     >
                       {row.status}
                     </TableCell>
-                    {!isSubmissionClosed &&(
-                    <TableCell>
-                      {row.status == "draft" && (
-                        <IconButton
-                          color="primary"
-                          onClick={() =>
+                    {!isSubmissionClosed && (
+                      <TableCell>
+                        {row.status == "draft" && (
+                          <IconButton
+                            color="primary"
+                            onClick={() =>
                             (window.location.href =
                               routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT +
                               "?" +
                               row.learnathon_content_id)
-                          }
-                          sx={{ color: "#057184" }}
-                          className="table-icon"
-                        >
-                          <Edit />
-                        </IconButton>
-                      )}
-                      {
-                        <IconButton
-                          color="primary"
-                          onClick={() =>
+                            }
+                            sx={{ color: "#057184" }}
+                            className="table-icon"
+                          >
+                            <Edit />
+                          </IconButton>
+                        )}
+                        {
+                          <IconButton
+                            color="primary"
+                            onClick={() =>
                             (window.location.href =
                               routeConfig.ROUTES.PLAYER_PAGE.PLAYER +
                               "?id=" +
                               row.learnathon_content_id +
                               "&page=lernpreview")
-                          }
-                          sx={{ color: "#054753" }}
-                          className="table-icon"
-                        >
-                          <Visibility />
-                        </IconButton>
-                      }
-                      {(row.status == "draft" || row.status == "review") && (
-                        <IconButton
-                          color="secondary"
-                          onClick={() =>
-                            handleDialogOpen(
-                              row.learnathon_content_id,
-                              row.content_id
-                            )
-                          }
-                          sx={{ color: "red" }}
-                          className="table-icon"
-                        >
-                          <Delete />
-                        </IconButton>
-                      )}
-                    </TableCell>
+                            }
+                            sx={{ color: "#054753" }}
+                            className="table-icon"
+                          >
+                            <Visibility />
+                          </IconButton>
+                        }
+                        {(row.status == "draft" || row.status == "review") && (
+                          <IconButton
+                            color="secondary"
+                            onClick={() =>
+                              handleDialogOpen(
+                                row.learnathon_content_id,
+                                row.content_id
+                              )
+                            }
+                            sx={{ color: "red" }}
+                            className="table-icon"
+                          >
+                            <Delete />
+                          </IconButton>
+                        )}
+                      </TableCell>
                     )}
                   </TableRow>
                 ))}
@@ -288,14 +288,14 @@ const isSubmissionClosed = dayjs().isAfter(
             </Table>
           </TableContainer>
         )}
-        {emptySubmission && (
+        {!isSubmissionClosed && (
           <Box marginLeft={"550px"} padding={"32px"}>
             <Box>{t("NO_SUBMISSION")}</Box>
             <Button
               className="viewAll"
               onClick={() =>
-                (window.location.href =
-                  routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT)
+              (window.location.href =
+                routeConfig.ROUTES.LEARNATHON.CREATELEARNCONTENT)
               }
               sx={{
                 padding: "7px 45px",

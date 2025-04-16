@@ -36,7 +36,6 @@ const contentTypeList = [
   { key: 'Good Practices', value: 'Good Practices' },
 ];
 
-
   const [subCategory, setSubCategory] = useState([]);
   const [selectedContentType, setSelectedContentType] = useState([]);
   const [selectedSubDomain, setSelectedSubDomain] = useState([]);
@@ -60,6 +59,7 @@ const contentTypeList = [
 
   const fetchSubDomainCount = async (subDomainName) => {
     
+    
     let requestData = {
       request: {
         filters: {
@@ -79,9 +79,10 @@ const contentTypeList = [
                   "Reports",
                   "Manual/SOPs",
                 ],
-          board: [domainName],
-          gradeLevel:
-          [subDomainName],
+          // board: [domainName],
+          // gradeLevel: [subDomainName],
+          se_boards: [domainName],
+          se_gradeLevels: [subDomainName],
         },
         limit: 20,
         sort_by: {
@@ -109,7 +110,6 @@ const contentTypeList = [
     const uniqueFilteredSubCategories = [...new Set(subCategory.map(item => item.name))].map(name => 
       subCategory.find(item => item.name === name)
     );
-    console.log("subCategory", uniqueFilteredSubCategories);
 
       const fetchCounts = async () => {
       const counts = {};
@@ -119,7 +119,6 @@ const contentTypeList = [
 
         try{
           const response = await fetchSubDomainCount(item.name);
-          console.log(` Count for ${item.name}:`, response?.count);  
           counts[item.name] = response?.count || 0;
         } catch(error){
           console.log("error", error);
@@ -127,7 +126,6 @@ const contentTypeList = [
          
         
       }
-      console.log("Final counts :", counts); 
       setSubDomainCounts(counts); 
     };
 
@@ -674,7 +672,7 @@ const uniqueFilteredSubCategories = [...new Set(filteredSubCategories.map(item =
         />
       </FormControl>
           <List>
-          {uniqueFilteredSubCategories.filter((item) => subDomainCounts[item.name] > 0) .map((item) => (
+         {uniqueFilteredSubCategories.filter((item) => subDomainCounts[item.name] > 0) .map((item) => ( 
           <ListItem className="filter-ul-text" key={item.name}>
             <FormControlLabel
               control={
