@@ -428,5 +428,7 @@
   "STATE_ULBS": "राज्य/यूएलबीएस आदि",
   "INDUSTRY": "उद्योग",
   "STATE_COUNT": "राज्य गणना",
-  "REVIEW_NOW": "अभी समीक्षा करें"
+  "REVIEW_NOW": "अभी समीक्षा करें",
+  "VOTE_NOW": "अभी वोट करें",
+  "SEE_YOUR_SUBMISSION":"अपना सबमिशन देखें"
 }

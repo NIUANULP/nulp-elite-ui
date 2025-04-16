@@ -1242,7 +1242,7 @@ const Profile = () => {
                         value="1"
                       />
                       <Tab
-                        label={t("LEARNING HISTORY")}
+                        label={t("LEARNING_HISTORY")}
                         className="tab-text profile-tab"
                         icon={<WatchLaterOutlinedIcon />}
                         value="2"
