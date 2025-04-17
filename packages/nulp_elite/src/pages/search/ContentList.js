@@ -186,12 +186,21 @@ const ContentList = (props) => {
                   "Manual/SOPs",
                 ],
               }),
+          // ...(domainfilter.se_board
+          //   ? { board: domainfilter.se_board }
+          //   : domainName
+          //   ? { board: [domainName] }
+          //   : {}),
+          // gradeLevel:
+          //   subDomainFilter && subDomainFilter.length > 0
+          //     ? subDomainFilter
+          //     : [],
           ...(domainfilter.se_board
-            ? { board: domainfilter.se_board }
+            ? { se_boards: domainfilter.se_board }
             : domainName
-            ? { board: [domainName] }
+            ? { se_boards: [domainName] }
             : {}),
-          gradeLevel:
+          se_gradeLevels:
             subDomainFilter && subDomainFilter.length > 0
               ? subDomainFilter
               : [],
