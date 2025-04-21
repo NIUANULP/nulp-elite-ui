@@ -75,7 +75,7 @@ const LernVotingList = () => {
       request: {
         filters: {
           category: "Learnathon",
-          status: ["Live"],
+          //status: ["Live"],
           content_category: selectedCategory,
         },
         // Fetch all data without pagination here
