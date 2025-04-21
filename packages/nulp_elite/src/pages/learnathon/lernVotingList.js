@@ -79,7 +79,7 @@ const LernVotingList = () => {
           content_category: selectedCategory,
         },
         // Fetch all data without pagination here
-        limit: 1000, // Large number to fetch all records (adjust as needed)
+        limit: 2000, // Large number to fetch all records (adjust as needed)
         offset: 0, // No offset
         search: search,
       },
@@ -151,11 +151,10 @@ const LernVotingList = () => {
     }
   };
 
-
   const handleSortRequest = (property) => {
     const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");  // Toggle order
-    setOrderBy(property);  // Update sorting field
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
   };
 
   const sortedData = data
@@ -175,9 +174,6 @@ const LernVotingList = () => {
   const endIndex = startIndex + 10;  // End index for the current page
 
   const paginatedData = sortedData.slice(startIndex, endIndex); // Slice sorted data for the current page
-
-
-
 
 
 
