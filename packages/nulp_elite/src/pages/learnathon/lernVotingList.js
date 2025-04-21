@@ -11,6 +11,7 @@ import {
   Button,
   Typography,
   Box,
+  TableSortLabel
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import SearchIcon from "@mui/icons-material/Search";
@@ -26,7 +27,6 @@ import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
-import { TableSortLabel } from "@mui/material";
 
 const LernVotingList = () => {
   const { t } = useTranslation();
