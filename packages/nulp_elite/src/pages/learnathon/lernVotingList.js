@@ -11,6 +11,7 @@ import {
   Button,
   Typography,
   Box,
+  TableSortLabel
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import SearchIcon from "@mui/icons-material/Search";
@@ -26,7 +27,6 @@ import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
-import { TableSortLabel } from "@mui/material";
 
 const LernVotingList = () => {
   const { t } = useTranslation();
@@ -50,7 +50,6 @@ const LernVotingList = () => {
     setValue(newValue);
     setSelectedTab(newValue);
   };
-
 
   useEffect(() => {
     fetchData();
@@ -76,16 +75,15 @@ const LernVotingList = () => {
       request: {
         filters: {
           category: "Learnathon",
-          status: ["Live"],
+          //status: ["Live"],
           content_category: selectedCategory,
         },
-
-        limit: rowsPerPage,
-        offset: 10 * (pageNumber - 1),
+        // Fetch all data without pagination here
+        limit: 2000, // Large number to fetch all records (adjust as needed)
+        offset: 0, // No offset
         search: search,
       },
     };
-
 
     try {
       const response = await fetch(`${urlConfig.URLS.POLL.LIST}`, {
@@ -101,10 +99,10 @@ const LernVotingList = () => {
       }
 
       const result = await response.json();
-      setData(result.result.data);
+      setData(result.result.data); // Store all the data
+      setTotalRows(Math.ceil(result.result.totalCount / 10)); // Calculate total rows for pagination
       const pollIds = result.result.data.map((poll) => poll.poll_id);
       setPollData(pollIds);
-      setTotalRows(Math.ceil(result.result.totalCount / 10));
 
       // Fetch vote counts for each poll
       getVoteCounts(pollIds);
@@ -112,6 +110,7 @@ const LernVotingList = () => {
       console.log("Error fetching data:", error);
     }
   };
+
 
   const getVoteCounts = async (pollIds) => {
     try {
@@ -147,8 +146,8 @@ const LernVotingList = () => {
 
   const handleChange = (event, value) => {
     if (value !== pageNumber) {
-      setPageNumber(value);
-      fetchData();
+      setPageNumber(value); // Set the new page number
+      fetchData(); // Fetch the new page's data
     }
   };
 
@@ -159,12 +158,23 @@ const LernVotingList = () => {
   };
 
   const sortedData = data
-    .filter((row) => row.content_category === categoryMap[value])
+    .filter((row) => row.content_category === categoryMap[selectedTab]) // Filter based on selectedTab
     .sort((a, b) => {
       const voteA = voteCounts[a.poll_id] || 0;
       const voteB = voteCounts[b.poll_id] || 0;
-      return order === "asc" ? voteA - voteB : voteB - voteA;
+      if (orderBy === "vote_count") {
+        return order === "asc" ? voteA - voteB : voteB - voteA;
+      }
+      // Add other sorting conditions if necessary
+      return 0;
     });
+
+  // Calculate which records to display for the current page
+  const startIndex = (pageNumber - 1) * 10;  // Offset for pagination (10 items per page)
+  const endIndex = startIndex + 10;  // End index for the current page
+
+  const paginatedData = sortedData.slice(startIndex, endIndex); // Slice sorted data for the current page
+
 
 
   return (
@@ -230,30 +240,27 @@ const LernVotingList = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {sortedData.map((row) => (
+                    {paginatedData.map((row) => (
                       <TableRow key={row.id}>
                         <TableCell>{row.title}</TableCell>
-                        <TableCell>
-                          {new Date(row.end_date).toLocaleDateString()}
-                        </TableCell>
+                        <TableCell>{new Date(row.end_date).toLocaleDateString()}</TableCell>
                         <TableCell>
                           {voteCounts[row.poll_id] || 0}
                           <span style={{ fontSize: "1.5rem", marginLeft: "5px" }}>👍</span>
                         </TableCell>
                         <TableCell>
-                          <Box>
-                            <Button
-                              type="button"
-                              className="custom-btn-primary ml-20"
-                              onClick={() => handleClick(row.content_id)}
-                            >
-                              {t("VIEW_AND_VOTE")}
-                            </Button>
-                          </Box>
+                          <Button
+                            type="button"
+                            className="custom-btn-primary ml-20"
+                            onClick={() => handleClick(row.content_id)}
+                          >
+                            {t("VIEW_AND_VOTE")}
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
+
                 </Table>
 
               </TableContainer>
@@ -261,10 +268,11 @@ const LernVotingList = () => {
           </TabContext>
         </Box>
         <Pagination
-          count={totalRows}
+          count={Math.ceil(sortedData.length / 10)}  // Number of pages based on sorted data length
           page={pageNumber}
-          onChange={handleChange}
+          onChange={handleChange} // Trigger the page change
         />
+
       </Box>
       <Footer />
     </>
