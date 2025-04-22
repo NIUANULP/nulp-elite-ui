@@ -26,6 +26,7 @@ import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
+import { TableSortLabel } from "@mui/material";
 
 const LernVotingList = () => {
   const { t } = useTranslation();
@@ -41,6 +42,9 @@ const LernVotingList = () => {
   // const [pageNumber, setCurrentPage] = useState(1);
   const [value, setValue] = React.useState("1");
   const [selectedTab, setSelectedTab] = useState("1");
+  const [order, setOrder] = useState("asc");
+  const [orderBy, setOrderBy] = useState("vote_count");
+
 
   const tabChange = (event, newValue) => {
     setValue(newValue);
@@ -148,6 +152,21 @@ const LernVotingList = () => {
     }
   };
 
+  const handleSortRequest = (property) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
+
+  const sortedData = data
+    .filter((row) => row.content_category === categoryMap[value])
+    .sort((a, b) => {
+      const voteA = voteCounts[a.poll_id] || 0;
+      const voteB = voteCounts[b.poll_id] || 0;
+      return order === "asc" ? voteA - voteB : voteB - voteA;
+    });
+
+
   return (
     <>
       <Header />
@@ -198,40 +217,45 @@ const LernVotingList = () => {
                     <TableRow>
                       <TableCell>{t("SUBMISSION_NAME")}</TableCell>
                       <TableCell>{t("VOTING_DEADLINE")}</TableCell>
-                      <TableCell>{t("VOTE_COUNT")}</TableCell>
+                      <TableCell sortDirection={orderBy === "vote_count" ? order : false}>
+                        <TableSortLabel
+                          active={orderBy === "vote_count"}
+                          direction={orderBy === "vote_count" ? order : "asc"}
+                          onClick={() => handleSortRequest("vote_count")}
+                        >
+                          {t("VOTE_COUNT")}
+                        </TableSortLabel>
+                      </TableCell>
                       <TableCell>{t("VOTE_NOW")}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {data
-                      .filter((row) => row.content_category === categoryMap[value])
-                      .map((row) => (
-                        <TableRow key={row.id}>
-                          <TableCell>{row.title}</TableCell>
-                          <TableCell>
-                            {new Date(row.end_date).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>
-                            {voteCounts[row.poll_id] || 0}
-                            <span style={{ fontSize: "1.5rem", marginLeft: "5px" }}>
-                              👍
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            <Box>
-                              <Button
-                                type="button"
-                                className="custom-btn-primary ml-20"
-                                onClick={() => handleClick(row.content_id)}
-                              >
-                                {t("VIEW_AND_VOTE")}
-                              </Button>
-                            </Box>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                    {sortedData.map((row) => (
+                      <TableRow key={row.id}>
+                        <TableCell>{row.title}</TableCell>
+                        <TableCell>
+                          {new Date(row.end_date).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          {voteCounts[row.poll_id] || 0}
+                          <span style={{ fontSize: "1.5rem", marginLeft: "5px" }}>👍</span>
+                        </TableCell>
+                        <TableCell>
+                          <Box>
+                            <Button
+                              type="button"
+                              className="custom-btn-primary ml-20"
+                              onClick={() => handleClick(row.content_id)}
+                            >
+                              {t("VIEW_AND_VOTE")}
+                            </Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
                   </TableBody>
                 </Table>
+
               </TableContainer>
             </TabPanel>
           </TabContext>
