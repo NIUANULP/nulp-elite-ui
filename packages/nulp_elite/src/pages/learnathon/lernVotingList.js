@@ -61,6 +61,7 @@ const LernVotingList = () => {
       request: {
         filters: {
           category: "Learnathon",
+          status: ["Live"],
           content_category: selectedCategory,
         },
         limit: 2000,
