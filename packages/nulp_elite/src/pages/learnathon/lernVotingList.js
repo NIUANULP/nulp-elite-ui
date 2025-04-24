@@ -38,7 +38,7 @@ const LernVotingList = () => {
   const [search, setSearch] = useState("");
   const [pollData, setPollData] = useState([]);
   const [voteCounts, setVoteCounts] = useState({}); // Object to store vote counts
-  const [pageNumber, setPageNumber] = useState(1);
+  // const [pageNumber, setPageNumber] = useState(1);
   // const [pageNumber, setCurrentPage] = useState(1);
   const [value, setValue] = React.useState("1");
   const [selectedTab, setSelectedTab] = useState("1");
@@ -53,7 +53,7 @@ const LernVotingList = () => {
 
   useEffect(() => {
     fetchData();
-  }, [selectedTab, pageNumber, search]);
+  }, [selectedTab, search]);
 
   const categoryMap = {
     "1": "State / UT / SPVs / ULBs / Any Other",
@@ -100,7 +100,7 @@ const LernVotingList = () => {
 
       const result = await response.json();
       setData(result.result.data); // Store all the data
-      setTotalRows(Math.ceil(result.result.totalCount / 10)); // Calculate total rows for pagination
+      setTotalRows(Math.ceil(result.result.totalCount / 50)); // Calculate total rows for pagination
       const pollIds = result.result.data.map((poll) => poll.poll_id);
       setPollData(pollIds);
 
@@ -144,12 +144,12 @@ const LernVotingList = () => {
     );
   };
 
-  const handleChange = (event, value) => {
-    if (value !== pageNumber) {
-      setPageNumber(value); // Set the new page number
-      fetchData(); // Fetch the new page's data
-    }
-  };
+  // const handleChange = (event, value) => {
+  //   if (value !== pageNumber) {
+  //     setPageNumber(value); // Set the new page number
+  //     fetchData(); // Fetch the new page's data
+  //   }
+  // };
 
   const handleSortRequest = (property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -169,11 +169,8 @@ const LernVotingList = () => {
       return 0;
     });
 
-  // Calculate which records to display for the current page
-  const startIndex = (pageNumber - 1) * 10;  // Offset for pagination (10 items per page)
-  const endIndex = startIndex + 10;  // End index for the current page
+  const paginatedData = sortedData; // Show all records
 
-  const paginatedData = sortedData.slice(startIndex, endIndex); // Slice sorted data for the current page
 
 
 
@@ -240,7 +237,7 @@ const LernVotingList = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {paginatedData.map((row) => (
+                    {sortedData.map((row) => (
                       <TableRow key={row.id}>
                         <TableCell>{row.title}</TableCell>
                         <TableCell>{new Date(row.end_date).toLocaleDateString()}</TableCell>
@@ -261,18 +258,18 @@ const LernVotingList = () => {
                     ))}
                   </TableBody>
 
+
                 </Table>
 
               </TableContainer>
             </TabPanel>
           </TabContext>
         </Box>
-        <Pagination
-          count={Math.ceil(sortedData.length / 10)}  // Number of pages based on sorted data length
+        {/* <Pagination
+          count={Math.ceil(sortedData.length / 50)}
           page={pageNumber}
-          onChange={handleChange} // Trigger the page change
-        />
-
+          onChange={handleChange}
+        /> */}
       </Box>
       <Footer />
     </>
