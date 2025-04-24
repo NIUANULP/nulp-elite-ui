@@ -63,9 +63,8 @@ const LernVotingList = () => {
     const assetBody = {
       request: {
         filters: {
+          status: ["Live"],
           category: "Learnathon",
-
-          //status: ["Live"],
           content_category: selectedCategory,
         },
 
@@ -90,8 +89,7 @@ const LernVotingList = () => {
       }
 
       const result = await response.json();
-      setData(result.result.data); // Store all the data
-      setTotalRows(Math.ceil(result.result.totalCount / 10)); // Calculate total rows for pagination
+      setData(result.result.data);
       const pollIds = result.result.data.map((poll) => poll.poll_id);
       setPollData(pollIds);
 
@@ -204,7 +202,7 @@ const LernVotingList = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {paginatedData.map((row) => (
+                    {sortedData.map((row) => (
                       <TableRow key={row.id}>
                         <TableCell>{row.title}</TableCell>
                         <TableCell>{new Date(row.end_date).toLocaleDateString()}</TableCell>
