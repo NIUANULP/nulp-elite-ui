@@ -60,8 +60,8 @@ const LernVotingList = () => {
     const assetBody = {
       request: {
         filters: {
+          status: ["Live"],
           category: "Learnathon",
-          //status: ["Live"],
           content_category: selectedCategory,
         },
         limit: 2000,
