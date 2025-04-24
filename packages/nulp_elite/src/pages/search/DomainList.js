@@ -450,8 +450,19 @@ const DomainList = ({ globalSearchQuery }) => {
         filters: {
           status: ["Live"],
           se_boards: [null],
-          primaryCategory: ["Course"],
+          // primaryCategory: ["Course"],
           visibility: ["Default", "Parent"],
+          identifier:[
+            "do_11422330454242099211",
+            "do_11420352388390912013",
+            "do_1136550052517314561308",
+            "do_1141747139141468161258",
+            "do_1136598919702609921643",
+            "do_1139974386277580801378",
+            "do_1140067897586974721570",
+            "do_1139973490818334721328",
+            "do_114165835604836352120"
+          ]
         },
         limit: 100,
         sort_by: {
