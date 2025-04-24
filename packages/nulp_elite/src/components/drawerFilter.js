@@ -83,6 +83,7 @@ const contentTypeList = [
           // gradeLevel: [subDomainName],
           se_boards: [domainName],
           se_gradeLevels: [subDomainName],
+
         },
         limit: 20,
         sort_by: {

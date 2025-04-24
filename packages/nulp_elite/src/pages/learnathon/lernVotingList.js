@@ -45,12 +45,11 @@ const LernVotingList = () => {
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("vote_count");
 
-
   const tabChange = (event, newValue) => {
     setValue(newValue);
     setSelectedTab(newValue);
   };
-
+  
   useEffect(() => {
     fetchData();
   }, [selectedTab, pageNumber, search]);
@@ -75,15 +74,18 @@ const LernVotingList = () => {
       request: {
         filters: {
           category: "Learnathon",
+
           //status: ["Live"],
           content_category: selectedCategory,
         },
         // Fetch all data without pagination here
         limit: 2000, // Large number to fetch all records (adjust as needed)
         offset: 0, // No offset
+
         search: search,
       },
     };
+
 
     try {
       const response = await fetch(`${urlConfig.URLS.POLL.LIST}`, {
@@ -148,6 +150,7 @@ const LernVotingList = () => {
     if (value !== pageNumber) {
       setPageNumber(value); // Set the new page number
       fetchData(); // Fetch the new page's data
+
     }
   };
 
@@ -236,6 +239,7 @@ const LernVotingList = () => {
                           {t("VOTE_COUNT")}
                         </TableSortLabel>
                       </TableCell>
+
                       <TableCell>{t("VOTE_NOW")}</TableCell>
                     </TableRow>
                   </TableHead>
@@ -262,6 +266,7 @@ const LernVotingList = () => {
                   </TableBody>
 
                 </Table>
+
 
               </TableContainer>
             </TabPanel>
