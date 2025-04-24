@@ -11,6 +11,8 @@ import {
   Typography,
   Box,
   TableSortLabel,
+
+
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import SearchIcon from "@mui/icons-material/Search";
@@ -26,6 +28,7 @@ import Tab from "@mui/material/Tab";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
+
 
 const LernVotingList = () => {
   const { t } = useTranslation();
@@ -61,11 +64,14 @@ const LernVotingList = () => {
       request: {
         filters: {
           category: "Learnathon",
-          status: ["Live"],
+
+          //status: ["Live"],
           content_category: selectedCategory,
         },
+
         limit: 2000,
         offset: 0,
+
         search: search,
       },
     };
@@ -84,14 +90,17 @@ const LernVotingList = () => {
       }
 
       const result = await response.json();
-      setData(result.result.data);
+      setData(result.result.data); // Store all the data
+      setTotalRows(Math.ceil(result.result.totalCount / 10)); // Calculate total rows for pagination
       const pollIds = result.result.data.map((poll) => poll.poll_id);
       setPollData(pollIds);
+
       getVoteCounts(pollIds);
     } catch (error) {
       console.log("Error fetching data:", error);
     }
   };
+
 
   const getVoteCounts = async (pollIds) => {
     try {
@@ -116,7 +125,9 @@ const LernVotingList = () => {
   };
 
   const handleClick = (contentId) => {
+
     navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${contentId}&page=vote`);
+
   };
 
   const handleSortRequest = (property) => {
@@ -126,15 +137,19 @@ const LernVotingList = () => {
   };
 
   const sortedData = data
+
     .filter((row) => row.content_category === categoryMap[selectedTab])
+
     .sort((a, b) => {
       const voteA = voteCounts[a.poll_id] || 0;
       const voteB = voteCounts[b.poll_id] || 0;
       if (orderBy === "vote_count") {
         return order === "asc" ? voteA - voteB : voteB - voteA;
       }
+
       return 0;
     });
+
 
   return (
     <>
@@ -184,11 +199,12 @@ const LernVotingList = () => {
                           {t("VOTE_COUNT")}
                         </TableSortLabel>
                       </TableCell>
+
                       <TableCell>{t("VOTE_NOW")}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {sortedData.map((row) => (
+                    {paginatedData.map((row) => (
                       <TableRow key={row.id}>
                         <TableCell>{row.title}</TableCell>
                         <TableCell>{new Date(row.end_date).toLocaleDateString()}</TableCell>
@@ -208,11 +224,14 @@ const LernVotingList = () => {
                       </TableRow>
                     ))}
                   </TableBody>
+
                 </Table>
+
               </TableContainer>
             </TabPanel>
           </TabContext>
         </Box>
+
       </Box>
       <Footer />
     </>
