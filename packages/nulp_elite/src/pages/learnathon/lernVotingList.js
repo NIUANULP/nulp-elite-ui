@@ -29,7 +29,6 @@ import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 
-
 const LernVotingList = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -39,12 +38,14 @@ const LernVotingList = () => {
   const [voteCounts, setVoteCounts] = useState({});
   const [value, setValue] = React.useState("1");
   const [selectedTab, setSelectedTab] = useState("1");
-  const [order, setOrder] = useState("asc");
+  const [order, setOrder] = useState("desc"); // change from "asc"
+
   const [orderBy, setOrderBy] = useState("vote_count");
 
   const tabChange = (event, newValue) => {
     setValue(newValue);
     setSelectedTab(newValue);
+    setOrder("desc");
   };
 
   useEffect(() => {
@@ -70,7 +71,6 @@ const LernVotingList = () => {
 
         limit: 2000,
         offset: 0,
-
         search: search,
       },
     };
@@ -92,13 +92,11 @@ const LernVotingList = () => {
       setData(result.result.data);
       const pollIds = result.result.data.map((poll) => poll.poll_id);
       setPollData(pollIds);
-
       getVoteCounts(pollIds);
     } catch (error) {
       console.log("Error fetching data:", error);
     }
   };
-
 
   const getVoteCounts = async (pollIds) => {
     try {
@@ -197,7 +195,6 @@ const LernVotingList = () => {
                           {t("VOTE_COUNT")}
                         </TableSortLabel>
                       </TableCell>
-
                       <TableCell>{t("VOTE_NOW")}</TableCell>
                     </TableRow>
                   </TableHead>
@@ -222,14 +219,11 @@ const LernVotingList = () => {
                       </TableRow>
                     ))}
                   </TableBody>
-
                 </Table>
-
               </TableContainer>
             </TabPanel>
           </TabContext>
         </Box>
-
       </Box>
       <Footer />
     </>
