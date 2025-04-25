@@ -11,6 +11,8 @@ import {
   Typography,
   Box,
   TableSortLabel,
+
+
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import SearchIcon from "@mui/icons-material/Search";
@@ -36,12 +38,14 @@ const LernVotingList = () => {
   const [voteCounts, setVoteCounts] = useState({});
   const [value, setValue] = React.useState("1");
   const [selectedTab, setSelectedTab] = useState("1");
-  const [order, setOrder] = useState("asc");
+  const [order, setOrder] = useState("desc"); // change from "asc"
+
   const [orderBy, setOrderBy] = useState("vote_count");
 
   const tabChange = (event, newValue) => {
     setValue(newValue);
     setSelectedTab(newValue);
+    setOrder("desc");
   };
 
   useEffect(() => {
@@ -64,6 +68,7 @@ const LernVotingList = () => {
           category: "Learnathon",
           content_category: selectedCategory,
         },
+
         limit: 2000,
         offset: 0,
         search: search,
@@ -116,7 +121,9 @@ const LernVotingList = () => {
   };
 
   const handleClick = (contentId) => {
+
     navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${contentId}&page=vote`);
+
   };
 
   const handleSortRequest = (property) => {
@@ -126,15 +133,19 @@ const LernVotingList = () => {
   };
 
   const sortedData = data
+
     .filter((row) => row.content_category === categoryMap[selectedTab])
+
     .sort((a, b) => {
       const voteA = voteCounts[a.poll_id] || 0;
       const voteB = voteCounts[b.poll_id] || 0;
       if (orderBy === "vote_count") {
         return order === "asc" ? voteA - voteB : voteB - voteA;
       }
+
       return 0;
     });
+
 
   return (
     <>
