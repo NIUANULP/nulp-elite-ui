@@ -1334,13 +1334,23 @@ const Profile = () => {
                       />
                     </Box>
                     <Box>
-                      {loadingPosts ? (
+                      {loadingPosts && (
                         <Typography>Loading posts...</Typography>
-                      ) : postsError ? (
+                      )}
+
+                      {!loadingPosts && postsError && (
                         <Typography color="error">{postsError}</Typography>
-                      ) : forumPosts.length === 0 ? (
-                        <Typography>No posts yet.</Typography>
-                      ) : (
+                      )}
+
+                      {!loadingPosts &&
+                        !postsError &&
+                        forumPosts.length === 0 && (
+                          <Typography>No posts yet.</Typography>
+                        )}
+
+                      {!loadingPosts &&
+                        !postsError &&
+                        forumPosts.length > 0 &&
                         forumPosts.map((post) => (
                           <Box
                             key={post.pid}
@@ -1373,8 +1383,7 @@ const Profile = () => {
                                 : ""}
                             </Typography>
                           </Box>
-                        ))
-                      )}
+                        ))}
                     </Box>
                   </TabPanel>
                   <TabPanel value="4">
