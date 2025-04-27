@@ -46,6 +46,7 @@ import LernVotingList from "pages/learnathon/lernVotingList";
 import LernReviewList from "pages/learnathon/lernReviewerList";
 import LearnathonDashboard from "pages/learnathon/LearnathonDashboard";
 import dayjs from "dayjs";
+import Forum from "components/Forum";
 
 function App() {
   // const [t] = useTranslation();
@@ -59,9 +60,12 @@ function App() {
   const [orgId, setOrgId] = useState();
   const [userData, setUserData] = React.useState(false);
   ReactGA.initialize("G-QH3SHT9MTG");
-  const [isLearnathonUser , setIsLearnathonUser] = useState(false)
+  const [isLearnathonUser, setIsLearnathonUser] = useState(false);
   const today = dayjs();
-  const isLearnathonStarted = today.isAfter(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_START_DATE)
+  const isLearnathonStarted = today.isAfter(
+    urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_START_DATE
+  );
+
   const routes = [
     {
       moduleName: "nulp_elite",
@@ -239,6 +243,11 @@ function App() {
       path: routeConfig.ROUTES.LEARNATHON.DASHBOARD,
       component: LearnathonDashboard,
     },
+    {
+      moduleName: "nulp_elite",
+      path: routeConfig.ROUTES.FORUM.FORUM,
+      component: Forum,
+    },
   ];
 
   initializeI18n(
@@ -284,7 +293,9 @@ function App() {
           "userDomain",
           data.result.response.framework.board
         );
-         setIsLearnathonUser(data.result.response.firstName.includes("tekdiNulp11"))
+        setIsLearnathonUser(
+          data.result.response.firstName.includes("tekdiNulp11")
+        );
         const rolesData = data.result.response.roles;
         const roles = rolesData?.map((roleObject) => roleObject.role);
 
@@ -347,7 +358,7 @@ function App() {
             ))}
           </Routes>
 
-          {(isLearnathonUser || isLearnathonStarted) && (<LernModal />)}
+          {(isLearnathonUser || isLearnathonStarted) && <LernModal />}
         </Router>
       </React.Suspense>
       {/* </ChakraProvider> */}
