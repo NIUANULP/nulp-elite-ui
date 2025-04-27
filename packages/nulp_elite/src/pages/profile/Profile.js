@@ -28,6 +28,7 @@ import TabList from "@material-ui/lab/TabList";
 import TabPanel from "@material-ui/lab/TabPanel";
 import WatchLaterOutlinedIcon from "@mui/icons-material/WatchLaterOutlined";
 import DomainVerificationOutlinedIcon from "@mui/icons-material/DomainVerificationOutlined";
+import TipsAndUpdatesOutlinedIcon from "@mui/icons-material/TipsAndUpdatesOutlined";
 import {
   Button,
   FormControl,
@@ -82,10 +83,35 @@ const MAX_FILE_SIZE_MB = 1;
 const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024; // 1 MB in bytes
 const SUPPORTED_FILE_TYPES = ["image/jpeg", "image/png"];
 
+const defaultCertData = {
+  certificatesReceived: 0,
+  courseWithCertificate: 0,
+};
+
+const defaultCourseData = {
+  enrolledLastMonth: 0,
+  enrolledThisMonth: 0,
+};
+const mockActivity = [
+  {
+    id: 1,
+    activity: "Liked a post in 'Public Procurement'",
+    date: "2024-06-01",
+  },
+  {
+    id: 2,
+    activity: "Commented on a post in 'Public Procurement'",
+    date: "2024-06-02",
+  },
+];
 const Profile = () => {
-  const [value, setValue] = useState("1");
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
+  const [profileTab, setProfileTab] = useState("1");
+  const [activityTab, setActivityTab] = useState("3");
+  const handleProfileTabChange = (event, newValue) => {
+    setProfileTab(newValue);
+  };
+  const handleActivityTabChange = (event, newValue) => {
+    setActivityTab(newValue);
   };
   const { t } = useTranslation();
   const [userData, setUserData] = useState(null);
@@ -140,22 +166,15 @@ const Profile = () => {
   const [statesList, setStatesList] = useState([]);
   const [districtsList, setDistrictsList] = useState([]);
 
-  // for bar charts
-  const defaultCertData = {
-    certificatesReceived: 0,
-    courseWithCertificate: 0,
-  };
-
-  const defaultCourseData = {
-    enrolledLastMonth: 0,
-    enrolledThisMonth: 0,
-  };
-
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
   const [fileError, setFileError] = useState("");
   const [fileUploadMessage, setFileUploadMessage] = useState("");
   const dummyData = [1, 1];
+
+  const [forumPosts, setForumPosts] = useState([]);
+  const [loadingPosts, setLoadingPosts] = useState(false);
+  const [postsError, setPostsError] = useState(null);
 
   const showErrorMessage = (msg) => {
     setToasterMessage(msg);
@@ -493,11 +512,13 @@ const Profile = () => {
   };
 
   const handleLearningHistoryClick = () => {
-    navigate(routeConfig.ROUTES.CONTINUE_LEARNING_PAGE.CONTINUE_LEARNING);
+    navigate(
+      routeConfig.ROUTES.CONTINUE_LEARNING_PAGE.CONTINUE_LEARNING_HISTORY
+    );
   };
 
   const handleContinueLearningClick = () => {
-    navigate(routeConfig.ROUTES.CONTINUE_LEARNING_PAGE.CONTINUE_LEARNIN);
+    navigate(routeConfig.ROUTES.CONTINUE_LEARNING_PAGE.CONTINUE_LEARNING);
   };
 
   const handleCertificateButtonClick = () => {
@@ -546,14 +567,14 @@ const Profile = () => {
   // Use default data if certData or courseData is undefined or empty
   const finalCertData =
     certData &&
-      certData.certificatesReceived !== undefined &&
-      certData.courseWithCertificate !== undefined
+    certData.certificatesReceived !== undefined &&
+    certData.courseWithCertificate !== undefined
       ? certData
       : defaultCertData;
   const finalCourseData =
     courseData &&
-      courseData.enrolledLastMonth !== undefined &&
-      courseData.enrolledThisMonth !== undefined
+    courseData.enrolledLastMonth !== undefined &&
+    courseData.enrolledThisMonth !== undefined
       ? courseData
       : defaultCourseData;
   // Check if data is empty or zero
@@ -573,6 +594,27 @@ const Profile = () => {
   const roleNames = roles
     .map((role) => roleLookup[role.role]) // Convert role ID to role name
     .filter((name) => name && name !== "Public"); // Remove undefined names and "Public"
+
+  useEffect(() => {
+    const fetchForumPosts = async () => {
+      setLoadingPosts(true);
+      setPostsError(null);
+      try {
+        const response = await fetch(
+          "/discussion-forum/api/user/nulpadmin/posts"
+        );
+        if (!response.ok) throw new Error("Failed to fetch posts");
+        const data = await response.json();
+        setForumPosts(data.posts || []);
+      } catch (err) {
+        setPostsError("Failed to load posts");
+        console.error("Error fetching forum posts:", err);
+      } finally {
+        setLoadingPosts(false);
+      }
+    };
+    fetchForumPosts();
+  }, []);
 
   return (
     <div>
@@ -637,17 +679,19 @@ const Profile = () => {
                                     </Typography>
                                     <Typography className="h6-title">
                                       {userInfo?.length &&
-                                        userInfo[0]?.designation ? (
+                                      userInfo[0]?.designation ? (
                                         <>{userInfo[0].designation}</>
                                       ) : (
                                         "Designation: NA"
                                       )}
                                       <Box className="cardLabelEllips1">
-                                        {userInfo?.length && userInfo[0]?.designation
+                                        {userInfo?.length &&
+                                        userInfo[0]?.designation
                                           ? " "
                                           : " "}
                                         {t("ID")}:{" "}
-                                        {userData?.result?.response?.userName || "NA"}
+                                        {userData?.result?.response?.userName ||
+                                          "NA"}
                                       </Box>
                                     </Typography>
                                     {userInfo?.length ? (
@@ -1229,10 +1273,11 @@ const Profile = () => {
               <Certificate />
             ) : (
               <div>
-                <TabContext value={value}>
+                {/* Old Tab Section */}
+                <TabContext value={profileTab}>
                   <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
                     <TabList
-                      onChange={handleChange}
+                      onChange={handleProfileTabChange}
                       aria-label="lab API tabs example"
                     >
                       <Tab
@@ -1254,6 +1299,123 @@ const Profile = () => {
                   </TabPanel>
                   <TabPanel value="2">
                     <LearningHistory />
+                  </TabPanel>
+                </TabContext>
+
+                {/* New Tab Section */}
+                <TabContext value={activityTab}>
+                  <Box sx={{ borderBottom: 1, borderColor: "divider", mt: 4 }}>
+                    <TabList
+                      onChange={handleActivityTabChange}
+                      aria-label="profile tabs"
+                    >
+                      <Tab
+                        label="My Posts"
+                        className="tab-text profile-tab"
+                        icon={<TipsAndUpdatesOutlinedIcon />}
+                        value="3"
+                      />
+                      <Tab
+                        label="My Activity"
+                        className="tab-text profile-tab"
+                        icon={<WatchLaterOutlinedIcon />}
+                        value="4"
+                      />
+                    </TabList>
+                  </Box>
+                  <TabPanel value="3">
+                    <Box style={{ margin: "20px 0 20px -12px" }}>
+                      <TextField
+                        fullWidth
+                        variant="outlined"
+                        label="Search"
+                        className="w-33"
+                        style={{ width: "100%", background: "#fff" }}
+                      />
+                    </Box>
+                    <Box>
+                      {loadingPosts && (
+                        <Typography>Loading posts...</Typography>
+                      )}
+
+                      {!loadingPosts && postsError && (
+                        <Typography color="error">{postsError}</Typography>
+                      )}
+
+                      {!loadingPosts &&
+                        !postsError &&
+                        forumPosts.length === 0 && (
+                          <Typography>No posts yet.</Typography>
+                        )}
+
+                      {!loadingPosts &&
+                        !postsError &&
+                        forumPosts.length > 0 &&
+                        forumPosts.map((post) => (
+                          <Box
+                            key={post.pid}
+                            sx={{
+                              mb: 2,
+                              p: 2,
+                              border: "1px solid #eee",
+                              borderRadius: 2,
+                              background: "#fff",
+                            }}
+                          >
+                            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                              {post.topic?.title || "Untitled Topic"}
+                            </Typography>
+                            <Typography variant="body2" sx={{ mb: 1 }}>
+                              {post.content && (
+                                <span
+                                  dangerouslySetInnerHTML={{
+                                    __html: post.content,
+                                  }}
+                                />
+                              )}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              {post.topic?.category?.name
+                                ? `Category: ${post.topic.category.name}`
+                                : ""}
+                            </Typography>
+                          </Box>
+                        ))}
+                    </Box>
+                  </TabPanel>
+                  <TabPanel value="4">
+                    {/* My Activity */}
+                    <Box>
+                      {mockActivity.length === 0 ? (
+                        <Typography>No activity yet.</Typography>
+                      ) : (
+                        mockActivity.map((act) => (
+                          <Box
+                            key={act.id}
+                            sx={{
+                              mb: 2,
+                              p: 2,
+                              border: "1px solid #eee",
+                              borderRadius: 2,
+                              background: "#fff",
+                            }}
+                          >
+                            <Typography variant="body2">
+                              {act.activity}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              {act.date}
+                            </Typography>
+                          </Box>
+                        ))
+                      )}
+                    </Box>
                   </TabPanel>
                 </TabContext>
               </div>

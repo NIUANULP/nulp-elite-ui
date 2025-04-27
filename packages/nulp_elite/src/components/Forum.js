@@ -5,7 +5,6 @@ import { useEffect } from "react";
 const urlConfig = require("../configs/urlConfig.json");
 
 const Forum = () => {
-  console.log("urlConfig", urlConfig);
   useEffect(() => {
     fetch(urlConfig.FORUM.AUTH_TOKEN)
       .then((res) => res.json())
