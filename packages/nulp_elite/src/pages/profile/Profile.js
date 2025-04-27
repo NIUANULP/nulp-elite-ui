@@ -608,6 +608,7 @@ const Profile = () => {
         setForumPosts(data.posts || []);
       } catch (err) {
         setPostsError("Failed to load posts");
+        console.error("Error fetching forum posts:", err);
       } finally {
         setLoadingPosts(false);
       }

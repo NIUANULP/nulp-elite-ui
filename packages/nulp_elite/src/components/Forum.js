@@ -3,11 +3,8 @@ import Footer from "components/Footer";
 import Header from "components/header";
 import { useEffect } from "react";
 const urlConfig = require("../configs/urlConfig.json");
-import { useNavigate } from "react-router-dom";
 
 const Forum = () => {
-  const navigate = useNavigate();
-  console.log("urlConfig", urlConfig);
   useEffect(() => {
     fetch(urlConfig.FORUM.AUTH_TOKEN)
       .then((res) => res.json())
