@@ -19,6 +19,8 @@ import SelectPreference from "pages/SelectPreference";
 import { Alert } from "@mui/material";
 import _ from "lodash";
 import Modal from "@mui/material/Modal";
+import MyPosts from "./MyPosts";
+import MyActivity from "./MyActivity";
 const designations = require("../../configs/designations.json");
 const urlConfig = require("../../configs/urlConfig.json");
 import ToasterCommon from "../ToasterCommon";
@@ -95,12 +97,12 @@ const defaultCourseData = {
 const mockActivity = [
   {
     id: 1,
-    activity: "Liked a post in 'Public Procurement'",
+    activity: "Liked a post in 'Public Procurement..",
     date: "2024-06-01",
   },
   {
     id: 2,
-    activity: "Commented on a post in 'Public Procurement'",
+    activity: "Commented on a post in 'Public Procurement..",
     date: "2024-06-02",
   },
 ];
@@ -601,7 +603,7 @@ const Profile = () => {
       setPostsError(null);
       try {
         const response = await fetch(
-          "/discussion-forum/api/user/nulpadmin/posts"
+          `/discussion-forum/api/user/${userData?.result?.response?.userName}/posts`
         );
         if (!response.ok) throw new Error("Failed to fetch posts");
         const data = await response.json();
@@ -614,7 +616,7 @@ const Profile = () => {
       }
     };
     fetchForumPosts();
-  }, []);
+  }, [userData]);
 
   return (
     <div>
@@ -1324,98 +1326,14 @@ const Profile = () => {
                     </TabList>
                   </Box>
                   <TabPanel value="3">
-                    <Box style={{ margin: "20px 0 20px -12px" }}>
-                      <TextField
-                        fullWidth
-                        variant="outlined"
-                        label="Search"
-                        className="w-33"
-                        style={{ width: "100%", background: "#fff" }}
-                      />
-                    </Box>
-                    <Box>
-                      {loadingPosts && (
-                        <Typography>Loading posts...</Typography>
-                      )}
-
-                      {!loadingPosts && postsError && (
-                        <Typography color="error">{postsError}</Typography>
-                      )}
-
-                      {!loadingPosts &&
-                        !postsError &&
-                        forumPosts.length === 0 && (
-                          <Typography>No posts yet.</Typography>
-                        )}
-
-                      {!loadingPosts &&
-                        !postsError &&
-                        forumPosts.length > 0 &&
-                        forumPosts.map((post) => (
-                          <Box
-                            key={post.pid}
-                            sx={{
-                              mb: 2,
-                              p: 2,
-                              border: "1px solid #eee",
-                              borderRadius: 2,
-                              background: "#fff",
-                            }}
-                          >
-                            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                              {post.topic?.title || "Untitled Topic"}
-                            </Typography>
-                            <Typography variant="body2" sx={{ mb: 1 }}>
-                              {post.content && (
-                                <span
-                                  dangerouslySetInnerHTML={{
-                                    __html: post.content,
-                                  }}
-                                />
-                              )}
-                            </Typography>
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                            >
-                              {post.topic?.category?.name
-                                ? `Category: ${post.topic.category.name}`
-                                : ""}
-                            </Typography>
-                          </Box>
-                        ))}
-                    </Box>
+                    <MyPosts
+                      loading={loadingPosts}
+                      error={postsError}
+                      posts={forumPosts}
+                    />
                   </TabPanel>
                   <TabPanel value="4">
-                    {/* My Activity */}
-                    <Box>
-                      {mockActivity.length === 0 ? (
-                        <Typography>No activity yet.</Typography>
-                      ) : (
-                        mockActivity.map((act) => (
-                          <Box
-                            key={act.id}
-                            sx={{
-                              mb: 2,
-                              p: 2,
-                              border: "1px solid #eee",
-                              borderRadius: 2,
-                              background: "#fff",
-                            }}
-                          >
-                            <Typography variant="body2">
-                              {act.activity}
-                            </Typography>
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                            >
-                              {act.date}
-                            </Typography>
-                          </Box>
-                        ))
-                      )}
-                    </Box>
+                    <MyActivity activity={mockActivity} />
                   </TabPanel>
                 </TabContext>
               </div>
