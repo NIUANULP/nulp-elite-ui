@@ -9,6 +9,7 @@ import {
   CardMedia,
   Button,
 } from "@mui/material";
+import { useLocation } from "react-router-dom";
 
 function extractLocalImagePath(content) {
   if (typeof content !== "string") return null;
@@ -41,20 +42,26 @@ const MyPosts = ({ loading, error, posts }) => {
       (post.content ? post.content.replace(/<[^>]+>/g, "") : "");
     return text.toLowerCase().includes(search.toLowerCase());
   });
+  const location = useLocation();
+  const hidePaths = ["/webapp/contentList?1", "/webapp/contentList"];
+  const shouldHideSearch = hidePaths.includes(location.pathname);
+
   //   console.log("posts", posts);
   return (
     <>
-      <Box style={{ margin: "20px 0 20px -12px" }}>
-        <TextField
-          fullWidth
-          variant="outlined"
-          label="Search"
-          className="w-33"
-          style={{ width: "100%", background: "#fff" }}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </Box>
+      {!shouldHideSearch && (
+        <Box style={{ margin: "20px 0 20px -12px" }}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            label="Search"
+            className="w-33"
+            style={{ width: "100%", background: "#fff" }}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </Box>
+      )}
       <Box>
         {loading && <Typography>Loading posts...</Typography>}
         {!loading && error && <Typography color="error">{error}</Typography>}
