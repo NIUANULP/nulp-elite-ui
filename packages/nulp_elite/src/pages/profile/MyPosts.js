@@ -71,7 +71,7 @@ const MyPosts = ({ loading, error, posts }) => {
 
               if (imageUrl) {
                 fullImageUrl = imageUrl.startsWith("/")
-                  ? `/${imageUrl}`
+                  ? `${imageUrl}`
                   : imageUrl;
               }
 
