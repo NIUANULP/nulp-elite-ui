@@ -462,7 +462,7 @@
       "DELETE": "/learnathon/content/delete",
       "PUBLISH": "/content/content/v1/publish/",
       "REJECT": "/content/content/v1/reject/"
-    },
+    }, 
     "ICON": {
       "CREATE": "/action/asset/v1/create",
       "UPLOADIMG": "/action/content/v3/upload/url",
