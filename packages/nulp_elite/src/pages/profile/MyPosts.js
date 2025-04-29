@@ -10,6 +10,7 @@ import {
   Button,
 } from "@mui/material";
 import { useLocation } from "react-router-dom";
+import NoResult from "pages/content/noResultFound";
 
 function extractLocalImagePath(content) {
   if (typeof content !== "string") return null;
@@ -65,9 +66,7 @@ const MyPosts = ({ loading, error, posts }) => {
       <Box>
         {loading && <Typography>Loading posts...</Typography>}
         {!loading && error && <Typography color="error">{error}</Typography>}
-        {!loading && !error && filteredPosts.length === 0 && (
-          <Typography>No posts found.</Typography>
-        )}
+        {!loading && !error && filteredPosts.length === 0 && <NoResult />}
         {!loading && !error && filteredPosts.length > 0 && (
           <Grid container spacing={3}>
             {filteredPosts.map((post) => {
@@ -78,8 +77,10 @@ const MyPosts = ({ loading, error, posts }) => {
 
               if (imageUrl) {
                 fullImageUrl = imageUrl.startsWith("/")
-                  ? `${imageUrl}`
-                  : imageUrl;
+                  ? imageUrl
+                  : `${imageUrl}`;
+              } else {
+                fullImageUrl = require("../../assets/discussion.png");
               }
 
               console.log("fullImageUrl", fullImageUrl);
