@@ -1326,10 +1326,35 @@ const Profile = () => {
                     </TabList>
                   </Box>
                   <TabPanel value="3">
+                    {forumPosts?.length > 6 && (
+                      <Box display="flex" justifyContent="flex-end" mb={2}>
+                        <Button
+                          onClick={() =>
+                            (window.location.href = `/discussion-forum/my/posts`)
+                          }
+                          variant="contained"
+                          sx={{
+                            mr: 2,
+                            display: { xs: "none", sm: "inline-flex" },
+                            backgroundColor: "#057184",
+                            borderRadius: "10px",
+                            cursor: "pointer",
+                            fontSize: "12px",
+                            fontWeight: 500,
+                            padding: "9px 32px",
+                            "&:hover": {
+                              backgroundColor: "#045d6e", // optional: hover state
+                            },
+                          }}
+                        >
+                          {t("VIEW_ALL")}
+                        </Button>
+                      </Box>
+                    )}
                     <MyPosts
                       loading={loadingPosts}
                       error={postsError}
-                      posts={forumPosts}
+                      posts={forumPosts?.slice(0, 6)}
                     />
                   </TabPanel>
                   <TabPanel value="4">

@@ -37,7 +37,9 @@ import * as util from "../../services/utilService";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import MyPosts from "../profile/MyPosts";
-
+import { Button } from "@mui/material";
+import Groups2OutlinedIcon from "@mui/icons-material/Groups2Outlined";
+import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
 const responsive = {
   superLargeDesktop: {
     // the naming can be any, depends on you.
@@ -170,6 +172,7 @@ const ContentList = (props) => {
         setForumPosts(data.posts || []);
       } catch (err) {
         setForumError(err.message || "Error fetching discussion posts");
+        console.log("err", err);
       } finally {
         setForumLoading(false);
       }
@@ -557,6 +560,7 @@ const ContentList = (props) => {
           </Box>
           <Box className="h3-custom-title">
             {searchQuery &&
+              tabValue !== 1 &&
               `Showing ${contentCount} out of ${data?.count || 0} results`}
           </Box>
 
@@ -565,8 +569,16 @@ const ContentList = (props) => {
             onChange={handleTabChange}
             aria-label="content tabs"
           >
-            <Tab label="Courses / Contents" />
-            <Tab label="Discussion Forum" />
+            <Tab
+              label="Courses / Contents"
+              className="tab-text profile-tab"
+              icon={<MenuBookOutlinedIcon />}
+            />
+            <Tab
+              label="Discussion Forum"
+              className="tab-text profile-tab"
+              icon={<Groups2OutlinedIcon />}
+            />
           </Tabs>
 
           {tabValue === 0 && (
@@ -661,10 +673,37 @@ const ContentList = (props) => {
               maxWidth="xl"
               className="allContent xs-pb-20 pb-30 content-list eventTab mt-180"
             >
+              {forumPosts?.length > 6 && (
+                <Box display="flex" justifyContent="flex-end" mb={2}>
+                  <Button
+                    onClick={() =>
+                      (window.location.href = `/discussion-forum/search?term=${encodeURIComponent(
+                        searchQuery
+                      )}`)
+                    }
+                    variant="contained"
+                    sx={{
+                      mr: 2,
+                      display: { xs: "none", sm: "inline-flex" },
+                      backgroundColor: "#057184",
+                      borderRadius: "10px",
+                      cursor: "pointer",
+                      fontSize: "12px",
+                      fontWeight: 500,
+                      padding: "9px 32px",
+                      "&:hover": {
+                        backgroundColor: "#045d6e", // optional: hover state
+                      },
+                    }}
+                  >
+                    {t("VIEW_ALL")}
+                  </Button>
+                </Box>
+              )}
               <MyPosts
                 loading={forumLoading}
                 error={forumError}
-                posts={forumPosts}
+                posts={forumPosts?.slice(0, 6)}
               />
             </Container>
           )}

@@ -248,7 +248,8 @@ function Header({ globalSearchQuery }) {
   };
   const handleLogout = () => {
     sessionStorage.setItem("isModalShown", "false");
-    Cookies.remove("token", { path: "/" });
+    Cookies.remove("token");
+    Cookies.remove("express.sid");
   };
   return (
     <>
