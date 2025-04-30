@@ -258,11 +258,30 @@ function Header({ globalSearchQuery }) {
     boxShadow: searchQuery ? "0 2px 4px rgba(0, 0, 0, 0.2)" : "none",
     color: searchQuery ? "#fff" : "#000",
   };
-  const handleLogout = () => {
+  const handleLogout = async () => {
     sessionStorage.setItem("isModalShown", "false");
-    Cookies.remove("token");
-    Cookies.remove("express.sid", { path: "/discussion-forum" });
+    try {
+      // Call the logout API of discussion forum
+      const response = await fetch(`${urlConfig.FORUM.FORUM_URL}/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Logout failed");
+      }
+
+      // Clear session and cookies
+      Cookies.remove("token");
+      Cookies.remove("express.sid", { path: "/discussion-forum" });
+
+      // Optionally redirect or show a success message
+      console.log("Successfully logged out");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
   };
+
   return (
     <>
       <Box
