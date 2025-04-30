@@ -94,18 +94,7 @@ const defaultCourseData = {
   enrolledLastMonth: 0,
   enrolledThisMonth: 0,
 };
-const mockActivity = [
-  {
-    id: 1,
-    activity: "Liked a post in 'Public Procurement..",
-    date: "2024-06-01",
-  },
-  {
-    id: 2,
-    activity: "Commented on a post in 'Public Procurement..",
-    date: "2024-06-02",
-  },
-];
+
 const Profile = () => {
   const [profileTab, setProfileTab] = useState("1");
   const [activityTab, setActivityTab] = useState("3");
@@ -1358,7 +1347,7 @@ const Profile = () => {
                     />
                   </TabPanel>
                   <TabPanel value="4">
-                    <MyActivity activity={mockActivity} />
+                    <MyActivity activity={forumPosts?.slice(0, 5)} />
                   </TabPanel>
                 </TabContext>
               </div>
