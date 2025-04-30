@@ -108,7 +108,7 @@ const MyPosts = ({ loading, error, posts }) => {
 
                     <CardContent>
                       <Typography variant="subtitle2" color="text.secondary">
-                        {formatDate(act.timestamp)}
+                        {formatDate(post.timestamp)}
                       </Typography>
                       <Typography variant="h6" sx={{ mt: 1, mb: 1 }}>
                         {post.topic?.title || "Untitled Topic"}
