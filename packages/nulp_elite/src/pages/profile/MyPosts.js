@@ -11,6 +11,11 @@ import {
 } from "@mui/material";
 import { useLocation } from "react-router-dom";
 import NoResult from "pages/content/noResultFound";
+import moment from "moment";
+
+const formatDate = (timestamp) => {
+  return moment(timestamp).fromNow();
+};
 
 function extractLocalImagePath(content) {
   if (typeof content !== "string") return null;
@@ -102,8 +107,8 @@ const MyPosts = ({ loading, error, posts }) => {
                     )}
 
                     <CardContent>
-                      <Typography variant="caption" color="text.secondary">
-                        {post.timestampISO?.slice(0, 10) || ""}
+                      <Typography variant="subtitle2" color="text.secondary">
+                        {formatDate(act.timestamp)}
                       </Typography>
                       <Typography variant="h6" sx={{ mt: 1, mb: 1 }}>
                         {post.topic?.title || "Untitled Topic"}
