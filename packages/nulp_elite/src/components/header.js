@@ -261,7 +261,7 @@ function Header({ globalSearchQuery }) {
   const handleLogout = () => {
     sessionStorage.setItem("isModalShown", "false");
     Cookies.remove("token");
-    Cookies.remove("express.sid");
+    Cookies.remove("express.sid", { path: "/discussion-forum" });
   };
   return (
     <>
@@ -426,10 +426,9 @@ function Header({ globalSearchQuery }) {
               </Tooltip>
             </Link>
             <Link
-              target="_blank"
-              href="/my-groups?selectedTab=myGroups"
+              href={`${routeConfig.ROUTES.FORUM.FORUM}`}
               className={
-                activePath === `/my-groups?selectedTab=myGroups`
+                activePath === `${routeConfig.ROUTES.FORUM.FORUM}`
                   ? "Menuactive"
                   : "headerMenu"
               }

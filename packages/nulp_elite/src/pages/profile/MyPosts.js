@@ -31,7 +31,7 @@ function getPreviewText(html, wordLimit = 20) {
 }
 
 const handleReadMore = (slug) => {
-  window.open(`/discussion-forum/topic/${slug}`);
+  window.location.href = `/discussion-forum/topic/${slug}`;
 };
 
 const MyPosts = ({ loading, error, posts }) => {
