@@ -258,30 +258,19 @@ function Header({ globalSearchQuery }) {
     boxShadow: searchQuery ? "0 2px 4px rgba(0, 0, 0, 0.2)" : "none",
     color: searchQuery ? "#fff" : "#000",
   };
-  const handleLogout = async () => {
+  const handleLogout = () => {
     sessionStorage.setItem("isModalShown", "false");
-    try {
-      // Call the logout API of discussion forum
-      const response = await fetch(`${urlConfig.FORUM.FORUM_URL}logout`, {
-        method: "POST",
-        credentials: "include",
-      });
+    // Use current domain/path to remove cookies dynamically
 
-      if (!response.ok) {
-        throw new Error("Logout failed");
-      }
+    Cookies.remove("token");
+    Cookies.remove("express.sid");
+    const domain = window.location.hostname;
+    Cookies.remove("token", { path: "/" });
+    Cookies.remove("token", { domain, path: "/" });
+    Cookies.remove("express.sid", { path: "/discussion-forum", domain });
 
-      // Clear session and cookies
-      Cookies.remove("token");
-      Cookies.remove("express.sid", { path: "/discussion-forum" });
-
-      // Optionally redirect or show a success message
-      console.log("Successfully logged out");
-    } catch (error) {
-      console.error("Error logging out:", error);
-    }
+    console.log("Logout successful", domain);
   };
-
   return (
     <>
       <Box
