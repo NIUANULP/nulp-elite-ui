@@ -262,7 +262,7 @@ function Header({ globalSearchQuery }) {
     sessionStorage.setItem("isModalShown", "false");
     try {
       // Call the logout API of discussion forum
-      const response = await fetch(`${urlConfig.FORUM.FORUM_URL}/logout`, {
+      const response = await fetch(`${urlConfig.FORUM.FORUM_URL}logout`, {
         method: "POST",
         credentials: "include",
       });
