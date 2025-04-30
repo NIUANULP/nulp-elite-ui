@@ -106,8 +106,6 @@ function Header({ globalSearchQuery }) {
       .then((data) => {
         const token = data.access_token;
         Cookies.set("token", token, { path: "/", secure: false });
-        // Redirect to forum URL after token is saved
-        window.location.href = urlConfig.FORUM.FORUM_URL;
       })
       .catch((err) => {
         console.error("Fetch error:", err);
