@@ -33,6 +33,7 @@ import Groups2OutlinedIcon from "@mui/icons-material/Groups2Outlined";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { Collapse, List } from "@mui/material";
 import NotificationPopup from "./Notification";
+import Cookies from "js-cookie";
 
 function Header({ globalSearchQuery }) {
   const navigate = useNavigate();
@@ -98,7 +99,20 @@ function Header({ globalSearchQuery }) {
       console.error("Error fetching user data:", error);
     }
   };
-
+  // Forum token fetch using cookies
+  useEffect(() => {
+    fetch(urlConfig.FORUM.AUTH_TOKEN)
+      .then((res) => res.json())
+      .then((data) => {
+        const token = data.access_token;
+        Cookies.set("token", token, { path: "/", secure: false });
+        // Redirect to forum URL after token is saved
+        window.location.href = urlConfig.FORUM.FORUM_URL;
+      })
+      .catch((err) => {
+        console.error("Fetch error:", err);
+      });
+  }, []);
   // Retrieve roles from sessionStorage
   //const rolesJson = sessionStorage.getItem("roles");
   useEffect(() => {
