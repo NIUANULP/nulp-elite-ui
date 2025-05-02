@@ -133,7 +133,7 @@ const LearnathonDashboard = () => {
         },
       };
       try {
-        const response = await fetch(`${urlConfig.URLS.LEARNATHON.LIST}`, {
+        const response = await fetch(`${urlConfig.URLS.LEARNATHON.LIST+"?phone=true"}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -265,7 +265,7 @@ const LearnathonDashboard = () => {
         },
       };
       try {
-        const response = await fetch(`${urlConfig.URLS.LEARNATHON.LIST}`, {
+        const response = await fetch(`${urlConfig.URLS.LEARNATHON.LIST+"?email=true&phone=true"}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
