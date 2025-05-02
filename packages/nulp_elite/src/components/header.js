@@ -269,6 +269,23 @@ function Header({ globalSearchQuery }) {
     Cookies.remove("token", { domain, path: "/" });
     Cookies.remove("express.sid", { path: "/discussion-forum", domain });
 
+    // Logout from NodeBB using XHR
+    const xhr = new XMLHttpRequest();
+    const forumUrl = `/discussion-forum/logout`;
+    xhr.open("POST", forumUrl, true);
+    xhr.withCredentials = true; // Important for sending cookies
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          console.log("Successfully logged out from NodeBB");
+        } else {
+          console.error("Error logging out from NodeBB:", xhr.status);
+        }
+      }
+    };
+    xhr.send();
+
     console.log("Logout successful", domain);
   };
   return (
