@@ -663,6 +663,7 @@ const DomainList = ({ globalSearchQuery }) => {
                   <Grid item xs={12}>
                     <Box className="h1-title">{t("LERN_title")}</Box>
                   </Grid>
+                  
                   <Grid item xs={12} md={9}>
                     <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
                   </Grid>
