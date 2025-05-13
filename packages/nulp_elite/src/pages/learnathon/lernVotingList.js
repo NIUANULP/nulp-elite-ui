@@ -39,7 +39,7 @@ const LernVotingList = () => {
   const [value, setValue] = React.useState("1");
   const [selectedTab, setSelectedTab] = useState("1");
   const [order, setOrder] = useState("desc"); // change from "asc"
-
+  const [userData, setUserData] = useState(null);
   const [orderBy, setOrderBy] = useState("vote_count");
 
   const tabChange = (event, newValue) => {
@@ -50,7 +50,33 @@ const LernVotingList = () => {
 
   useEffect(() => {
     fetchData();
+    fetchUserData();
   }, [selectedTab, search]);
+
+  const fetchUserData = async () => {
+    try {
+      const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.GET_PROFILE}${_userId}?fields=${urlConfig.params.userReadParam.fields}`;
+
+      const header = "application/json";
+      const response = await fetch(url, {
+        // headers: {
+        //   "Content-Type": "application/json",
+        // },
+      });
+      const data = await response.json();
+      setUserData(data);
+      const rootOrgId = data.result.response.rootOrgId;
+      sessionStorage.setItem("rootOrgId", rootOrgId);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+  const roleNames =
+  userData?.result?.response?.roles.map((role) => role.role) || [];
+
+  console.log("roleNames", roleNames);
+
 
   const categoryMap = {
     "1": "State / UT / SPVs / ULBs / Any Other",
@@ -61,14 +87,22 @@ const LernVotingList = () => {
   const fetchData = async () => {
     let selectedCategory = categoryMap[selectedTab];
 
+    const filters = {
+      category: "Learnathon",
+      content_category: selectedCategory,
+    };
+  
+    // Add status filter only if user is NOT admin
+    if (!(roleNames.includes("ORG_ADMIN") || roleNames.includes("SYSTEM_ADMINISTRATION"))) {
+      filters.status = ["Live"];
+    }
+    else {
+      filters.status = ["Live", "Closed"];
+    }
+  
     const assetBody = {
       request: {
-        filters: {
-          status: ["Live"],
-          category: "Learnathon",
-          content_category: selectedCategory,
-        },
-
+        filters,
         limit: 2000,
         offset: 0,
         search: search,
