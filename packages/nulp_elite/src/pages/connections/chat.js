@@ -136,9 +136,10 @@ const Chat = ({
   const [textValue, setTextValue] = useState(
     postUrl
       ? `Hello! I'd like to connect with you regarding the post: ${postUrl}`
-      : ""
+      : t("HELLO_CONNECT_MESSAGE")
   );
 
+  console.log(postUrl, "postUrl------------>");
   const chatRef = useRef(null);
 
   const location = useLocation();
@@ -353,7 +354,15 @@ const Chat = ({
           setMessages(response.data.result || []);
 
           if (response.data.result.length === 0) {
-            setTextValue(t("HELLO_CONNECT_MESSAGE"));
+            console.log(
+              t("HELLO_CONNECT_MESSAGE"),
+              "t('HELLO_CONNECT_MESSAGE')"
+            );
+            setTextValue(
+              postUrl
+                ? `Hello! I'd like to connect with you regarding the post: ${postUrl}`
+                : t("HELLO_CONNECT_MESSAGE")
+            );
           }
         }
       }
