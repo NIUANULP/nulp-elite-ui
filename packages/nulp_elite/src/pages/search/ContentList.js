@@ -700,11 +700,15 @@ const ContentList = (props) => {
                   </Button>
                 </Box>
               )}
-              <MyPosts
-                loading={forumLoading}
-                error={forumError}
-                posts={forumPosts?.slice(0, 6)}
-              />
+              {forumPosts && forumPosts?.length > 0 ? (
+                <MyPosts
+                  loading={forumLoading}
+                  error={forumError}
+                  posts={forumPosts?.slice(0, 6)}
+                />
+              ) : (
+                <NoResult />
+              )}
             </Container>
           )}
         </Container>

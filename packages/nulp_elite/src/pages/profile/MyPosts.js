@@ -68,79 +68,85 @@ const MyPosts = ({ loading, error, posts }) => {
           />
         </Box>
       )}
-      <Box>
-        {loading && <Typography>Loading posts...</Typography>}
-        {!loading && error && <Typography color="error">{error}</Typography>}
-        {!loading && !error && filteredPosts.length === 0 && <NoResult />}
-        {!loading && !error && filteredPosts.length > 0 && (
-          <Grid container spacing={3}>
-            {filteredPosts.map((post) => {
-              let imageUrl = extractLocalImagePath(post.content);
-              console.log("imageUrl", imageUrl);
+      {filteredPosts && filteredPosts?.length > 0 ? (
+        <Box>
+          {loading && <Typography>Loading posts...</Typography>}
+          {!loading && error && <Typography color="error">{error}</Typography>}
+          {!loading && !error && filteredPosts.length === 0 && <NoResult />}
+          {!loading && !error && filteredPosts.length > 0 && (
+            <Grid container spacing={3}>
+              {filteredPosts.map((post) => {
+                let imageUrl = extractLocalImagePath(post.content);
+                console.log("imageUrl", imageUrl);
 
-              let fullImageUrl = null;
+                let fullImageUrl = null;
 
-              if (imageUrl) {
-                fullImageUrl = imageUrl.startsWith("/")
-                  ? imageUrl
-                  : `${imageUrl}`;
-              } else {
-                fullImageUrl = require("../../assets/discussion.png");
-              }
+                if (imageUrl) {
+                  fullImageUrl = imageUrl.startsWith("/")
+                    ? imageUrl
+                    : `${imageUrl}`;
+                } else {
+                  fullImageUrl = require("../../assets/discussion.png");
+                }
 
-              console.log("fullImageUrl", fullImageUrl);
-              return (
-                <Grid item xs={12} sm={6} md={4} key={post.pid}>
-                  <Card sx={{ borderRadius: 3, boxShadow: 2, height: "100%" }}>
-                    {fullImageUrl && (
-                      <CardMedia
-                        component="img"
-                        image={fullImageUrl}
-                        alt="Post image"
-                        sx={{
-                          width: "100%",
-                          height: 160,
-                          objectFit: "cover",
-                          display: "block",
-                        }}
-                      />
-                    )}
+                console.log("fullImageUrl", fullImageUrl);
+                return (
+                  <Grid item xs={12} sm={6} md={4} key={post.pid}>
+                    <Card
+                      sx={{ borderRadius: 3, boxShadow: 2, height: "100%" }}
+                    >
+                      {fullImageUrl && (
+                        <CardMedia
+                          component="img"
+                          image={fullImageUrl}
+                          alt="Post image"
+                          sx={{
+                            width: "100%",
+                            height: 160,
+                            objectFit: "cover",
+                            display: "block",
+                          }}
+                        />
+                      )}
 
-                    <CardContent>
-                      <Typography variant="subtitle2" color="text.secondary">
-                        {formatDate(post.timestamp)}
-                      </Typography>
-                      <Typography variant="h6" sx={{ mt: 1, mb: 1 }}>
-                        {post.topic?.title || "Untitled Topic"}
-                      </Typography>
-                      <Typography variant="body2" sx={{ mb: 1 }}>
-                        {getPreviewText(post.content, 20)}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {post.category?.name
-                          ? `Category: ${post.category.name}`
-                          : post.topic?.category?.name
-                          ? `Category: ${post.topic.category.name}`
-                          : ""}
-                      </Typography>
-                      <Box sx={{ mt: 2 }}>
-                        <Button
-                          size="small"
-                          endIcon={<span>&#8594;</span>}
-                          onClick={() => handleReadMore(post.topic?.slug)}
-                          disabled={!post.topic?.slug}
-                        >
-                          Read More
-                        </Button>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              );
-            })}
-          </Grid>
-        )}
-      </Box>
+                      <CardContent>
+                        <Typography variant="subtitle2" color="text.secondary">
+                          {formatDate(post.timestamp)}
+                        </Typography>
+                        <Typography variant="h6" sx={{ mt: 1, mb: 1 }}>
+                          {post.topic?.title || "Untitled Topic"}
+                        </Typography>
+                        <Typography variant="body2" sx={{ mb: 1 }}>
+                          {getPreviewText(post.content, 20)}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {post.category?.name
+                            ? `Category: ${post.category.name}`
+                            : post.topic?.category?.name
+                            ? `Category: ${post.topic.category.name}`
+                            : ""}
+                        </Typography>
+                        <Box sx={{ mt: 2 }}>
+                          <Button
+                            size="small"
+                            endIcon={<span>&#8594;</span>}
+                            onClick={() => handleReadMore(post.topic?.slug)}
+                            disabled={!post.topic?.slug}
+                          >
+                            Read More
+                          </Button>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          )}
+        </Box>
+      ) : (
+        <NoResult />
+      )}
     </>
   );
 };
