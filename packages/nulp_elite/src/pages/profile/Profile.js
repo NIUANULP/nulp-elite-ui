@@ -592,7 +592,7 @@ const Profile = () => {
       setPostsError(null);
       try {
         const response = await fetch(
-          `/discussion-forum/api/user/${userData?.result?.response?.userName}/posts`
+          `/discussion/api/user/${userData?.result?.response?.userName}/posts`
         );
         if (!response.ok) throw new Error("Failed to fetch posts");
         const data = await response.json();
@@ -1323,6 +1323,7 @@ const Profile = () => {
                           }
                           variant="contained"
                           sx={{
+                            marginTop: "13px",
                             mr: 2,
                             display: { xs: "none", sm: "inline-flex" },
                             backgroundColor: "#057184",
