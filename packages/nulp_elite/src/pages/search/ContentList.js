@@ -163,7 +163,7 @@ const ContentList = (props) => {
       setForumError(null);
       try {
         const response = await fetch(
-          `/discussion-forum/api/search?in=titlesposts&term=${encodeURIComponent(
+          `/discussion/api/search?in=titlesposts&term=${encodeURIComponent(
             searchQuery
           )}&matchWords=any&by=&categories=&searchChildren=false&hasTags=&replies=&repliesFilter=atleast&timeFilter=newer&timeRange=&sortBy=relevance&sortDirection=desc&showAs=posts`
         );
@@ -683,6 +683,7 @@ const ContentList = (props) => {
                     }
                     variant="contained"
                     sx={{
+                      marginTop: "13px",
                       mr: 2,
                       display: { xs: "none", sm: "inline-flex" },
                       backgroundColor: "#057184",

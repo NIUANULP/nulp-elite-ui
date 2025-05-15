@@ -63,6 +63,7 @@ const MyActivity = ({ activity }) => {
           <Box
             key={act.pid}
             sx={{
+              marginTop: "20px",
               mb: 3,
               p: 2,
               border: "1px solid #eee",
