@@ -187,7 +187,6 @@ const Profile = () => {
         userType: userInfo[0]?.user_type,
         otherUserType: "",
         organisation: userInfo[0]?.organisation,
-        //country: userInfo[0]?.country || "India",
         country:  userInfo[0].country || "India", // fallback
         otherCountry: !countryOptions.includes(userInfo[0].country)
           ? userInfo[0].country
