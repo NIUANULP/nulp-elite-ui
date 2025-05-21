@@ -40,6 +40,7 @@ import styled from "styled-components";
 import LearningHistory from "./learningHistory";
 import Certificate from "./certificate";
 import { BarChart } from "@mui/x-charts/BarChart";
+import { count } from "rxjs";
 
 const routeConfig = require("../../configs/routeConfig.json");
 
@@ -107,6 +108,7 @@ const Profile = () => {
     userType: "",
     otherUserType: "",
     organisation: "",
+    country: "",
     state: "",
     state_id: "",
     district: "",
@@ -136,6 +138,8 @@ const Profile = () => {
     "Any Other Government Entities",
     "Others",
   ];
+
+  const countryOptions = ["India"];
 
   const [statesList, setStatesList] = useState([]);
   const [districtsList, setDistrictsList] = useState([]);
@@ -183,6 +187,11 @@ const Profile = () => {
         userType: userInfo[0]?.user_type,
         otherUserType: "",
         organisation: userInfo[0]?.organisation,
+        //country: userInfo[0]?.country || "India",
+        country:  userInfo[0].country || "India", // fallback
+        otherCountry: !countryOptions.includes(userInfo[0].country)
+          ? userInfo[0].country
+          : "",
         state: userInfo[0]?.state,
         state_id: userInfo[0]?.state_id,
         district: userInfo[0]?.state_id,
@@ -197,6 +206,7 @@ const Profile = () => {
         userType: userInfo[0]?.user_type,
         otherUserType: "",
         organisation: userInfo[0]?.organisation,
+        country: userInfo[0]?.country || "India",
         state: userInfo[0]?.state,
         state_id: userInfo[0]?.state_id,
         district: userInfo[0]?.state_id,
@@ -409,6 +419,7 @@ const Profile = () => {
     }
   };
   const updateUserInfoInCustomDB = async () => {
+    console.log("updateUserInfoInCustomDB", editedUserInfo);
     const requestBody = {
       designation:
         editedUserInfo.designation === "Other"
@@ -421,13 +432,16 @@ const Profile = () => {
           ? editedUserInfo.otherUserType
           : editedUserInfo.userType,
       organisation: editedUserInfo.organisation,
+      country: editedUserInfo.country === "Others" ? editedUserInfo.otherCountry : editedUserInfo.country,
       state: editedUserInfo.state,
       state_id: editedUserInfo.state_id,
       district: editedUserInfo.district,
       district_id: editedUserInfo.district_id,
     };
     try {
+      console.log("requestBody", requestBody);
       const url = `${urlConfig.URLS.POFILE_PAGE.USER_UPDATE}?user_id=${_userId}`;
+      console.log("url", url);
       const response = await fetch(url, {
         method: "PUT",
         headers: {
@@ -1073,81 +1087,148 @@ const Profile = () => {
                             </Typography>
                           </Box>
 
+                          {/* Country */}
+
                           <Box py={1}>
-                            <FormControl
-                              fullWidth
-                              style={{ marginTop: "10px" }}
-                            >
-                              <InputLabel
-                                id="state-label"
-                                className="year-select"
-                              >
-                                {t("STATE")}
+                            <FormControl fullWidth style={{ marginTop: "10px" }}>
+                              <InputLabel id="country-label" className="year-select">
+                                {t("COUNTRY")}
                               </InputLabel>
                               <Select
-                                labelId="state-label"
-                                id="state"
-                                value={editedUserInfo.state_id}
-                                onChange={(e) => {
-                                  const selectedState = statesList.find(
-                                    (s) => s.id === e.target.value
-                                  );
+                                labelId="country-label"
+                                id="country"
+                                // value={editedUserInfo.country}
+                                value={
+                                  editedUserInfo.country
+                                    ? (countryOptions.includes(editedUserInfo.country) ? editedUserInfo.country : "Others")
+                                    : ""
+                                }
+                                onChange={(e) =>
                                   setEditedUserInfo({
                                     ...editedUserInfo,
-                                    state: selectedState?.name || "",
-                                    state_id: selectedState?.id || "",
-                                    district: "",
-                                    district_id: "",
-                                  });
-                                }}
+                                    country: e.target.value,
+                                  })
+                                }
                               >
-                                {statesList.map((state) => (
-                                  <MenuItem key={state.id} value={state.id}>
-                                    {state.name}
+                                {countryOptions.map((country, index) => (
+                                  <MenuItem key={index} value={country}>
+                                    {country}
                                   </MenuItem>
                                 ))}
+                                <MenuItem value="Others">Others</MenuItem>
                               </Select>
                             </FormControl>
                           </Box>
 
-                          <Box py={1}>
-                            <FormControl
-                              fullWidth
-                              style={{ marginTop: "10px" }}
-                            >
-                              <InputLabel
-                                id="district-label"
-                                className="year-select"
-                              >
-                                {t("DISTRICT")}
-                              </InputLabel>
-                              <Select
-                                labelId="district-label"
-                                id="district"
-                                value={editedUserInfo.district_id}
-                                onChange={(e) => {
-                                  const selectedDistrict = districtsList.find(
-                                    (d) => d.id === e.target.value
-                                  );
+                          {editedUserInfo.country !== "India" && (
+                            <Box py={1}>
+                              <CssTextField
+                                id="otherCountry"
+                                name="otherCountry"
+                                label={
+                                  <span>
+                                    {t("OTHER COUNTRY")} <span className="required">*</span>
+                                  </span>
+                                }
+                                variant="outlined"
+                                size="small"
+                                value={editedUserInfo.otherCountry}
+                                onChange={(e) =>
                                   setEditedUserInfo({
                                     ...editedUserInfo,
-                                    district: selectedDistrict?.name || "",
-                                    district_id: selectedDistrict?.id || "",
-                                  });
-                                }}
-                                disabled={!editedUserInfo.state_id}
-                              >
-                                {districtsList.map((district) => (
-                                  <MenuItem
-                                    key={district.id}
-                                    value={district.id}
+                                    otherCountry: e.target.value,
+                                    state: "NA",
+                                    state_id: "NA",
+                                    district: "NA",
+                                    district_id: "NA",
+                                  })
+                                }
+                              />
+                            </Box>
+                          )}
+
+
+                          {/* state and district */}
+                          {editedUserInfo.country === "India" && (
+                            <>
+                              <Box py={1}>
+                                <FormControl
+                                  fullWidth
+                                  style={{ marginTop: "10px" }}
+                                >
+                                  <InputLabel
+                                    id="state-label"
+                                    className="year-select"
                                   >
-                                    {district.name}
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                            </FormControl>
-                          </Box>
+                                    {t("STATE")}
+                                  </InputLabel>
+                                  <Select
+                                    labelId="state-label"
+                                    id="state"
+                                    value={editedUserInfo.state_id}
+                                    onChange={(e) => {
+                                      const selectedState = statesList.find(
+                                        (s) => s.id === e.target.value
+                                      );
+                                      setEditedUserInfo({
+                                        ...editedUserInfo,
+                                        state: selectedState?.name || "",
+                                        state_id: selectedState?.id || "",
+                                        district: "",
+                                        district_id: "",
+                                      });
+                                    }}
+                                  >
+                                    {statesList.map((state) => (
+                                      <MenuItem key={state.id} value={state.id}>
+                                        {state.name}
+                                      </MenuItem>
+                                    ))}
+                                  </Select>
+                                </FormControl>
+                              </Box>
+
+                              <Box py={1}>
+                                <FormControl
+                                  fullWidth
+                                  style={{ marginTop: "10px" }}
+                                >
+                                  <InputLabel
+                                    id="district-label"
+                                    className="year-select"
+                                  >
+                                    {t("DISTRICT")}
+                                  </InputLabel>
+                                  <Select
+                                    labelId="district-label"
+                                    id="district"
+                                    value={editedUserInfo.district_id}
+                                    onChange={(e) => {
+                                      const selectedDistrict = districtsList.find(
+                                        (d) => d.id === e.target.value
+                                      );
+                                      setEditedUserInfo({
+                                        ...editedUserInfo,
+                                        district: selectedDistrict?.name || "",
+                                        district_id: selectedDistrict?.id || "",
+                                      });
+                                    }}
+                                    disabled={!editedUserInfo.state_id}
+                                  >
+                                    {districtsList.map((district) => (
+                                      <MenuItem
+                                        key={district.id}
+                                        value={district.id}
+                                      >
+                                        {district.name}
+                                      </MenuItem>
+                                    ))}
+                                  </Select>
+                                </FormControl>
+                              </Box>
+                            </>
+                          )}
+
 
                           <Box pt={4} className="d-flex jc-en">
                             <Button
