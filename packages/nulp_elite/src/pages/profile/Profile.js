@@ -144,9 +144,13 @@ const Profile = () => {
   const [statesList, setStatesList] = useState([]);
   const [districtsList, setDistrictsList] = useState([]);
 
-  const selectedCountryValue = editedUserInfo.country
-  ? (countryOptions.includes(editedUserInfo.country) ? editedUserInfo.country : "Others")
-  : "";
+  let selectedCountryValue = "";
+
+  if (editedUserInfo.country) {
+    selectedCountryValue = countryOptions.includes(editedUserInfo.country)
+      ? editedUserInfo.country
+      : "Others";
+  }
 
   // for bar charts
   const defaultCertData = {
