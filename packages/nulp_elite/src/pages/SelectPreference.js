@@ -18,6 +18,7 @@ import * as util from "../services/utilService";
 import { useTranslation } from "react-i18next";
 const urlConfig = require("../configs/urlConfig.json");
 import ToasterCommon from "./ToasterCommon";
+const axios = require("axios");
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -66,6 +67,30 @@ const SelectPreference = ({ isOpen, onClose }) => {
   const [toastMessage, setToastMessage] = useState("");
   const [showToast, setShowToast] = useState(false);
 
+  const [userInfo, setUserInfo] = useState({});
+
+  const [country, setCountry] = useState("India");
+  const [otherCountry, setOtherCountry] = useState("");
+  const [states, setStates] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+
+  const [editedUserInfo, setEditedUserInfo] = useState({
+    designation: "",
+    otherDesignation: "",
+    userType: "",
+    otherUserType: "",
+    bio: "",
+    organisation: "",
+    country: "",
+    otherCountry: "",
+    state: "",
+    state_id: "",
+    district: "",
+    district_id: ""
+  });
+
   const showErrorMessage = (msg) => {
     setToasterMessage(msg);
     setTimeout(() => {
@@ -76,7 +101,9 @@ const SelectPreference = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     getUserData();
+    getCustomUserData();
   }, []);
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -123,6 +150,7 @@ const SelectPreference = ({ isOpen, onClose }) => {
       setToasterOpen(true);
     }
   };
+
   useEffect(() => {
     if (orgId) {
       fetchUserDataAndSetCustodianOrgData();
@@ -135,7 +163,83 @@ const SelectPreference = ({ isOpen, onClose }) => {
     if (defaultFramework) {
       getFramework(defaultFramework);
     }
-  }, [defaultFramework,selectedCategory]);
+  }, [defaultFramework, selectedCategory]);
+
+  useEffect(() => {
+    fetchStates();
+  }, []);
+
+  useEffect(() => {
+    if (selectedState) fetchDistricts(selectedState);
+  }, [selectedState]);
+
+  // states and districts api
+  const fetchStates = async () => {
+    try {
+      const response = await fetch(`${urlConfig.URLS.USER.LOCATION_SEARCH_API}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          request: {
+            filters: { type: "state" },
+          },
+        }),
+      });
+
+      const data = await response.json();
+      setStates(data?.result?.response || []);
+    } catch (error) {
+      console.error("Failed to fetch states:", error);
+    }
+  };
+
+  const fetchDistricts = async (stateId) => {
+    try {
+      const response = await fetch(`${urlConfig.URLS.USER.LOCATION_SEARCH_API}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          request: {
+            filters: {
+              type: "district",
+              parentId: stateId,
+            },
+          },
+        }),
+      });
+
+      const data = await response.json();
+      setDistricts(data?.result?.response || []);
+    } catch (error) {
+      console.error("Failed to fetch districts:", error);
+    }
+  };
+
+
+  const handleCountryChange = (e) => {
+    setCountry(e.target.value);
+    if (e.target.value === "India") {
+      setOtherCountry("");
+    }
+  };
+
+  const handleOtherCountryChange = (e) => {
+    setOtherCountry(e.target.value);
+  };
+
+  const handleStateChange = (e) => {
+    setSelectedState(e.target.value);
+    setSelectedDistrict("");
+  };
+
+  const handleDistrictChange = (e) => {
+    setSelectedDistrict(e.target.value);
+  };
+
 
   const handleCategoryChange = (event) => {
     const selectedBoard = event.target.value;
@@ -189,31 +293,31 @@ const SelectPreference = ({ isOpen, onClose }) => {
       const data = await response.json();
       setFrameworkData(data?.result?.framework?.categories);
       const Categoryindex = data?.result?.framework?.categories.findIndex(
-  (category) => category.code === "board"
-);
+        (category) => category.code === "board"
+      );
       setCategories(data?.result?.framework?.categories[Categoryindex]?.terms);
       const SubCategoryindex = data?.result?.framework?.categories.findIndex(
-  (category) => category.code === "gradeLevel"
-);
-    if(selectedCategory){
-      const selectedIndex = data?.result?.framework?.categories[Categoryindex]?.terms.findIndex(
-      (category) => category.name === selectedCategory
-    );
-    if (selectedIndex !== -1) {
-      setSubCategories(data?.result?.framework?.categories[Categoryindex]?.terms[selectedIndex]?.associations || []);
-    } else {
-      setSubCategories([]);
-    }
-}else{
-setSubCategories(data?.result?.framework?.categories[SubCategoryindex]?.terms);
-}
+        (category) => category.code === "gradeLevel"
+      );
+      if (selectedCategory) {
+        const selectedIndex = data?.result?.framework?.categories[Categoryindex]?.terms.findIndex(
+          (category) => category.name === selectedCategory
+        );
+        if (selectedIndex !== -1) {
+          setSubCategories(data?.result?.framework?.categories[Categoryindex]?.terms[selectedIndex]?.associations || []);
+        } else {
+          setSubCategories([]);
+        }
+      } else {
+        setSubCategories(data?.result?.framework?.categories[SubCategoryindex]?.terms);
+      }
       const Topicsindex = data?.result?.framework?.categories.findIndex(
-  (category) => category.code === "subject"
-);
+        (category) => category.code === "subject"
+      );
       setTopics(data?.result?.framework?.categories[Topicsindex]?.terms);
       const Languagesindex = data?.result?.framework?.categories.findIndex(
-  (category) => category.code === "medium"
-);
+        (category) => category.code === "medium"
+      );
       setLanguages(data?.result?.framework?.categories[Languagesindex]?.terms);
 
       setDomain(data?.result?.framework?.categories[Categoryindex]?.name);
@@ -247,7 +351,7 @@ setSubCategories(data?.result?.framework?.categories[SubCategoryindex]?.terms);
       }
 
       const responseData = await response.json();
-      if (Object.entries(responseData?.result?.response?.framework).length === 0 ) {
+      if (Object.entries(responseData?.result?.response?.framework).length === 0) {
         setIsEmptyPreference(false);
       } else {
         setSelectedCategory(
@@ -259,7 +363,7 @@ setSubCategories(data?.result?.framework?.categories[SubCategoryindex]?.terms);
 
         setSelectedTopic(
           responseData?.result?.response?.framework?.subject &&
-            responseData?.result?.response?.framework?.subject[0]
+          responseData?.result?.response?.framework?.subject[0]
         );
         setSelectedLanguages(responseData?.result?.response?.framework?.medium);
 
@@ -271,11 +375,11 @@ setSubCategories(data?.result?.framework?.categories[SubCategoryindex]?.terms);
           responseData?.result?.response?.framework?.gradeLevel
         );
       }
-      
+
       if (responseData?.result?.response?.framework?.id?.length > 0 && responseData.result.response.framework.id[0] === "nulp") {
         setframworkname(true);
       }
-      
+
     } catch (error) {
       console.error("Error fetching data:", error);
       showErrorMessage("Failed to fetch data. Please try again.");
@@ -283,6 +387,59 @@ setSubCategories(data?.result?.framework?.categories[SubCategoryindex]?.terms);
       setIsLoading(false);
     }
   };
+
+  const getCustomUserData = async () => {
+    setIsLoading(true);
+    setError(null);
+  
+    try {
+      const url = `${urlConfig.URLS.POFILE_PAGE.USER_READ}`;
+      const response = await axios.post(
+        url,
+        { user_ids: [_userId] },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      const userData = response?.data?.result?.[0]; // The response is an array
+  
+      if (!userData) {
+        showErrorMessage(t("FAILED_TO_FETCH_DATA"));
+        throw new Error("User data not found");
+      }
+  
+      const framework = userData?.framework || {};
+  
+      if (Object.keys(framework).length === 0) {
+        setIsEmptyPreference(false);
+      } else {
+        setSelectedCategory(framework?.board?.[0]);
+        setSelectedSubCategory(framework?.gradeLevel);
+        setSelectedTopic(framework?.subject?.[0]);
+        setSelectedLanguages(framework?.medium);
+  
+        setPreCategory(framework?.board?.[0]);
+        setPreTopic(framework?.subject?.[0]);
+        setPreLanguages(framework?.medium);
+        setPreSubCategory(framework?.gradeLevel);
+      }
+  
+      if (framework?.id?.length > 0 && framework.id[0] === "nulp") {
+        setframworkname(true);
+      }
+  
+    } catch (error) {
+      console.error("Error fetching custom user data:", error);
+      showErrorMessage("Failed to fetch data. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
 
   const updateUserData = async () => {
     setIsLoading(true);
@@ -316,7 +473,7 @@ setSubCategories(data?.result?.framework?.categories[SubCategoryindex]?.terms);
         setShowToast(true);
         onClose();
       } else {
-         showErrorMessage(t("FAILED_TO_FETCH_DATA"));
+        showErrorMessage(t("FAILED_TO_FETCH_DATA"));
         throw new Error(t("FAILED_TO_FETCH_DATA"));
       }
       // if (!response.ok) {
@@ -336,8 +493,54 @@ setSubCategories(data?.result?.framework?.categories[SubCategoryindex]?.terms);
     }
   };
 
+  const updateUserInfoInCustomDB = async () => {
+    console.log("updateUserInfoInCustomDB", editedUserInfo);
+    const requestBody = {
+      designation:
+        editedUserInfo.designation === "Other"
+          ? editedUserInfo.otherDesignation
+          : editedUserInfo.designation,
+      bio: editedUserInfo.bio,
+      created_by: _userId,
+      user_type:
+        editedUserInfo.userType === "Other"
+          ? editedUserInfo.otherUserType
+          : editedUserInfo.userType,
+      organisation: editedUserInfo.organisation,
+      country: editedUserInfo.country === "Others" ? editedUserInfo.otherCountry : editedUserInfo.country,
+      state: editedUserInfo.state,
+      state_id: editedUserInfo.state_id,
+      district: editedUserInfo.district,
+      district_id: editedUserInfo.district_id,
+    };
+    try {
+      console.log("requestBody", requestBody);
+      const url = `${urlConfig.URLS.POFILE_PAGE.USER_UPDATE}?user_id=${_userId}`;
+      console.log("url", url);
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        showErrorMessage(t("SOMETHING_WENT_WRONG"));
+        throw new Error(t("SOMETHING_WENT_WRONG"));
+      }
+
+      const data = await response.json();
+    } catch (error) {
+      showErrorMessage(t("SOMETHING_WENT_WRONG"));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSavePreferences = () => {
     updateUserData();
+    updateUserInfoInCustomDB();
     onClose();
   };
 
@@ -384,89 +587,153 @@ setSubCategories(data?.result?.framework?.categories[SubCategoryindex]?.terms);
 
   return (
     <>
-     <Dialog
-      open={isOpen}
-      // onClose={handleClose}
-      maxWidth="sm"
-      fullWidth
-      disableBackdropClick
-      disableEscapeKeyDown
-    >
-      {toasterMessage && <ToasterCommon response={toasterMessage} />}
-      <DialogTitle>{t("SELECT_PREF")}</DialogTitle>
-      {framworkname && (
-        <DialogTitle>
-          {t("CHANGE_PREF_OLD_USER")}
-        </DialogTitle>
-      )}
-      <DialogContent>
-        <Box sx={{ minWidth: 120 }}>
+      <Dialog
+        open={isOpen}
+        // onClose={handleClose}
+        maxWidth="sm"
+        fullWidth
+        disableBackdropClick
+        disableEscapeKeyDown
+      >
+        {toasterMessage && <ToasterCommon response={toasterMessage} />}
+        <DialogTitle>{t("SELECT_PREF")}</DialogTitle>
+        {framworkname && (
+          <DialogTitle>
+            {t("CHANGE_PREF_OLD_USER")}
+          </DialogTitle>
+        )}
+        <DialogContent>
+          <Box sx={{ minWidth: 120 }}>
+            <FormControl fullWidth sx={{ marginBottom: 2 }}>
+              <InputLabel id="category-label" className="year-select">
+                {"Domain"}
+              </InputLabel>
+              <Select
+                labelId="category-label"
+                value={selectedCategory}
+                onChange={handleCategoryChange}
+              >
+                {categories?.map((category) => (
+                  <MenuItem key={category?.id} value={category?.name}>
+                    {category?.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          <Box sx={{ minWidth: 120 }}>
+            <FormControl fullWidth sx={{ marginBottom: 2 }}>
+              <InputLabel id="sub-category-label" className="year-select">
+                {"Sub-Domain"}
+              </InputLabel>
+              <Select
+                labelId="sub-category-label"
+                id="sub-category-select"
+                multiple
+                value={selectedSubCategory}
+                onChange={handleSubCategoryChange}
+                disabled={!selectedCategory}
+              >
+                {subCategories?.map((subCategory) => (
+                  <MenuItem key={subCategory?.id} value={subCategory?.name}>
+                    <Checkbox
+                      checked={selectedSubCategory?.includes(subCategory?.name)}
+                    />
+                    <ListItemText primary={subCategory?.name} />
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          <Box sx={{ minWidth: 120 }}>
+            <FormControl fullWidth sx={{ marginBottom: 2 }}>
+              <InputLabel id="language-label" className="year-select">
+                {"language"}
+              </InputLabel>
+              <Select
+                labelId="language-label"
+                id="language-select"
+                multiple
+                value={selectedLanguages}
+                onChange={handleLanguageChange}
+              >
+                {languages?.map((language) => (
+                  <MenuItem key={language?.id} value={language?.name}>
+                    <Checkbox
+                      checked={selectedLanguages?.includes(language?.name)}
+                    />
+                    <ListItemText primary={language?.name} />
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+
+
+          {/* Country and states */}
+          {/* Country */}
           <FormControl fullWidth sx={{ marginBottom: 2 }}>
-            <InputLabel id="category-label" className="year-select">
-              {"Domain"}
-            </InputLabel>
+            <InputLabel id="country-label">Country</InputLabel>
             <Select
-              labelId="category-label"
-              value={selectedCategory}
-              onChange={handleCategoryChange}
+              labelId="country-label"
+              value={country}
+              onChange={handleCountryChange}
             >
-              {categories?.map((category) => (
-                <MenuItem key={category?.id} value={category?.name}>
-                  {category?.name}
+              <MenuItem value="India">India</MenuItem>
+              <MenuItem value="Others">Others</MenuItem>
+            </Select>
+          </FormControl>
+
+          {/* Other Country */}
+          {country === "Others" && (
+            <FormControl fullWidth sx={{ marginBottom: 2 }}>
+              <InputLabel shrink>Specify Other Country</InputLabel>
+              <input
+                type="text"
+                value={otherCountry}
+                onChange={handleOtherCountryChange}
+                style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
+              />
+            </FormControl>
+          )}
+
+          {/* State */}
+          <FormControl fullWidth sx={{ marginBottom: 2 }}>
+            <InputLabel id="state-label">State</InputLabel>
+            <Select
+              labelId="state-label"
+              value={selectedState}
+              onChange={handleStateChange}
+            >
+              {states.map((state) => (
+                <MenuItem key={state.id} value={state.id}>
+                  {state.name}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-        </Box>
-        <Box sx={{ minWidth: 120 }}>
+
+          {/* District */}
           <FormControl fullWidth sx={{ marginBottom: 2 }}>
-            <InputLabel id="sub-category-label" className="year-select">
-              {"Sub-Domain"}
-            </InputLabel>
+            <InputLabel id="district-label">District</InputLabel>
             <Select
-              labelId="sub-category-label"
-              id="sub-category-select"
-              multiple
-              value={selectedSubCategory}
-              onChange={handleSubCategoryChange}
-              disabled={!selectedCategory}
+              labelId="district-label"
+              value={selectedDistrict}
+              onChange={handleDistrictChange}
             >
-              {subCategories?.map((subCategory) => (
-                <MenuItem key={subCategory?.id} value={subCategory?.name}>
-                  <Checkbox
-                    checked={selectedSubCategory?.includes(subCategory?.name)}
-                  />
-                  <ListItemText primary={subCategory?.name} />
+              {districts.map((district) => (
+                <MenuItem key={district.id} value={district.id}>
+                  {district.name}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-        </Box>
-        <Box sx={{ minWidth: 120 }}>
-          <FormControl fullWidth sx={{ marginBottom: 2 }}>
-            <InputLabel id="language-label" className="year-select">
-              {"language"}
-            </InputLabel>
-            <Select
-              labelId="language-label"
-              id="language-select"
-              multiple
-              value={selectedLanguages}
-              onChange={handleLanguageChange}
-            >
-              {languages?.map((language) => (
-                <MenuItem key={language?.id} value={language?.name}>
-                  <Checkbox
-                    checked={selectedLanguages?.includes(language?.name)}
-                  />
-                  <ListItemText primary={language?.name} />
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
-        {/*Comment Topic from user Preferance popup because of costomer request */}
-        {/* <FormControl fullWidth sx={{ marginBottom: 2 }}>
+
+
+
+
+          {/*Comment Topic from user Preferance popup because of costomer request */}
+          {/* <FormControl fullWidth sx={{ marginBottom: 2 }}>
           <InputLabel id="topic-label" className="year-select">
             {"Topic"}
           </InputLabel>
@@ -481,27 +748,27 @@ setSubCategories(data?.result?.framework?.categories[SubCategoryindex]?.terms);
               </MenuItem>
             ))}
           </Select>
-        </FormControl> */} 
-      </DialogContent>
-      <DialogActions>
-        {isEmptyPreference && (
-          <Button onClick={handleClose} className="custom-btn-default">
-            {t("CANCEL")}
+        </FormControl> */}
+        </DialogContent>
+        <DialogActions>
+          {isEmptyPreference && (
+            <Button onClick={handleClose} className="custom-btn-default">
+              {t("CANCEL")}
+            </Button>
+          )}
+          <Button
+            onClick={handleSavePreferences}
+            className="custom-btn-primary"
+            disabled={isDisabled}
+          >
+            {t("SUBMIT")}
           </Button>
-        )}
-        <Button
-          onClick={handleSavePreferences}
-          className="custom-btn-primary"
-          disabled={isDisabled}
-        >
-          {t("SUBMIT")}
-        </Button>
-      </DialogActions>
-    </Dialog>
-    {showToast && (
+        </DialogActions>
+      </Dialog>
+      {showToast && (
         <ToasterCommon response={toastMessage} onClose={closeToast} />
       )}
-    </> 
+    </>
   );
 };
 
