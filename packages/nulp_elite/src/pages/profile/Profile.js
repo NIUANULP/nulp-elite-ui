@@ -40,7 +40,7 @@ import styled from "styled-components";
 import LearningHistory from "./learningHistory";
 import Certificate from "./certificate";
 import { BarChart } from "@mui/x-charts/BarChart";
-import { count } from "rxjs";
+
 
 const routeConfig = require("../../configs/routeConfig.json");
 
@@ -143,6 +143,10 @@ const Profile = () => {
 
   const [statesList, setStatesList] = useState([]);
   const [districtsList, setDistrictsList] = useState([]);
+
+  const selectedCountryValue = editedUserInfo.country
+  ? (countryOptions.includes(editedUserInfo.country) ? editedUserInfo.country : "Others")
+  : "";
 
   // for bar charts
   const defaultCertData = {
@@ -1097,11 +1101,7 @@ const Profile = () => {
                                 labelId="country-label"
                                 id="country"
                                 // value={editedUserInfo.country}
-                                value={
-                                  editedUserInfo.country
-                                    ? (countryOptions.includes(editedUserInfo.country) ? editedUserInfo.country : "Others")
-                                    : ""
-                                }
+                                value={selectedCountryValue}
                                 onChange={(e) =>
                                   setEditedUserInfo({
                                     ...editedUserInfo,
@@ -1109,8 +1109,8 @@ const Profile = () => {
                                   })
                                 }
                               >
-                                {countryOptions.map((country, index) => (
-                                  <MenuItem key={index} value={country}>
+                                {countryOptions.map((country) => (
+                                  <MenuItem key={country} value={country}>
                                     {country}
                                   </MenuItem>
                                 ))}
