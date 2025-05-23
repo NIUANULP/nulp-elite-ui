@@ -151,18 +151,18 @@ const Profile = () => {
     const errors = {};
 
     if (!editedUserInfo.country) {
-      errors.country = "Country is required";
+      errors.country = t("COUNTY_IS_REQUIRED");
     }
 
     if (editedUserInfo.country === "India") {
       if (!editedUserInfo.state_id || editedUserInfo.state_id === "" || editedUserInfo.state_id === "NA") {
-        errors.state_id = "State is required";
+        errors.state_id = t("STATE_IS_REQUIRED");
       }
       if (!editedUserInfo.district_id || editedUserInfo.district_id === "" || editedUserInfo.district_id === "NA") {
-        errors.district_id = "District is required";
+        errors.district_id = t("DISTRICT_IS_REQUIRED");
       }
     } else if (!editedUserInfo.otherCountry.trim()) {
-      errors.otherCountry = "Please enter your country";
+      errors.otherCountry = t("PLEASE_ENTER_YOUR_COUNTRY");
     }
 
     setFormErrors(errors);
@@ -1128,7 +1128,7 @@ const Profile = () => {
                           <Box py={1}>
                             <FormControl fullWidth style={{ marginTop: "10px" }} error={!!formErrors.country}>
                               <InputLabel id="country-label" className="year-select">
-                                {t("Country")}
+                                {t("COUNTRY")}
                               </InputLabel>
                               <Select
                                 labelId="country-label"
@@ -1162,7 +1162,7 @@ const Profile = () => {
                                 name="otherCountry"
                                 label={
                                   <span>
-                                    {t("Other Country")} <span className="required">*</span>
+                                    {t("OTHERCOUNTRY")} <span className="required">*</span>
                                   </span>
                                 }
                                 variant="outlined"
@@ -1198,7 +1198,7 @@ const Profile = () => {
                                     className="year-select"
                                     error={!!formErrors.state_id}
                                   >
-                                    {t("State")}
+                                    {t("STATE")}
                                   </InputLabel>
                                   <Select
                                     labelId="state-label"
@@ -1240,7 +1240,7 @@ const Profile = () => {
                                     className="year-select"
                                     error={!!formErrors.district_id}
                                   >
-                                    {t("District")}
+                                    {t("DISTRICT")}
                                   </InputLabel>
                                   <Select
                                     labelId="district-label"
