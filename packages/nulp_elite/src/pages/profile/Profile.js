@@ -40,6 +40,7 @@ import styled from "styled-components";
 import LearningHistory from "./learningHistory";
 import Certificate from "./certificate";
 import { BarChart } from "@mui/x-charts/BarChart";
+import FormHelperText from '@mui/material/FormHelperText';
 
 
 const routeConfig = require("../../configs/routeConfig.json");
@@ -144,6 +145,30 @@ const Profile = () => {
   const [statesList, setStatesList] = useState([]);
   const [districtsList, setDistrictsList] = useState([]);
 
+  const [formErrors, setFormErrors] = useState({});
+
+  const validateForm = () => {
+    const errors = {};
+
+    if (!editedUserInfo.country) {
+      errors.country = t("COUNTY_IS_REQUIRED");
+    }
+
+    if (editedUserInfo.country === "India") {
+      if (!editedUserInfo.state_id || editedUserInfo.state_id === "" || editedUserInfo.state_id === "NA") {
+        errors.state_id = t("STATE_IS_REQUIRED");
+      }
+      if (!editedUserInfo.district_id || editedUserInfo.district_id === "" || editedUserInfo.district_id === "NA") {
+        errors.district_id = t("DISTRICT_IS_REQUIRED");
+      }
+    } else if (!editedUserInfo.otherCountry.trim()) {
+      errors.otherCountry = t("PLEASE_ENTER_YOUR_COUNTRY");
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0; // returns true if no errors
+  };
+
   let selectedCountryValue = "";
 
   if (editedUserInfo.country) {
@@ -195,7 +220,7 @@ const Profile = () => {
         userType: userInfo[0]?.user_type,
         otherUserType: "",
         organisation: userInfo[0]?.organisation,
-        country:  userInfo[0].country || "India", // fallback
+        country: userInfo[0].country || "India", // fallback
         otherCountry: !countryOptions.includes(userInfo[0].country)
           ? userInfo[0].country
           : "",
@@ -472,6 +497,10 @@ const Profile = () => {
   // Handle form submit
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+
+    const isValid = validateForm(); // Call the validation function
+    if (!isValid) return; // Stop if there are errors
+
     await updateUserData();
     // Close the edit dialog
     setIsEditing(false);
@@ -1097,7 +1126,7 @@ const Profile = () => {
                           {/* Country */}
 
                           <Box py={1}>
-                            <FormControl fullWidth style={{ marginTop: "10px" }}>
+                            <FormControl fullWidth style={{ marginTop: "10px" }} error={!!formErrors.country}>
                               <InputLabel id="country-label" className="year-select">
                                 {t("COUNTRY")}
                               </InputLabel>
@@ -1119,6 +1148,9 @@ const Profile = () => {
                                   </MenuItem>
                                 ))}
                                 <MenuItem value="Others">Others</MenuItem>
+                                {formErrors.country && (
+                                  <FormHelperText>{formErrors.country}</FormHelperText>
+                                )}
                               </Select>
                             </FormControl>
                           </Box>
@@ -1130,7 +1162,7 @@ const Profile = () => {
                                 name="otherCountry"
                                 label={
                                   <span>
-                                    {t("OTHER COUNTRY")} <span className="required">*</span>
+                                    {t("OTHERCOUNTRY")} <span className="required">*</span>
                                   </span>
                                 }
                                 variant="outlined"
@@ -1146,6 +1178,8 @@ const Profile = () => {
                                     district_id: "NA",
                                   })
                                 }
+                                error={!!formErrors.otherCountry}
+                                helperText={formErrors.otherCountry}
                               />
                             </Box>
                           )}
@@ -1155,13 +1189,14 @@ const Profile = () => {
                           {editedUserInfo.country === "India" && (
                             <>
                               <Box py={1}>
-                                <FormControl
-                                  fullWidth
+                                <FormControl 
+                                  fullWidth error={!!formErrors.state_id}
                                   style={{ marginTop: "10px" }}
                                 >
                                   <InputLabel
                                     id="state-label"
                                     className="year-select"
+                                    error={!!formErrors.state_id}
                                   >
                                     {t("STATE")}
                                   </InputLabel>
@@ -1181,6 +1216,7 @@ const Profile = () => {
                                         district_id: "",
                                       });
                                     }}
+                                    error={!!formErrors.state_id}
                                   >
                                     {statesList.map((state) => (
                                       <MenuItem key={state.id} value={state.id}>
@@ -1188,17 +1224,21 @@ const Profile = () => {
                                       </MenuItem>
                                     ))}
                                   </Select>
+                                  {formErrors.state_id && (
+                                    <FormHelperText>{formErrors.state_id}</FormHelperText>
+                                  )}
                                 </FormControl>
                               </Box>
 
                               <Box py={1}>
                                 <FormControl
-                                  fullWidth
+                                  fullWidth error={!!formErrors.district_id}
                                   style={{ marginTop: "10px" }}
                                 >
                                   <InputLabel
                                     id="district-label"
                                     className="year-select"
+                                    error={!!formErrors.district_id}
                                   >
                                     {t("DISTRICT")}
                                   </InputLabel>
@@ -1217,6 +1257,7 @@ const Profile = () => {
                                       });
                                     }}
                                     disabled={!editedUserInfo.state_id}
+                                    error={!!formErrors.district_id}
                                   >
                                     {districtsList.map((district) => (
                                       <MenuItem
@@ -1227,6 +1268,9 @@ const Profile = () => {
                                       </MenuItem>
                                     ))}
                                   </Select>
+                                  {formErrors.district_id && (
+                                    <FormHelperText>{formErrors.district_id}</FormHelperText>
+                                  )}
                                 </FormControl>
                               </Box>
                             </>
