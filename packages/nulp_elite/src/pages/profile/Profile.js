@@ -412,6 +412,7 @@ const Profile = () => {
   };
 
   const handleCloseEditDialog = () => {
+    window.location.reload(true);
     setIsEditing(false);
   };
   const updateUserData = async () => {
