@@ -72,8 +72,6 @@ const CourseStructuredData = ({ course }) => {
     se_subjects: course?.se_subjects?.[0],
     domain: course?.se_boards?.[0],
     visibility: course?.visibility,
-    prevState: course?.prevState,
-    prevStatus: course?.prevStatus,
     contentEncoding: course?.contentEncoding,
   };
 
