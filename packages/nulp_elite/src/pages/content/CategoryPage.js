@@ -8,6 +8,7 @@ import Footer from "components/Footer";
 import Container from "@mui/material/Container";
 import Pagination from "@mui/material/Pagination";
 import Alert from "@mui/material/Alert";
+import CourseStructuredData from "components/CourseStructuredData";
 
 import domainWithImage from "../../assets/domainImgForm.json";
 import DomainCarousel from "components/domainCarousel";
@@ -99,10 +100,10 @@ const CategoryPage = () => {
           //   ? [clearDomains]
           //   : undefined,
           se_boards: domainName
-          ? [domainName]
-          : clearDomains && clearDomains !== "null"
-          ? [clearDomains]
-          : undefined,
+            ? [domainName]
+            : clearDomains && clearDomains !== "null"
+            ? [clearDomains]
+            : undefined,
         },
         limit: 50,
         sort_by: {
@@ -126,6 +127,9 @@ const CategoryPage = () => {
           "se_mediums",
           "se_gradeLevels",
           "primaryCategory",
+          "createdOn",
+          "previewUrl",
+          "creator",
         ],
         facets: ["channel", "gradeLevel", "subject", "medium"],
         offset: 50 * (currentPage - 1),
@@ -253,6 +257,10 @@ const CategoryPage = () => {
       <Header />
       <Box>
         {toasterMessage && <ToasterCommon response={toasterMessage} />}
+        {/* Dynamic data for course and course info structured data for SEO */}
+        {data?.map((course, index) => (
+          <CourseStructuredData key={index} course={course} />
+        ))}
         {domain.length > 0 ? (
           <DomainCarousel
             onSelectDomain={handleDomainFilter}
