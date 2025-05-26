@@ -97,6 +97,9 @@
     },
     "FORUM": {
       "FORUM": "/discussion-forum"
+    },
+    "LOGIN_PAGE": {
+      "LOGIN": "/webapp/login"
     }
   }
 }
