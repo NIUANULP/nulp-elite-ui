@@ -32,7 +32,6 @@ import NoResult from "./noResultFound";
 const routeConfig = require("../../configs/routeConfig.json");
 import * as util from "../../services/utilService";
 import { Loading } from "@shiksha/common-lib";
-import CourseStructuredData from "components/CourseStructuredData";
 
 const responsiveCard = {
   superLargeDesktop: {
@@ -153,9 +152,6 @@ const AllContent = () => {
           "se_mediums",
           "se_gradeLevels",
           "primaryCategory",
-          "createdOn",
-          "previewUrl",
-          "creator",
         ],
         facets: ["channel", "gradeLevel", "subject", "medium"],
         offset: 0,
@@ -324,10 +320,7 @@ const AllContent = () => {
       <Box>
         <Header />
         {toasterMessage && <ToasterCommon response={toasterMessage} />}
-        {/* Dynamic data for course and course info structured data for SEO */}
-        {data?.map((course, index) => (
-          <CourseStructuredData key={index} course={course} />
-        ))}
+
         <Box>
           {domain ? (
             <DomainCarousel
@@ -427,9 +420,7 @@ const AllContent = () => {
                       <Box>
                         {items?.length > 4 && (
                           <Link
-                            to={`${
-                              routeConfig.ROUTES.VIEW_ALL_PAGE.VIEW_ALL
-                            }?${category}${domainName ? `?${domainName}` : ""}`}
+                            to={`${routeConfig.ROUTES.VIEW_ALL_PAGE.VIEW_ALL}?${category}?${domainName}`}
                             className="viewAll mr-22"
                           >
                             {t("VIEW_ALL")}{" "}

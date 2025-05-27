@@ -45,7 +45,6 @@ import {
   LinkedinIcon,
 } from "react-share";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CourseStructuredData from "../../components/CourseStructuredData";
 
 const routeConfig = require("../../configs/routeConfig.json");
 const processString = (str) => {
@@ -519,15 +518,6 @@ const JoinCourse = () => {
   }, [batchDetails, creatorId, allContents]);
 
   const handleDirectConnect = () => {
-    if (!_userId) {
-      // Store current URL in sessionStorage before redirecting
-      sessionStorage.setItem(
-        "redirect_uri",
-        `${window.location.href}?auth_callback=1`
-      );
-      navigate(routeConfig.ROUTES.LOGIN_PAGE.LOGIN);
-      return;
-    }
     if (chat.length === 0) {
       setOpen(true);
     } else if (!isMobile && chat[0]?.is_accepted == true) {
@@ -542,7 +532,7 @@ const JoinCourse = () => {
   const handleGoBack = () => {
     navigate(-1); // Go back to the previous page
   };
-
+  
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-GB", {
@@ -835,14 +825,6 @@ const JoinCourse = () => {
   };
 
   const handleJoinAndOpenModal = async () => {
-    if (!_userId) {
-      sessionStorage.setItem(
-        "redirect_uri",
-        `${window.location.href}?auth_callback=1`
-      );
-      navigate(routeConfig.ROUTES.LOGIN_PAGE.LOGIN);
-      return;
-    }
     try {
       await handleJoinCourse(); // Wait for the user to join the course
       setShowConsentForm(true); // Open the consent form after joining the course
@@ -1013,25 +995,9 @@ const JoinCourse = () => {
     setScore(score);
     return score;
   }
-  // Redirect to the original URL after login
-  useEffect(() => {
-    // Check if we have a stored redirect URL after login
-    const redirectUrl = sessionStorage.getItem("redirect_uri");
-    if (redirectUrl && _userId) {
-      // Clear the stored URL
-      sessionStorage.removeItem("redirect_uri");
-      // Navigate to the stored URL
-      window.location.href = redirectUrl;
-    }
-  }, [_userId]);
-
   return (
     <div>
       <Header />
-      {/* Dynamic data for course and course info structured data for SEO */}
-      {courseData?.result?.content && (
-        <CourseStructuredData course={courseData.result.content} />
-      )}
       {toasterMessage && <ToasterCommon response={toasterMessage} />}
       <Box>
         <Snackbar
