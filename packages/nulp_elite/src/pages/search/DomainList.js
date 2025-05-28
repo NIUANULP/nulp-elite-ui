@@ -646,7 +646,6 @@ const DomainList = ({ globalSearchQuery }) => {
           />
         ) : (
           <SkeletonLoader />
-          // <NoResult />
         )}
 
         <Container
