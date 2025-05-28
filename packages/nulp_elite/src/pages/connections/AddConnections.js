@@ -1626,7 +1626,7 @@ const AddConnections = () => {
                           <Loading message={t("LOADING")} />
                         ) : (
                           invitationReceiverByUser &&
-                          invitationReceiverByUser.map((item) => (
+                          invitationReceiverByUser?.map((item) => (
                             <List
                               key={item.userId}
                               style={{ color: "gray", cursor: "pointer" }}
@@ -1662,7 +1662,7 @@ const AddConnections = () => {
                                     </span>
                                   }
                                   secondary={
-                                    item.messageRequest.length > 20 ? (
+                                    item?.messageRequest?.length > 20 ? (
                                       <div
                                         style={{
                                           border: "1px solid #ddd",
