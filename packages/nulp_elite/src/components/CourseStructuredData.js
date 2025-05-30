@@ -55,7 +55,7 @@ const CourseStructuredData = ({ course, url }) => {
     streamingUrl: course?.streamingUrl,
     copyright: course?.copyright,
     subject: course?.subject?.[0],
-    domain: course?.board,
+    domain: course?.board || course?.se_boards?.[0],
     resourceType: course?.resourceType,
     primaryCategory: course?.primaryCategory,
     status: course?.status,
@@ -75,7 +75,6 @@ const CourseStructuredData = ({ course, url }) => {
     language: course?.se_mediums?.[0],
     subdomain: course?.se_gradeLevels?.[0],
     se_subjects: course?.se_subjects?.[0],
-    domain: course?.se_boards?.[0],
     visibility: course?.visibility,
     contentEncoding: course?.contentEncoding,
   };

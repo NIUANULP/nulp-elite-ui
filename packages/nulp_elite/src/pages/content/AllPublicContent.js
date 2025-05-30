@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import BoxCard from "components/Card";
 import Box from "@mui/material/Box";
 import { getAllContents } from "services/contentService";
-import Header from "components/header";
 import Footer from "components/Footer";
 import Container from "@mui/material/Container";
 import Pagination from "@mui/material/Pagination";
@@ -25,11 +24,8 @@ import LanguageIcon from "@mui/icons-material/Language";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SearchIcon from "@mui/icons-material/Search";
-import NotificationPopup from "components/Notification";
 import { Badge } from "@mui/material";
-import { useTranslation } from "react-i18next";
-import { changeLanguage } from "i18next";
-import { t } from "i18next";
+import { changeLanguage, t } from "i18next";
 import appConfig from "../../configs/appConfig.json";
 const urlConfig = require("../../configs/urlConfig.json");
 import ToasterCommon from "../ToasterCommon";
@@ -41,7 +37,6 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Menu from "@mui/material/Menu";
 import LiveHelpOutlinedIcon from "@mui/icons-material/LiveHelpOutlined";
-import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 
 // Get domain from window location
 const getDomain = () => {
@@ -201,10 +196,8 @@ const AllPublicContent = () => {
   const [show, setShow] = useState(false);
   const [openNotification, setOpenNotification] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
-  const [userData, setUserData] = useState(null);
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
-  const [anchorElNotify, setAnchorElNotify] = useState(null);
 
   const handleChangeLanguage = (event) => {
     setLanguage(event.target.value);
@@ -213,18 +206,10 @@ const AllPublicContent = () => {
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
   const handleClickOpenNotification = () => {
     setOpenNotification(true);
   };
-  const handleCloseNotification = () => {
-    setOpenNotification(false);
-  };
-  const updateNotificationCount = (count) => {
-    setNotificationCount(count);
-  };
+
   return (
     <>
       <Box
