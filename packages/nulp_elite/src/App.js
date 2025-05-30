@@ -254,6 +254,11 @@ function App() {
       path: routeConfig.ROUTES.ALL_PUBLIC_CONTENT_PAGE.ALL_PUBLIC_CONTENT,
       component: AllPublicContent,
     },
+    {
+      moduleName: "nulp_elite",
+      path: "/webapp",
+      component: AllPublicContent,
+    },
   ];
 
   initializeI18n(
