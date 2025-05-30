@@ -47,6 +47,7 @@ import LernReviewList from "pages/learnathon/lernReviewerList";
 import LearnathonDashboard from "pages/learnathon/LearnathonDashboard";
 import dayjs from "dayjs";
 import Forum from "components/Forum";
+import AllPublicContent from "pages/content/AllPublicContent";
 
 function App() {
   // const [t] = useTranslation();
@@ -248,6 +249,11 @@ function App() {
       path: routeConfig.ROUTES.FORUM.FORUM,
       component: Forum,
     },
+    {
+      moduleName: "nulp_elite",
+      path: routeConfig.ROUTES.ALL_PUBLIC_CONTENT_PAGE.ALL_PUBLIC_CONTENT,
+      component: AllPublicContent,
+    },
   ];
 
   initializeI18n(
@@ -334,13 +340,13 @@ function App() {
       {/* <I18nextProvider i18n={i18n}> */}
       {/* <ChakraProvider> */}
       <React.Suspense>
-        {!checkPref && !userData && (
+        {_userId && !checkPref && !userData && (
           <SelectPreference
             isOpen={!checkPref}
             onClose={() => setCheckPref(true)}
           />
         )}
-        {userData && (
+        {_userId && userData && (
           <PopupForm
             open={userData}
             handleClose={() => setUserData(false)}

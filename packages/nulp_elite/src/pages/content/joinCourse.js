@@ -518,6 +518,10 @@ const JoinCourse = () => {
   }, [batchDetails, creatorId, allContents]);
 
   const handleDirectConnect = () => {
+    if (!_userId) {
+      window.location.reload();
+      return;
+    }
     if (chat.length === 0) {
       setOpen(true);
     } else if (!isMobile && chat[0]?.is_accepted == true) {
@@ -532,7 +536,7 @@ const JoinCourse = () => {
   const handleGoBack = () => {
     navigate(-1); // Go back to the previous page
   };
-  
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-GB", {
@@ -825,6 +829,10 @@ const JoinCourse = () => {
   };
 
   const handleJoinAndOpenModal = async () => {
+    if (!_userId) {
+      window.location.reload();
+      return;
+    }
     try {
       await handleJoinCourse(); // Wait for the user to join the course
       setShowConsentForm(true); // Open the consent form after joining the course
