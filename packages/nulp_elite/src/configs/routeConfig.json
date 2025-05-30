@@ -97,6 +97,9 @@
     },
     "FORUM": {
       "FORUM": "/discussion-forum"
+    },
+    "ALL_PUBLIC_CONTENT_PAGE": {
+      "ALL_PUBLIC_CONTENT": "/webapp/all-content"
     }
   }
 }
