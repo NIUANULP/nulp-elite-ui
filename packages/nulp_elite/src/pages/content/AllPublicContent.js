@@ -65,7 +65,7 @@ const AllPublicContent = () => {
   const params = new URLSearchParams(queryString);
   const search = params.get("query") || "";
   const [scrolled, setScrolled] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(search);
 
   // show error message
   const showErrorMessage = (msg) => {
@@ -93,10 +93,25 @@ const AllPublicContent = () => {
           status: ["Live"],
 
           visibility: [],
+          primaryCategory: [
+            "Collection",
+            "Resource",
+            "Course",
+            "eTextbook",
+            "Explanation Content",
+            "Learning Resource",
+            "Practice Question Set",
+            "ExplanationResource",
+            "Practice Resource",
+            "Exam Question",
+            "Good Practices",
+            "Reports",
+            "Manual/SOPs",
+          ],
         },
         limit: 50,
         sort_by: {
-          name: "asc",
+          lastUpdatedOn: "desc",
         },
         fields: [
           "name",
