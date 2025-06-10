@@ -48,6 +48,7 @@ import LearnathonDashboard from "pages/learnathon/LearnathonDashboard";
 import dayjs from "dayjs";
 import Forum from "components/Forum";
 import AllPublicContent from "pages/content/AllPublicContent";
+import Cookies from "js-cookie";
 
 function App() {
   // const [t] = useTranslation();
@@ -282,6 +283,13 @@ function App() {
       };
       const response = await axios.post(url, requestBody);
       const Data = response.data;
+      Cookies.set("designation", Data?.result[0]?.designation, { path: "/" });
+      Cookies.set(
+        "location",
+        `${Data?.result[0]?.district}, ${Data?.result[0]?.state}`,
+        { path: "/" }
+      );
+
       if (
         (Array.isArray(Data?.result) && Data.result.length === 0) ||
         (Array.isArray(Data?.result) &&
