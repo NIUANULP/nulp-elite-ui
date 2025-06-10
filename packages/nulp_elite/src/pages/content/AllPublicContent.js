@@ -488,7 +488,7 @@ const AllPublicContent = () => {
                 sx={{ p: 0 }}
                 className="profile-btn"
               >
-                <div className="profile-text-circle">P</div>
+                <div className="profile-text-circle">G</div>
                 <ExpandMoreIcon />
               </IconButton>
             </Tooltip>
@@ -637,7 +637,7 @@ const AllPublicContent = () => {
                     sx={{ p: 0 }}
                     className="profile-btn"
                   >
-                    <div className="profile-text-circle">P</div>
+                    <div className="profile-text-circle">G</div>
                   </IconButton>
                 </Tooltip>
               </Box>
