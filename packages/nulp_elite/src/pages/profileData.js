@@ -43,6 +43,18 @@ const PopupForm = ({ open, handleClose }) => {
 
   const [initialFirstName, setInitialFirstName] = useState("");
   const [initialLastName, setInitialLastName] = useState("");
+
+  //country state and district
+  const [country, setCountry] = useState("India");
+  const [otherCountry, setOtherCountry] = useState("");
+  const [stateId, setStateId] = useState("");
+  const [stateName, setStateName] = useState("");
+  const [districtId, setDistrictId] = useState("");
+  const [districtName, setDistrictName] = useState("");
+  const [statesList, setStatesList] = useState([]);
+  const [districtsList, setDistrictsList] = useState([]);
+
+
   const maxChars = 500;
   const { t } = useTranslation();
 
@@ -92,6 +104,42 @@ const PopupForm = ({ open, handleClose }) => {
     }
   }, [firstName, lastName, organisation, designation, userType]);
 
+
+  // Fetch states on mount
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        const res = await axios.post(`${urlConfig.URLS.USER.LOCATION_SEARCH_API}`, {
+          request: { filters: { type: "state" } },
+        });
+        setStatesList(res.data?.result?.response || []);
+      } catch (err) {
+        console.error("Error fetching states", err);
+      }
+    };
+    fetchStates();
+  }, []);
+
+  // Fetch districts when state changes
+  useEffect(() => {
+    if (!stateId) return;
+
+    const fetchDistricts = async () => {
+      try {
+        const res = await axios.post(`${urlConfig.URLS.USER.LOCATION_SEARCH_API}`, {
+          request: {
+            filters: { type: "district", parentId: stateId },
+          },
+        });
+        setDistrictsList(res.data?.result?.response || []);
+      } catch (err) {
+        console.error("Error fetching districts", err);
+      }
+    };
+    fetchDistricts();
+  }, [stateId]);
+
+
   const handleSubmit = async () => {
     const finalDesignation =
       designation === "other" ? customDesignation : designation;
@@ -124,7 +172,7 @@ const PopupForm = ({ open, handleClose }) => {
     handleClose();
   };
 
-   const handleBioChange = (e) => {
+  const handleBioChange = (e) => {
     if (e.target.value.length <= maxChars) {
       setBio(e.target.value);
     }
@@ -231,6 +279,73 @@ const PopupForm = ({ open, handleClose }) => {
               />
             )}
           </FormControl>
+
+          <FormControl fullWidth margin="dense">
+            <Select
+              options={[
+                { value: "India", label: "India" },
+                { value: "Others", label: "Others" }
+              ]}
+              value={{ value: country, label: country }}
+              onChange={(selected) => {
+                const value = selected?.value || "";
+                setCountry(value);
+                if (value !== "India") {
+                  setStateId("NA");
+                  setDistrictId("NA");
+                }
+              }}
+              placeholder="Select Country"
+              isClearable
+            />
+          </FormControl>
+
+          {country === "Others" && (
+            <TextField
+              margin="dense"
+              label="Enter Your Country"
+              type="text"
+              fullWidth
+              value={otherCountry}
+              onChange={(e) => setOtherCountry(e.target.value)}
+            />
+          )}
+
+          {country === "India" && (
+            <>
+              <FormControl fullWidth margin="dense">
+                <Select
+                  options={statesList.map((s) => ({ value: s.id, label: s.name }))}
+                  value={statesList.find((s) => s.id === stateId) && { value: stateId, label: stateName }}
+                  onChange={(selected) => {
+                    setStateId(selected?.value || "");
+                    setStateName(selected?.label || "");
+                    setDistrictId("");
+                    setDistrictName("");
+                  }}
+                  placeholder="Select State"
+                  isClearable
+                />
+              </FormControl>
+
+              <FormControl fullWidth margin="dense">
+                <Select
+                  options={districtsList.map((d) => ({ value: d.id, label: d.name }))}
+                  value={districtsList.find((d) => d.id === districtId) && { value: districtId, label: districtName }}
+                  onChange={(selected) => {
+                    setDistrictId(selected?.value || "");
+                    setDistrictName(selected?.label || "");
+                  }}
+                  placeholder="Select District"
+                  isClearable
+                  isDisabled={!stateId}
+                />
+              </FormControl>
+            </>
+          )}
+
+
+
         </Box>
 
         <Box pt={4} className="d-flex jc-en">
