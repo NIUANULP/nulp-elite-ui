@@ -170,22 +170,22 @@ const ContentList = (props) => {
           ...(contentTypeFilter.length > 0
             ? { primaryCategory: contentTypeFilter }
             : {
-                primaryCategory: [
-                  "Collection",
-                  "Resource",
-                  "Course",
-                  "eTextbook",
-                  "Explanation Content",
-                  "Learning Resource",
-                  "Practice Question Set",
-                  "ExplanationResource",
-                  "Practice Resource",
-                  "Exam Question",
-                  "Good Practices",
-                  "Reports",
-                  "Manual/SOPs",
-                ],
-              }),
+              primaryCategory: [
+                "Collection",
+                "Resource",
+                "Course",
+                "eTextbook",
+                "Explanation Content",
+                "Learning Resource",
+                "Practice Question Set",
+                "ExplanationResource",
+                "Practice Resource",
+                "Exam Question",
+                "Good Practices",
+                "Reports",
+                "Manual/SOPs",
+              ],
+            }),
           // ...(domainfilter.se_board
           //   ? { board: domainfilter.se_board }
           //   : domainName
@@ -198,8 +198,8 @@ const ContentList = (props) => {
           ...(domainfilter.se_board
             ? { se_boards: domainfilter.se_board }
             : domainName
-            ? { se_boards: [domainName] }
-            : {}),
+              ? { se_boards: [domainName] }
+              : {}),
           se_gradeLevels:
             subDomainFilter && subDomainFilter.length > 0
               ? subDomainFilter
@@ -390,14 +390,14 @@ const ContentList = (props) => {
     //   state: { domain: query },
     // });
   };
-  
+
   const handleSearch = () => {
     navigate(`${routeConfig.ROUTES.CONTENTLIST_PAGE.CONTENTLIST}?1`, {
       state: { globalSearchQuery: searchQuery },
     });
   };
-  
-  
+
+
 
   const handleInputChange = (event) => {
     setSearchQuery(event.target.value);
@@ -415,6 +415,18 @@ const ContentList = (props) => {
     setSubDomainFilter(selectedFilters.subDomainFilter || []);
     // fetchData();
   };
+
+  useEffect(() => {
+    if (localStorage.getItem('playerVisited') === 'true') {
+      console.log("ContentList: playerVisited is true, refreshing page");
+      localStorage.removeItem('playerVisited');
+      window.location.reload();
+    } else {
+      console.log("ContentList: playerVisited is not true");
+    }
+  }, [location.search]);
+
+
 
   return (
     <div>
@@ -511,9 +523,8 @@ const ContentList = (props) => {
                   className="text-blueShade2 h4-custom"
                 >
                   {domainName || searchQuery
-                    ? `${searchQuery || ""}${
-                        searchQuery && domainName ? ", " : ""
-                      }${domainName || ""}`
+                    ? `${searchQuery || ""}${searchQuery && domainName ? ", " : ""
+                    }${domainName || ""}`
                     : ""}
                 </Box>
               </Box>
@@ -619,5 +630,5 @@ const ContentList = (props) => {
       <Footer />
     </div>
   );
-};                  
+};
 export default ContentList;

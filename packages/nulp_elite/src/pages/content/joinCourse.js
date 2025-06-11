@@ -281,6 +281,7 @@ const JoinCourse = () => {
         const data = await response.json();
         setBatchDetail(data.result);
         getScoreCriteria(data.result);
+        checkCertTemplate(data.result); 
       } catch (error) {
         console.error("Error while fetching courses:", error);
         showErrorMessage(t("FAILED_TO_FETCH_DATA"));
@@ -995,6 +996,19 @@ const JoinCourse = () => {
     setScore(score);
     return score;
   }
+
+  function checkCertTemplate(data) {
+     const certTemplates = data.cert_templates; // Assuming data contains your JSON object
+
+      if (certTemplates && Object.keys(certTemplates).length > 0) {
+          console.log("cert_templates is not empty");
+          return true;
+      } else {
+          console.log("cert_templates is empty");
+          return false;
+      }
+  }
+
   return (
     <div>
       <Header />
@@ -1318,7 +1332,7 @@ const JoinCourse = () => {
                   </Typography>
                 </Box>
               </Box>
-              {batchDetails && batchDetails.cert_templates != null && (
+              {batchDetails && checkCertTemplate(batchDetails) && (
                 <Accordion
                   className="xs-hide accordionBoxShadow"
                   style={{
@@ -1362,7 +1376,7 @@ const JoinCourse = () => {
 
               {isEnrolled &&
                 batchDetails &&
-                batchDetails.cert_templates == null && (
+                !checkCertTemplate(batchDetails) && (
                   <Box
                     style={{
                       background: "#e3f5ff",
@@ -1920,7 +1934,8 @@ const JoinCourse = () => {
                   </Typography>
                 </Box>
               </Box>
-              {batchDetails && batchDetails.cert_templates != null && (
+              
+              {batchDetails && checkCertTemplate(batchDetails) && (
                 <Accordion
                   className="lg-hide accordionBoxShadow"
                   style={{
@@ -1964,7 +1979,7 @@ const JoinCourse = () => {
 
               {isEnrolled &&
                 batchDetails &&
-                batchDetails.cert_templates == null && (
+                !checkCertTemplate(batchDetails) && (
                   <Box
                     style={{
                       background: "#e3f5ff",

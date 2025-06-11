@@ -462,7 +462,7 @@ const DomainList = ({ globalSearchQuery }) => {
             "do_1140067897586974721570",
             "do_1139973490818334721328",
             "do_114165835604836352120",
-            "do_11420278272295731211"
+            "do_114284738848514048123"
           ]
         },
         limit: 100,
@@ -646,7 +646,6 @@ const DomainList = ({ globalSearchQuery }) => {
           />
         ) : (
           <SkeletonLoader />
-          // <NoResult />
         )}
 
         <Container
@@ -663,6 +662,7 @@ const DomainList = ({ globalSearchQuery }) => {
                   <Grid item xs={12}>
                     <Box className="h1-title">{t("LERN_title")}</Box>
                   </Grid>
+
                   <Grid item xs={12} md={9}>
                     <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
                   </Grid>
