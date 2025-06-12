@@ -35,7 +35,7 @@ const routeConfig = require("../../configs/routeConfig.json");
 const Player = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [trackData, setTrackData] = useState();
   const [previousRoute, setPreviousRoute] = useState("");
   const [userFirstName, setUserFirstName] = useState("");

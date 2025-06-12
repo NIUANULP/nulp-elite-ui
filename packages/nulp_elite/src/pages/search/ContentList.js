@@ -522,10 +522,7 @@ const ContentList = (props) => {
                   }}
                   className="text-blueShade2 h4-custom"
                 >
-                  {domainName || searchQuery
-                    ? `${searchQuery || ""}${searchQuery && domainName ? ", " : ""
-                    }${domainName || ""}`
-                    : ""}
+                  {[searchQuery, domainName].filter(Boolean).join(', ')}
                 </Box>
               </Box>
             ) : (
