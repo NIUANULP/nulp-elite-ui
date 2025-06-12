@@ -262,13 +262,18 @@ function App() {
       };
       const response = await axios.post(url, requestBody);
       const Data = response.data;
+      console.log("Data.result", Data.result)
       if (
         (Array.isArray(Data?.result) && Data.result.length === 0) ||
         (Array.isArray(Data?.result) &&
           Data.result.length > 0 &&
           (Data.result[0]?.designation === null ||
             Data.result[0]?.user_type === null ||
-            Data.result[0]?.organisation === null))
+            Data.result[0]?.organisation === null ||
+            Data.result[0]?.country === null ||
+            Data.result[0]?.state === null ||
+            Data.result[0]?.district === null
+          ))
       ) {
         setUserData(true);
       }
@@ -315,7 +320,7 @@ function App() {
     fetchData();
     UserData();
   }, []);
-
+  
   return (
     <NativeBaseProvider>
       {/* <ChakraProvider> */}
