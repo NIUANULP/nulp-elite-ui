@@ -41,8 +41,8 @@ const Player = () => {
   const [userFirstName, setUserFirstName] = useState("");
   const [userLastName, setUserLastName] = useState("");
   const [courseName, setCourseName] = useState(location.state?.coursename);
-  const [batchId, setBatchId] = useState(location.state?.batchid);
-  const [courseId, setCourseId] = useState(location.state?.courseid);
+  // const [batchId, setBatchId] = useState(location.state?.batchid);
+  // const [courseId, setCourseId] = useState(params.get("courseId"));
   const shareUrl = window.location.href; // Current page URL
   const [isEnrolled, setIsEnrolled] = useState(
     location.state?.isenroll || undefined
@@ -61,16 +61,22 @@ const Player = () => {
   const [pollId, setPollId] = useState();
   const [learnathonDetails, setLearnathonDetails] = useState();
   const [isPublished, setIsPublished] = useState(false);
+
   const params = new URLSearchParams(window.location.search);
   const pageParam = params.get("page");
   let contentId = params.get("id");
+  const [courseId, setCourseId] = useState(params.get("cId"));
+  const [batchId, setBatchId] = useState(params.get("bId"));
+
   const [playerContent, setPlayerContent] = useState();
   const [noPreviewAvailable, setNoPreviewAvailable] = useState(false);
+  const [isEndEventReceived, setIsEndEventReceived] = useState(false);
+
   // const playerUrl = `${window.location.origin}/newplayer`;
   const playerUrl =
     window.location.origin != "http://localhost:3000"
       ? `${window.location.origin}/newplayer`
-      : "https://devnulp.niua.org/newplayer";
+      : "https://nulp.niua.org/newplayer"; 
 
   let extractedRoles;
   if (contentId && contentId.endsWith("=")) {
@@ -94,46 +100,92 @@ const Player = () => {
 
   const handleTrackData = useCallback(
     async ({ score, trackData, attempts, ...props }, playerType = "quml") => {
-      console.log("assestrack", Object.keys(props).length);
+
+      console.log("propLength", Object.keys(props).length);
+      console.log("playerType", playerType);
+      console.log("assessEvents.length", assessEvents.length);
+
       setPropLength(Object.keys(props).length);
       CheckfeedBackSubmitted();
 
-      if (
+      if ( 
         playerType === "pdf-video" &&
         props.currentPage === props.totalPages
       ) {
         setIsCompleted(true);
-      } else if (playerType === "ecml" && propLength === assessEvents.length) {
-        await updateContentStateForAssessment();
-      }
+      } 
+      // else if (playerType === "ecml" && propLength === assessEvents.length) {
+      //   await updateContentStateForAssessment();
+      // }
     },
     [assessEvents]
   );
+
   const handleAssessmentData = async (data) => {
-    console.log("data  handleAssessmentData----", data);
+
+    console.log("handleAssessmentData called with data:", data);
+    console.log("Current assessEvents state:", assessEvents);
+    
     if (data.eid === "ASSESS") {
+
+      console.log("Processing ASSESS event");
+      
       setAssessEvents((prevAssessEvents) => {
+        console.log("Previous assessEvents:", prevAssessEvents);
+      
         const updatedAssessEvents = [...prevAssessEvents, data];
+        console.log("Updated assessEvents:", updatedAssessEvents);
+      
         return updatedAssessEvents;
       });
-    } else if (data.eid === "END") {
-      console.log("data  assessEvents----", assessEvents);
 
-      await updateContentState(2);
+      // setAssessEvents(...assessEvents, data);
+      
+    } else if (data.eid === "END") {
+      console.log("END event received. Waiting for assessEvents to match propLength...");
+      setIsEndEventReceived(true); // mark END event received
+      // await updateContentState(2);
     } else if (data.eid === "START" && playerType === "ecml") {
+      
+      // console.log("Processing START event for ecml");
       await updateContentState(1);
+    
     } else if (data.eid === "START" && playerType != "ecml") {
+      
+      // console.log("Processing START event for non-ecml");
       await updateContentState(2);
     }
   };
 
+  // Add useEffect to track assessEvents changes
   useEffect(() => {
-    if (propLength === assessEvents.length) {
-      updateContentStateForAssessment();
-    }
-    handleTrackData();
-  }, [assessEvents, propLength]);
+    console.log("assessEvents state changed:", assessEvents);
+  }, [assessEvents]);
 
+  useEffect(() => {
+    console.log("Component mounted");
+  
+    return () => {
+      console.log("Component unmounted");
+    };
+  }, []);
+  
+  useEffect(() => {
+    console.log("##########################################################################");
+    console.log("useEffect isEndEventReceived -", isEndEventReceived);
+    console.log("useEffect assessEvents.length - ", assessEvents.length);
+    console.log("useEffect propLength - ", propLength);
+    
+    if (isEndEventReceived && assessEvents.length > 0 && propLength === assessEvents.length) {
+      console.log("Calling updateContentState with status 2 after all assessments and END event");
+    
+      updateContentStateForAssessment();
+  
+      // Reset flag to prevent repeated calls
+      setIsEndEventReceived(false);
+    }
+  }, [isEndEventReceived, assessEvents, propLength]);
+  
   const CheckfeedBackSubmitted = async () => {
     try {
       const url = `${urlConfig.URLS.FEEDBACK.LIST}`;
@@ -207,6 +259,7 @@ const Player = () => {
   const updateContentStateForAssessment = async () => {
     // await updateContentState(2);
     try {
+      console.log('end assessment', courseId);
       const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
       const requestBody = {
         request: {
@@ -234,14 +287,16 @@ const Player = () => {
         },
       };
       const response = await axios.patch(url, requestBody);
-      console.log("assesment state updated");
+      console.log("Assessment state updated successfully");
     } catch (error) {
-      console.error("Error fetching course data:", error);
+      console.error("Error updating content state:", error);
     }
   };
 
   const updateContentState = useCallback(
+    
     async (status) => {
+
       // if (isEnrolled) {
       const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
       await axios.patch(url, {
