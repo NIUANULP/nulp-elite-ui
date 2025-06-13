@@ -75,16 +75,48 @@ const PopupForm = ({ open, handleClose }) => {
       })
       .catch((error) => console.error("Error fetching user names:", error));
 
+    // axios
+    //   .get(`${urlConfig.URLS.POFILE_PAGE.USER_READ}`)
+    //   .then((response) => {
+    //     const userInfo = response.data?.result?.[0];
+    //     setBio(userInfo?.bio || "");
+    //     setDesignation(userInfo?.designation || "");
+    //     setUserType(userInfo?.user_type || "");
+    //     setOrganisation(userInfo?.organisation || "");
+    //   })
+    //   .catch((error) => console.error("Error fetching user info:", error));
     axios
       .get(`${urlConfig.URLS.POFILE_PAGE.USER_READ}`)
       .then((response) => {
         const userInfo = response.data?.result?.[0];
+        
         setBio(userInfo?.bio || "");
         setDesignation(userInfo?.designation || "");
         setUserType(userInfo?.user_type || "");
         setOrganisation(userInfo?.organisation || "");
+
+        // Default country
+        setCountry(userInfo?.country || "India");
+
+        // If country is Others, allow typing
+        if (userInfo?.country === "Others" && userInfo?.otherCountry) {
+          setOtherCountry(userInfo.otherCountry);
+        }
+
+        // Only set state and district if both ID and name exist
+        if (userInfo?.state_id && userInfo?.state) {
+          setStateId(userInfo.state_id);
+          setStateName(userInfo.state);
+        }
+
+        if (userInfo?.district_id && userInfo?.district) {
+          setDistrictId(userInfo.district_id);
+          setDistrictName(userInfo.district);
+        }
       })
       .catch((error) => console.error("Error fetching user info:", error));
+
+
 
     setDesignations([
       ...userData.designations.map((type) => ({ value: type, label: type })),
@@ -96,13 +128,28 @@ const PopupForm = ({ open, handleClose }) => {
     ]);
   }, []);
 
+  // useEffect(() => {
+  //   if (firstName && lastName && organisation && designation && userType) {
+  //     setIsSubmitDisabled(false);
+  //   } else {
+  //     setIsSubmitDisabled(true);
+  //   }
+  // }, [firstName, lastName, organisation, designation, userType]);
+
   useEffect(() => {
-    if (firstName && lastName && organisation && designation && userType) {
-      setIsSubmitDisabled(false);
-    } else {
-      setIsSubmitDisabled(true);
+    const isBasicValid = firstName && lastName && organisation && designation && userType;
+
+    let isLocationValid = true;
+
+    if (country === "India") {
+      isLocationValid = !!(stateId && districtId);
+    } else if (country === "Others") {
+      isLocationValid = !!otherCountry;
     }
-  }, [firstName, lastName, organisation, designation, userType]);
+
+    setIsSubmitDisabled(!(isBasicValid && isLocationValid));
+  }, [firstName, lastName, organisation, designation, userType, country, stateId, districtId, otherCountry]);
+
 
 
   // Fetch states on mount
@@ -140,29 +187,69 @@ const PopupForm = ({ open, handleClose }) => {
   }, [stateId]);
 
 
+  // const handleSubmit = async () => {
+  //   const finalDesignation =
+  //     designation === "other" ? customDesignation : designation;
+  //   const finalUserType = userType === "other" ? customUserType : userType;
+
+  //   const requestData = {
+  //     organisation: organisation,
+  //     designation: finalDesignation,
+  //     user_type: finalUserType,
+  //     bio: bio,
+  //   };
+
+  //   try {
+  //     const updateNameUrl = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.UPDATE_USER_PROFILE}`;
+  //     const updateUserInfoUrl = `${urlConfig.URLS.POFILE_PAGE.USER_UPDATE}?user_id=${_userId}`;
+
+  //     if (firstName !== initialFirstName || lastName !== initialLastName) {
+  //       await axios.patch(updateNameUrl, {
+  //         request: { firstName, lastName, userId: _userId },
+  //       });
+  //     }
+
+  //     // Update other user info
+  //     const response = await axios.put(updateUserInfoUrl, requestData);
+  //     console.log("API Response:", response.data);
+  //   } catch (error) {
+  //     console.error("API Error:", error);
+  //   }
+
+  //   handleClose();
+  // };
+
   const handleSubmit = async () => {
     const finalDesignation =
       designation === "other" ? customDesignation : designation;
     const finalUserType = userType === "other" ? customUserType : userType;
 
+    // Construct the request data including location
     const requestData = {
       organisation: organisation,
       designation: finalDesignation,
       user_type: finalUserType,
       bio: bio,
+      country: country,
+      otherCountry: country === "Others" ? otherCountry : "",
+      state_id: country === "India" ? stateId : "",
+      state: country === "India" ? stateName : "",
+      district_id: country === "India" ? districtId : "",
+      district: country === "India" ? districtName : "",
     };
 
     try {
       const updateNameUrl = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.UPDATE_USER_PROFILE}`;
       const updateUserInfoUrl = `${urlConfig.URLS.POFILE_PAGE.USER_UPDATE}?user_id=${_userId}`;
 
+      // Update name if changed
       if (firstName !== initialFirstName || lastName !== initialLastName) {
         await axios.patch(updateNameUrl, {
           request: { firstName, lastName, userId: _userId },
         });
       }
 
-      // Update other user info
+      // Update other user info including location
       const response = await axios.put(updateUserInfoUrl, requestData);
       console.log("API Response:", response.data);
     } catch (error) {
@@ -171,6 +258,8 @@ const PopupForm = ({ open, handleClose }) => {
 
     handleClose();
   };
+
+
 
   const handleBioChange = (e) => {
     if (e.target.value.length <= maxChars) {
