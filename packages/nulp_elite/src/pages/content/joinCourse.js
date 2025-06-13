@@ -545,7 +545,7 @@ const JoinCourse = () => {
 
   const handleLinkClick = (id) => {
     if (isEnroll) {
-      navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${id}`, {
+      navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${id}&cId=${contentId}&bId=${batchDetails?.batchId}`, {
         state: {
           coursename: userData?.result?.content?.name,
           batchid: batchDetails?.batchId,
