@@ -370,29 +370,6 @@ const Chat = ({
   const sendMessage = async () => {
     if (textValue.trim() !== "") {
       try {
-        // First check if chat is accepted
-        const checkChatUrl = `${urlConfig.URLS.DIRECT_CONNECT.GET_CHATS}?sender_id=${loggedInUserId}&receiver_id=${receiverUserId}&is_accepted=true`;
-        const checkResponse = await axios.get(checkChatUrl, {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        // If no accepted chat found, redirect to my connections tab
-        if (
-          !checkResponse.data.result ||
-          checkResponse.data.result.length === 0
-        ) {
-          if (isMobile) {
-            navigate(routeConfig.ROUTES.ADDCONNECTION_PAGE.ADDCONNECTION);
-          } else {
-            window.location.href =
-              routeConfig.ROUTES.ADDCONNECTION_PAGE.ADDCONNECTION;
-          }
-          return;
-        }
-
         const url = `${urlConfig.URLS.DIRECT_CONNECT.SEND_CHATS}`;
         console.log("Sending message:", textValue);
 
