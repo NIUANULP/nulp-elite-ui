@@ -238,24 +238,24 @@ const AddConnections = () => {
       // If the logged in user is the receiver, open chat with sender
       if (receiverId === loggedInUserId) {
         setSelectedChatUser({
-          senderUserId: senderId || loggedInUserId,
+          senderUserId: senderId,
           receiverUserId: receiverId,
           postUrl: postUrl || null,
         });
         setSelectedUserId(senderId);
         setShowChat(true);
-        setSelectedUser({ userId: senderId || loggedInUserId });
+        setSelectedUser({ userId: senderId });
       }
       // If the logged in user is the sender, open chat with receiver
       else if (senderId === loggedInUserId) {
         setSelectedChatUser({
-          senderUserId: senderId || loggedInUserId,
+          senderUserId: senderId,
           receiverUserId: receiverId,
           postUrl: postUrl || null,
         });
         setSelectedUserId(receiverId);
         setShowChat(true);
-        setSelectedUser({ userId: receiverId || loggedInUserId });
+        setSelectedUser({ userId: receiverId });
       }
     }
   }, [loggedInUserId, query, selectedChatUser]);
