@@ -75,16 +75,6 @@ const PopupForm = ({ open, handleClose }) => {
       })
       .catch((error) => console.error("Error fetching user names:", error));
 
-    // axios
-    //   .get(`${urlConfig.URLS.POFILE_PAGE.USER_READ}`)
-    //   .then((response) => {
-    //     const userInfo = response.data?.result?.[0];
-    //     setBio(userInfo?.bio || "");
-    //     setDesignation(userInfo?.designation || "");
-    //     setUserType(userInfo?.user_type || "");
-    //     setOrganisation(userInfo?.organisation || "");
-    //   })
-    //   .catch((error) => console.error("Error fetching user info:", error));
     axios
       .get(`${urlConfig.URLS.POFILE_PAGE.USER_READ}`)
       .then((response) => {
@@ -127,14 +117,6 @@ const PopupForm = ({ open, handleClose }) => {
       { value: "other", label: "Other" },
     ]);
   }, []);
-
-  // useEffect(() => {
-  //   if (firstName && lastName && organisation && designation && userType) {
-  //     setIsSubmitDisabled(false);
-  //   } else {
-  //     setIsSubmitDisabled(true);
-  //   }
-  // }, [firstName, lastName, organisation, designation, userType]);
 
   useEffect(() => {
     const isBasicValid = firstName && lastName && organisation && designation && userType;
@@ -185,39 +167,7 @@ const PopupForm = ({ open, handleClose }) => {
     };
     fetchDistricts();
   }, [stateId]);
-
-
-  // const handleSubmit = async () => {
-  //   const finalDesignation =
-  //     designation === "other" ? customDesignation : designation;
-  //   const finalUserType = userType === "other" ? customUserType : userType;
-
-  //   const requestData = {
-  //     organisation: organisation,
-  //     designation: finalDesignation,
-  //     user_type: finalUserType,
-  //     bio: bio,
-  //   };
-
-  //   try {
-  //     const updateNameUrl = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.UPDATE_USER_PROFILE}`;
-  //     const updateUserInfoUrl = `${urlConfig.URLS.POFILE_PAGE.USER_UPDATE}?user_id=${_userId}`;
-
-  //     if (firstName !== initialFirstName || lastName !== initialLastName) {
-  //       await axios.patch(updateNameUrl, {
-  //         request: { firstName, lastName, userId: _userId },
-  //       });
-  //     }
-
-  //     // Update other user info
-  //     const response = await axios.put(updateUserInfoUrl, requestData);
-  //     console.log("API Response:", response.data);
-  //   } catch (error) {
-  //     console.error("API Error:", error);
-  //   }
-
-  //   handleClose();
-  // };
+  
 
   const handleSubmit = async () => {
     const finalDesignation =
