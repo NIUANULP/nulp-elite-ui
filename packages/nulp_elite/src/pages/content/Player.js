@@ -666,6 +666,14 @@ const Player = () => {
     }
   };
 
+  useEffect(() => {
+    // Set localStorage variable when visiting player page
+    if (contentId) {
+      console.log("Setting playerVisited to true for contentId:", contentId);
+      localStorage.setItem('playerVisited', 'true');
+    }
+  }, [location.search]); // Add location.search as dependency
+
   return (
     <div>
       <Header />
@@ -778,8 +786,8 @@ const Player = () => {
                       ))}
 
                     {isLearnathon &&
-                    learnathonDetails.indicative_sub_theme &&
-                    learnathonDetails.indicative_sub_theme != null ? (
+                      learnathonDetails.indicative_sub_theme &&
+                      learnathonDetails.indicative_sub_theme != null ? (
                       <Button
                         key={`board`}
                         size="small"
