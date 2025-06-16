@@ -396,7 +396,8 @@ const Chat = ({
           ) {
             navigate(routeConfig.ROUTES.ADDCONNECTION_PAGE.ADDCONNECTION);
           } else {
-            window.location.reload();
+            window.location.href =
+              routeConfig.ROUTES.ADDCONNECTION_PAGE.ADDCONNECTION;
           }
           if (onChatSent) {
             onChatSent();
