@@ -13,6 +13,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { useTranslation } from "react-i18next";
+const designationsList = require("../configs/designations.json");
 
 const style = {
   position: "absolute",
@@ -26,6 +27,16 @@ const style = {
   p: 4,
   overflow: "scroll",
 };
+
+const userTypesList = [
+  "State Governments / Parastatal Bodies",
+  "Urban Local Bodies / Special Purpose Vehicles",
+  "Academia and Research Organisations",
+  "Multilateral / Bilateral Agencies",
+  "Industries",
+  "Any Other Government Entities",
+  "Others",
+];
 
 const PopupForm = ({ open, handleClose }) => {
   const [firstName, setFirstName] = useState("");
@@ -58,12 +69,15 @@ const PopupForm = ({ open, handleClose }) => {
   const maxChars = 500;
   const { t } = useTranslation();
 
+
+
   useEffect(() => {
-    const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.GET_PROFILE}${_userId}`;
-    axios
-      .get(url)
-      .then((response) => {
+    const fetchUserName = async () => {
+      try {
+        const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.GET_PROFILE}${_userId}`;
+        const response = await axios.get(url);
         const userData = response.data?.result?.response;
+
         const fName = userData?.firstName || "";
         const lName = userData?.lastName || "";
 
@@ -72,28 +86,48 @@ const PopupForm = ({ open, handleClose }) => {
 
         setInitialFirstName(fName);
         setInitialLastName(lName);
-      })
-      .catch((error) => console.error("Error fetching user names:", error));
 
-    axios
-      .get(`${urlConfig.URLS.POFILE_PAGE.USER_READ}`)
-      .then((response) => {
-        const userInfo = response.data?.result?.[0];
-        
+      } catch (error) {
+        console.error("Error fetching user names:", error);
+      }
+    };
+
+    const fetchUserInfo = async () => {
+      try {
+        const url = `${urlConfig.URLS.POFILE_PAGE.USER_READ}`;
+        const response = await axios.post(
+          url,
+          { user_ids: [_userId] },
+          {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const userInfo = response?.data?.result?.[0];
+        console.log("userInfo", userInfo);
+
         setBio(userInfo?.bio || "");
         setDesignation(userInfo?.designation || "");
         setUserType(userInfo?.user_type || "");
         setOrganisation(userInfo?.organisation || "");
 
-        // Default country
+        if (userInfo?.designation === "other" && userInfo?.customDesignation) {
+          setCustomDesignation(userInfo.customDesignation);
+        }
+
+        if (userInfo?.user_type === "other" && userInfo?.customUserType) {
+          setCustomUserType(userInfo.customUserType);
+        }
+
         setCountry(userInfo?.country || "India");
 
-        // If country is Others, allow typing
         if (userInfo?.country === "Others" && userInfo?.otherCountry) {
           setOtherCountry(userInfo.otherCountry);
         }
 
-        // Only set state and district if both ID and name exist
         if (userInfo?.state_id && userInfo?.state) {
           setStateId(userInfo.state_id);
           setStateName(userInfo.state);
@@ -103,20 +137,24 @@ const PopupForm = ({ open, handleClose }) => {
           setDistrictId(userInfo.district_id);
           setDistrictName(userInfo.district);
         }
-      })
-      .catch((error) => console.error("Error fetching user info:", error));
+      } catch (error) {
+        console.error("Failed to fetch user info:", error);
+      }
+    };
 
-
+    fetchUserName();
+    fetchUserInfo();
 
     setDesignations([
-      ...userData.designations.map((type) => ({ value: type, label: type })),
+      ...designationsList.map((type) => ({ value: type, label: type })),
       { value: "other", label: "Other" },
     ]);
     setUserTypes([
-      ...userData.userTypes.map((type) => ({ value: type, label: type })),
+      ...userTypesList.map((type) => ({ value: type, label: type })),
       { value: "other", label: "Other" },
     ]);
   }, []);
+
 
   useEffect(() => {
     const isBasicValid = firstName && lastName && organisation && designation && userType;
@@ -167,7 +205,7 @@ const PopupForm = ({ open, handleClose }) => {
     };
     fetchDistricts();
   }, [stateId]);
-  
+
 
   const handleSubmit = async () => {
     const finalDesignation =
@@ -187,6 +225,8 @@ const PopupForm = ({ open, handleClose }) => {
       district_id: country === "India" ? districtId : "",
       district: country === "India" ? districtName : "",
     };
+
+    console.log("requestData 299", requestData)
 
     try {
       const updateNameUrl = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.UPDATE_USER_PROFILE}`;
