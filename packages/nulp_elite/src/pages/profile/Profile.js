@@ -226,7 +226,7 @@ const Profile = () => {
           : "",
         state: userInfo[0]?.state,
         state_id: userInfo[0]?.state_id,
-        district: userInfo[0]?.state_id,
+        district: userInfo[0]?.district,
         district_id: userInfo[0]?.district_id,
       });
       setOriginalUserInfo({
@@ -241,7 +241,7 @@ const Profile = () => {
         country: userInfo[0]?.country || "India",
         state: userInfo[0]?.state,
         state_id: userInfo[0]?.state_id,
-        district: userInfo[0]?.state_id,
+        district: userInfo[0]?.district,
         district_id: userInfo[0]?.district_id,
       });
     }
