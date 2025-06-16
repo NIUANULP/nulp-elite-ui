@@ -220,12 +220,11 @@ const PopupForm = ({ open, handleClose }) => {
       designation: finalDesignation,
       user_type: finalUserType,
       bio: bio,
-      country: country,
-      otherCountry: country === "Others" ? otherCountry : "",
-      state_id: country === "India" ? stateId : "",
-      state: country === "India" ? stateName : "",
-      district_id: country === "India" ? districtId : "",
-      district: country === "India" ? districtName : "",
+      country: country === "Others" ? otherCountry : "India",
+      state_id: country === "India" ? stateId : "NA",
+      state: country === "India" ? stateName : "NA",
+      district_id: country === "India" ? districtId : "NA",
+      district: country === "India" ? districtName : "NA",
     };
 
     console.log("requestData 299", requestData)
@@ -373,7 +372,9 @@ const PopupForm = ({ open, handleClose }) => {
                 setCountry(value);
                 if (value !== "India") {
                   setStateId("NA");
+                  setStateName("NA");
                   setDistrictId("NA");
+                  setDistrictName("NA");
                 }
               }}
               placeholder="Select Country"
