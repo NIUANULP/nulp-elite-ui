@@ -145,6 +145,8 @@ const PopupForm = ({ open, handleClose }) => {
     fetchUserName();
     fetchUserInfo();
 
+
+
     setDesignations([
       ...designationsList.map((type) => ({ value: type, label: type })),
       { value: "other", label: "Other" },
@@ -205,7 +207,7 @@ const PopupForm = ({ open, handleClose }) => {
     };
     fetchDistricts();
   }, [stateId]);
-
+  
 
   const handleSubmit = async () => {
     const finalDesignation =
