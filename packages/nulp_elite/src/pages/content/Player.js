@@ -108,12 +108,12 @@ const Player = () => {
       setPropLength(Object.keys(props).length);
       CheckfeedBackSubmitted();
 
-      if (
+      if ( 
         playerType === "pdf-video" &&
         props.currentPage === props.totalPages
       ) {
         setIsCompleted(true);
-      }
+      } 
       // else if (playerType === "ecml" && propLength === assessEvents.length) {
       //   await updateContentStateForAssessment();
       // }
@@ -125,31 +125,30 @@ const Player = () => {
 
     console.log("handleAssessmentData called with data:", data);
     console.log("Current assessEvents state:", assessEvents);
-
+    
     if (data.eid === "ASSESS") {
 
       console.log("Processing ASSESS event");
-
+      
       setAssessEvents((prevAssessEvents) => {
         console.log("Previous assessEvents:", prevAssessEvents);
-
+      
         const updatedAssessEvents = [...prevAssessEvents, data];
         console.log("Updated assessEvents:", updatedAssessEvents);
-
+      
         return updatedAssessEvents;
       });
 
       // setAssessEvents(...assessEvents, data);
-
     } else if (data.eid === "END") {
       console.log("END event received. Waiting for assessEvents to match propLength...");
       setIsEndEventReceived(true); // mark END event received
       // await updateContentState(2);
     } else if (data.eid === "START" && playerType === "ecml") {
-
+      
       // console.log("Processing START event for ecml");
       await updateContentState(1);
-
+    
     } else if (data.eid === "START" && playerType != "ecml") {
 
       // console.log("Processing START event for non-ecml");
@@ -164,21 +163,22 @@ const Player = () => {
 
   useEffect(() => {
     console.log("Component mounted");
-
+  
     return () => {
       console.log("Component unmounted");
     };
   }, []);
-
+  
   useEffect(() => {
+
     console.log("##########################################################################");
     console.log("useEffect isEndEventReceived -", isEndEventReceived);
     console.log("useEffect assessEvents.length - ", assessEvents.length);
     console.log("useEffect propLength - ", propLength);
-
+    
     if (isEndEventReceived && assessEvents.length > 0 && propLength === assessEvents.length) {
       console.log("Calling updateContentState with status 2 after all assessments and END event");
-
+    
       updateContentStateForAssessment();
 
       // Reset flag to prevent repeated calls
