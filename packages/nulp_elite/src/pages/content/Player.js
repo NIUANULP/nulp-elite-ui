@@ -76,7 +76,7 @@ const Player = () => {
   const playerUrl =
     window.location.origin != "http://localhost:3000"
       ? `${window.location.origin}/newplayer`
-      : "https://nulp.niua.org/newplayer"; 
+      : "https://nulp.niua.org/newplayer";
 
   let extractedRoles;
   if (contentId && contentId.endsWith("=")) {
@@ -108,12 +108,12 @@ const Player = () => {
       setPropLength(Object.keys(props).length);
       CheckfeedBackSubmitted();
 
-      if ( 
+      if (
         playerType === "pdf-video" &&
         props.currentPage === props.totalPages
       ) {
         setIsCompleted(true);
-      } 
+      }
       // else if (playerType === "ecml" && propLength === assessEvents.length) {
       //   await updateContentStateForAssessment();
       // }
@@ -125,33 +125,33 @@ const Player = () => {
 
     console.log("handleAssessmentData called with data:", data);
     console.log("Current assessEvents state:", assessEvents);
-    
+
     if (data.eid === "ASSESS") {
 
       console.log("Processing ASSESS event");
-      
+
       setAssessEvents((prevAssessEvents) => {
         console.log("Previous assessEvents:", prevAssessEvents);
-      
+
         const updatedAssessEvents = [...prevAssessEvents, data];
         console.log("Updated assessEvents:", updatedAssessEvents);
-      
+
         return updatedAssessEvents;
       });
 
       // setAssessEvents(...assessEvents, data);
-      
+
     } else if (data.eid === "END") {
       console.log("END event received. Waiting for assessEvents to match propLength...");
       setIsEndEventReceived(true); // mark END event received
       // await updateContentState(2);
     } else if (data.eid === "START" && playerType === "ecml") {
-      
+
       // console.log("Processing START event for ecml");
       await updateContentState(1);
-    
+
     } else if (data.eid === "START" && playerType != "ecml") {
-      
+
       // console.log("Processing START event for non-ecml");
       await updateContentState(2);
     }
@@ -164,28 +164,28 @@ const Player = () => {
 
   useEffect(() => {
     console.log("Component mounted");
-  
+
     return () => {
       console.log("Component unmounted");
     };
   }, []);
-  
+
   useEffect(() => {
     console.log("##########################################################################");
     console.log("useEffect isEndEventReceived -", isEndEventReceived);
     console.log("useEffect assessEvents.length - ", assessEvents.length);
     console.log("useEffect propLength - ", propLength);
-    
+
     if (isEndEventReceived && assessEvents.length > 0 && propLength === assessEvents.length) {
       console.log("Calling updateContentState with status 2 after all assessments and END event");
-    
+
       updateContentStateForAssessment();
-  
+
       // Reset flag to prevent repeated calls
       setIsEndEventReceived(false);
     }
   }, [isEndEventReceived, assessEvents, propLength]);
-  
+
   const CheckfeedBackSubmitted = async () => {
     try {
       const url = `${urlConfig.URLS.FEEDBACK.LIST}`;
@@ -294,7 +294,7 @@ const Player = () => {
   };
 
   const updateContentState = useCallback(
-    
+
     async (status) => {
 
       // if (isEnrolled) {
@@ -722,12 +722,11 @@ const Player = () => {
   };
 
   useEffect(() => {
-    // Set localStorage variable when visiting player page
     if (contentId) {
-      console.log("Setting playerVisited to true for contentId:", contentId);
       localStorage.setItem('playerVisited', 'true');
     }
-  }, [location.search]); // Add location.search as dependency
+  }, [location.search]);
+
 
   return (
     <div>
