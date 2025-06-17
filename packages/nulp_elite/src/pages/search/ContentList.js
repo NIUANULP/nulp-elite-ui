@@ -418,11 +418,8 @@ const ContentList = (props) => {
 
   useEffect(() => {
     if (localStorage.getItem('playerVisited') === 'true') {
-      console.log("ContentList: playerVisited is true, refreshing page");
       localStorage.removeItem('playerVisited');
       window.location.reload();
-    } else {
-      console.log("ContentList: playerVisited is not true");
     }
   }, [location.search]);
 
