@@ -76,7 +76,7 @@ const Player = () => {
   const playerUrl =
     window.location.origin != "http://localhost:3000"
       ? `${window.location.origin}/newplayer`
-      : "https://nulp.niua.org/newplayer"; 
+      : "https://nulp.niua.org/newplayer";
 
   let extractedRoles;
   if (contentId && contentId.endsWith("=")) {
@@ -140,7 +140,6 @@ const Player = () => {
       });
 
       // setAssessEvents(...assessEvents, data);
-      
     } else if (data.eid === "END") {
       console.log("END event received. Waiting for assessEvents to match propLength...");
       setIsEndEventReceived(true); // mark END event received
@@ -151,7 +150,7 @@ const Player = () => {
       await updateContentState(1);
     
     } else if (data.eid === "START" && playerType != "ecml") {
-      
+
       // console.log("Processing START event for non-ecml");
       await updateContentState(2);
     }
@@ -171,6 +170,7 @@ const Player = () => {
   }, []);
   
   useEffect(() => {
+
     console.log("##########################################################################");
     console.log("useEffect isEndEventReceived -", isEndEventReceived);
     console.log("useEffect assessEvents.length - ", assessEvents.length);
@@ -180,12 +180,12 @@ const Player = () => {
       console.log("Calling updateContentState with status 2 after all assessments and END event");
     
       updateContentStateForAssessment();
-  
+
       // Reset flag to prevent repeated calls
       setIsEndEventReceived(false);
     }
   }, [isEndEventReceived, assessEvents, propLength]);
-  
+
   const CheckfeedBackSubmitted = async () => {
     try {
       const url = `${urlConfig.URLS.FEEDBACK.LIST}`;
@@ -294,7 +294,7 @@ const Player = () => {
   };
 
   const updateContentState = useCallback(
-    
+
     async (status) => {
 
       // if (isEnrolled) {
@@ -721,6 +721,13 @@ const Player = () => {
     }
   };
 
+  useEffect(() => {
+    if (contentId) {
+      localStorage.setItem('playerVisited', 'true');
+    }
+  }, [location.search]);
+
+
   return (
     <div>
       <Header />
@@ -833,8 +840,8 @@ const Player = () => {
                       ))}
 
                     {isLearnathon &&
-                    learnathonDetails.indicative_sub_theme &&
-                    learnathonDetails.indicative_sub_theme != null ? (
+                      learnathonDetails.indicative_sub_theme &&
+                      learnathonDetails.indicative_sub_theme != null ? (
                       <Button
                         key={`board`}
                         size="small"
