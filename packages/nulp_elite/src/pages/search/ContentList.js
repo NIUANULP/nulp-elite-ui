@@ -34,7 +34,12 @@ import CircularProgress from "@mui/material/CircularProgress";
 import FloatingChatIcon from "components/FloatingChatIcon";
 import SkeletonLoader from "components/skeletonLoader";
 import * as util from "../../services/utilService";
-
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import MyPosts from "../profile/MyPosts";
+import { Button } from "@mui/material";
+import Groups2OutlinedIcon from "@mui/icons-material/Groups2Outlined";
+import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
 const responsive = {
   superLargeDesktop: {
     // the naming can be any, depends on you.
@@ -91,6 +96,10 @@ const ContentList = (props) => {
   const [framework, setFramework] = useState();
   const [headerSearch, setHeaderSearch] = useState("");
   const [isDomain, setIsDomain] = useState(false);
+  const [tabValue, setTabValue] = useState(0);
+  const [forumPosts, setForumPosts] = useState([]);
+  const [forumLoading, setForumLoading] = useState(false);
+  const [forumError, setForumError] = useState(null);
 
   const showErrorMessage = (msg) => {
     setToasterMessage(msg);
@@ -146,6 +155,30 @@ const ContentList = (props) => {
       setGlobalSearchQuery(location.state?.globalSearchQuery);
     }
   }, [location.state?.globalSearchQuery, globalSearchQuery]);
+
+  useEffect(() => {
+    const fetchForumPosts = async () => {
+      if (tabValue !== 1 || !searchQuery) return;
+      setForumLoading(true);
+      setForumError(null);
+      try {
+        const response = await fetch(
+          `/discussion/api/search?in=titlesposts&term=${encodeURIComponent(
+            searchQuery
+          )}&matchWords=any&by=&categories=&searchChildren=false&hasTags=&replies=&repliesFilter=atleast&timeFilter=newer&timeRange=&sortBy=relevance&sortDirection=desc&showAs=posts`
+        );
+        if (!response.ok) throw new Error("Failed to fetch discussion posts");
+        const data = await response.json();
+        setForumPosts(data.posts || []);
+      } catch (err) {
+        setForumError(err.message || "Error fetching discussion posts");
+        console.log("err", err);
+      } finally {
+        setForumLoading(false);
+      }
+    };
+    fetchForumPosts();
+  }, [tabValue, searchQuery]);
 
   const handleFilterChange = (selectedOptions) => {
     const selectedValues = selectedOptions.map((option) => option.value);
@@ -424,6 +457,9 @@ const ContentList = (props) => {
   }, [location.search]);
 
 
+ const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
 
   return (
     <div>
@@ -531,93 +567,158 @@ const ContentList = (props) => {
           </Box>
           <Box className="h3-custom-title">
             {searchQuery &&
+              tabValue !== 1 &&
               `Showing ${contentCount} out of ${data?.count || 0} results`}
           </Box>
 
-          <Grid container spacing={2} className="pt-8 mt-15">
-            <Grid
-              item
-              xs={12}
-              md={4}
-              lg={3}
-              className="sm-p-25 left-container  flter-btn w-100 xs-m-10"
-              style={{
-                padding: "0",
-                borderRight: "none",
-                background: "#f9fafc",
-              }}
-            >
-              <DrawerFilter
-                SelectedFilters={handlefilterChanges}
-                renderedPage="contentlist"
-                domainCode={domain}
-              />
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              md={8}
-              lg={9}
-              className=" height-none lg-pl-12 "
-              style={{ paddingTop: "0" }}
-            >
-              <Box textAlign="center" padding="10">
-                <Box>
-                  {isLoading ? (
-                    <p>{t("LOADING")}</p>
-                  ) : error ? (
-                    <Alert severity="error">{error}</Alert>
-                  ) : data && data.content && data.content.length > 0 ? (
-                    <div>
-                      <Box className="custom-card">
-                        {/* <Grid
-                      container
-                      spacing={2}
-                      style={{ margin: "20px 0", marginBottom: "10px" }}
-                    > */}
-                        {data?.content?.map((items, index) => (
-                          // <Grid
-                          //   item
-                          //   xs={6}
-                          //   md={6}
-                          //   lg={3}
-                          //   style={{ marginBottom: "10px" }}
-                          //   key={items.identifier}
-                          // >
-                          <Box
-                            className="custom-card-box"
-                            key={items.identifier}
-                          >
-                            <BoxCard
-                              items={items}
-                              index={index}
-                              onClick={() =>
-                                handleCardClick(
-                                  items.identifier,
-                                  items.contentType
-                                )
-                              }
-                            ></BoxCard>
-                          </Box>
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            aria-label="content tabs"
+          >
+            <Tab
+              label="Courses / Contents"
+              className="tab-text profile-tab"
+              icon={<MenuBookOutlinedIcon />}
+            />
+            <Tab
+              label="Discussion Forum"
+              className="tab-text profile-tab"
+              icon={<Groups2OutlinedIcon />}
+            />
+          </Tabs>
 
-                          // </Grid>
-                        ))}
-                        <div className="blankCard"></div>
-                      </Box>
-                      {/* </Grid> */}
-                      <Pagination
-                        count={totalPages}
-                        page={pageNumber}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  ) : (
-                    <NoResult /> // Render NoResult component when there are no search results
-                  )}
+          {tabValue === 0 && (
+            <Grid container spacing={2} className="pt-8 mt-15">
+              <Grid
+                item
+                xs={12}
+                md={4}
+                lg={3}
+                className="sm-p-25 left-container  flter-btn w-100 xs-m-10"
+                style={{
+                  padding: "0",
+                  borderRight: "none",
+                  background: "#f9fafc",
+                }}
+              >
+                <DrawerFilter
+                  SelectedFilters={handlefilterChanges}
+                  renderedPage="contentlist"
+                  domainCode={domain}
+                />
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                md={8}
+                lg={9}
+                className=" height-none lg-pl-12 "
+                style={{ paddingTop: "0" }}
+              >
+                <Box textAlign="center" padding="10">
+                  <Box>
+                    {isLoading ? (
+                      <p>{t("LOADING")}</p>
+                    ) : error ? (
+                      <Alert severity="error">{error}</Alert>
+                    ) : data && data.content && data.content.length > 0 ? (
+                      <div>
+                        <Box className="custom-card">
+                          {/* <Grid
+                        container
+                        spacing={2}
+                        style={{ margin: "20px 0", marginBottom: "10px" }}
+                      > */}
+                          {data?.content?.map((items, index) => (
+                            // <Grid
+                            //   item
+                            //   xs={6}
+                            //   md={6}
+                            //   lg={3}
+                            //   style={{ marginBottom: "10px" }}
+                            //   key={items.identifier}
+                            // >
+                            <Box
+                              className="custom-card-box"
+                              key={items.identifier}
+                            >
+                              <BoxCard
+                                items={items}
+                                index={index}
+                                onClick={() =>
+                                  handleCardClick(
+                                    items.identifier,
+                                    items.contentType
+                                  )
+                                }
+                              ></BoxCard>
+                            </Box>
+
+                            // </Grid>
+                          ))}
+                          <div className="blankCard"></div>
+                        </Box>
+                        {/* </Grid> */}
+                        <Pagination
+                          count={totalPages}
+                          page={pageNumber}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    ) : (
+                      <NoResult /> // Render NoResult component when there are no search results
+                    )}
+                  </Box>
                 </Box>
-              </Box>
+              </Grid>
             </Grid>
-          </Grid>
+          )}
+
+          {tabValue === 1 && (
+            <Container
+              maxWidth="xl"
+              className="allContent xs-pb-20 pb-30 content-list eventTab mt-180"
+            >
+              {forumPosts?.length > 6 && (
+                <Box display="flex" justifyContent="flex-end" mb={2}>
+                  <Button
+                    onClick={() =>
+                      (window.location.href = `/discussion-forum/search?term=${encodeURIComponent(
+                        searchQuery
+                      )}`)
+                    }
+                    variant="contained"
+                    sx={{
+                      marginTop: "13px",
+                      mr: 2,
+                      display: { xs: "none", sm: "inline-flex" },
+                      backgroundColor: "#057184",
+                      borderRadius: "10px",
+                      cursor: "pointer",
+                      fontSize: "12px",
+                      fontWeight: 500,
+                      padding: "9px 32px",
+                      "&:hover": {
+                        backgroundColor: "#045d6e", // optional: hover state
+                      },
+                    }}
+                  >
+                    {t("VIEW_ALL")}
+                  </Button>
+                </Box>
+              )}
+              {forumPosts && forumPosts?.length > 0 ? (
+                <MyPosts
+                  loading={forumLoading}
+                  error={forumError}
+                  posts={forumPosts?.slice(0, 6)}
+                />
+              ) : (
+                <NoResult />
+              )}
+            </Container>
+          )}
         </Container>
         <FloatingChatIcon />
       </Box>

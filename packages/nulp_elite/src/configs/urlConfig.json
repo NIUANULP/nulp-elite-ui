@@ -478,5 +478,9 @@
     "VOTING_END_DATE": "2025-05-09 23:59:29",
     "FIRST_PHASE_RESULT": "2025-04-11 18:31:00",
     "FINAL_RESULT": "2025-06-07 18:30:00"
+  },
+  "FORUM": {
+    "FORUM_URL": "/discussion-forum/",
+    "AUTH_TOKEN": "/auth/token"
   }
 }

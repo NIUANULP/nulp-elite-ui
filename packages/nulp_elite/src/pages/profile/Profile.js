@@ -19,6 +19,8 @@ import SelectPreference from "pages/SelectPreference";
 import { Alert } from "@mui/material";
 import _ from "lodash";
 import Modal from "@mui/material/Modal";
+import MyPosts from "./MyPosts";
+import MyActivity from "./MyActivity";
 const designations = require("../../configs/designations.json");
 const urlConfig = require("../../configs/urlConfig.json");
 import ToasterCommon from "../ToasterCommon";
@@ -28,6 +30,7 @@ import TabList from "@material-ui/lab/TabList";
 import TabPanel from "@material-ui/lab/TabPanel";
 import WatchLaterOutlinedIcon from "@mui/icons-material/WatchLaterOutlined";
 import DomainVerificationOutlinedIcon from "@mui/icons-material/DomainVerificationOutlined";
+import TipsAndUpdatesOutlinedIcon from "@mui/icons-material/TipsAndUpdatesOutlined";
 import {
   Button,
   FormControl,
@@ -40,8 +43,7 @@ import styled from "styled-components";
 import LearningHistory from "./learningHistory";
 import Certificate from "./certificate";
 import { BarChart } from "@mui/x-charts/BarChart";
-import FormHelperText from '@mui/material/FormHelperText';
-
+import FormHelperText from "@mui/material/FormHelperText";
 
 const routeConfig = require("../../configs/routeConfig.json");
 
@@ -88,6 +90,14 @@ const Profile = () => {
   const [value, setValue] = useState("1");
   const handleChange = (event, newValue) => {
     setValue(newValue);
+  };
+  const [profileTab, setProfileTab] = useState("1");
+  const [activityTab, setActivityTab] = useState("3");
+  const handleProfileTabChange = (event, newValue) => {
+    setProfileTab(newValue);
+  };
+  const handleActivityTabChange = (event, newValue) => {
+    setActivityTab(newValue);
   };
   const { t } = useTranslation();
   const [userData, setUserData] = useState(null);
@@ -155,10 +165,18 @@ const Profile = () => {
     }
 
     if (editedUserInfo.country === "India") {
-      if (!editedUserInfo.state_id || editedUserInfo.state_id === "" || editedUserInfo.state_id === "NA") {
+      if (
+        !editedUserInfo.state_id ||
+        editedUserInfo.state_id === "" ||
+        editedUserInfo.state_id === "NA"
+      ) {
         errors.state_id = t("STATE_IS_REQUIRED");
       }
-      if (!editedUserInfo.district_id || editedUserInfo.district_id === "" || editedUserInfo.district_id === "NA") {
+      if (
+        !editedUserInfo.district_id ||
+        editedUserInfo.district_id === "" ||
+        editedUserInfo.district_id === "NA"
+      ) {
         errors.district_id = t("DISTRICT_IS_REQUIRED");
       }
     } else if (!editedUserInfo.otherCountry.trim()) {
@@ -193,6 +211,9 @@ const Profile = () => {
   const [fileError, setFileError] = useState("");
   const [fileUploadMessage, setFileUploadMessage] = useState("");
   const dummyData = [1, 1];
+  const [forumPosts, setForumPosts] = useState([]);
+  const [loadingPosts, setLoadingPosts] = useState(false);
+  const [postsError, setPostsError] = useState(null);
 
   const showErrorMessage = (msg) => {
     setToasterMessage(msg);
@@ -465,7 +486,10 @@ const Profile = () => {
           ? editedUserInfo.otherUserType
           : editedUserInfo.userType,
       organisation: editedUserInfo.organisation,
-      country: editedUserInfo.country === "Others" ? editedUserInfo.otherCountry : editedUserInfo.country,
+      country:
+        editedUserInfo.country === "Others"
+          ? editedUserInfo.otherCountry
+          : editedUserInfo.country,
       state: editedUserInfo.state,
       state_id: editedUserInfo.state_id,
       district: editedUserInfo.district,
@@ -597,14 +621,14 @@ const Profile = () => {
   // Use default data if certData or courseData is undefined or empty
   const finalCertData =
     certData &&
-      certData.certificatesReceived !== undefined &&
-      certData.courseWithCertificate !== undefined
+    certData.certificatesReceived !== undefined &&
+    certData.courseWithCertificate !== undefined
       ? certData
       : defaultCertData;
   const finalCourseData =
     courseData &&
-      courseData.enrolledLastMonth !== undefined &&
-      courseData.enrolledThisMonth !== undefined
+    courseData.enrolledLastMonth !== undefined &&
+    courseData.enrolledThisMonth !== undefined
       ? courseData
       : defaultCourseData;
   // Check if data is empty or zero
@@ -624,6 +648,27 @@ const Profile = () => {
   const roleNames = roles
     .map((role) => roleLookup[role.role]) // Convert role ID to role name
     .filter((name) => name && name !== "Public"); // Remove undefined names and "Public"
+
+  useEffect(() => {
+    const fetchForumPosts = async () => {
+      setLoadingPosts(true);
+      setPostsError(null);
+      try {
+        const response = await fetch(
+          `/discussion/api/user/${userData?.result?.response?.userName}/posts`
+        );
+        if (!response.ok) throw new Error("Failed to fetch posts");
+        const data = await response.json();
+        setForumPosts(data.posts || []);
+      } catch (err) {
+        setPostsError("Failed to load posts");
+        console.error("Error fetching forum posts:", err);
+      } finally {
+        setLoadingPosts(false);
+      }
+    };
+    fetchForumPosts();
+  }, [userData]);
 
   return (
     <div>
@@ -688,17 +733,19 @@ const Profile = () => {
                                     </Typography>
                                     <Typography className="h6-title">
                                       {userInfo?.length &&
-                                        userInfo[0]?.designation ? (
+                                      userInfo[0]?.designation ? (
                                         <>{userInfo[0].designation}</>
                                       ) : (
                                         "Designation: NA"
                                       )}
                                       <Box className="cardLabelEllips1">
-                                        {userInfo?.length && userInfo[0]?.designation
+                                        {userInfo?.length &&
+                                        userInfo[0]?.designation
                                           ? " "
                                           : " "}
                                         {t("ID")}:{" "}
-                                        {userData?.result?.response?.userName || "NA"}
+                                        {userData?.result?.response?.userName ||
+                                          "NA"}
                                       </Box>
                                     </Typography>
                                     {userInfo?.length ? (
@@ -1127,8 +1174,15 @@ const Profile = () => {
                           {/* Country */}
 
                           <Box py={1}>
-                            <FormControl fullWidth style={{ marginTop: "10px" }} error={!!formErrors.country}>
-                              <InputLabel id="country-label" className="year-select">
+                            <FormControl
+                              fullWidth
+                              style={{ marginTop: "10px" }}
+                              error={!!formErrors.country}
+                            >
+                              <InputLabel
+                                id="country-label"
+                                className="year-select"
+                              >
                                 {t("COUNTRY")}
                               </InputLabel>
                               <Select
@@ -1150,7 +1204,9 @@ const Profile = () => {
                                 ))}
                                 <MenuItem value="Others">Others</MenuItem>
                                 {formErrors.country && (
-                                  <FormHelperText>{formErrors.country}</FormHelperText>
+                                  <FormHelperText>
+                                    {formErrors.country}
+                                  </FormHelperText>
                                 )}
                               </Select>
                             </FormControl>
@@ -1163,7 +1219,8 @@ const Profile = () => {
                                 name="otherCountry"
                                 label={
                                   <span>
-                                    {t("OTHERCOUNTRY")} <span className="required">*</span>
+                                    {t("OTHERCOUNTRY")}{" "}
+                                    <span className="required">*</span>
                                   </span>
                                 }
                                 variant="outlined"
@@ -1185,13 +1242,13 @@ const Profile = () => {
                             </Box>
                           )}
 
-
                           {/* state and district */}
                           {editedUserInfo.country === "India" && (
                             <>
                               <Box py={1}>
-                                <FormControl 
-                                  fullWidth error={!!formErrors.state_id}
+                                <FormControl
+                                  fullWidth
+                                  error={!!formErrors.state_id}
                                   style={{ marginTop: "10px" }}
                                 >
                                   <InputLabel
@@ -1226,14 +1283,17 @@ const Profile = () => {
                                     ))}
                                   </Select>
                                   {formErrors.state_id && (
-                                    <FormHelperText>{formErrors.state_id}</FormHelperText>
+                                    <FormHelperText>
+                                      {formErrors.state_id}
+                                    </FormHelperText>
                                   )}
                                 </FormControl>
                               </Box>
 
                               <Box py={1}>
                                 <FormControl
-                                  fullWidth error={!!formErrors.district_id}
+                                  fullWidth
+                                  error={!!formErrors.district_id}
                                   style={{ marginTop: "10px" }}
                                 >
                                   <InputLabel
@@ -1248,9 +1308,10 @@ const Profile = () => {
                                     id="district"
                                     value={editedUserInfo.district_id}
                                     onChange={(e) => {
-                                      const selectedDistrict = districtsList.find(
-                                        (d) => d.id === e.target.value
-                                      );
+                                      const selectedDistrict =
+                                        districtsList.find(
+                                          (d) => d.id === e.target.value
+                                        );
                                       setEditedUserInfo({
                                         ...editedUserInfo,
                                         district: selectedDistrict?.name || "",
@@ -1270,13 +1331,14 @@ const Profile = () => {
                                     ))}
                                   </Select>
                                   {formErrors.district_id && (
-                                    <FormHelperText>{formErrors.district_id}</FormHelperText>
+                                    <FormHelperText>
+                                      {formErrors.district_id}
+                                    </FormHelperText>
                                   )}
                                 </FormControl>
                               </Box>
                             </>
                           )}
-
 
                           <Box pt={4} className="d-flex jc-en">
                             <Button
@@ -1358,10 +1420,10 @@ const Profile = () => {
               <Certificate />
             ) : (
               <div>
-                <TabContext value={value}>
+                <TabContext value={profileTab}>
                   <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
                     <TabList
-                      onChange={handleChange}
+                      onChange={handleProfileTabChange}
                       aria-label="lab API tabs example"
                     >
                       <Tab
@@ -1383,6 +1445,65 @@ const Profile = () => {
                   </TabPanel>
                   <TabPanel value="2">
                     <LearningHistory />
+                  </TabPanel>
+                </TabContext>
+
+                {/* New Tab Section */}
+                <TabContext value={activityTab}>
+                  <Box sx={{ borderBottom: 1, borderColor: "divider", mt: 4 }}>
+                    <TabList
+                      onChange={handleActivityTabChange}
+                      aria-label="profile tabs"
+                    >
+                      <Tab
+                        label="My Posts"
+                        className="tab-text profile-tab"
+                        icon={<TipsAndUpdatesOutlinedIcon />}
+                        value="3"
+                      />
+                      <Tab
+                        label="My Activity"
+                        className="tab-text profile-tab"
+                        icon={<WatchLaterOutlinedIcon />}
+                        value="4"
+                      />
+                    </TabList>
+                  </Box>
+                  <TabPanel value="3">
+                    {forumPosts?.length > 6 && (
+                      <Box display="flex" justifyContent="flex-end" mb={2}>
+                        <Button
+                          onClick={() =>
+                            (window.location.href = `/discussion-forum/my/posts`)
+                          }
+                          variant="contained"
+                          sx={{
+                            marginTop: "13px",
+                            mr: 2,
+                            display: { xs: "none", sm: "inline-flex" },
+                            backgroundColor: "#057184",
+                            borderRadius: "10px",
+                            cursor: "pointer",
+                            fontSize: "12px",
+                            fontWeight: 500,
+                            padding: "9px 32px",
+                            "&:hover": {
+                              backgroundColor: "#045d6e", // optional: hover state
+                            },
+                          }}
+                        >
+                          {t("VIEW_ALL")}
+                        </Button>
+                      </Box>
+                    )}
+                    <MyPosts
+                      loading={loadingPosts}
+                      error={postsError}
+                      posts={forumPosts?.slice(0, 6)}
+                    />
+                  </TabPanel>
+                  <TabPanel value="4">
+                    <MyActivity activity={forumPosts?.slice(0, 5)} />
                   </TabPanel>
                 </TabContext>
               </div>

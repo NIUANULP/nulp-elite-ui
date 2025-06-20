@@ -33,6 +33,7 @@ import Groups2OutlinedIcon from "@mui/icons-material/Groups2Outlined";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { Collapse, List } from "@mui/material";
 import NotificationPopup from "./Notification";
+import Cookies from "js-cookie";
 
 function Header({ globalSearchQuery }) {
   const navigate = useNavigate();
@@ -108,8 +109,18 @@ function Header({ globalSearchQuery }) {
       console.error("Error fetching user data in checkAccess:", error);
     }
   };
-
-
+  // Forum token fetch using cookies
+  useEffect(() => {
+    fetch(urlConfig.FORUM.AUTH_TOKEN)
+      .then((res) => res.json())
+      .then((data) => {
+        const token = data.access_token;
+        Cookies.set("token", token, { path: "/", secure: false });
+      })
+      .catch((err) => {
+        console.error("Fetch error:", err);
+      });
+  }, []);
 
   // Retrieve roles from sessionStorage
   //const rolesJson = sessionStorage.getItem("roles");
@@ -260,6 +271,33 @@ function Header({ globalSearchQuery }) {
   };
   const handleLogout = () => {
     sessionStorage.setItem("isModalShown", "false");
+    // Use current domain/path to remove cookies dynamically
+
+    Cookies.remove("token");
+    Cookies.remove("express.sid");
+    const domain = window.location.hostname;
+    Cookies.remove("token", { path: "/" });
+    Cookies.remove("token", { domain, path: "/" });
+    Cookies.remove("express.sid", { path: "/discussion-forum", domain });
+
+    // Logout from NodeBB using XHR
+    const xhr = new XMLHttpRequest();
+    const forumUrl = `/discussion-forum/logout`;
+    xhr.open("POST", forumUrl, true);
+    xhr.withCredentials = true; // Important for sending cookies
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          console.log("Successfully logged out from NodeBB");
+        } else {
+          console.error("Error logging out from NodeBB:", xhr.status);
+        }
+      }
+    };
+    xhr.send();
+
+    console.log("Logout successful", domain);
   };
   return (
     <>
@@ -423,10 +461,9 @@ function Header({ globalSearchQuery }) {
               </Tooltip>
             </Link>
             <Link
-              target="_blank"
-              href="/my-groups?selectedTab=myGroups"
+              href={`${routeConfig.ROUTES.FORUM.FORUM}`}
               className={
-                activePath === `/my-groups?selectedTab=myGroups`
+                activePath === `${routeConfig.ROUTES.FORUM.FORUM}`
                   ? "Menuactive"
                   : "headerMenu"
               }
