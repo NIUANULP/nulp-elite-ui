@@ -96,7 +96,7 @@
       "DASHBOARD": "/webapp/learndashboard"
     },
     "FORUM": {
-      "FORUM": "/webapp/discussion-forum/"
+      "FORUM": "/discussion-forum/"
     }
   }
 }
