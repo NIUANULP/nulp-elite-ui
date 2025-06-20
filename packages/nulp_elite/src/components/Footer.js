@@ -43,7 +43,7 @@ export default function Footer() {
   };
 
   const navigateToDiscussion = () => {
-    navigate("/my-groups?selectedTab=myGroups");
+    navigate(`${routeConfig.ROUTES.FORUM.FORUM}`);
     window.location.reload();
   };
 
@@ -150,7 +150,7 @@ export default function Footer() {
               target="_blank"
               onClick={() => navigateToDiscussion()}
               className={
-                location.pathname === `/my-groups?selectedTab=myGroups`
+                location.pathname === `${routeConfig.ROUTES.FORUM.FORUM}`
                   ? "navigateActive"
                   : ""
               }

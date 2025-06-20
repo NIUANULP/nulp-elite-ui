@@ -32,7 +32,7 @@ const LearningHistory = () => {
   const [toasterOpen, setToasterOpen] = useState(false);
   const [toasterMessage, setToasterMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // Number of items per page
+  const [itemsPerPage] = useState(4); // Number of items per page
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -63,8 +63,7 @@ const LearningHistory = () => {
       } catch (error) {
         console.error("Error fetching user data:", error);
         showErrorMessage(t("FAILED_TO_FETCH_DATA"));
-      }
-      finally {
+      } finally {
         setIsLoading(false);
       }
     };

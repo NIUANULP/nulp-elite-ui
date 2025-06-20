@@ -46,6 +46,8 @@ import LernVotingList from "pages/learnathon/lernVotingList";
 import LernReviewList from "pages/learnathon/lernReviewerList";
 import LearnathonDashboard from "pages/learnathon/LearnathonDashboard";
 import dayjs from "dayjs";
+import Forum from "components/Forum";
+import Cookies from "js-cookie";
 
 function App() {
   // const [t] = useTranslation();
@@ -59,9 +61,12 @@ function App() {
   const [orgId, setOrgId] = useState();
   const [userData, setUserData] = React.useState(false);
   ReactGA.initialize("G-QH3SHT9MTG");
-  const [isLearnathonUser , setIsLearnathonUser] = useState(false)
+  const [isLearnathonUser, setIsLearnathonUser] = useState(false);
   const today = dayjs();
-  const isLearnathonStarted = today.isAfter(urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_START_DATE)
+  const isLearnathonStarted = today.isAfter(
+    urlConfig.LEARNATHON_DATES.CONTENT_SUBMISSION_START_DATE
+  );
+
   const routes = [
     {
       moduleName: "nulp_elite",
@@ -239,6 +244,11 @@ function App() {
       path: routeConfig.ROUTES.LEARNATHON.DASHBOARD,
       component: LearnathonDashboard,
     },
+    {
+      moduleName: "nulp_elite",
+      path: routeConfig.ROUTES.FORUM.FORUM,
+      component: Forum,
+    },
   ];
 
   initializeI18n(
@@ -262,7 +272,13 @@ function App() {
       };
       const response = await axios.post(url, requestBody);
       const Data = response.data;
-      console.log("Data.result", Data.result)
+      Cookies.set("designation", Data?.result[0]?.designation, { path: "/" });
+      Cookies.set(
+        "location",
+        `${Data?.result[0]?.district}, ${Data?.result[0]?.state}`,
+        { path: "/" }
+      );
+
       if (
         (Array.isArray(Data?.result) && Data.result.length === 0) ||
         (Array.isArray(Data?.result) &&
@@ -272,8 +288,7 @@ function App() {
             Data.result[0]?.organisation === null ||
             Data.result[0]?.country === null ||
             Data.result[0]?.state === null ||
-            Data.result[0]?.district === null
-          ))
+            Data.result[0]?.district === null))
       ) {
         setUserData(true);
       }
@@ -289,7 +304,9 @@ function App() {
           "userDomain",
           data.result.response.framework.board
         );
-         setIsLearnathonUser(data.result.response.firstName.includes("tekdiNulp11"))
+        setIsLearnathonUser(
+          data.result.response.firstName.includes("tekdiNulp11")
+        );
         const rolesData = data.result.response.roles;
         const roles = rolesData?.map((roleObject) => roleObject.role);
 
@@ -320,7 +337,7 @@ function App() {
     fetchData();
     UserData();
   }, []);
-  
+
   return (
     <NativeBaseProvider>
       {/* <ChakraProvider> */}
@@ -352,7 +369,7 @@ function App() {
             ))}
           </Routes>
 
-          {(isLearnathonUser || isLearnathonStarted) && (<LernModal />)}
+          {(isLearnathonUser || isLearnathonStarted) && <LernModal />}
         </Router>
       </React.Suspense>
       {/* </ChakraProvider> */}

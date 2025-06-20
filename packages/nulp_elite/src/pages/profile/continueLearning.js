@@ -27,7 +27,7 @@ const ContinueLearning = () => {
   const [toasterOpen, setToasterOpen] = useState(false);
   const [toasterMessage, setToasterMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(16); // Number of items per page
+  const [itemsPerPage] = useState(4); // Number of items per page
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
