@@ -121,6 +121,7 @@ function Header({ globalSearchQuery }) {
         console.error("Fetch error:", err);
       });
   }, []);
+
   // Retrieve roles from sessionStorage
   //const rolesJson = sessionStorage.getItem("roles");
   useEffect(() => {

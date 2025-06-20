@@ -288,7 +288,9 @@ function App() {
             Data.result[0]?.organisation === null ||
             Data.result[0]?.country === null ||
             Data.result[0]?.state === null ||
+
             Data.result[0]?.district === null))
+
       ) {
         setUserData(true);
       }
@@ -337,7 +339,7 @@ function App() {
     fetchData();
     UserData();
   }, []);
-
+  
   return (
     <NativeBaseProvider>
       {/* <ChakraProvider> */}
