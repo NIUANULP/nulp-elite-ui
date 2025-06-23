@@ -98,6 +98,7 @@ const useStyles = makeStyles((theme) => ({
 import InfoIcon from "@mui/icons-material/Info";
 import Tooltip from "@mui/material/Tooltip";
 const reasons = require("../../configs/blockReasons.json");
+
 const Chat = ({
   senderUserId: propSenderUserId,
   receiverUserId: propReceiverUserId,
@@ -105,8 +106,9 @@ const Chat = ({
   onClose,
   showCloseIcon,
   postUrl,
+  userRedirection,
 }) => {
-  console.log(showCloseIcon, 'showCloseIcon');
+  console.log(userRedirection, 'userRedirection');
 
   const { t } = useTranslation();
   const classes = useStyles();
@@ -136,9 +138,9 @@ const Chat = ({
   const [textValue, setTextValue] = useState(
     postUrl
       ? `Hello! I'd like to connect with you regarding the post: ${postUrl}`
-      : t("HELLO_CONNECT_MESSAGE")
+      : userRedirection ? "Hello! I'd like to connect with you." : ""
   );
-
+  
   const chatRef = useRef(null);
 
   const location = useLocation();
