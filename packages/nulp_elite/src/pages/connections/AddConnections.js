@@ -109,8 +109,8 @@ const AddConnections = () => {
   const handleUnblockClose = () => setOpenBlock(false);
   const [userIdToReject, setUserIdToReject] = useState(null);
   const query = useQuery();
-
-  const showErrorMessage = (msg) => {
+  const [userRedirection,setUserRedirection]=useState(false);
+  const showErrorMessage = (msgs) => {
     setToasterMessage(msg);
     setTimeout(() => {
       setToasterMessage("");
@@ -232,7 +232,9 @@ const AddConnections = () => {
     const senderId = query.get("sender_id");
     const receiverId = query.get("receiver_id");
     const postUrl = query.get("post_url");
-
+    if(senderId && receiverId){
+      setUserRedirection(true);
+    }
     // Only proceed if we have all required values and they haven't been set yet
     if (senderId && receiverId && loggedInUserId && !selectedChatUser) {
       // If the logged in user is the receiver, open chat with sender
@@ -2054,6 +2056,7 @@ const AddConnections = () => {
                   senderUserId={selectedChatUser.senderUserId}
                   receiverUserId={selectedChatUser.receiverUserId}
                   postUrl={selectedChatUser.postUrl}
+                  userRedirection={userRedirection} 
                 />
                 )}
               </Box>
