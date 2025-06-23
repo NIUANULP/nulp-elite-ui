@@ -42,6 +42,9 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import FloatingChatIcon from "components/FloatingChatIcon";
 const routeConfig = require("../../configs/routeConfig.json");
 import { Loading } from "@shiksha/common-lib";
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
 
 const AddConnections = () => {
   const [value, setValue] = React.useState("1");
@@ -105,6 +108,7 @@ const AddConnections = () => {
   const [openBlock, setOpenBlock] = useState(null);
   const handleUnblockClose = () => setOpenBlock(false);
   const [userIdToReject, setUserIdToReject] = useState(null);
+  const query = useQuery();
 
   const showErrorMessage = (msg) => {
     setToasterMessage(msg);
@@ -223,6 +227,38 @@ const AddConnections = () => {
     setLoggedInUserId(_userId);
     fetchUserInfo(_userId);
   }, []);
+
+  useEffect(() => {
+    const senderId = query.get("sender_id");
+    const receiverId = query.get("receiver_id");
+    const postUrl = query.get("post_url");
+
+    // Only proceed if we have all required values and they haven't been set yet
+    if (senderId && receiverId && loggedInUserId && !selectedChatUser) {
+      // If the logged in user is the receiver, open chat with sender
+      if (receiverId === loggedInUserId) {
+        setSelectedChatUser({
+          senderUserId: senderId,
+          receiverUserId: receiverId,
+          postUrl: postUrl || null,
+        });
+        setSelectedUserId(senderId);
+        setShowChat(true);
+        setSelectedUser({ userId: senderId });
+      }
+      // If the logged in user is the sender, open chat with receiver
+      else if (senderId === loggedInUserId) {
+        setSelectedChatUser({
+          senderUserId: senderId,
+          receiverUserId: receiverId,
+          postUrl: postUrl || null,
+        });
+        setSelectedUserId(receiverId);
+        setShowChat(true);
+        setSelectedUser({ userId: receiverId });
+      }
+    }
+  }, [loggedInUserId, query, selectedChatUser]);
 
   const toggleChat = () => {
     setShowChat(!showChat);
@@ -2012,11 +2048,13 @@ const AddConnections = () => {
                     <Box className="demo-text">{t("CLICK_ON_ANY_CONTACT")}</Box>
                   </Box>
                 ) : (
+                 
                   <Chat
-                    key={selectedUser.userId}
-                    senderUserId={selectedChatUser.senderUserId}
-                    receiverUserId={selectedChatUser.receiverUserId}
-                  />
+                  key={`${selectedChatUser?.senderUserId}-${selectedChatUser?.receiverUserId}`}
+                  senderUserId={selectedChatUser.senderUserId}
+                  receiverUserId={selectedChatUser.receiverUserId}
+                  postUrl={selectedChatUser.postUrl}
+                />
                 )}
               </Box>
             )}
