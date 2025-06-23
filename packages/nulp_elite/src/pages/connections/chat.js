@@ -103,7 +103,8 @@ const Chat = ({
   receiverUserId: propReceiverUserId,
   onChatSent,
   onClose,
-  showCloseIcon
+  showCloseIcon,
+  postUrl,
 }) => {
   console.log(showCloseIcon, 'showCloseIcon');
 
@@ -128,9 +129,15 @@ const Chat = ({
   const [eneteredtextValue, setEnteredTextValue] = useState("");
   const charLimit = 700;
   const [prefilledMessage, setPrefilledMessage] = useState(
-    "Hello! I’d like to connect with you."
+    postUrl
+      ? `Hello! I'd like to connect with you regarding the post: ${postUrl}`
+      : "Hello! I'd like to connect with you."
   );
-  const [textValue, setTextValue] = useState("");
+  const [textValue, setTextValue] = useState(
+    postUrl
+      ? `Hello! I'd like to connect with you regarding the post: ${postUrl}`
+      : t("HELLO_CONNECT_MESSAGE")
+  );
 
   const chatRef = useRef(null);
 
@@ -345,7 +352,11 @@ const Chat = ({
           setMessages(response.data.result || []);
 
           if (response.data.result.length === 0) {
-            setTextValue(t("HELLO_CONNECT_MESSAGE"));
+            setTextValue(
+              postUrl
+                ? `Hello! I'd like to connect with you regarding the post: ${postUrl}`
+                : t("HELLO_CONNECT_MESSAGE")
+            );
           }
         }
       }
@@ -384,7 +395,8 @@ const Chat = ({
           ) {
             navigate(routeConfig.ROUTES.ADDCONNECTION_PAGE.ADDCONNECTION);
           } else {
-            window.location.reload();
+            window.location.href =
+              routeConfig.ROUTES.ADDCONNECTION_PAGE.ADDCONNECTION;
           }
           if (onChatSent) {
             onChatSent();
