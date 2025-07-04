@@ -111,7 +111,7 @@ const AddConnections = () => {
   const query = useQuery();
   const [userRedirection,setUserRedirection]=useState(false);
   const showErrorMessage = (msgs) => {
-    setToasterMessage(msg);
+    setToasterMessage(msgs);
     setTimeout(() => {
       setToasterMessage("");
     }, 2000);
@@ -231,7 +231,11 @@ const AddConnections = () => {
   useEffect(() => {
     const senderId = query.get("sender_id");
     const receiverId = query.get("receiver_id");
-    const postUrl = query.get("post_url");
+    let postUrl = query.get("post_url");
+      // Fix the postUrl if needed
+  if (postUrl && !postUrl.includes('/discussion-forum')) {
+    postUrl = postUrl.replace(/(\/topic\/)/, '/discussion-forum$1');
+  }
     if(senderId && receiverId){
       setUserRedirection(true);
     }
