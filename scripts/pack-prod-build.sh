@@ -76,4 +76,23 @@ find ../dist -type f -name 'index.html' -exec bash -c 'mv "$1" "${1%.html}.ejs" 
   |" "${1%.html}.ejs"' _ {} \;
 
 # rm ../dist/webapp/index.ejs  # need to uncomment this line when dev deployment
+find ../dist -type f -name 'index.ejs' -exec sed -i '/<head>/a \
+<% if (structuredData && structuredData.length) { %>\
+  <% structuredData.forEach(function(jsonLd) { %>\
+    <script type="application/ld+json">\
+      <%- jsonLd %>\
+    </script>\
+  <% }); %>\
+<% } %>\
+<% \
+  const totalPages = Math.ceil(totalCount / pageSize);\
+%>\
+<% if (page > 1) { %>\
+  <link rel="prev" href="/webapp?page=<%= page - 1 %>&pageSize=<%= pageSize %>">\
+<% } %>\
+<% if (page < totalPages) { %>\
+  <link rel="next" href="/webapp?page=<%= page + 1 %>&pageSize=<%= pageSize %>">\
+<% } %>\
+' {} \;
+
 cp -r ../dist/webapp/* ../dist/
