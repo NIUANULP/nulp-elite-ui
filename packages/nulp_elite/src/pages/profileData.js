@@ -13,6 +13,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { useTranslation } from "react-i18next";
+const designationsList = require("../configs/designations.json");
 
 const style = {
   position: "absolute",
@@ -26,6 +27,16 @@ const style = {
   p: 4,
   overflow: "scroll",
 };
+
+const userTypesList = [
+  "State Governments / Parastatal Bodies",
+  "Urban Local Bodies / Special Purpose Vehicles",
+  "Academia and Research Organisations",
+  "Multilateral / Bilateral Agencies",
+  "Industries",
+  "Any Other Government Entities",
+  "Others",
+];
 
 const PopupForm = ({ open, handleClose }) => {
   const [firstName, setFirstName] = useState("");
@@ -43,15 +54,30 @@ const PopupForm = ({ open, handleClose }) => {
 
   const [initialFirstName, setInitialFirstName] = useState("");
   const [initialLastName, setInitialLastName] = useState("");
+
+  //country state and district
+  const [country, setCountry] = useState("India");
+  const [otherCountry, setOtherCountry] = useState("");
+  const [stateId, setStateId] = useState("");
+  const [stateName, setStateName] = useState("");
+  const [districtId, setDistrictId] = useState("");
+  const [districtName, setDistrictName] = useState("");
+  const [statesList, setStatesList] = useState([]);
+  const [districtsList, setDistrictsList] = useState([]);
+
+
   const maxChars = 500;
   const { t } = useTranslation();
 
+
+
   useEffect(() => {
-    const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.GET_PROFILE}${_userId}`;
-    axios
-      .get(url)
-      .then((response) => {
+    const fetchUserName = async () => {
+      try {
+        const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.GET_PROFILE}${_userId}`;
+        const response = await axios.get(url);
         const userData = response.data?.result?.response;
+
         const fName = userData?.firstName || "";
         const lName = userData?.lastName || "";
 
@@ -60,61 +86,161 @@ const PopupForm = ({ open, handleClose }) => {
 
         setInitialFirstName(fName);
         setInitialLastName(lName);
-      })
-      .catch((error) => console.error("Error fetching user names:", error));
 
-    axios
-      .get(`${urlConfig.URLS.POFILE_PAGE.USER_READ}`)
-      .then((response) => {
-        const userInfo = response.data?.result?.[0];
+      } catch (error) {
+        console.error("Error fetching user names:", error);
+      }
+    };
+
+    const fetchUserInfo = async () => {
+      try {
+        const url = `${urlConfig.URLS.POFILE_PAGE.USER_READ}`;
+        const response = await axios.post(
+          url,
+          { user_ids: [_userId] },
+          {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const userInfo = response?.data?.result?.[0];
+        console.log("userInfo", userInfo);
+
         setBio(userInfo?.bio || "");
         setDesignation(userInfo?.designation || "");
         setUserType(userInfo?.user_type || "");
         setOrganisation(userInfo?.organisation || "");
-      })
-      .catch((error) => console.error("Error fetching user info:", error));
+
+        if (userInfo?.designation === "other" && userInfo?.customDesignation) {
+          setCustomDesignation(userInfo.customDesignation);
+        }
+
+        if (userInfo?.user_type === "other" && userInfo?.customUserType) {
+          setCustomUserType(userInfo.customUserType);
+        }
+
+        setCountry(userInfo?.country || "India");
+
+        if (userInfo?.country === "Others" && userInfo?.otherCountry) {
+          setOtherCountry(userInfo.otherCountry);
+        }
+
+        if (userInfo?.state_id && userInfo?.state) {
+          setStateId(userInfo.state_id);
+          setStateName(userInfo.state);
+        }
+
+        if (userInfo?.district_id && userInfo?.district) {
+          setDistrictId(userInfo.district_id);
+          setDistrictName(userInfo.district);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user info:", error);
+      }
+    };
+
+    fetchUserName();
+    fetchUserInfo();
+
+
 
     setDesignations([
-      ...userData.designations.map((type) => ({ value: type, label: type })),
+      ...designationsList.map((type) => ({ value: type, label: type })),
       { value: "other", label: "Other" },
     ]);
     setUserTypes([
-      ...userData.userTypes.map((type) => ({ value: type, label: type })),
+      ...userTypesList.map((type) => ({ value: type, label: type })),
       { value: "other", label: "Other" },
     ]);
   }, []);
 
+
   useEffect(() => {
-    if (firstName && lastName && organisation && designation && userType) {
-      setIsSubmitDisabled(false);
-    } else {
-      setIsSubmitDisabled(true);
+    const isBasicValid = firstName && lastName && organisation && designation && userType;
+
+    let isLocationValid = true;
+
+    if (country === "India") {
+      isLocationValid = !!(stateId && districtId);
+    } else if (country === "Others") {
+      isLocationValid = !!otherCountry;
     }
-  }, [firstName, lastName, organisation, designation, userType]);
+
+    setIsSubmitDisabled(!(isBasicValid && isLocationValid));
+  }, [firstName, lastName, organisation, designation, userType, country, stateId, districtId, otherCountry]);
+
+
+
+  // Fetch states on mount
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        const res = await axios.post(`${urlConfig.URLS.USER.LOCATION_SEARCH_API}`, {
+          request: { filters: { type: "state" } },
+        });
+        setStatesList(res.data?.result?.response || []);
+      } catch (err) {
+        console.error("Error fetching states", err);
+      }
+    };
+    fetchStates();
+  }, []);
+
+  // Fetch districts when state changes
+  useEffect(() => {
+    if (!stateId) return;
+
+    const fetchDistricts = async () => {
+      try {
+        const res = await axios.post(`${urlConfig.URLS.USER.LOCATION_SEARCH_API}`, {
+          request: {
+            filters: { type: "district", parentId: stateId },
+          },
+        });
+        setDistrictsList(res.data?.result?.response || []);
+      } catch (err) {
+        console.error("Error fetching districts", err);
+      }
+    };
+    fetchDistricts();
+  }, [stateId]);
+  
 
   const handleSubmit = async () => {
     const finalDesignation =
       designation === "other" ? customDesignation : designation;
     const finalUserType = userType === "other" ? customUserType : userType;
 
+    // Construct the request data including location
     const requestData = {
       organisation: organisation,
       designation: finalDesignation,
       user_type: finalUserType,
       bio: bio,
+      country: country === "Others" ? otherCountry : "India",
+      state_id: country === "India" ? stateId : "NA",
+      state: country === "India" ? stateName : "NA",
+      district_id: country === "India" ? districtId : "NA",
+      district: country === "India" ? districtName : "NA",
     };
+
+    console.log("requestData 299", requestData)
 
     try {
       const updateNameUrl = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.UPDATE_USER_PROFILE}`;
       const updateUserInfoUrl = `${urlConfig.URLS.POFILE_PAGE.USER_UPDATE}?user_id=${_userId}`;
 
+      // Update name if changed
       if (firstName !== initialFirstName || lastName !== initialLastName) {
         await axios.patch(updateNameUrl, {
           request: { firstName, lastName, userId: _userId },
         });
       }
 
-      // Update other user info
+      // Update other user info including location
       const response = await axios.put(updateUserInfoUrl, requestData);
       console.log("API Response:", response.data);
     } catch (error) {
@@ -124,7 +250,9 @@ const PopupForm = ({ open, handleClose }) => {
     handleClose();
   };
 
-   const handleBioChange = (e) => {
+
+
+  const handleBioChange = (e) => {
     if (e.target.value.length <= maxChars) {
       setBio(e.target.value);
     }
@@ -231,6 +359,75 @@ const PopupForm = ({ open, handleClose }) => {
               />
             )}
           </FormControl>
+
+          <FormControl fullWidth margin="dense">
+            <Select
+              options={[
+                { value: "India", label: "India" },
+                { value: "Others", label: "Others" }
+              ]}
+              value={{ value: country, label: country }}
+              onChange={(selected) => {
+                const value = selected?.value || "";
+                setCountry(value);
+                if (value !== "India") {
+                  setStateId("NA");
+                  setStateName("NA");
+                  setDistrictId("NA");
+                  setDistrictName("NA");
+                }
+              }}
+              placeholder="Select Country"
+              isClearable
+            />
+          </FormControl>
+
+          {country === "Others" && (
+            <TextField
+              margin="dense"
+              label="Enter Your Country"
+              type="text"
+              fullWidth
+              value={otherCountry}
+              onChange={(e) => setOtherCountry(e.target.value)}
+            />
+          )}
+
+          {country === "India" && (
+            <>
+              <FormControl fullWidth margin="dense">
+                <Select
+                  options={statesList.map((s) => ({ value: s.id, label: s.name }))}
+                  value={statesList.find((s) => s.id === stateId) && { value: stateId, label: stateName }}
+                  onChange={(selected) => {
+                    setStateId(selected?.value || "");
+                    setStateName(selected?.label || "");
+                    setDistrictId("");
+                    setDistrictName("");
+                  }}
+                  placeholder="Select State"
+                  isClearable
+                />
+              </FormControl>
+
+              <FormControl fullWidth margin="dense">
+                <Select
+                  options={districtsList.map((d) => ({ value: d.id, label: d.name }))}
+                  value={districtsList.find((d) => d.id === districtId) && { value: districtId, label: districtName }}
+                  onChange={(selected) => {
+                    setDistrictId(selected?.value || "");
+                    setDistrictName(selected?.label || "");
+                  }}
+                  placeholder="Select District"
+                  isClearable
+                  isDisabled={!stateId}
+                />
+              </FormControl>
+            </>
+          )}
+
+
+
         </Box>
 
         <Box pt={4} className="d-flex jc-en">

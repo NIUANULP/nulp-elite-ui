@@ -36,7 +36,6 @@ const contentTypeList = [
   { key: 'Good Practices', value: 'Good Practices' },
 ];
 
-
   const [subCategory, setSubCategory] = useState([]);
   const [selectedContentType, setSelectedContentType] = useState([]);
   const [selectedSubDomain, setSelectedSubDomain] = useState([]);
@@ -80,9 +79,11 @@ const contentTypeList = [
                   "Reports",
                   "Manual/SOPs",
                 ],
-          board: [domainName],
-          gradeLevel:
-          [subDomainName],
+          // board: [domainName],
+          // gradeLevel: [subDomainName],
+          se_boards: [domainName],
+          se_gradeLevels: [subDomainName],
+
         },
         limit: 20,
         sort_by: {

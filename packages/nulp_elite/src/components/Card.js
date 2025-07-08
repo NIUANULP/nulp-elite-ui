@@ -46,8 +46,8 @@ export default function BoxCard({ items, index, onClick, continueLearning }) {
           className="card-media"
           image={
             subdomain
-              ? require(`./../assets/cardBanner/${subdomain}.png`)
-              : require("./../assets/cardBanner/management.png")
+              ? require(`./../assets/cards/${subdomain}.png`)
+              : require("./../assets/cards/management.png")
           }
           title="green iguana"
         />
@@ -158,8 +158,8 @@ export default function BoxCard({ items, index, onClick, continueLearning }) {
         className="card-media"
         image={
           subdomain
-            ? require(`./../assets/cardBanner/${subdomain}.png`)
-            : require("./../assets/cardBanner/management.png")
+            ? require(`./../assets/cards/${subdomain}.png`)
+            : require("./../assets/cards/management.png")
         }
         title="green iguana"
       />

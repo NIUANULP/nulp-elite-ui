@@ -23,8 +23,8 @@
     "HELP_PAGE": {
       "HELP": "/webapp/help"
     },
-    "HELPDESK":{
-      "HELPDESK":"https://helpdesknulp.niua.org/public/"
+    "HELPDESK": {
+      "HELPDESK": "https://helpdesknulp.niua.org/public/"
     },
     "ADDCONNECTION_PAGE": {
       "ADDCONNECTION": "/webapp/addConnections",
@@ -94,6 +94,12 @@
       "LERNVOTINGLIST": "/webapp/lernvotinglist",
       "LERNREVIEWLIST": "/webapp/lernreviewlist",
       "DASHBOARD": "/webapp/learndashboard"
+    },
+    "FORUM": {
+      "FORUM": "/discussion-forum/"
+    },
+    "ALL_PUBLIC_CONTENT_PAGE": {
+      "ALL_PUBLIC_CONTENT": "/webapp/all-content"
     }
   }
 }

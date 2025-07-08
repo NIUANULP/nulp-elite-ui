@@ -339,6 +339,7 @@ const DomainList = ({ globalSearchQuery }) => {
     let requestData = {
       request: {
         filters: {
+          status: ["Live"],
           se_boards: [null],
           primaryCategory: ["Good Practices", "Reports", "Manual/SOPs"],
           visibility: ["Default", "Parent"],
@@ -447,9 +448,22 @@ const DomainList = ({ globalSearchQuery }) => {
     let requestData = {
       request: {
         filters: {
+          status: ["Live"],
           se_boards: [null],
-          primaryCategory: ["Course"],
+          // primaryCategory: ["Course"],
           visibility: ["Default", "Parent"],
+          identifier:[
+            "do_11422330454242099211",
+            "do_11420352388390912013",
+            "do_1136550052517314561308",
+            "do_1141747139141468161258",
+            "do_1136598919702609921643",
+            "do_1139974386277580801378",
+            "do_1140067897586974721570",
+            "do_1139973490818334721328",
+            "do_114165835604836352120",
+            "do_114284738848514048123"
+          ]
         },
         limit: 100,
         sort_by: {
@@ -632,7 +646,6 @@ const DomainList = ({ globalSearchQuery }) => {
           />
         ) : (
           <SkeletonLoader />
-          // <NoResult />
         )}
 
         <Container
@@ -649,6 +662,7 @@ const DomainList = ({ globalSearchQuery }) => {
                   <Grid item xs={12}>
                     <Box className="h1-title">{t("LERN_title")}</Box>
                   </Grid>
+
                   <Grid item xs={12} md={9}>
                     <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
                   </Grid>

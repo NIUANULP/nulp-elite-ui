@@ -33,6 +33,7 @@ import Groups2OutlinedIcon from "@mui/icons-material/Groups2Outlined";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { Collapse, List } from "@mui/material";
 import NotificationPopup from "./Notification";
+import Cookies from "js-cookie";
 
 function Header({ globalSearchQuery }) {
   const navigate = useNavigate();
@@ -72,34 +73,54 @@ function Header({ globalSearchQuery }) {
     setopenDashboardmenu(!openDashboardmenu);
   };
 
+
   const checkAccess = async (roles) => {
     try {
-      const url = `${urlConfig.URLS.CHECK_USER_ACCESS}`;
+
+      const url = `${urlConfig.URLS.CHECK_USER_ACCESS}?user_id=${_userId}`;
+      console.log("Fetching URL:", url);
+
       const response = await fetch(url);
       const data = await response.json();
-      const userID = data.result.data;
 
-      const user = userID.find(
+      const userRolesData = data?.result?.data || [];
+      console.log("User roles data:", userRolesData);
+
+      const matchedUser = userRolesData.find(
         (user) => user.user_id === _userId && user.creator_access === false
       );
-      if (
-        (roles.includes("COURSE_MENTOR") ||
-          roles.includes("SYSTEM_ADMINISTRATION") ||
-          roles.includes("CONTENT_CREATOR") ||
-          roles.includes("CONTENT_CREATION") ||
-          roles.includes("CONTENT_REVIEWER") ||
 
-          roles.includes("FLAG_REVIEWER") ||
-          roles.includes("ORG_ADMIN") ) &&
+      const hasValidRole =
+        roles.includes("COURSE_MENTOR") ||
+        roles.includes("SYSTEM_ADMINISTRATION") ||
+        roles.includes("CONTENT_CREATOR") ||
+        roles.includes("CONTENT_CREATION") ||
+        roles.includes("CONTENT_REVIEWER") ||
+        roles.includes("FLAG_REVIEWER") ||
+        roles.includes("ORG_ADMIN");
 
-        (!userID.some((item) => item.user_id === _userId) || user != undefined)
-      ) {
+      const isUserPresent = userRolesData.some((item) => item.user_id === _userId);
+
+      if (hasValidRole && (!isUserPresent || matchedUser)) {
         setAccessWorkspace(true);
       }
+
     } catch (error) {
-      console.error("Error fetching user data:", error);
+      console.error("Error fetching user data in checkAccess:", error);
     }
   };
+  // Forum token fetch using cookies
+  useEffect(() => {
+    fetch(urlConfig.FORUM.AUTH_TOKEN)
+      .then((res) => res.json())
+      .then((data) => {
+        const token = data.access_token;
+        Cookies.set("token", token, { path: "/", secure: false });
+      })
+      .catch((err) => {
+        console.error("Fetch error:", err);
+      });
+  }, []);
 
   // Retrieve roles from sessionStorage
   //const rolesJson = sessionStorage.getItem("roles");
@@ -250,6 +271,33 @@ function Header({ globalSearchQuery }) {
   };
   const handleLogout = () => {
     sessionStorage.setItem("isModalShown", "false");
+    // Use current domain/path to remove cookies dynamically
+
+    Cookies.remove("token");
+    Cookies.remove("express.sid");
+    const domain = window.location.hostname;
+    Cookies.remove("token", { path: "/" });
+    Cookies.remove("token", { domain, path: "/" });
+    Cookies.remove("express.sid", { path: "/discussion-forum", domain });
+
+    // Logout from NodeBB using XHR
+    const xhr = new XMLHttpRequest();
+    const forumUrl = `/discussion-forum/logout`;
+    xhr.open("POST", forumUrl, true);
+    xhr.withCredentials = true; // Important for sending cookies
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          console.log("Successfully logged out from NodeBB");
+        } else {
+          console.error("Error logging out from NodeBB:", xhr.status);
+        }
+      }
+    };
+    xhr.send();
+
+    console.log("Logout successful", domain);
   };
   return (
     <>
@@ -335,12 +383,11 @@ function Header({ globalSearchQuery }) {
               href={routeConfig.ROUTES.DOMAINLIST_PAGE.DOMAINLIST}
               className={
                 activePath ===
-                `${
-                  routeConfig.ROUTES.DOMAINLIST_PAGE.DOMAINLIST ||
+                  `${routeConfig.ROUTES.DOMAINLIST_PAGE.DOMAINLIST ||
                   activePath.startsWith(
                     routeConfig.ROUTES.CONTENTLIST_PAGE.CONTENTLIST
                   )
-                }`
+                  }`
                   ? "Menuactive"
                   : "headerMenu"
               }
@@ -361,7 +408,7 @@ function Header({ globalSearchQuery }) {
               className={
                 activePath ===
                   routeConfig.ROUTES.ALL_CONTENT_PAGE.ALL_CONTENT ||
-                activePath.startsWith(routeConfig.ROUTES.VIEW_ALL_PAGE.VIEW_ALL)
+                  activePath.startsWith(routeConfig.ROUTES.VIEW_ALL_PAGE.VIEW_ALL)
                   ? "Menuactive"
                   : "headerMenu"
               }
@@ -380,7 +427,7 @@ function Header({ globalSearchQuery }) {
               href={routeConfig.ROUTES.ADDCONNECTION_PAGE.ADDCONNECTION}
               className={
                 activePath ===
-                `${routeConfig.ROUTES.ADDCONNECTION_PAGE.ADDCONNECTION}`
+                  `${routeConfig.ROUTES.ADDCONNECTION_PAGE.ADDCONNECTION}`
                   ? "Menuactive"
                   : "headerMenu"
               }
@@ -414,10 +461,9 @@ function Header({ globalSearchQuery }) {
               </Tooltip>
             </Link>
             <Link
-              target="_blank"
-              href="/my-groups?selectedTab=myGroups"
+              href={`${routeConfig.ROUTES.FORUM.FORUM}`}
               className={
-                activePath === `/my-groups?selectedTab=myGroups`
+                activePath === `${routeConfig.ROUTES.FORUM.FORUM}`
                   ? "Menuactive"
                   : "headerMenu"
               }
@@ -509,7 +555,7 @@ function Header({ globalSearchQuery }) {
               arrow
               className={
                 activePath === `${routeConfig.ROUTES.POFILE_PAGE.PROFILE}` ||
-                activePath === `${routeConfig.ROUTES.HELP_PAGE.HELP}`
+                  activePath === `${routeConfig.ROUTES.HELP_PAGE.HELP}`
                   ? "Menuactive"
                   : ""
               }
@@ -560,7 +606,7 @@ function Header({ globalSearchQuery }) {
                 >
                   <MenuItem>{t("DASHBOARD")}</MenuItem>
                 </Link>
-                
+
               )}
 
               {/* Check if roles array is empty or contains "PUBLIC" */}
@@ -625,16 +671,16 @@ function Header({ globalSearchQuery }) {
                   {roleNames.some((role) =>
                     ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"].includes(role)
                   ) && (
-                    <MenuItem className="ml-10">
-                      <Link
-                        href={routeConfig.ROUTES.POLL.POLL_DASHBOARD}
-                        underline="none"
-                        textAlign="center"
-                      >
-                        {t("DASHBOARD")}
-                      </Link>
-                    </MenuItem>
-                  )}
+                      <MenuItem className="ml-10">
+                        <Link
+                          href={routeConfig.ROUTES.POLL.POLL_DASHBOARD}
+                          underline="none"
+                          textAlign="center"
+                        >
+                          {t("DASHBOARD")}
+                        </Link>
+                      </MenuItem>
+                    )}
                 </List>
               </Collapse>
               <Link
@@ -799,8 +845,8 @@ function Header({ globalSearchQuery }) {
                   className={
                     activePath ===
                       `${routeConfig.ROUTES.POFILE_PAGE.PROFILE}` ||
-                    activePath === `${routeConfig.ROUTES.HELP_PAGE.HELP}` ||
-                    activePath ===
+                      activePath === `${routeConfig.ROUTES.HELP_PAGE.HELP}` ||
+                      activePath ===
                       `${routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}`
                       ? "Menuactive"
                       : ""
@@ -873,14 +919,14 @@ function Header({ globalSearchQuery }) {
                           role
                         )
                       ) && (
-                        <Link
-                          href={routeConfig.ROUTES.POLL.POLL_DASHBOARD}
-                          underline="none"
-                          textAlign="center"
-                        >
-                          <MenuItem className="ml-10">{t("POLL")}</MenuItem>
-                        </Link>
-                      )}
+                          <Link
+                            href={routeConfig.ROUTES.POLL.POLL_DASHBOARD}
+                            underline="none"
+                            textAlign="center"
+                          >
+                            <MenuItem className="ml-10">{t("POLL")}</MenuItem>
+                          </Link>
+                        )}
                       {roleNames.some((role) =>
                         [
                           "ORG_ADMIN",
@@ -888,14 +934,14 @@ function Header({ globalSearchQuery }) {
                           "CONTENT_CREATOR",
                         ].includes(role)
                       ) && (
-                        <Link
-                          href={routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}
-                          underline="none"
-                          textAlign="center"
-                        >
-                          <MenuItem className="ml-10">{t("EVENTS")}</MenuItem>
-                        </Link>
-                      )}
+                          <Link
+                            href={routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}
+                            underline="none"
+                            textAlign="center"
+                          >
+                            <MenuItem className="ml-10">{t("EVENTS")}</MenuItem>
+                          </Link>
+                        )}
                       <MenuItem
                         className="ml-10"
                         onClick={() => {
@@ -910,54 +956,54 @@ function Header({ globalSearchQuery }) {
                         {t("LEARNING_REPORT")}
                       </MenuItem>
                       {roleNames.some((role) =>
-                        ["ORG_ADMIN","SYSTEM_ADMINISTRATION"].includes(
+                        ["ORG_ADMIN", "SYSTEM_ADMINISTRATION"].includes(
                           role
                         )
                       ) && (
-                        <Link
-                          href={routeConfig.ROUTES.LEARNATHON.DASHBOARD}
+                          <Link
+                            href={routeConfig.ROUTES.LEARNATHON.DASHBOARD}
 
 
-                          underline="none"
-                          textAlign="center"
-                          disablePadding
+                            underline="none"
+                            textAlign="center"
+                            disablePadding
 
-                        >
-                          <MenuItem  className="ml-10" style={{ color: "#1976d2" }}>
-                            {t("LEARNATHON")}
-                          </MenuItem>
-                        </Link>
-                      )}
+                          >
+                            <MenuItem className="ml-10" style={{ color: "#1976d2" }}>
+                              {t("LEARNATHON")}
+                            </MenuItem>
+                          </Link>
+                        )}
 
                     </List>
                   </Collapse>
                   {roleNames.some((role) =>
                     ["ORG_ADMIN", "SYSTEM_ADMINISTRATION"].includes(role)
                   ) && (
-                    <Link
-                      href={routeConfig.ROUTES.ADMIN}
-                      underline="none"
-                      textAlign="center"
-                      target="_blank"
-                    >
-                      <MenuItem>{t("ADMIN")}</MenuItem>
-                    </Link>
-                  )}
+                      <Link
+                        href={routeConfig.ROUTES.ADMIN}
+                        underline="none"
+                        textAlign="center"
+                        target="_blank"
+                      >
+                        <MenuItem>{t("ADMIN")}</MenuItem>
+                      </Link>
+                    )}
 
 
-                    {roleNames.some((role) =>
+                  {roleNames.some((role) =>
 
-                    ["ORG_ADMIN", "SYSTEM_ADMINISTRATION","CONTENT_CREATOR"].includes(role)
-                  ) && (
-                    <Link
-                      target="_blank"
-                      href="/workspace/content/create"
-                      underline="none"
-                      textAlign="center"
-                    >
-                      <MenuItem>{t("WORKSPACE")}</MenuItem>
-                    </Link>
-                  )}
+                    ["ORG_ADMIN", "SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"].includes(role)
+                  ) && accessWorkspace && (
+                      <Link
+                        target="_blank"
+                        href="/workspace/content/create"
+                        underline="none"
+                        textAlign="center"
+                      >
+                        <MenuItem>{t("WORKSPACE")}</MenuItem>
+                      </Link>
+                    )}
                   {/* <NotificationsNoneOutlinedIcon />
                     ekta */}
 
@@ -985,16 +1031,16 @@ function Header({ globalSearchQuery }) {
                           role
                         )
                       ) && (
-                        <Link
-                          href={routeConfig.ROUTES.POLL.POLL_FORM}
-                          underline="none"
-                          textAlign="center"
-                        >
-                          <MenuItem className="ml-10">
-                            {t("CREATE_POLL")}
-                          </MenuItem>
-                        </Link>
-                      )}
+                          <Link
+                            href={routeConfig.ROUTES.POLL.POLL_FORM}
+                            underline="none"
+                            textAlign="center"
+                          >
+                            <MenuItem className="ml-10">
+                              {t("CREATE_POLL")}
+                            </MenuItem>
+                          </Link>
+                        )}
                       <Link
                         href={routeConfig.ROUTES.POLL.POLL_LIST}
                         underline="none"

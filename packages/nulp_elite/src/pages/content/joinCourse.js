@@ -281,6 +281,7 @@ const JoinCourse = () => {
         const data = await response.json();
         setBatchDetail(data.result);
         getScoreCriteria(data.result);
+        checkCertTemplate(data.result);
       } catch (error) {
         console.error("Error while fetching courses:", error);
         showErrorMessage(t("FAILED_TO_FETCH_DATA"));
@@ -518,6 +519,10 @@ const JoinCourse = () => {
   }, [batchDetails, creatorId, allContents]);
 
   const handleDirectConnect = () => {
+    if (!_userId) {
+      window.location.reload();
+      return;
+    }
     if (chat.length === 0) {
       setOpen(true);
     } else if (!isMobile && chat[0]?.is_accepted == true) {
@@ -532,7 +537,7 @@ const JoinCourse = () => {
   const handleGoBack = () => {
     navigate(-1); // Go back to the previous page
   };
-  
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-GB", {
@@ -544,15 +549,18 @@ const JoinCourse = () => {
 
   const handleLinkClick = (id) => {
     if (isEnroll) {
-      navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${id}`, {
-        state: {
-          coursename: userData?.result?.content?.name,
-          batchid: batchDetails?.batchId,
-          courseid: contentId,
-          isenroll: isEnroll,
-          consumedcontents: ConsumedContents,
-        },
-      });
+      navigate(
+        `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${id}&cId=${contentId}&bId=${batchDetails?.batchId}`,
+        {
+          state: {
+            coursename: userData?.result?.content?.name,
+            batchid: batchDetails?.batchId,
+            courseid: contentId,
+            isenroll: isEnroll,
+            consumedcontents: ConsumedContents,
+          },
+        }
+      );
     } else {
       showErrorMessage(
         "You must join the course to get complete access to content."
@@ -825,6 +833,10 @@ const JoinCourse = () => {
   };
 
   const handleJoinAndOpenModal = async () => {
+    if (!_userId) {
+      window.location.reload();
+      return;
+    }
     try {
       await handleJoinCourse(); // Wait for the user to join the course
       setShowConsentForm(true); // Open the consent form after joining the course
@@ -995,6 +1007,19 @@ const JoinCourse = () => {
     setScore(score);
     return score;
   }
+
+  function checkCertTemplate(data) {
+    const certTemplates = data.cert_templates; // Assuming data contains your JSON object
+
+    if (certTemplates && Object.keys(certTemplates).length > 0) {
+      console.log("cert_templates is not empty");
+      return true;
+    } else {
+      console.log("cert_templates is empty");
+      return false;
+    }
+  }
+
   return (
     <div>
       <Header />
@@ -1318,7 +1343,7 @@ const JoinCourse = () => {
                   </Typography>
                 </Box>
               </Box>
-              {batchDetails && batchDetails.cert_templates != null && (
+              {batchDetails && checkCertTemplate(batchDetails) && (
                 <Accordion
                   className="xs-hide accordionBoxShadow"
                   style={{
@@ -1362,7 +1387,7 @@ const JoinCourse = () => {
 
               {isEnrolled &&
                 batchDetails &&
-                batchDetails.cert_templates == null && (
+                !checkCertTemplate(batchDetails) && (
                   <Box
                     style={{
                       background: "#e3f5ff",
@@ -1920,7 +1945,8 @@ const JoinCourse = () => {
                   </Typography>
                 </Box>
               </Box>
-              {batchDetails && batchDetails.cert_templates != null && (
+
+              {batchDetails && checkCertTemplate(batchDetails) && (
                 <Accordion
                   className="lg-hide accordionBoxShadow"
                   style={{
@@ -1964,7 +1990,7 @@ const JoinCourse = () => {
 
               {isEnrolled &&
                 batchDetails &&
-                batchDetails.cert_templates == null && (
+                !checkCertTemplate(batchDetails) && (
                   <Box
                     style={{
                       background: "#e3f5ff",
