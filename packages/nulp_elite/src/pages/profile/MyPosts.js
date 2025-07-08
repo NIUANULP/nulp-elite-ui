@@ -69,12 +69,12 @@ const MyPosts = ({ loading, error, posts }) => {
         </Box>
       )}
       {filteredPosts && filteredPosts?.length > 0 ? (
-        <Box>
+        <Box className="mt-10">
           {loading && <Typography>Loading posts...</Typography>}
           {!loading && error && <Typography color="error">{error}</Typography>}
           {!loading && !error && filteredPosts.length === 0 && <NoResult />}
           {!loading && !error && filteredPosts.length > 0 && (
-            <Grid container spacing={3}>
+            <Grid container spacing={3} className="m-12">
               {filteredPosts.map((post) => {
                 let imageUrl = extractLocalImagePath(post.content);
                 console.log("imageUrl", imageUrl);
