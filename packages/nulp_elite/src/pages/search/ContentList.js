@@ -100,6 +100,7 @@ const ContentList = (props) => {
   const [forumPosts, setForumPosts] = useState([]);
   const [forumLoading, setForumLoading] = useState(false);
   const [forumError, setForumError] = useState(null);
+  const [categorySlug, setCategorySlug] = useState("");
 
   const showErrorMessage = (msg) => {
     setToasterMessage(msg);
@@ -180,6 +181,48 @@ const ContentList = (props) => {
     fetchForumPosts();
   }, [tabValue, searchQuery]);
 
+  useEffect(() => {
+    // get category id from domain
+    const fetchCategoryId = async () => {
+      const response = await fetch(`/discussion/api/categories`);
+      const data = await response.json();
+      const categoryId = data.categories.find(
+        (item) => item.name === domainName
+      )?.cid;
+      console.log("domainName", domainName);
+      console.log("domain", domain);
+      console.log("categoryId", categoryId);
+      console.log("data", data);
+      setCategorySlug(
+        data.categories.find((item) => item.name === domainName)?.slug || ""
+      );
+      return categoryId || "";
+    };
+
+    const fetchForumPosts = async () => {
+      const categoryId = await fetchCategoryId();
+      if (tabValue !== 1 || !domain) return;
+      setForumLoading(true);
+      setForumError(null);
+      try {
+        const response = await fetch(
+          `/discussion/api/search?in=titlesposts&term=${encodeURIComponent(
+            searchQuery || ""
+          )}&matchWords=all&by=&categories[]=${categoryId}&searchChildren=true&hasTags=&replies=&repliesFilter=atleast&timeFilter=newer&timeRange=&sortBy=relevance&sortDirection=desc&showAs=posts`
+        );
+        if (!response.ok) throw new Error("Failed to fetch discussion posts");
+        const data = await response.json();
+        setForumPosts(data.posts || []);
+      } catch (err) {
+        setForumError(err.message || "Error fetching discussion posts");
+        console.log("err", err);
+      } finally {
+        setForumLoading(false);
+      }
+    };
+    fetchForumPosts();
+  }, [tabValue, domain]);
+
   const handleFilterChange = (selectedOptions) => {
     const selectedValues = selectedOptions.map((option) => option.value);
     setFilters({ ...filters, se_gradeleverl: selectedValues });
@@ -203,22 +246,22 @@ const ContentList = (props) => {
           ...(contentTypeFilter.length > 0
             ? { primaryCategory: contentTypeFilter }
             : {
-              primaryCategory: [
-                "Collection",
-                "Resource",
-                "Course",
-                "eTextbook",
-                "Explanation Content",
-                "Learning Resource",
-                "Practice Question Set",
-                "ExplanationResource",
-                "Practice Resource",
-                "Exam Question",
-                "Good Practices",
-                "Reports",
-                "Manual/SOPs",
-              ],
-            }),
+                primaryCategory: [
+                  "Collection",
+                  "Resource",
+                  "Course",
+                  "eTextbook",
+                  "Explanation Content",
+                  "Learning Resource",
+                  "Practice Question Set",
+                  "ExplanationResource",
+                  "Practice Resource",
+                  "Exam Question",
+                  "Good Practices",
+                  "Reports",
+                  "Manual/SOPs",
+                ],
+              }),
           // ...(domainfilter.se_board
           //   ? { board: domainfilter.se_board }
           //   : domainName
@@ -231,8 +274,8 @@ const ContentList = (props) => {
           ...(domainfilter.se_board
             ? { se_boards: domainfilter.se_board }
             : domainName
-              ? { se_boards: [domainName] }
-              : {}),
+            ? { se_boards: [domainName] }
+            : {}),
           se_gradeLevels:
             subDomainFilter && subDomainFilter.length > 0
               ? subDomainFilter
@@ -412,7 +455,6 @@ const ContentList = (props) => {
     }
   };
 
-
   const handleDomainFilter = (query, domainName) => {
     setDomain(query);
     setPageNumber(1);
@@ -429,8 +471,6 @@ const ContentList = (props) => {
       state: { globalSearchQuery: searchQuery },
     });
   };
-
-
 
   const handleInputChange = (event) => {
     setSearchQuery(event.target.value);
@@ -450,14 +490,13 @@ const ContentList = (props) => {
   };
 
   useEffect(() => {
-    if (localStorage.getItem('playerVisited') === 'true') {
-      localStorage.removeItem('playerVisited');
+    if (localStorage.getItem("playerVisited") === "true") {
+      localStorage.removeItem("playerVisited");
       window.location.reload();
     }
   }, [location.search]);
 
-
- const handleTabChange = (event, newValue) => {
+  const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
 
@@ -555,7 +594,7 @@ const ContentList = (props) => {
                   }}
                   className="text-blueShade2 h4-custom"
                 >
-                  {[searchQuery, domainName].filter(Boolean).join(', ')}
+                  {[searchQuery, domainName].filter(Boolean).join(", ")}
                 </Box>
               </Box>
             ) : (
@@ -683,11 +722,15 @@ const ContentList = (props) => {
               {forumPosts?.length > 6 && (
                 <Box display="flex" justifyContent="flex-end" mb={2}>
                   <Button
-                    onClick={() =>
-                      (window.location.href = `/discussion-forum/search?term=${encodeURIComponent(
-                        searchQuery
-                      )}`)
-                    }
+                    onClick={() => {
+                      if (categorySlug) {
+                        window.location.href = `/discussion-forum/category/${categorySlug}`;
+                      } else if (searchQuery) {
+                        window.location.href = `/discussion-forum/search?term=${encodeURIComponent(
+                          searchQuery
+                        )}`;
+                      }
+                    }}
                     variant="contained"
                     sx={{
                       marginTop: "13px",
