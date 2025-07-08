@@ -701,7 +701,10 @@ const AddConnections = () => {
         content.map(async (item) => {
           const userChat = await getChatRequest(item.id);
           if (userChat?.length > 0) {
-            item = { ...item, messageRequest: userChat[0]?.message };
+            item = { ...item, messageRequest: userChat[0]?.message || "" };
+          }
+          else{
+            item = { ...item, messageRequest: "" };
           }
           return item;
         })
@@ -1655,7 +1658,7 @@ const AddConnections = () => {
                                   </span>
                                 }
                                 secondary={
-                                  item.messageRequest.length > 20 ? (
+                                  item.messageRequest && item.messageRequest.length > 20 ? (
                                     <div
                                       style={{
                                         border: "1px solid #ddd",
