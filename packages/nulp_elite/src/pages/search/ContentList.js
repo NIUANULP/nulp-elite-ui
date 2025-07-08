@@ -208,7 +208,7 @@ const ContentList = (props) => {
         const response = await fetch(
           `/discussion/api/search?in=titlesposts&term=${encodeURIComponent(
             searchQuery || ""
-          )}&matchWords=all&by=&categories[]=${categoryId}&searchChildren=true&hasTags=&replies=&repliesFilter=atleast&timeFilter=newer&timeRange=&sortBy=relevance&sortDirection=desc&showAs=posts`
+          )}&matchWords=all&by=&categories[]=${categoryId}&searchChildren=true&hasTags=&replies=&repliesFilter=atleast&timeFilter=newer&timeRange=&sortBy=topic.postcount&sortDirection=desc&showAs=posts`
         );
         if (!response.ok) throw new Error("Failed to fetch discussion posts");
         const data = await response.json();
