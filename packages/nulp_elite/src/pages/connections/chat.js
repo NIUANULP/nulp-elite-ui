@@ -371,47 +371,54 @@ const Chat = ({
     }
   };
 
-  const sendMessage = async () => {
-    if (textValue.trim() !== "") {
-      try {
-        const url = `${urlConfig.URLS.DIRECT_CONNECT.SEND_CHATS}`;
-        console.log("Sending message:", textValue);
+  const handleNavigationAfterFirstMessage = () => {
+    if (
+      isMobile &&
+      activePath === `${routeConfig.ROUTES.ADDCONNECTION_PAGE.CHAT}`
+    ) {
+      navigate(routeConfig.ROUTES.ADDCONNECTION_PAGE.ADDCONNECTION);
+    } else {
+      window.location.href =
+        routeConfig.ROUTES.ADDCONNECTION_PAGE.ADDCONNECTION;
+    }
+    if (onChatSent) {
+      onChatSent();
+    }
+  };
 
-        await axios.post(
-          url,
-          {
-            sender_id: loggedInUserId,
-            receiver_id: receiverUserId,
-            message: textValue,
+  const sendMessage = async () => {
+    if (textValue.trim() === "") return;
+
+    try {
+      const url = `${urlConfig.URLS.DIRECT_CONNECT.SEND_CHATS}`;
+      console.log("Sending message:", textValue);
+
+      await axios.post(
+        url,
+        {
+          sender_id: loggedInUserId,
+          receiver_id: receiverUserId,
+          message: textValue,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
           },
-          {
-            withCredentials: true,
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        setMessage("");
-        setTextValue("");
-        if (!messages.length > 0) {
-          if (
-            isMobile &&
-            activePath === `${routeConfig.ROUTES.ADDCONNECTION_PAGE.CHAT}`
-          ) {
-            navigate(routeConfig.ROUTES.ADDCONNECTION_PAGE.ADDCONNECTION);
-          } else {
-            window.location.href =
-              routeConfig.ROUTES.ADDCONNECTION_PAGE.ADDCONNECTION;
-          }
-          if (onChatSent) {
-            onChatSent();
-          }
         }
-        fetchChats(); // Fetch messages after sending a message
-      } catch (error) {
-        console.error("Error saving message:", error);
-        showErrorMessage(t("FAILED_TO_SEND_CHAT"));
+      );
+
+      setMessage("");
+      setTextValue("");
+
+      if (!messages.length > 0) {
+        handleNavigationAfterFirstMessage();
       }
+
+      fetchChats(); // Fetch messages after sending a message
+    } catch (error) {
+      console.error("Error saving message:", error);
+      showErrorMessage(t("FAILED_TO_SEND_CHAT"));
     }
   };
 
