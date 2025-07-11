@@ -102,6 +102,7 @@ const ContentList = (props) => {
   const [forumError, setForumError] = useState(null);
   const [categorySlug, setCategorySlug] = useState("");
 
+
   const showErrorMessage = (msg) => {
     setToasterMessage(msg);
     setTimeout(() => {
@@ -181,6 +182,7 @@ const ContentList = (props) => {
     fetchForumPosts();
   }, [tabValue, searchQuery]);
 
+
   useEffect(() => {
     // get category id from domain
     const fetchCategoryId = async () => {
@@ -223,6 +225,7 @@ const ContentList = (props) => {
     fetchForumPosts();
   }, [tabValue, domain]);
 
+
   const handleFilterChange = (selectedOptions) => {
     const selectedValues = selectedOptions.map((option) => option.value);
     setFilters({ ...filters, se_gradeleverl: selectedValues });
@@ -262,6 +265,7 @@ const ContentList = (props) => {
                   "Manual/SOPs",
                 ],
               }),
+
           // ...(domainfilter.se_board
           //   ? { board: domainfilter.se_board }
           //   : domainName
@@ -276,6 +280,7 @@ const ContentList = (props) => {
             : domainName
             ? { se_boards: [domainName] }
             : {}),
+
           se_gradeLevels:
             subDomainFilter && subDomainFilter.length > 0
               ? subDomainFilter
@@ -472,6 +477,7 @@ const ContentList = (props) => {
     });
   };
 
+
   const handleInputChange = (event) => {
     setSearchQuery(event.target.value);
     console.log("value", event.target.value);
@@ -490,13 +496,16 @@ const ContentList = (props) => {
   };
 
   useEffect(() => {
+
     if (localStorage.getItem("playerVisited") === "true") {
       localStorage.removeItem("playerVisited");
+
       window.location.reload();
     }
   }, [location.search]);
 
   const handleTabChange = (event, newValue) => {
+
     setTabValue(newValue);
   };
 
@@ -595,6 +604,7 @@ const ContentList = (props) => {
                   className="text-blueShade2 h4-custom"
                 >
                   {[searchQuery, domainName].filter(Boolean).join(", ")}
+
                 </Box>
               </Box>
             ) : (
@@ -731,6 +741,7 @@ const ContentList = (props) => {
                         )}`;
                       }
                     }}
+
                     variant="contained"
                     sx={{
                       marginTop: "13px",

@@ -110,6 +110,7 @@ const AddConnections = () => {
   const [userIdToReject, setUserIdToReject] = useState(null);
   const query = useQuery();
   const [userRedirection, setUserRedirection] = useState(false);
+
   const showErrorMessage = (msgs) => {
     setToasterMessage(msgs);
     setTimeout(() => {
@@ -229,6 +230,7 @@ const AddConnections = () => {
   }, []);
 
   useEffect(() => {
+
     const senderId = query.get("sender_id") || loggedInUserId;
     const receiverId = query.get("receiver_id");
     let postUrl = query.get("post_url");
@@ -241,6 +243,7 @@ const AddConnections = () => {
     }
     // Only proceed if we have all required values and they haven't been set yet
     if (senderId && receiverId && !selectedChatUser) {
+
       // If the logged in user is the receiver, open chat with sender
       if (receiverId === loggedInUserId) {
         setSelectedChatUser({
@@ -2099,6 +2102,7 @@ const AddConnections = () => {
                 </Box>
               )}
             </Grid>
+
           </Grid>
           {/* </Box>
         </Box> */}
