@@ -21,7 +21,7 @@ function extractLocalImagePath(content) {
   if (typeof content !== "string") return null;
 
   const match = content.match(
-    /<img\s+[^>]*src="(\/discussion-forum\/assets\/uploads\/files[^"]+)"/
+    /<img\s+(?:[^>]*?\s+)?src="(\/discussion-forum\/assets\/uploads\/files[^"]+)"/
   );
 
   return match?.[1] || null;
@@ -29,7 +29,7 @@ function extractLocalImagePath(content) {
 function getPreviewText(html, wordLimit = 20) {
   if (typeof html !== "string") return "";
   // Remove HTML tags
-  const text = html.replace(/<[^>]+>/g, "");
+  const text = html.replace(/<[^>]*>/g, "");
   // Split into words and join the first `wordLimit`
   const words = text.split(/\s+/).slice(0, wordLimit).join(" ");
   return words + (text.split(/\s+/).length > wordLimit ? "..." : "");
@@ -45,7 +45,7 @@ const MyPosts = ({ loading, error, posts }) => {
     const text =
       (post.topic?.title || "") +
       " " +
-      (post.content ? post.content.replace(/<[^>]+>/g, "") : "");
+      (post.content ? post.content.replace(/<[^>]*>/g, "") : "");
     return text.toLowerCase().includes(search.toLowerCase());
   });
   const location = useLocation();
@@ -69,12 +69,16 @@ const MyPosts = ({ loading, error, posts }) => {
         </Box>
       )}
       {filteredPosts && filteredPosts?.length > 0 ? (
-        <Box>
+
+        <Box className="mt-10">
+
           {loading && <Typography>Loading posts...</Typography>}
           {!loading && error && <Typography color="error">{error}</Typography>}
           {!loading && !error && filteredPosts.length === 0 && <NoResult />}
           {!loading && !error && filteredPosts.length > 0 && (
-            <Grid container spacing={3}>
+
+            <Grid container spacing={3} className="m-12">
+
               {filteredPosts.map((post) => {
                 let imageUrl = extractLocalImagePath(post.content);
                 console.log("imageUrl", imageUrl);

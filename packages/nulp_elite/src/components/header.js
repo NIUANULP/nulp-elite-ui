@@ -123,15 +123,36 @@ function Header({ globalSearchQuery }) {
   }, []);
 
   // Retrieve roles from sessionStorage
-  //const rolesJson = sessionStorage.getItem("roles");
+  //Polling approach
+
   useEffect(() => {
-    const rolesJson = sessionStorage.getItem("roles");
-    if (rolesJson) {
-      parsedRoles = JSON.parse(rolesJson);
-      setRoles(parsedRoles);
-      checkAccess(JSON.parse(sessionStorage.getItem("roles")));
-    }
+    let intervalId;
+    let attempts = 0;
+
+    const checkRolesAndAccess = () => {
+      const rolesJson = sessionStorage.getItem("roles");
+      console.log("rolesJson", rolesJson)
+      if (rolesJson) {
+        const parsedRoles = JSON.parse(rolesJson);
+        setRoles(parsedRoles);
+        checkAccess(parsedRoles);
+        clearInterval(intervalId); // Stop polling once roles are found and handled
+      } else if (attempts >= 10) {
+        clearInterval(intervalId); // Avoid infinite loops
+        console.warn("Roles not found in sessionStorage after waiting.");
+      }
+      attempts++;
+    };
+
+    checkRolesAndAccess(); // Try once immediately
+
+    intervalId = setInterval(checkRolesAndAccess, 300); // Try again every 300ms
+
+    return () => clearInterval(intervalId); // Clean up
   }, []);
+
+
+
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
