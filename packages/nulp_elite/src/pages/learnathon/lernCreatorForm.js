@@ -32,11 +32,10 @@ import statetnc from "../../assets/tnc.pdf";
 import Loader from "components/Loader";
 import Checkbox from "@mui/material/Checkbox";
 
-import citiesInIndia from './learnCities.json';
+import citiesInIndia from "./learnCities.json";
 import Alert from "@mui/material/Alert";
 const routeConfig = require("../../configs/routeConfig.json");
 import dayjs from "dayjs";
-
 
 import { Observable } from "rxjs";
 
@@ -62,7 +61,7 @@ const themes = [
   "Social Aspects",
   "Municipal Finance",
   "General Administration",
-  "Governance and Urban Management"
+  "Governance and Urban Management",
   //"Miscellaneous/ Others",
 ];
 const IndianStates = [
@@ -101,12 +100,10 @@ const IndianStates = [
   "Dadra and Nagar Haveli and Daman and Diu",
   "Lakshadweep",
   "Puducherry",
-  "Ladakh"
+  "Ladakh",
 ];
 
 // List of some popular cities in India
-
-  
 
 //  Add more cities as needed
 const LernCreatorForm = () => {
@@ -286,7 +283,7 @@ const LernCreatorForm = () => {
 
     if (!formData.user_name) tempErrors.user_name = "User Name is required";
     if (!formData.email) tempErrors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(formData.email))
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
       tempErrors.email = "Email is not valid";
 
     if (!formData.mobile_number)
@@ -302,19 +299,19 @@ const LernCreatorForm = () => {
     if (!formData.indicative_theme)
       tempErrors.indicative_theme = "Indicative Theme is required";
     if (
-       !formData.indicative_sub_theme &&
-       formData.indicative_theme !== "Miscellaneous/ Others"
-     )
+      !formData.indicative_sub_theme &&
+      formData.indicative_theme !== "Miscellaneous/ Others"
+    )
       tempErrors.indicative_sub_theme = "Indicative Sub Theme is required";
-     if (
-       formData.indicative_theme == "Miscellaneous/ Others" &&
-       !formData.other_indicative_themes
-     )
+    if (
+      formData.indicative_theme == "Miscellaneous/ Others" &&
+      !formData.other_indicative_themes
+    )
       tempErrors.other_indicative_themes = "Provide other indicative theme";
 
-     //if (!formData.state) tempErrors.state = "Provide state";
+    //if (!formData.state) tempErrors.state = "Provide state";
 
-     //if (!formData.city) tempErrors.city = "Provide city";
+    //if (!formData.city) tempErrors.city = "Provide city";
     if (!formData.title_of_submission)
       tempErrors.title_of_submission = "Title of Submission is required";
     if (!formData.description)
@@ -601,9 +598,9 @@ const LernCreatorForm = () => {
                 if (!response.ok) {
                   alert("Something went wrong while uploading file");
                   throw new Error("Something went wrong");
-                } 
+                }
 
-                if(response.ok){
+                if (response.ok) {
                   alert("File uploaded successfully");
                 }
 
@@ -617,7 +614,7 @@ const LernCreatorForm = () => {
               } catch (error) {
                 console.log("error---", error);
                 alert("Something went wrong while uploading file");
-              } finally{
+              } finally {
                 setLoading(false);
               }
             });
@@ -1178,9 +1175,11 @@ const LernCreatorForm = () => {
                   <Grid item xs={10}>
                     <Autocomplete
                       freeSolo
-                      options={formData.state
-                        ? citiesInIndia[formData.state] || []
-      : []}
+                      options={
+                        formData.state
+                          ? citiesInIndia[formData.state] || []
+                          : []
+                      }
                       value={formData.city}
                       onChange={handleCityChange}
                       onInputChange={handleCityChange}
@@ -1264,11 +1263,15 @@ const LernCreatorForm = () => {
                       required
                     >
                       {indicativeThemes.length > 0 ? (
-                        indicativeThemes.filter((theme) => theme?.name !== "Miscellaneous/ Others").map((theme, index) => (
-                          <MenuItem key={theme?.name} value={theme?.name}>
-                            {theme?.name}
-                          </MenuItem>
-                        ))
+                        indicativeThemes
+                          .filter(
+                            (theme) => theme?.name !== "Miscellaneous/ Others"
+                          )
+                          .map((theme, index) => (
+                            <MenuItem key={theme?.name} value={theme?.name}>
+                              {theme?.name}
+                            </MenuItem>
+                          ))
                       ) : (
                         <MenuItem disabled value="">
                           {t("NO_OPTION_AVAILABLE")}
@@ -1446,36 +1449,36 @@ const LernCreatorForm = () => {
                   </Grid>
                 </Grid>
               </Grid>
-              {!isFormClosed &&(
-              <Grid
-                container
-                item
-                xs={12}
-                justifyContent="center"
-                alignItems="center"
-                direction="column"
-                textAlign="center"
-                className="mb-30"
-              >
-                <Box mt={3}>
-                  <Button
-                    disabled={isNotDraft || openPersonalForm || loading}
-                    className="custom-btn-default"
-                    onClick={() => handleSubmit("draft")}
-                  >
-                    {t("SAVE_AS_DRAFT")}
-                  </Button>
+              {!isFormClosed && (
+                <Grid
+                  container
+                  item
+                  xs={12}
+                  justifyContent="center"
+                  alignItems="center"
+                  direction="column"
+                  textAlign="center"
+                  className="mb-30"
+                >
+                  <Box mt={3}>
+                    <Button
+                      disabled={isNotDraft || openPersonalForm || loading}
+                      className="custom-btn-default"
+                      onClick={() => handleSubmit("draft")}
+                    >
+                      {t("SAVE_AS_DRAFT")}
+                    </Button>
 
-                  <Button
-                    disabled={isNotDraft || openPersonalForm || loading}
-                    className="viewAll"
-                    onClick={() => setOpenConfirmModal(true)}
-                    sx={{ ml: 2, padding: "9px 35px" }} // Adds spacing between the buttons
-                  >
-                    {t("PROCEED_TO_SUBMIT")}
-                  </Button>
-                </Box>
-              </Grid>
+                    <Button
+                      disabled={isNotDraft || openPersonalForm || loading}
+                      className="viewAll"
+                      onClick={() => setOpenConfirmModal(true)}
+                      sx={{ ml: 2, padding: "9px 35px" }} // Adds spacing between the buttons
+                    >
+                      {t("PROCEED_TO_SUBMIT")}
+                    </Button>
+                  </Box>
+                </Grid>
               )}
               {openConfirmModal && (
                 <Modal
