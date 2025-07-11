@@ -283,7 +283,9 @@ const LernCreatorForm = () => {
 
     if (!formData.user_name) tempErrors.user_name = "User Name is required";
     if (!formData.email) tempErrors.email = "Email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
+    else if (
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email)
+    )
       tempErrors.email = "Email is not valid";
 
     if (!formData.mobile_number)
