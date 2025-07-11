@@ -1375,6 +1375,7 @@ const AddConnections = () => {
                       handleSearch();
                       handleButtonClick();
                     }}
+
                   >
                     {t("ADD_NEW")}
                   </Button>
@@ -1384,6 +1385,7 @@ const AddConnections = () => {
                     onClick={handleBackClick}
                     className="custom-btn-primary mr-5"
                   >
+
                     {t("BACK")}
                   </Button>
                 )}
