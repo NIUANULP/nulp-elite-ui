@@ -701,19 +701,21 @@ const AllPublicContent = () => {
                 <Box className="custom-card xs-pb-20">
                   {data &&
                     data.map((item) => (
-                      <Box
-                        className="custom-card-box"
-                        key={item.id}
-                        style={{ marginBottom: "10px" }}
-                      >
-                        <BoxCard
-                          items={item}
-                          index={item.count}
-                          onClick={() =>
-                            handleCardClick(item.identifier, item.contentType)
-                          }
-                        />
-                      </Box>
+                      <>
+                        <Box
+                          className="custom-card-box"
+                          key={item.id}
+                          style={{ marginBottom: "10px" }}
+                        >
+                          <BoxCard
+                            items={item}
+                            index={item.count}
+                            onClick={() =>
+                              handleCardClick(item.identifier, item.contentType)
+                            }
+                          />
+                        </Box>
+                      </>
                     ))}
                   <div className="blankCard"></div>
                 </Box>
