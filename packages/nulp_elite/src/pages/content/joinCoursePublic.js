@@ -132,260 +132,346 @@ const JoinCourse = () => {
     setToasterMessage(msg);
     setToasterOpen(true);
   };
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 767);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
   const newPath = location.pathname + "?" + contentId;
   sessionStorage.setItem("previousRoutes", newPath);
+
   useEffect(() => {
-    const fetchData = async () => {
+    // Abort controller for cleanup
+    const abortController = new AbortController();
+
+    // Utility function to extract identifiers efficiently
+    const extractIdentifiers = (content) => {
+      if (!content?.children?.length) return null;
+
+      const firstChild = content.children[0];
+      if (!firstChild) return null;
+
+      // Check for nested structure
+      if (firstChild.children?.[0]?.children) {
+        return firstChild.children[0].children[0]?.identifier;
+      } else if (firstChild.children) {
+        return firstChild.children[0]?.identifier;
+      } else {
+        return firstChild.identifier;
+      }
+    };
+
+    // Optimized function to get all leaf identifiers
+    const getAllLeafIdentifiers = (nodes) => {
+      const identifiers = [];
+
+      const traverse = (nodeList) => {
+        for (const node of nodeList) {
+          if (!node?.children?.length) {
+            if (node.identifier) {
+              identifiers.push(node.identifier);
+            }
+          } else {
+            traverse(node.children);
+          }
+        }
+      };
+
+      if (nodes?.length) {
+        traverse(nodes);
+      }
+
+      return identifiers;
+    };
+
+    // Main data fetching function
+    const fetchCourseData = async () => {
       try {
         const url = `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.COURSE.HIERARCHY}/${contentId}?orgdetails=${appConfig.ContentPlayer.contentApiQueryParams.orgdetails}&licenseDetails=${appConfig.ContentPlayer.contentApiQueryParams.licenseDetails}`;
+
         const response = await fetch(url, {
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
+          signal: abortController.signal,
         });
+
         if (!response.ok) {
-          showErrorMessage(t("FAILED_TO_FETCH_DATA"));
-          throw new Error(t("FAILED_TO_FETCH_DATA"));
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
+
         const data = await response.json();
+        const content = data?.result?.content;
 
-        setCreatorId(data?.result?.content?.createdBy);
-        setCourseData(data);
-        setUserData(data);
-        if (_userId == data?.result?.content?.createdBy) {
-          console.log("here");
-          setIsOwner(true);
+        if (!content) {
+          throw new Error("Invalid course data structure");
         }
-        let identifiers;
-        if (data?.result?.content?.children[0]?.children[0]?.children) {
-          identifiers =
-            data?.result?.content?.children[0]?.children[0]?.children[0]
-              ?.identifier;
-        } else if (data?.result?.content?.children[0]?.children) {
-          identifiers =
-            data?.result?.content?.children[0]?.children[0]?.identifier;
-        } else {
-          identifiers = data?.result?.content?.children[0]?.identifier;
-        }
-        setChildNode(identifiers);
 
-        let allContents = [];
-
-        const getAllLeafIdentifiers = (nodes) => {
-          nodes.forEach((node) => {
-            if (!node?.children || node?.children.length === 0) {
-              if (node.identifier) {
-                allContents.push(node?.identifier);
-              }
-            } else {
-              getAllLeafIdentifiers(node?.children);
-            }
-          });
+        // Batch state updates for better performance
+        const updates = {
+          creatorId: content.createdBy,
+          courseData: data,
+          userData: data,
+          isOwner: _userId === content.createdBy,
+          childNode: extractIdentifiers(content),
+          allContents: getAllLeafIdentifiers(content.children),
         };
 
-        if (data?.result?.content?.children) {
-          getAllLeafIdentifiers(data?.result?.content?.children);
-        }
-
-        setAllContents(allContents);
-        console.log("allContents-------", allContents);
+        // Apply all updates at once
+        setCreatorId(updates.creatorId);
+        setCourseData(updates.courseData);
+        setUserData(updates.userData);
+        setIsOwner(updates.isOwner);
+        setChildNode(updates.childNode);
+        setAllContents(updates.allContents);
       } catch (error) {
+        if (error.name === "AbortError") return;
         console.error("Error fetching course data:", error);
         showErrorMessage(t("FAILED_TO_FETCH_DATA"));
       }
     };
 
+    // Batch data fetching function
     const fetchBatchData = async () => {
       try {
         const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.BATCH.GET_BATCHS}`;
-        const response = await axios.post(url, {
+        const requestBody = {
           request: {
             filters: {
               status: "1",
               courseId: contentId,
               enrollmentType: "open",
             },
-            sort_by: {
-              createdDate: "desc",
-            },
+            sort_by: { createdDate: "desc" },
           },
+        };
+
+        const response = await axios.post(url, requestBody, {
+          signal: abortController.signal,
         });
 
-        const responseData = response.data;
+        const { result } = response.data;
 
-        if (responseData.result.response) {
-          const { count, content } = responseData.result.response;
-
-          if (count === 0) {
-            // console.warn("This course has no active batches.");
-            SetActiveBatch(false);
-            showErrorMessage(t("This course has no active Batches")); // Assuming `showErrorMessage` is used to display messages to the user
-          } else if (content && content.length > 0) {
-            const batchDetails = content[0];
-            getBatchDetail(batchDetails.batchId);
-            setBatchData({
-              startDate: batchDetails.startDate,
-              endDate: batchDetails.endDate,
-              enrollmentEndDate: batchDetails.enrollmentEndDate,
-              batchId: batchDetails.batchId,
-            });
-            setBatchDetails(batchDetails);
-            console.log("batchDetail---", batchDetails);
-          } else {
-            console.error("Batch data not found in response");
-          }
-        } else {
-          console.error("Batch data not found in response");
+        if (!result?.response) {
+          SetActiveBatch(false);
+          showErrorMessage(t("This course has no active Batches"));
+          return;
         }
+
+        const { count, content: batchContent } = result.response;
+
+        if (count === 0 || !batchContent?.length) {
+          SetActiveBatch(false);
+          showErrorMessage(t("This course has no active Batches"));
+          return;
+        }
+
+        const batchDetails = batchContent[0];
+
+        // Fetch batch details in parallel
+        await getBatchDetail(batchDetails.batchId);
+
+        setBatchData({
+          startDate: batchDetails.startDate,
+          endDate: batchDetails.endDate,
+          enrollmentEndDate: batchDetails.enrollmentEndDate,
+          batchId: batchDetails.batchId,
+        });
+        setBatchDetails(batchDetails);
       } catch (error) {
+        if (error.name === "AbortError") return;
         console.error("Error fetching batch data:", error);
         showErrorMessage(t("FAILED_TO_FETCH_DATA"));
       }
     };
 
+    // Check enrolled course function
     const checkEnrolledCourse = async () => {
       try {
         const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.COURSE.GET_ENROLLED_COURSES}/${_userId}?orgdetails=${appConfig.Course.contentApiQueryParams.orgdetails}&licenseDetails=${appConfig.Course.contentApiQueryParams.licenseDetails}&fields=${urlConfig.params.enrolledCourses.fields}&batchDetails=${urlConfig.params.enrolledCourses.batchDetails}`;
-        const response = await fetch(url);
+
+        const response = await fetch(url, {
+          signal: abortController.signal,
+        });
+
         if (!response.ok) {
-          showErrorMessage(t("FAILED_TO_FETCH_DATA"));
-          throw new Error(t("FAILED_TO_FETCH_DATA"));
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
+
         const data = await response.json();
         setUserCourseData(data.result);
-        if (
-          data?.result?.courses?.some(
-            (course) => course?.contentId === contentId
-          )
-        ) {
-          setIsEnroll(true);
-        }
+
+        const isEnrolled = data?.result?.courses?.some(
+          (course) => course?.contentId === contentId
+        );
+        setIsEnroll(isEnrolled);
       } catch (error) {
+        if (error.name === "AbortError") return;
         console.error("Error while fetching courses:", error);
         showErrorMessage(t("FAILED_TO_FETCH_DATA"));
       }
     };
+
+    // Get batch detail function
     const getBatchDetail = async (batchId) => {
       try {
         const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.BATCH.GET_DETAILS}/${batchId}`;
-        const response = await fetch(url);
+
+        const response = await fetch(url, {
+          signal: abortController.signal,
+        });
+
         if (!response.ok) {
-          showErrorMessage(t("FAILED_TO_FETCH_DATA"));
-          throw new Error(t("FAILED_TO_FETCH_DATA"));
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
+
         const data = await response.json();
         setBatchDetail(data.result);
         getScoreCriteria(data.result);
         checkCertTemplate(data.result);
       } catch (error) {
-        console.error("Error while fetching courses:", error);
+        if (error.name === "AbortError") return;
+        console.error("Error while fetching batch details:", error);
         showErrorMessage(t("FAILED_TO_FETCH_DATA"));
       }
     };
 
-    fetchData();
-    fetchBatchData();
-    checkEnrolledCourse();
-    getUserData();
-  }, []);
+    // Get user data function
+    const getUserData = async () => {
+      try {
+        const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.GET_PROFILE}${_userId}?fields=${urlConfig.params.userReadParam.fields}`;
 
-  const checkCourseComplition = async (allContents, userProgress) => {
-    // const contentlength = allContents.length
-    let completedCount = 0;
-    userProgress.result.contentList.map((content) => {
-      if (content.status) {
-        completedCount = completedCount + 1;
-      }
-    });
-    if (allContents.length == completedCount) {
-      setIsCompleted(true);
-    }
-  };
+        const response = await fetch(url, {
+          signal: abortController.signal,
+        });
 
-  const flattenDeep = async (contents) => {
-    if (contents) {
-      let result = [];
-      for (let val of contents) {
-        result.push(val);
-        if (val.children) {
-          const children = await flattenDeep(val.children);
-          result = result.concat(children);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-      }
-      return result;
-    }
-    return [];
-  };
 
-  const calculateProgress = async () => {
-    console.log(
-      "courseData?.result?.content?.children",
-      courseData?.result?.content?.children
+        const data = await response.json();
+        setUserInfo(data.result.response);
+      } catch (error) {
+        if (error.name === "AbortError") return;
+        console.error("Error while getting user data:", error);
+        showErrorMessage(t("FAILED_TO_FETCH_DATA"));
+      }
+    };
+
+    // Execute all data fetching in parallel for better performance
+    const initializeData = async () => {
+      try {
+        await Promise.all([
+          fetchCourseData(),
+          _userId ? fetchBatchData() : Promise.resolve(),
+          _userId ? checkEnrolledCourse() : Promise.resolve(),
+          _userId ? getUserData() : Promise.resolve(),
+        ]);
+      } catch (error) {
+        if (error.name === "AbortError") return;
+        console.error("Error during data initialization:", error);
+      }
+    };
+
+    // Start data fetching
+    initializeData();
+
+    // Cleanup function
+    return () => {
+      abortController.abort();
+    };
+  }, [contentId, _userId, t]);
+
+  const checkCourseComplition = (allContents, userProgress) => {
+    if (!allContents?.length || !userProgress?.result?.contentList?.length) {
+      return;
+    }
+
+    const completedCount = userProgress.result.contentList.reduce(
+      (count, content) => count + (content.status ? 1 : 0),
+      0
     );
-    let contentStatus = [];
-    if (batchDetails?.batchId && courseData?.result?.content?.children) {
-      let tempConsumedContents = 0;
-      let tempTotalContents = 0;
 
-      for (let unit of courseData?.result?.content?.children) {
-        if (unit.mimeType === "application/vnd.ekstep.content-collection") {
-          let consumedContents = [];
-          let flattenDeepContents = [];
+    setIsCompleted(allContents.length === completedCount);
+  };
 
-          if (unit.children) {
-            flattenDeepContents = (await flattenDeep(unit.children)).filter(
-              (item) =>
-                item.mimeType !== "application/vnd.ekstep.content-collection"
-            );
-            console.log("flattenDeepContents", flattenDeepContents);
-            consumedContents = flattenDeepContents?.filter((o) =>
-              contentStatus?.some(
-                ({ contentId, status }) =>
-                  o?.identifier === contentId && status === 2
-              )
-            );
-          }
+  // Optimized synchronous flattenDeep function
+  const flattenDeep = (contents) => {
+    if (!contents?.length) return [];
 
-          unit.consumedContent = consumedContents.length;
-          unit.contentCount = flattenDeepContents.length;
-          unit.isUnitConsumed =
-            consumedContents.length === flattenDeepContents.length;
-          unit.isUnitConsumptionStart = consumedContents.length > 0;
-          unit.progress = flattenDeepContents.length
-            ? (consumedContents.length / flattenDeepContents.length) * 100
-            : 0;
-        } else {
-          const consumedContent = contentStatus.filter(
-            ({ contentId, status }) =>
-              unit.identifier === contentId && status === 2
+    const result = [];
+    const stack = [...contents];
+
+    while (stack.length > 0) {
+      const current = stack.pop();
+      result.push(current);
+
+      if (current.children?.length) {
+        stack.push(...current.children);
+      }
+    }
+
+    return result;
+  };
+
+  // Optimized calculateProgress function
+  const calculateProgress = () => {
+    if (!batchDetails?.batchId || !courseData?.result?.content?.children) {
+      return;
+    }
+
+    let tempConsumedContents = 0;
+    let tempTotalContents = 0;
+
+    // Create a Set for faster lookups
+    const contentStatusSet = new Set();
+
+    for (const unit of courseData.result.content.children) {
+      if (unit.mimeType === "application/vnd.ekstep.content-collection") {
+        let consumedContents = [];
+        let flattenDeepContents = [];
+
+        if (unit.children) {
+          // Use optimized flattenDeep
+          flattenDeepContents = flattenDeep(unit.children).filter(
+            (item) =>
+              item.mimeType !== "application/vnd.ekstep.content-collection"
           );
-          unit.consumedContent = consumedContent.length;
-          unit.contentCount = 1;
-          unit.isUnitConsumed = consumedContent.length === 1;
-          unit.progress = consumedContent.length ? 100 : 0;
-          unit.isUnitConsumptionStart = Boolean(consumedContent.length);
+
+          // Use Set for faster filtering
+          consumedContents = flattenDeepContents.filter((o) =>
+            contentStatusSet.has(o?.identifier)
+          );
         }
 
-        tempConsumedContents += unit.consumedContent;
-        tempTotalContents += unit.contentCount;
+        unit.consumedContent = consumedContents.length;
+        unit.contentCount = flattenDeepContents.length;
+        unit.isUnitConsumed =
+          consumedContents.length === flattenDeepContents.length;
+        unit.isUnitConsumptionStart = consumedContents.length > 0;
+        unit.progress = flattenDeepContents.length
+          ? (consumedContents.length / flattenDeepContents.length) * 100
+          : 0;
+      } else {
+        const isConsumed = contentStatusSet.has(unit.identifier);
+        unit.consumedContent = isConsumed ? 1 : 0;
+        unit.contentCount = 1;
+        unit.isUnitConsumed = isConsumed;
+        unit.progress = isConsumed ? 100 : 0;
+        unit.isUnitConsumptionStart = isConsumed;
       }
 
-      const progress = tempTotalContents
-        ? (tempConsumedContents / tempTotalContents) * 100
-        : 0;
-      console.log("progress", progress);
-      setConsumedContents(tempConsumedContents);
-      setTotalContents(tempTotalContents);
-      let courseHierarchy = {};
-      courseHierarchy.progress = progress;
-      const unitCompleted = tempTotalContents === tempConsumedContents;
-      setIsUnitCompleted(unitCompleted);
+      tempConsumedContents += unit.consumedContent;
+      tempTotalContents += unit.contentCount;
     }
+
+    const progress = tempTotalContents
+      ? (tempConsumedContents / tempTotalContents) * 100
+      : 0;
+
+    setConsumedContents(tempConsumedContents);
+    setTotalContents(tempTotalContents);
+    setIsUnitCompleted(tempTotalContents === tempConsumedContents);
   };
 
   // useEffect(() => {
@@ -403,116 +489,106 @@ const JoinCourse = () => {
         const response = await axios.get(url, {
           withCredentials: true,
         });
-        console.log("chatResponse", response.data.result || []);
         setChat(response.data.result || []);
       } catch (error) {
         console.error("Error fetching chats:", error);
       }
     };
     const getCourseProgress = async () => {
-      if (batchDetails) {
-        const request = {
-          request: {
-            userId: _userId,
-            courseId: contentId,
-            contentIds: allContents,
-            batchId: batchDetails.batchId,
-            fields: ["progress", "score"],
-          },
-        };
+      if (!batchDetails) return;
 
-        try {
-          const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_READ}`;
-          const response = await axios.post(url, request);
-          const data = response.data;
-          setCourseProgress(data);
-          checkCourseComplition(allContents, data);
+      const request = {
+        request: {
+          userId: _userId,
+          courseId: contentId,
+          contentIds: allContents,
+          batchId: batchDetails.batchId,
+          fields: ["progress", "score"],
+        },
+      };
 
-          const contentIds =
-            data?.result?.contentList?.map((item) => item.contentId) || [];
-          if (contentIds.length === 0) {
-            setIsNotStarted(true);
-          }
-          setConsumedContents(contentIds);
+      try {
+        const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_READ}`;
+        const response = await axios.post(url, request);
+        const data = response.data;
 
-          for (let content of data?.result?.contentList) {
-            if (content.status === 1) {
-              setContinueLearning(content.contentId);
-              break;
-            }
-          }
+        setCourseProgress(data);
+        checkCourseComplition(allContents, data);
 
-          const newCompletedContents = [];
+        const contentList = data?.result?.contentList || [];
+        const contentIds = contentList.map((item) => item.contentId);
 
-          for (let content of data?.result?.contentList) {
-            if (content.status === 2) {
-              newCompletedContents.push(content.contentId);
-            }
-          }
+        // Set consumed contents
+        setConsumedContents(contentIds);
+        setIsNotStarted(contentIds.length === 0);
 
-          if (newCompletedContents.length > 0) {
-            setCompletedContents((prevContents) => [
-              ...prevContents,
-              ...newCompletedContents,
-            ]);
-            setIsContentConsumed(true);
-          }
-
-          const contentList = data.result.contentList;
-
-          let allFound = true;
-          let notConsumedContent;
-
-          if (Array.isArray(allContents)) {
-            for (let identifier of allContents) {
-              const found = Array.isArray(contentList)
-                ? contentList.find(
-                    (item) => item.contentId === identifier && item.status === 2
-                  )
-                : undefined;
-
-              if (!found) {
-                notConsumedContent = identifier;
-                allFound = false;
-                break;
-              }
-            }
-          } else {
-            console.error("Error: allContents is not an array or is undefined");
-          }
-
-          if (allFound) {
-            if (Array.isArray(allContents) && allContents?.length > 0) {
-              notConsumedContent = allContents[0];
-              try {
-                const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
-                const response = await axios.patch(url, {
-                  request: {
-                    userId: _userId,
-                    courseId: contentId,
-                    batchId: batchDetails?.batchId,
-                  },
-                });
-                setToasterMessage(t("COURSE_SUCCESSFULLY_COMPLETED"));
-                setTimeout(() => {
-                  setToasterMessage("");
-                }, 2000);
-                setToasterOpen(true);
-              } catch (error) {
-                console.error("Error while fetching courses:", error);
-              }
-            } else {
-              console.error(
-                "Error: allContents is either not an array or it is empty."
-              );
-            }
-          }
-
-          setNotConsumedContent(notConsumedContent);
-        } catch (error) {
-          console.error("Error while fetching courses:", error);
-          showErrorMessage(t("FAILED_TO_FETCH_DATA"));
+        // Find continue learning content
+        const continueLearningContent = contentList.find(
+          (content) => content.status === 1
+        );
+        if (continueLearningContent) {
+          setContinueLearning(continueLearningContent.contentId);
         }
+
+        // Process completed contents
+        const newCompletedContents = contentList
+          .filter((content) => content.status === 2)
+          .map((content) => content.contentId);
+
+        if (newCompletedContents.length > 0) {
+          setCompletedContents((prevContents) => [
+            ...prevContents,
+            ...newCompletedContents,
+          ]);
+          setIsContentConsumed(true);
+        }
+
+        // Check if all contents are consumed
+        if (!Array.isArray(allContents) || !allContents.length) {
+          setNotConsumedContent(null);
+          return;
+        }
+
+        const consumedSet = new Set(
+          contentList
+            .filter((item) => item.status === 2)
+            .map((item) => item.contentId)
+        );
+
+        const allConsumed = allContents.every((identifier) =>
+          consumedSet.has(identifier)
+        );
+
+        if (allConsumed) {
+          // Course completed - update status
+          try {
+            const updateUrl = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
+            await axios.patch(updateUrl, {
+              request: {
+                userId: _userId,
+                courseId: contentId,
+                batchId: batchDetails.batchId,
+              },
+            });
+
+            setToasterMessage(t("COURSE_SUCCESSFULLY_COMPLETED"));
+            setTimeout(() => setToasterMessage(""), 2000);
+            setToasterOpen(true);
+          } catch (error) {
+            console.error("Error updating course completion:", error);
+          }
+
+          setNotConsumedContent(allContents[0]);
+        } else {
+          // Find first not consumed content
+          const notConsumedContent = allContents.find(
+            (identifier) => !consumedSet.has(identifier)
+          );
+          setNotConsumedContent(notConsumedContent);
+        }
+      } catch (error) {
+        console.error("Error while fetching course progress:", error);
+        showErrorMessage(t("FAILED_TO_FETCH_DATA"));
       }
     };
     fetchChats();
@@ -525,7 +601,6 @@ const JoinCourse = () => {
       const currentUrl = encodeURIComponent(
         window.location.pathname.substring(1) + window.location.search
       );
-      console.log("currentUrl--------------------->", currentUrl);
 
       window.location.href = `/webapp/joinCourse?${contentId}`;
       return;

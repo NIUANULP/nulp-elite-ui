@@ -167,7 +167,7 @@ const AllPublicContent = () => {
   const handleCardClick = (contentId, courseType) => {
     if (courseType === "Course") {
       navigate(
-        `${routeConfig.ROUTES.JOIN_COURSE_PAGE.JOIN_COURSE}?${contentId}`
+        `${routeConfig.ROUTES.JOIN_COURSE_PAGE.JOIN_COURSE_PUBLIC}?${contentId}`
       );
     } else {
       navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${contentId}`);
