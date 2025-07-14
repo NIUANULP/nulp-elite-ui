@@ -31,7 +31,6 @@ const urlConfig = require("../../configs/urlConfig.json");
 import ToasterCommon from "../ToasterCommon";
 import NoResult from "./noResultFound";
 import { Loading } from "@shiksha/common-lib";
-import CourseStructuredData from "components/CourseStructuredData";
 import Cookies from "js-cookie";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -703,14 +702,6 @@ const AllPublicContent = () => {
                   {data &&
                     data.map((item) => (
                       <>
-                        <CourseStructuredData
-                          course={item}
-                          url={
-                            item.contentType === "Course"
-                              ? `${DOMAIN}${routeConfig.ROUTES.JOIN_COURSE_PAGE.JOIN_COURSE}?${item.identifier}`
-                              : `${DOMAIN}${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${item.identifier}`
-                          }
-                        />
                         <Box
                           className="custom-card-box"
                           key={item.id}

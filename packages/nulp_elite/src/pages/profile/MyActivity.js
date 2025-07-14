@@ -8,7 +8,7 @@ const MyActivity = ({ activity }) => {
   function extractLocalImagePath(content) {
     if (typeof content !== "string") return null;
     const match = content.match(
-      /<img\s+[^>]*src="(\/discussion-forum\/assets\/uploads\/files[^"]+)"/
+      /<img\s+(?:[^>]*?\s+)?src="(\/discussion-forum\/assets\/uploads\/files[^"]+)"/
     );
     return match?.[1] || null;
   }
