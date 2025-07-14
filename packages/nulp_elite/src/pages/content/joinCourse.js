@@ -841,8 +841,8 @@ const JoinCourse = () => {
       await handleJoinCourse(); // Wait for the user to join the course
       setShowConsentForm(true); // Open the consent form after joining the course
     } catch (error) {
-      setShowEnrollmentSnackbar;
       console.error("Error:", error);
+      showErrorMessage(t("FAILED_TO_ENROLL_INTO_COURSE"));
     }
   };
 
