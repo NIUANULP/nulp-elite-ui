@@ -25,23 +25,19 @@ import axios from "axios";
 import * as util from "../../services/utilService";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
-
 import Modal from "@mui/material/Modal";
-
 import appConfig from "../../configs/appConfig.json";
 const urlConfig = require("../../configs/urlConfig.json");
 import ToasterCommon from "../ToasterCommon";
-import Chat from "pages/connections/chat";
-import {
-  FacebookShareButton,
-  WhatsappShareButton,
-  LinkedinShareButton,
-  TwitterShareButton,
-  FacebookIcon,
-  WhatsappIcon,
-  LinkedinIcon,
-} from "react-share";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+
+// Import reusable components
+import BatchDetailsSection from "../../components/BatchDetailsSection";
+import CertificationCriteriaSection from "../../components/CertificationCriteriaSection";
+import OtherDetailsSection from "../../components/OtherDetailsSection";
+import ChatSection from "../../components/ChatSection";
+import SocialShareButtons from "../../components/SocialShareButtons";
+import CertNotAttachedSection from "../../components/CertNotAttachedSection";
 
 const routeConfig = require("../../configs/routeConfig.json");
 const processString = (str) => {
@@ -257,82 +253,7 @@ const JoinCourse = () => {
     );
   };
 
-  const renderChatSection = (isMobileView = false) => {
-    const chatClass = isMobileView ? "lg-hide" : "xs-hide";
-
-    if (chat.length === 0) {
-      return (
-        <div className={chatClass}>
-          <Button
-            onClick={handleDirectConnect}
-            variant="contained"
-            className="custom-btn-primary my-20"
-            style={{ background: "#004367" }}
-          >
-            {t("CONNECT_WITH_CREATOR")}
-          </Button>
-        </div>
-      );
-    }
-
-    if (chat[0]?.is_accepted === false) {
-      return (
-        <div className={chatClass}>
-          <Alert severity="warning" style={{ margin: "10px 0" }}>
-            {t("YOUR_CHAT_REQUEST_IS_PENDING")}
-          </Alert>
-          <Button
-            variant="contained"
-            className="custom-btn-primary my-20"
-            style={{ background: "#a9b3f5" }}
-            disabled
-          >
-            {t("CHAT_WITH_CREATOR")}
-          </Button>
-        </div>
-      );
-    }
-
-    return chat[0]?.is_accepted === true ? (
-      <div className={chatClass}>
-        <Button
-          onClick={handleDirectConnect}
-          variant="contained"
-          className="custom-btn-primary my-20"
-          style={{ background: "#004367" }}
-        >
-          {t("CHAT_WITH_CREATOR")}
-        </Button>
-      </div>
-    ) : null;
-  };
-
-  const renderSocialShareButtons = (isMobileView = false) => {
-    const shareClass = isMobileView
-      ? "my-20 lg-hide social-icons"
-      : "xs-hide mb-10";
-
-    return (
-      <Box className={shareClass}>
-        <FacebookShareButton url={shareUrl} className="pr-5">
-          <FacebookIcon size={32} round={true} />
-        </FacebookShareButton>
-        <WhatsappShareButton url={shareUrl} className="pr-5">
-          <WhatsappIcon size={32} round={true} />
-        </WhatsappShareButton>
-        <LinkedinShareButton url={shareUrl} className="pr-5">
-          <LinkedinIcon size={32} round={true} />
-        </LinkedinShareButton>
-        <TwitterShareButton url={shareUrl} className="pr-5">
-          <img
-            src={require("../../assets/twitter.png")}
-            alt="Twitter"
-            style={{ width: 32, height: 32 }}
-          />
-        </TwitterShareButton>
-      </Box>
-    );
-  };
+  // Removed duplicated render functions - now using reusable components
 
   const renderContentItem = (item, level = 0) => {
     const hasChildren = item.children && item.children.length > 0;
@@ -1312,288 +1233,44 @@ const JoinCourse = () => {
 
               {renderContentTags()}
               <Box className="lg-hide"> {renderActionButton()}</Box>
-              <Box
-                style={{
-                  background: "#F9FAFC",
-                  padding: "10px",
-                  borderRadius: "10px",
-                  color: "#484848",
-                  boxShadow: "0px 4px 4px 0px #00000040",
-                }}
+              <BatchDetailsSection
+                batchData={batchData}
                 className="xs-hide"
-              >
-                <Typography
-                  variant="h7"
-                  style={{
-                    margin: "0 0 9px 0",
-                    display: "block",
-                    fontSize: "16px",
-                  }}
-                >
-                  {t("BATCH_DETAILS")}:
-                </Typography>
-                <Box
-                  style={{
-                    background: "#fff",
-                    padding: "10px",
-                    borderRadius: "10px",
-                  }}
-                >
-                  <Typography
-                    variant="h7"
-                    style={{
-                      fontWeight: "500",
-                      margin: "9px 0",
-                      display: "block",
-                      fontSize: "14px",
-                    }}
-                  >
-                    {t("BATCH_START_DATE")}:{" "}
-                    {batchData?.startDate
-                      ? formatDate(batchData?.startDate)
-                      : "Not Provided"}
-                  </Typography>
-                  <Typography
-                    variant="h7"
-                    style={{
-                      fontWeight: "500",
-                      margin: "9px 0",
-                      display: "block",
-                      fontSize: "14px",
-                    }}
-                  >
-                    {t("BATCH_END_DATE")}:{" "}
-                    {batchData?.endDate
-                      ? formatDate(batchData?.endDate)
-                      : "Not Provided"}
-                  </Typography>
-                  <Typography
-                    variant="h7"
-                    style={{
-                      fontWeight: "500",
-                      margin: "9px 0",
-                      display: "block",
-                      fontSize: "14px",
-                    }}
-                  >
-                    {t("LAST_DATE_FOR_ENROLLMENT")}:{" "}
-                    {batchData?.enrollmentEndDate
-                      ? formatDate(batchData.enrollmentEndDate)
-                      : "Not Provided"}
-                  </Typography>
-                </Box>
-              </Box>
-              {batchDetails && checkCertTemplate(batchDetails) && (
-                <Accordion
-                  className="xs-hide accordionBoxShadow"
-                  style={{
-                    background: "#F9FAFC",
-                    borderRadius: "10px",
-                    margin: "10px",
-                  }}
-                >
-                  <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1-content"
-                    id="panel1-header"
-                    className="xs-hide h4-title"
-                  >
-                    {t("CERTIFICATION_CRITERIA")}
-                  </AccordionSummary>
-                  <AccordionDetails
-                    style={{
-                      background: "#fff",
-                      margin: "5px 10px",
-                      borderRadius: "10px",
-                    }}
-                  >
-                    {batchDetail && (
-                      <ul>
-                        <li className="h6-title">
-                          {t("COMPLETION_CERTIFICATE_ISSUED")}
-                        </li>
-                        {score !== "no certificate" && (
-                          <li className="h6-title">
-                            {t("CERT_ISSUED_SCORE")}
-                            {` ${score}% `}
-                            {t("ASSESSMENT")}
-                          </li>
-                        )}
-                      </ul>
-                    )}
-                  </AccordionDetails>
-                </Accordion>
-              )}
+                formatDate={formatDate}
+              />
+              <CertificationCriteriaSection
+                batchDetails={batchDetails}
+                batchDetail={batchDetail}
+                score={score}
+                checkCertTemplate={checkCertTemplate}
+                className="xs-hide"
+              />
 
-              {isEnrolled &&
-                batchDetails &&
-                !checkCertTemplate(batchDetails) && (
-                  <Box
-                    style={{
-                      background: "#e3f5ff",
-                      padding: "10px",
-                      borderRadius: "10px",
-                      color: "#424242",
-                    }}
-                    className="xs-hide accordionBoxShadow"
-                  >
-                    <Typography
-                      variant="h7"
-                      style={{
-                        margin: "0 0 9px 0",
-                        display: "block",
-                        fontSize: "16px",
-                      }}
-                    >
-                      {t("CERT_NOT_ATTACHED")}
-                    </Typography>
-                  </Box>
-                )}
-              <Accordion
-                className="xs-hide accordionBoxShadow"
-                style={{
-                  background: "#F9FAFC",
-                  borderRadius: "10px",
-                  marginTop: "10px",
-                }}
-              >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1-content"
-                  id="panel1-header"
-                  className="h4-title"
-                >
-                  {t("OTHER_DETAILS")}
-                </AccordionSummary>
-                <AccordionDetails style={{ background: "#fff" }}>
-                  <Typography className="h6-title">
-                    {t("CREATED_BY")}:{" "}
-                    {userData &&
-                      userData.result &&
-                      userData.result.content.creator}
-                  </Typography>
-                  <Typography className="h6-title">
-                    {t("PUBLISHED_ON_NULP_BY")}:{" "}
-                    {userData &&
-                      userData.result &&
-                      userData.result?.content?.orgDetails?.orgName}
-                  </Typography>
-                  <Typography className="h6-title">
-                    {t("CREATED_ON")}:{" "}
-                    {userData &&
-                      userData.result &&
-                      formatDate(userData.result.content.children[0].createdOn)}
-                  </Typography>
-                  <Typography className="h6-title">
-                    {t("UPDATED_ON")}:{" "}
-                    {userData &&
-                      userData.result &&
-                      formatDate(
-                        userData.result.content.children[0].lastUpdatedOn
-                      )}
-                  </Typography>
+              <CertNotAttachedSection
+                isEnrolled={isEnrolled}
+                batchDetails={batchDetails}
+                checkCertTemplate={checkCertTemplate}
+                className="xs-hide"
+              />
+              <OtherDetailsSection
+                userData={userData}
+                courseData={courseData}
+                formatDate={formatDate}
+                copyrightOpen={copyrightOpen}
+                handlecopyrightOpen={handlecopyrightOpen}
+                handlecopyrightClose={handlecopyrightClose}
+                className="xs-hide"
+              />
 
-                  <Typography
-                    className=""
-                    onClick={handlecopyrightOpen}
-                    style={{
-                      cursor: "pointer",
-                      color: "blue",
-                      textDecoration: "underline",
-                      fontSize: "small",
-                    }}
-                  >
-                    {t("CREDITS")}
-                  </Typography>
-                  <Dialog
-                    open={copyrightOpen}
-                    onClose={handlecopyrightClose}
-                    sx={{ "& .MuiDialog-paper": { width: "455px" } }}
-                  >
-                    <DialogTitle>{t("CREDITS")}</DialogTitle>
-                    <DialogContent>
-                      <p
-                        style={{
-                          color: "#4d4d4d",
-                          fontSize: "13px",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {t("COPYRIGHT")}
-                      </p>
-                      {userData?.result?.content?.orgDetails?.orgName &&
-                      userData?.result?.content?.copyrightYear
-                        ? `${userData.result.content.orgDetails.orgName}, ${userData.result.content.copyrightYear}`
-                        : userData?.result?.content?.orgDetails?.orgName ||
-                          userData?.result?.content?.copyrightYear}
-                      <h5>{t("THIS_CONTENT_IS_DERIVED_FROM")}</h5>
-                      <p
-                        style={{
-                          color: "#4d4d4d",
-                          fontSize: "13px",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {t("CONTENT")}
-                      </p>
-                      {userData?.result?.content?.name}
-                      <p
-                        style={{
-                          color: "#4d4d4d",
-                          fontSize: "13px",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {t("LICENSE_TERMS")}
-                      </p>
-                      {userData?.result?.content?.licenseDetails?.name}
-                      <p
-                        style={{
-                          color: "#4d4d4d",
-                          fontSize: "13px",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {t("PUBLISHED_ON_NULP_BY")}
-                      </p>
-                      {userData?.result?.content?.orgDetails?.orgName}
-                    </DialogContent>
-                    <DialogActions>
-                      <Button onClick={handlecopyrightClose} color="primary">
-                        {t("CLOSE")}
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
-                  <Typography className="h6-title">
-                    {t("LICENSE_TERMS")}:{" "}
-                    {userData?.result?.content?.licenseDetails?.name}
-                    {t("FOR_DETAILS")}:{" "}
-                    <a
-                      href={userData?.result?.content?.licenseDetails?.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {userData?.result?.content?.licenseDetails?.url}
-                    </a>
-                  </Typography>
-                </AccordionDetails>
-              </Accordion>
-
-              <div className="xs-hide">
-                {renderChatSection(isMobile)}
-                {_userId && creatorId && (
-                  <Modal open={open} onClose={handleClose}>
-                    <div className="contentCreator">
-                      <Chat
-                        senderUserId={_userId}
-                        receiverUserId={creatorId}
-                        onChatSent={handleClose}
-                      />{" "}
-                    </div>
-                  </Modal>
-                )}
-              </div>
-              {renderSocialShareButtons()}
+              <ChatSection
+                chat={chat}
+                handleDirectConnect={handleDirectConnect}
+                _userId={_userId}
+                creatorId={creatorId}
+                open={open}
+                handleClose={handleClose}
+              />
+              <SocialShareButtons shareUrl={shareUrl} />
             </Grid>
             <Grid
               item
@@ -1649,224 +1326,46 @@ const JoinCourse = () => {
                   ))}
                 </AccordionDetails>
               </Accordion>
-              <Box
-                style={{
-                  background: "#F9FAFC",
-                  padding: "10px",
-                  borderRadius: "10px",
-                  color: "#484848",
-                }}
+              <BatchDetailsSection
+                batchData={batchData}
                 className="lg-hide accordionBoxShadow"
-              >
-                <Typography
-                  variant="h7"
-                  style={{
-                    margin: "0 0 9px 0",
-                    display: "block",
-                    fontSize: "16px",
-                  }}
-                >
-                  {t("BATCH_DETAILS")}:
-                </Typography>
-                <Box
-                  style={{
-                    background: "#fff",
-                    padding: "10px",
-                    borderRadius: "10px",
-                  }}
-                >
-                  <Typography
-                    variant="h7"
-                    style={{
-                      fontWeight: "500",
-                      margin: "9px 0",
-                      display: "block",
-                      fontSize: "14px",
-                    }}
-                  >
-                    {t("BATCH_START_DATE")}: {formatDate(batchData?.startDate)}
-                  </Typography>
-                  <Typography
-                    variant="h7"
-                    style={{
-                      fontWeight: "500",
-                      margin: "9px 0",
-                      display: "block",
-                      fontSize: "14px",
-                    }}
-                  >
-                    {t("BATCH_END_DATE")}: {formatDate(batchData?.endDate)}
-                  </Typography>
-                  <Typography
-                    variant="h7"
-                    style={{
-                      fontWeight: "500",
-                      margin: "9px 0",
-                      display: "block",
-                      fontSize: "14px",
-                    }}
-                  >
-                    {t("LAST_DATE_FOR_ENROLLMENT")}:{" "}
-                    {formatDate(batchData?.enrollmentEndDate)}
-                  </Typography>
-                </Box>
-              </Box>
+                formatDate={formatDate}
+              />
 
-              {batchDetails && checkCertTemplate(batchDetails) && (
-                <Accordion
-                  className="lg-hide accordionBoxShadow"
-                  style={{
-                    background: "#F9FAFC",
-                    borderRadius: "10px",
-                    marginTop: "10px",
-                  }}
-                >
-                  <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1-content"
-                    id="panel1-header"
-                    className="h4-title"
-                  >
-                    {t("CERTIFICATION_CRITERIA")}
-                  </AccordionSummary>
-                  <AccordionDetails
-                    style={{
-                      background: "#fff",
-                      padding: "5px 10px",
-                      borderRadius: "10px",
-                    }}
-                  >
-                    {batchDetail && (
-                      <ul>
-                        <li className="h6-title">
-                          {t("COMPLETION_CERTIFICATE_ISSUED")}
-                        </li>
-                        {score !== "no certificate" && (
-                          <li className="h6-title">
-                            {t("CERT_ISSUED_SCORE")}
-                            {` ${score}% `}
-                            {t("ASSESSMENT")}
-                          </li>
-                        )}
-                      </ul>
-                    )}
-                  </AccordionDetails>
-                </Accordion>
-              )}
+              <CertificationCriteriaSection
+                batchDetails={batchDetails}
+                batchDetail={batchDetail}
+                score={score}
+                checkCertTemplate={checkCertTemplate}
+                className="lg-hide"
+              />
 
-              {isEnrolled &&
-                batchDetails &&
-                !checkCertTemplate(batchDetails) && (
-                  <Box
-                    style={{
-                      background: "#e3f5ff",
-                      padding: "10px",
-                      borderRadius: "10px",
-                      color: "#424242",
-                    }}
-                    className="lg-hide accordionBoxShadow"
-                  >
-                    <Typography
-                      variant="h7"
-                      style={{
-                        margin: "0 0 9px 0",
-                        display: "block",
-                        fontSize: "14px",
-                      }}
-                    >
-                      {t("CERT_NOT_ATTACHED")}:
-                    </Typography>
-                  </Box>
-                )}
-              <Accordion
-                className="lg-hide accordionBoxShadow"
-                style={{
-                  background: "#F9FAFC",
-                  borderRadius: "10px",
-                  marginTop: "10px",
-                }}
-              >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1-content"
-                  id="panel1-header"
-                  className="h4-title"
-                >
-                  {t("OTHER_DETAILS")}
-                </AccordionSummary>
-                <AccordionDetails
-                  style={{
-                    background: "#fff",
-                    padding: "5px 10px",
-                    borderRadius: "10px",
-                  }}
-                >
-                  <Typography className="h6-title">
-                    {t("CREATED_ON")}:{" "}
-                    {courseData &&
-                      courseData.result &&
-                      formatDate(
-                        courseData.result.content.children[0].createdOn
-                      )}
-                  </Typography>
-                  <Typography className="h6-title">
-                    {t("UPDATED_ON")}:{" "}
-                    {courseData &&
-                      courseData.result &&
-                      formatDate(
-                        courseData.result.content.children[0].lastUpdatedOn
-                      )}
-                  </Typography>
-                  <Typography className="h6-title">{t("CREDITS")}:</Typography>
-                  <Typography className="h6-title">
-                    {t("LICENSE_TERMS")}:{" "}
-                    {courseData?.result?.content?.licenseDetails?.name}
-                    {t("FOR_DETAILS")}:{" "}
-                    <a
-                      href={courseData?.result?.content?.licenseDetails?.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ wordWrap: "break-word" }}
-                    >
-                      {courseData?.result?.content?.licenseDetails?.url}
-                    </a>
-                  </Typography>
-                </AccordionDetails>
-              </Accordion>
-              <div className="lg-hide">
-                {renderChatSection(isMobile)}
-                {_userId && creatorId && (
-                  <Modal open={open} onClose={handleClose}>
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "0",
-                        left: "35%",
-                        padding: "20px",
-                        boxShadow: "0 3px 5px rgba(0, 0, 0, 0.3)",
-                        outline: "none",
-                        borderRadius: 8,
-                        width: "90%", // Relative width
-                        maxWidth: "700px", // Maximum width
-                        height: "80%", // Relative height
-                        maxHeight: "90vh", // Maximum height
-                        overflowY: "auto", // Scroll if content overflows
-                      }}
-                      className="contentCreator"
-                    >
-                      <Chat
-                        senderUserId={_userId}
-                        receiverUserId={creatorId}
-                        onChatSent={handleClose}
-                        onClose={handleClose}
-                        showCloseIcon={true}
-                      />{" "}
-                    </div>
-                  </Modal>
-                )}
-              </div>
+              <CertNotAttachedSection
+                isEnrolled={isEnrolled}
+                batchDetails={batchDetails}
+                checkCertTemplate={checkCertTemplate}
+                className="lg-hide"
+              />
+              <OtherDetailsSection
+                userData={userData}
+                courseData={courseData}
+                formatDate={formatDate}
+                copyrightOpen={copyrightOpen}
+                handlecopyrightOpen={handlecopyrightOpen}
+                handlecopyrightClose={handlecopyrightClose}
+                className="lg-hide"
+              />
+              <ChatSection
+                chat={chat}
+                handleDirectConnect={handleDirectConnect}
+                _userId={_userId}
+                creatorId={creatorId}
+                open={open}
+                handleClose={handleClose}
+                isMobile={isMobile}
+              />
               <Box className="my-20 lg-hide social-icons">
-                {renderSocialShareButtons(isMobile)}
+                <SocialShareButtons shareUrl={shareUrl} isMobileView={true} />
               </Box>
             </Grid>
           </Grid>
