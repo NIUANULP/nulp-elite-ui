@@ -279,31 +279,14 @@ const JoinCourse = () => {
     if (chat[0]?.is_accepted === false) {
       return (
         <div className={chatClass}>
-          <React.Fragment>
-            <Alert severity="warning" style={{ margin: "10px 0" }}>
-              {t("YOUR_CHAT_REQUEST_IS_PENDING")}
-            </Alert>
-            <Button
-              variant="contained"
-              className="custom-btn-primary my-20"
-              style={{ background: "#a9b3f5" }}
-              disabled
-            >
-              {t("CHAT_WITH_CREATOR")}
-            </Button>
-          </React.Fragment>
-        </div>
-      );
-    }
-
-    if (chat[0]?.is_accepted === true) {
-      return (
-        <div className={chatClass}>
+          <Alert severity="warning" style={{ margin: "10px 0" }}>
+            {t("YOUR_CHAT_REQUEST_IS_PENDING")}
+          </Alert>
           <Button
-            onClick={handleDirectConnect}
             variant="contained"
             className="custom-btn-primary my-20"
-            style={{ background: "#004367" }}
+            style={{ background: "#a9b3f5" }}
+            disabled
           >
             {t("CHAT_WITH_CREATOR")}
           </Button>
@@ -311,7 +294,18 @@ const JoinCourse = () => {
       );
     }
 
-    return null;
+    return chat[0]?.is_accepted === true ? (
+      <div className={chatClass}>
+        <Button
+          onClick={handleDirectConnect}
+          variant="contained"
+          className="custom-btn-primary my-20"
+          style={{ background: "#004367" }}
+        >
+          {t("CHAT_WITH_CREATOR")}
+        </Button>
+      </div>
+    ) : null;
   };
 
   const renderSocialShareButtons = (isMobileView = false) => {
@@ -344,7 +338,6 @@ const JoinCourse = () => {
   const renderContentItem = (item, level = 0) => {
     const hasChildren = item.children && item.children.length > 0;
     const isCompleted = completedContents.includes(item.identifier);
-    const paddingLeft = level * 20;
 
     if (item.mimeType === "application/vnd.ekstep.content-collection") {
       return (
@@ -1265,11 +1258,7 @@ const JoinCourse = () => {
           </Box>
         </Modal>
 
-        <Container
-          maxWidth="xxl"
-          role="main"
-          className="xs-pb-20 lg-mt-12 joinCourse"
-        >
+        <main className="xs-pb-20 lg-mt-12 joinCourse">
           <Box className=" pos-relative xs-ml-15 pt-10">
             <Box>
               <img
@@ -1886,7 +1875,7 @@ const JoinCourse = () => {
               </Box>
             </Grid>
           </Grid>
-        </Container>
+        </main>
         <FloatingChatIcon />
       </Box>
       <Footer />
