@@ -59,16 +59,13 @@ const JoinCourse = () => {
     useState(false);
   const [showConsentForm, setShowConsentForm] = useState(false);
   const [enrolled, setEnrolled] = useState(false);
-  const [progress, setCourseProgress] = useState();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [userInfo, setUserInfo] = useState();
   const [consentChecked, setConsentChecked] = useState(false);
   const [shareEnabled, setShareEnabled] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
   const [userData, setUserData] = useState();
   const location = useLocation();
   const navigate = useNavigate();
-  const [toasterOpen, setToasterOpen] = useState(false);
   const [toasterMessage, setToasterMessage] = useState("");
   const [creatorId, setCreatorId] = useState("");
   const [open, setOpen] = useState(false);
@@ -78,7 +75,6 @@ const JoinCourse = () => {
   const [formData, setFormData] = useState({
     message: "",
   });
-  const [showChat, setShowChat] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
   const queryString = location.search;
   let contentId = queryString.startsWith("?do_") ? queryString.slice(1) : null;
@@ -93,13 +89,10 @@ const JoinCourse = () => {
   const [score, setScore] = useState("");
   const [isEnroll, setIsEnroll] = useState(false);
   const [ConsumedContents, setConsumedContents] = useState();
-  const [TotalContents, setTotalContents] = useState();
-  const [IsUnitCompleted, setIsUnitCompleted] = useState();
   const [isNotStarted, setIsNotStarted] = useState(false);
   const [ContinueLearning, setContinueLearning] = useState();
   const [allContents, setAllContents] = useState();
   const [NotConsumedContent, setNotConsumedContent] = useState();
-  const [isContentConsumed, setIsContentConsumed] = useState();
   const [completedContents, setCompletedContents] = useState([]);
   const [isCompleted, setIsCompleted] = useState();
   const [copyrightOpen, setcopyrightOpen] = useState(false);
@@ -123,12 +116,6 @@ const JoinCourse = () => {
     setTimeout(() => {
       setToasterMessage("");
     }, 2000);
-    setToasterOpen(true);
-  };
-
-  const showOpenContenErrorMessage = (msg) => {
-    setToasterMessage(msg);
-    setToasterOpen(true);
   };
 
   useEffect(() => {
@@ -140,51 +127,100 @@ const JoinCourse = () => {
   const newPath = location.pathname + "?" + contentId;
   sessionStorage.setItem("previousRoutes", newPath);
 
+  // Helper function to extract identifiers efficiently
+  const extractIdentifiers = (content) => {
+    if (!content?.children?.length) return null;
+
+    const firstChild = content.children[0];
+    if (!firstChild) return null;
+
+    // Check for nested structure
+    if (firstChild.children?.[0]?.children) {
+      return firstChild.children[0].children[0]?.identifier;
+    } else if (firstChild.children) {
+      return firstChild.children[0]?.identifier;
+    } else {
+      return firstChild.identifier;
+    }
+  };
+
+  // Optimized function to get all leaf identifiers
+  const getAllLeafIdentifiers = (nodes) => {
+    const identifiers = [];
+
+    const traverse = (nodeList) => {
+      for (const node of nodeList) {
+        if (!node?.children?.length) {
+          if (node.identifier) {
+            identifiers.push(node.identifier);
+          }
+        } else {
+          traverse(node.children);
+        }
+      }
+    };
+
+    if (nodes?.length) {
+      traverse(nodes);
+    }
+
+    return identifiers;
+  };
+
+  // Helper function to handle course data updates
+  const updateCourseData = (content, data) => {
+    const updates = {
+      creatorId: content.createdBy,
+      courseData: data,
+      userData: data,
+      isOwner: _userId === content.createdBy,
+      childNode: extractIdentifiers(content),
+      allContents: getAllLeafIdentifiers(content.children),
+    };
+
+    setCreatorId(updates.creatorId);
+    setCourseData(updates.courseData);
+    setUserData(updates.userData);
+    setIsOwner(updates.isOwner);
+    setChildNode(updates.childNode);
+    setAllContents(updates.allContents);
+  };
+
+  // Helper function to handle batch data updates
+  const updateBatchData = (batchDetails) => {
+    setBatchData({
+      startDate: batchDetails.startDate,
+      endDate: batchDetails.endDate,
+      enrollmentEndDate: batchDetails.enrollmentEndDate,
+      batchId: batchDetails.batchId,
+    });
+    setBatchDetails(batchDetails);
+  };
+
+  // Helper function to handle enrolled course check
+  const handleEnrolledCourseCheck = (data) => {
+    setUserCourseData(data.result);
+    const isEnrolled = data?.result?.courses?.some(
+      (course) => course?.contentId === contentId
+    );
+    setIsEnroll(isEnrolled);
+  };
+
+  // Helper function to handle batch detail processing
+  const handleBatchDetailProcessing = (data) => {
+    setBatchDetail(data.result);
+    getScoreCriteria(data.result);
+    checkCertTemplate(data.result);
+  };
+
+  // Helper function to handle user data processing
+  const handleUserDataProcessing = (data) => {
+    setUserInfo(data.result.response);
+  };
+
   useEffect(() => {
-    // Abort controller for cleanup
     const abortController = new AbortController();
 
-    // Utility function to extract identifiers efficiently
-    const extractIdentifiers = (content) => {
-      if (!content?.children?.length) return null;
-
-      const firstChild = content.children[0];
-      if (!firstChild) return null;
-
-      // Check for nested structure
-      if (firstChild.children?.[0]?.children) {
-        return firstChild.children[0].children[0]?.identifier;
-      } else if (firstChild.children) {
-        return firstChild.children[0]?.identifier;
-      } else {
-        return firstChild.identifier;
-      }
-    };
-
-    // Optimized function to get all leaf identifiers
-    const getAllLeafIdentifiers = (nodes) => {
-      const identifiers = [];
-
-      const traverse = (nodeList) => {
-        for (const node of nodeList) {
-          if (!node?.children?.length) {
-            if (node.identifier) {
-              identifiers.push(node.identifier);
-            }
-          } else {
-            traverse(node.children);
-          }
-        }
-      };
-
-      if (nodes?.length) {
-        traverse(nodes);
-      }
-
-      return identifiers;
-    };
-
-    // Main data fetching function
     const fetchCourseData = async () => {
       try {
         const url = `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.COURSE.HIERARCHY}/${contentId}?orgdetails=${appConfig.ContentPlayer.contentApiQueryParams.orgdetails}&licenseDetails=${appConfig.ContentPlayer.contentApiQueryParams.licenseDetails}`;
@@ -205,23 +241,7 @@ const JoinCourse = () => {
           throw new Error("Invalid course data structure");
         }
 
-        // Batch state updates for better performance
-        const updates = {
-          creatorId: content.createdBy,
-          courseData: data,
-          userData: data,
-          isOwner: _userId === content.createdBy,
-          childNode: extractIdentifiers(content),
-          allContents: getAllLeafIdentifiers(content.children),
-        };
-
-        // Apply all updates at once
-        setCreatorId(updates.creatorId);
-        setCourseData(updates.courseData);
-        setUserData(updates.userData);
-        setIsOwner(updates.isOwner);
-        setChildNode(updates.childNode);
-        setAllContents(updates.allContents);
+        updateCourseData(content, data);
       } catch (error) {
         if (error.name === "AbortError") return;
         console.error("Error fetching course data:", error);
@@ -229,7 +249,6 @@ const JoinCourse = () => {
       }
     };
 
-    // Batch data fetching function
     const fetchBatchData = async () => {
       try {
         const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.BATCH.GET_BATCHS}`;
@@ -265,17 +284,8 @@ const JoinCourse = () => {
         }
 
         const batchDetails = batchContent[0];
-
-        // Fetch batch details in parallel
         await getBatchDetail(batchDetails.batchId);
-
-        setBatchData({
-          startDate: batchDetails.startDate,
-          endDate: batchDetails.endDate,
-          enrollmentEndDate: batchDetails.enrollmentEndDate,
-          batchId: batchDetails.batchId,
-        });
-        setBatchDetails(batchDetails);
+        updateBatchData(batchDetails);
       } catch (error) {
         if (error.name === "AbortError") return;
         console.error("Error fetching batch data:", error);
@@ -283,7 +293,6 @@ const JoinCourse = () => {
       }
     };
 
-    // Check enrolled course function
     const checkEnrolledCourse = async () => {
       try {
         const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.COURSE.GET_ENROLLED_COURSES}/${_userId}?orgdetails=${appConfig.Course.contentApiQueryParams.orgdetails}&licenseDetails=${appConfig.Course.contentApiQueryParams.licenseDetails}&fields=${urlConfig.params.enrolledCourses.fields}&batchDetails=${urlConfig.params.enrolledCourses.batchDetails}`;
@@ -297,12 +306,7 @@ const JoinCourse = () => {
         }
 
         const data = await response.json();
-        setUserCourseData(data.result);
-
-        const isEnrolled = data?.result?.courses?.some(
-          (course) => course?.contentId === contentId
-        );
-        setIsEnroll(isEnrolled);
+        handleEnrolledCourseCheck(data);
       } catch (error) {
         if (error.name === "AbortError") return;
         console.error("Error while fetching courses:", error);
@@ -310,7 +314,6 @@ const JoinCourse = () => {
       }
     };
 
-    // Get batch detail function
     const getBatchDetail = async (batchId) => {
       try {
         const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.BATCH.GET_DETAILS}/${batchId}`;
@@ -324,9 +327,7 @@ const JoinCourse = () => {
         }
 
         const data = await response.json();
-        setBatchDetail(data.result);
-        getScoreCriteria(data.result);
-        checkCertTemplate(data.result);
+        handleBatchDetailProcessing(data);
       } catch (error) {
         if (error.name === "AbortError") return;
         console.error("Error while fetching batch details:", error);
@@ -334,7 +335,6 @@ const JoinCourse = () => {
       }
     };
 
-    // Get user data function
     const getUserData = async () => {
       try {
         const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.GET_PROFILE}${_userId}?fields=${urlConfig.params.userReadParam.fields}`;
@@ -348,7 +348,7 @@ const JoinCourse = () => {
         }
 
         const data = await response.json();
-        setUserInfo(data.result.response);
+        handleUserDataProcessing(data);
       } catch (error) {
         if (error.name === "AbortError") return;
         console.error("Error while getting user data:", error);
@@ -356,7 +356,6 @@ const JoinCourse = () => {
       }
     };
 
-    // Execute all data fetching in parallel for better performance
     const initializeData = async () => {
       try {
         await Promise.all([
@@ -371,10 +370,8 @@ const JoinCourse = () => {
       }
     };
 
-    // Start data fetching
     initializeData();
 
-    // Cleanup function
     return () => {
       abortController.abort();
     };
@@ -393,149 +390,132 @@ const JoinCourse = () => {
     setIsCompleted(allContents.length === completedCount);
   };
 
-  // Optimized synchronous flattenDeep function
-  const flattenDeep = (contents) => {
-    if (!contents?.length) return [];
+  // Helper function to process content list and set basic states
+  const processContentList = (contentList) => {
+    const contentIds = contentList.map((item) => item.contentId);
+    setConsumedContents(contentIds);
+    setIsNotStarted(contentIds.length === 0);
 
-    const result = [];
-    const stack = [...contents];
-
-    while (stack.length > 0) {
-      const current = stack.pop();
-      result.push(current);
-
-      if (current.children?.length) {
-        stack.push(...current.children);
-      }
+    // Find continue learning content
+    const continueLearningContent = contentList.find(
+      (content) => content.status === 1
+    );
+    if (continueLearningContent) {
+      setContinueLearning(continueLearningContent.contentId);
     }
 
-    return result;
+    // Process completed contents
+    const newCompletedContents = contentList
+      .filter((content) => content.status === 2)
+      .map((content) => content.contentId);
+
+    if (newCompletedContents.length > 0) {
+      setCompletedContents((prevContents) => [
+        ...prevContents,
+        ...newCompletedContents,
+      ]);
+    }
+
+    return { contentIds, newCompletedContents };
+  };
+
+  // Helper function to handle course completion
+  const handleCourseCompletion = async (consumedSet) => {
+    try {
+      const updateUrl = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
+      await axios.patch(updateUrl, {
+        request: {
+          userId: _userId,
+          courseId: contentId,
+          batchId: batchDetails.batchId,
+        },
+      });
+
+      setToasterMessage(t("COURSE_SUCCESSFULLY_COMPLETED"));
+      setTimeout(() => setToasterMessage(""), 2000);
+    } catch (error) {
+      console.error("Error updating course completion:", error);
+    }
+    setNotConsumedContent(allContents[0]);
+  };
+
+  // Helper function to determine not consumed content
+  const determineNotConsumedContent = (consumedSet) => {
+    if (!Array.isArray(allContents) || !allContents.length) {
+      setNotConsumedContent(null);
+      return;
+    }
+
+    const allConsumed = allContents.every((identifier) =>
+      consumedSet.has(identifier)
+    );
+
+    if (allConsumed) {
+      handleCourseCompletion(consumedSet);
+    } else {
+      const notConsumedContent = allContents.find(
+        (identifier) => !consumedSet.has(identifier)
+      );
+      setNotConsumedContent(notConsumedContent);
+    }
+  };
+
+  // Helper function to fetch chats
+  const fetchChats = async () => {
+    try {
+      const url = `${
+        urlConfig.URLS.DIRECT_CONNECT.GET_CHATS
+      }?sender_id=${_userId}&receiver_id=${creatorId}&is_accepted=${true}`;
+
+      const response = await axios.get(url, {
+        withCredentials: true,
+      });
+      setChat(response.data.result || []);
+    } catch (error) {
+      console.error("Error fetching chats:", error);
+    }
+  };
+
+  // Helper function to get course progress
+  const getCourseProgress = async () => {
+    if (!batchDetails) return;
+
+    const request = {
+      request: {
+        userId: _userId,
+        courseId: contentId,
+        contentIds: allContents,
+        batchId: batchDetails.batchId,
+        fields: ["progress", "score"],
+      },
+    };
+
+    try {
+      const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_READ}`;
+      const response = await axios.post(url, request);
+      const data = response.data;
+
+      setCourseProgress(data);
+      checkCourseComplition(allContents, data);
+
+      const contentList = data?.result?.contentList || [];
+      processContentList(contentList);
+
+      const consumedSet = new Set(
+        contentList
+          .filter((item) => item.status === 2)
+          .map((item) => item.contentId)
+      );
+
+      determineNotConsumedContent(consumedSet);
+    } catch (error) {
+      console.error("Error while fetching course progress:", error);
+      showErrorMessage(t("FAILED_TO_FETCH_DATA"));
+    }
   };
 
   useEffect(() => {
     if (!_userId || _userId.trim() === "") return;
-    const fetchChats = async () => {
-      try {
-        const url = `${
-          urlConfig.URLS.DIRECT_CONNECT.GET_CHATS
-        }?sender_id=${_userId}&receiver_id=${creatorId}&is_accepted=${true}`;
-
-        const response = await axios.get(url, {
-          withCredentials: true,
-        });
-        setChat(response.data.result || []);
-      } catch (error) {
-        console.error("Error fetching chats:", error);
-      }
-    };
-    // Helper function to process content list and set basic states
-    const processContentList = (contentList) => {
-      const contentIds = contentList.map((item) => item.contentId);
-      setConsumedContents(contentIds);
-      setIsNotStarted(contentIds.length === 0);
-
-      // Find continue learning content
-      const continueLearningContent = contentList.find(
-        (content) => content.status === 1
-      );
-      if (continueLearningContent) {
-        setContinueLearning(continueLearningContent.contentId);
-      }
-
-      // Process completed contents
-      const newCompletedContents = contentList
-        .filter((content) => content.status === 2)
-        .map((content) => content.contentId);
-
-      if (newCompletedContents.length > 0) {
-        setCompletedContents((prevContents) => [
-          ...prevContents,
-          ...newCompletedContents,
-        ]);
-        setIsContentConsumed(true);
-      }
-
-      return { contentIds, newCompletedContents };
-    };
-
-    // Helper function to handle course completion
-    const handleCourseCompletion = async (consumedSet) => {
-      try {
-        const updateUrl = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
-        await axios.patch(updateUrl, {
-          request: {
-            userId: _userId,
-            courseId: contentId,
-            batchId: batchDetails.batchId,
-          },
-        });
-
-        setToasterMessage(t("COURSE_SUCCESSFULLY_COMPLETED"));
-        setTimeout(() => setToasterMessage(""), 2000);
-        setToasterOpen(true);
-      } catch (error) {
-        console.error("Error updating course completion:", error);
-      }
-      setNotConsumedContent(allContents[0]);
-    };
-
-    // Helper function to determine not consumed content
-    const determineNotConsumedContent = (consumedSet) => {
-      if (!Array.isArray(allContents) || !allContents.length) {
-        setNotConsumedContent(null);
-        return;
-      }
-
-      const allConsumed = allContents.every((identifier) =>
-        consumedSet.has(identifier)
-      );
-
-      if (allConsumed) {
-        handleCourseCompletion(consumedSet);
-      } else {
-        const notConsumedContent = allContents.find(
-          (identifier) => !consumedSet.has(identifier)
-        );
-        setNotConsumedContent(notConsumedContent);
-      }
-    };
-
-    const getCourseProgress = async () => {
-      if (!batchDetails) return;
-
-      const request = {
-        request: {
-          userId: _userId,
-          courseId: contentId,
-          contentIds: allContents,
-          batchId: batchDetails.batchId,
-          fields: ["progress", "score"],
-        },
-      };
-
-      try {
-        const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_READ}`;
-        const response = await axios.post(url, request);
-        const data = response.data;
-
-        setCourseProgress(data);
-        checkCourseComplition(allContents, data);
-
-        const contentList = data?.result?.contentList || [];
-        processContentList(contentList);
-
-        const consumedSet = new Set(
-          contentList
-            .filter((item) => item.status === 2)
-            .map((item) => item.contentId)
-        );
-
-        determineNotConsumedContent(consumedSet);
-      } catch (error) {
-        console.error("Error while fetching course progress:", error);
-        showErrorMessage(t("FAILED_TO_FETCH_DATA"));
-      }
-    };
     fetchChats();
     getCourseProgress();
   }, [batchDetails, creatorId, allContents, _userId]);
@@ -903,19 +883,6 @@ const JoinCourse = () => {
     setShareEnabled(event.target.checked);
   };
 
-  const getUserData = async () => {
-    try {
-      const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.GET_PROFILE}${_userId}?fields=${urlConfig.params.userReadParam.fields}`;
-
-      const response = await fetch(url);
-      const data = await response.json();
-      setUserInfo(data.result.response);
-    } catch (error) {
-      console.error("Error while getting user data:", error);
-      showErrorMessage(t("FAILED_TO_FETCH_DATA"));
-    }
-  };
-
   const handleShareClick = () => {
     consentUpdate("ACTIVE");
     setShowConsentForm(false);
@@ -925,51 +892,12 @@ const JoinCourse = () => {
     consentUpdate("REVOKED");
     setShowConsentForm(false);
   };
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const handleSubmit = async () => {
-    const requestBody = {
-      sender_id: _userId,
-      receiver_id: creatorId,
-      message: formData.message,
-    };
-
-    try {
-      const url = `${urlConfig.URLS.DIRECT_CONNECT.SEND_CHATS}`;
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to send chat");
-      }
-      setOpen(false);
-      console.log("sentChatRequest", response);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
   const handlecopyrightOpen = () => {
     setcopyrightOpen(true);
   };
 
   const handlecopyrightClose = () => {
     setcopyrightOpen(false);
-  };
-
-  const handleOpen = () => {
-    setOpen(true);
   };
 
   const handleClose = () => {
@@ -1053,13 +981,7 @@ const JoinCourse = () => {
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
           open={showConsentForm}
-          onClose={(event, reason) => {
-            if (reason === "backdropClick" || reason === "escapeKeyDown") {
-              setOpenModal(true);
-            } else {
-              handleCloseModal();
-            }
-          }}
+          onClose={() => setShowConsentForm(false)}
         >
           <Box sx={style} className="joinCourse">
             <Typography
