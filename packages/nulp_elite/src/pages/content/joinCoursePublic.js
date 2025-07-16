@@ -414,70 +414,6 @@ const JoinCourse = () => {
     return result;
   };
 
-  // Optimized calculateProgress function
-  const calculateProgress = () => {
-    if (!batchDetails?.batchId || !courseData?.result?.content?.children) {
-      return;
-    }
-
-    let tempConsumedContents = 0;
-    let tempTotalContents = 0;
-
-    // Create a Set for faster lookups
-    const contentStatusSet = new Set();
-
-    for (const unit of courseData.result.content.children) {
-      if (unit.mimeType === "application/vnd.ekstep.content-collection") {
-        let consumedContents = [];
-        let flattenDeepContents = [];
-
-        if (unit.children) {
-          // Use optimized flattenDeep
-          flattenDeepContents = flattenDeep(unit.children).filter(
-            (item) =>
-              item.mimeType !== "application/vnd.ekstep.content-collection"
-          );
-
-          // Use Set for faster filtering
-          consumedContents = flattenDeepContents.filter((o) =>
-            contentStatusSet.has(o?.identifier)
-          );
-        }
-
-        unit.consumedContent = consumedContents.length;
-        unit.contentCount = flattenDeepContents.length;
-        unit.isUnitConsumed =
-          consumedContents.length === flattenDeepContents.length;
-        unit.isUnitConsumptionStart = consumedContents.length > 0;
-        unit.progress = flattenDeepContents.length
-          ? (consumedContents.length / flattenDeepContents.length) * 100
-          : 0;
-      } else {
-        const isConsumed = contentStatusSet.has(unit.identifier);
-        unit.consumedContent = isConsumed ? 1 : 0;
-        unit.contentCount = 1;
-        unit.isUnitConsumed = isConsumed;
-        unit.progress = isConsumed ? 100 : 0;
-        unit.isUnitConsumptionStart = isConsumed;
-      }
-
-      tempConsumedContents += unit.consumedContent;
-      tempTotalContents += unit.contentCount;
-    }
-
-    const progress = tempTotalContents
-      ? (tempConsumedContents / tempTotalContents) * 100
-      : 0;
-
-    setConsumedContents(tempConsumedContents);
-    setTotalContents(tempTotalContents);
-    setIsUnitCompleted(tempTotalContents === tempConsumedContents);
-  };
-
-  // useEffect(() => {
-  //   calculateProgress();
-  // }, [batchDetails, courseData]);
-
   useEffect(() => {
     if (!_userId || _userId.trim() === "") return;
     const fetchChats = async () => {
@@ -928,7 +864,7 @@ const JoinCourse = () => {
       await handleJoinCourse(); // Wait for the user to join the course
       setShowConsentForm(true); // Open the consent form after joining the course
     } catch (error) {
-      setShowEnrollmentSnackbar;
+      showErrorMessage(t("FAILED_TO_ENROLL_INTO_COURSE"));
       console.error("Error:", error);
     }
   };
