@@ -25,10 +25,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import * as util from "../../services/utilService";
 import Snackbar from "@mui/material/Snackbar";
-import MuiAlert from "@mui/material/Alert";
-
-import data from "../../assets/courseHierarchy.json";
 import Alert from "@mui/material/Alert";
+
 import Modal from "@mui/material/Modal";
 
 import appConfig from "../../configs/appConfig.json";
@@ -430,6 +428,78 @@ const JoinCourse = () => {
         console.error("Error fetching chats:", error);
       }
     };
+    // Helper function to process content list and set basic states
+    const processContentList = (contentList) => {
+      const contentIds = contentList.map((item) => item.contentId);
+      setConsumedContents(contentIds);
+      setIsNotStarted(contentIds.length === 0);
+
+      // Find continue learning content
+      const continueLearningContent = contentList.find(
+        (content) => content.status === 1
+      );
+      if (continueLearningContent) {
+        setContinueLearning(continueLearningContent.contentId);
+      }
+
+      // Process completed contents
+      const newCompletedContents = contentList
+        .filter((content) => content.status === 2)
+        .map((content) => content.contentId);
+
+      if (newCompletedContents.length > 0) {
+        setCompletedContents((prevContents) => [
+          ...prevContents,
+          ...newCompletedContents,
+        ]);
+        setIsContentConsumed(true);
+      }
+
+      return { contentIds, newCompletedContents };
+    };
+
+    // Helper function to handle course completion
+    const handleCourseCompletion = async (consumedSet) => {
+      try {
+        const updateUrl = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
+        await axios.patch(updateUrl, {
+          request: {
+            userId: _userId,
+            courseId: contentId,
+            batchId: batchDetails.batchId,
+          },
+        });
+
+        setToasterMessage(t("COURSE_SUCCESSFULLY_COMPLETED"));
+        setTimeout(() => setToasterMessage(""), 2000);
+        setToasterOpen(true);
+      } catch (error) {
+        console.error("Error updating course completion:", error);
+      }
+      setNotConsumedContent(allContents[0]);
+    };
+
+    // Helper function to determine not consumed content
+    const determineNotConsumedContent = (consumedSet) => {
+      if (!Array.isArray(allContents) || !allContents.length) {
+        setNotConsumedContent(null);
+        return;
+      }
+
+      const allConsumed = allContents.every((identifier) =>
+        consumedSet.has(identifier)
+      );
+
+      if (allConsumed) {
+        handleCourseCompletion(consumedSet);
+      } else {
+        const notConsumedContent = allContents.find(
+          (identifier) => !consumedSet.has(identifier)
+        );
+        setNotConsumedContent(notConsumedContent);
+      }
+    };
+
     const getCourseProgress = async () => {
       if (!batchDetails) return;
 
@@ -452,38 +522,7 @@ const JoinCourse = () => {
         checkCourseComplition(allContents, data);
 
         const contentList = data?.result?.contentList || [];
-        const contentIds = contentList.map((item) => item.contentId);
-
-        // Set consumed contents
-        setConsumedContents(contentIds);
-        setIsNotStarted(contentIds.length === 0);
-
-        // Find continue learning content
-        const continueLearningContent = contentList.find(
-          (content) => content.status === 1
-        );
-        if (continueLearningContent) {
-          setContinueLearning(continueLearningContent.contentId);
-        }
-
-        // Process completed contents
-        const newCompletedContents = contentList
-          .filter((content) => content.status === 2)
-          .map((content) => content.contentId);
-
-        if (newCompletedContents.length > 0) {
-          setCompletedContents((prevContents) => [
-            ...prevContents,
-            ...newCompletedContents,
-          ]);
-          setIsContentConsumed(true);
-        }
-
-        // Check if all contents are consumed
-        if (!Array.isArray(allContents) || !allContents.length) {
-          setNotConsumedContent(null);
-          return;
-        }
+        processContentList(contentList);
 
         const consumedSet = new Set(
           contentList
@@ -491,37 +530,7 @@ const JoinCourse = () => {
             .map((item) => item.contentId)
         );
 
-        const allConsumed = allContents.every((identifier) =>
-          consumedSet.has(identifier)
-        );
-
-        if (allConsumed) {
-          // Course completed - update status
-          try {
-            const updateUrl = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
-            await axios.patch(updateUrl, {
-              request: {
-                userId: _userId,
-                courseId: contentId,
-                batchId: batchDetails.batchId,
-              },
-            });
-
-            setToasterMessage(t("COURSE_SUCCESSFULLY_COMPLETED"));
-            setTimeout(() => setToasterMessage(""), 2000);
-            setToasterOpen(true);
-          } catch (error) {
-            console.error("Error updating course completion:", error);
-          }
-
-          setNotConsumedContent(allContents[0]);
-        } else {
-          // Find first not consumed content
-          const notConsumedContent = allContents.find(
-            (identifier) => !consumedSet.has(identifier)
-          );
-          setNotConsumedContent(notConsumedContent);
-        }
+        determineNotConsumedContent(consumedSet);
       } catch (error) {
         console.error("Error while fetching course progress:", error);
         showErrorMessage(t("FAILED_TO_FETCH_DATA"));
@@ -533,17 +542,14 @@ const JoinCourse = () => {
 
   const handleDirectConnect = () => {
     if (!_userId) {
-      // Redirect to login with return URL to this page (without hostname)
-      const currentUrl = encodeURIComponent(
-        window.location.pathname.substring(1) + window.location.search
-      );
-
       window.location.href = `/webapp/joinCourse?${contentId}`;
       return;
     }
-    if (chat.length === 0) {
-      setOpen(true);
-    } else if (!isMobile && chat[0]?.is_accepted == true) {
+
+    const shouldOpenModal =
+      chat.length === 0 || (!isMobile && chat[0]?.is_accepted === true);
+
+    if (shouldOpenModal) {
       setOpen(true);
     } else {
       navigate(routeConfig.ROUTES.ADDCONNECTION_PAGE.CHAT, {
@@ -631,223 +637,185 @@ const JoinCourse = () => {
     window.location.reload();
   };
 
-  const renderActionButton = () => {
-    if (isEnrolled() || enrolled) {
-      if (isNotStarted) {
-        return (
-          <Box>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <Box>
-                {" "}
-                <Button
-                  onClick={() => handleGoBack()}
-                  className="custom-btn-primary mr-5"
-                >
-                  {t("BACK")}
-                </Button>
-              </Box>
+  // Helper function to check if batch is expired
+  const isBatchExpired = () => {
+    const enrollmentEndDate = batchData?.enrollmentEndDate;
+    const endDate = batchData?.endDate;
 
-              <Box>
-                <Button
-                  onClick={() => handleLinkClick(childnode)}
-                  className="custom-btn-primary  mr-5"
-                >
-                  {t("START_LEARNING")}
-                </Button>
-                {!isCompleted && (
-                  <Button
-                    onClick={handleLeaveCourseClick} // Open confirmation dialog
-                    className="custom-btn-danger xs-mt-10"
-                  >
-                    {" "}
-                    {t("LEAVE_COURSE")}
-                  </Button>
-                )}
-              </Box>
-            </div>
+    if (enrollmentEndDate && new Date(enrollmentEndDate) < new Date()) {
+      return true;
+    }
 
-            {showConfirmation && (
-              <Dialog open={showConfirmation} onClose={handleConfirmationClose}>
-                <DialogTitle>
-                  {t("LEAVE_COURSE_CONFIRMATION_TITLE")}
-                </DialogTitle>
-                <DialogContent>
-                  <DialogContentText>
-                    {t("LEAVE_COURSE_CONFIRMATION_MESSAGE")}
-                  </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button
-                    onClick={handleConfirmationClose}
-                    className="custom-btn-default"
-                  >
-                    {t("CANCEL")}
-                  </Button>
-                  <Button
-                    onClick={handleLeaveConfirmed}
-                    className="custom-btn-primary"
-                    autoFocus
-                  >
-                    {t("LEAVE_COURSE")}
-                  </Button>
-                </DialogActions>
-              </Dialog>
-            )}
-          </Box>
-        );
-      } else {
-        return (
-          <>
+    if (!enrollmentEndDate && endDate && new Date(endDate) < new Date()) {
+      return true;
+    }
+
+    return false;
+  };
+
+  // Helper function to check if enrollment is expired based on last day logic
+  const isEnrollmentExpired = () => {
+    if (!batchData?.enrollmentEndDate) return false;
+
+    const today = new Date();
+    const enrollmentEndDate = new Date(batchData.enrollmentEndDate);
+
+    if (isNaN(enrollmentEndDate.getTime())) return false;
+
+    const isLastDayOfEnrollment =
+      enrollmentEndDate.toDateString() === today.toDateString();
+
+    return enrollmentEndDate < formatDate(today) && !isLastDayOfEnrollment;
+  };
+
+  // Helper function to render confirmation dialog
+  const renderConfirmationDialog = () => {
+    if (!showConfirmation) return null;
+
+    return (
+      <Dialog open={showConfirmation} onClose={handleConfirmationClose}>
+        <DialogTitle>{t("LEAVE_COURSE_CONFIRMATION_TITLE")}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {t("LEAVE_COURSE_CONFIRMATION_MESSAGE")}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleConfirmationClose}
+            className="custom-btn-default"
+          >
+            {t("CANCEL")}
+          </Button>
+          <Button
+            onClick={handleLeaveConfirmed}
+            className="custom-btn-primary"
+            autoFocus
+          >
+            {t("LEAVE_COURSE")}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
+
+  // Helper function to render enrolled user buttons
+  const renderEnrolledUserButtons = () => {
+    const backButton = (
+      <Button
+        onClick={() => handleGoBack()}
+        className="custom-btn-primary mr-5"
+      >
+        {t("BACK")}
+      </Button>
+    );
+
+    if (isNotStarted) {
+      return (
+        <Box>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Box>{backButton}</Box>
             <Box>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <Box>
-                  {" "}
-                  <Button
-                    onClick={() => handleGoBack()}
-                    className="custom-btn-primary mr-5"
-                  >
-                    {t("BACK")}
-                  </Button>
-                </Box>
-                <Box>
-                  <Button
-                    disabled={isCompleted}
-                    onClick={() =>
-                      handleLinkClick(
-                        ContinueLearning ?? NotConsumedContent ?? childnode
-                      )
-                    }
-                    className="custom-btn-primary mr-5"
-                  >
-                    {t("CONTINUE_LEARNNG")}
-                  </Button>
-                  {!isCompleted && (
-                    <Button
-                      onClick={handleLeaveCourseClick} // Open confirmation dialog
-                      className="custom-btn-danger xs-mt-10"
-                    >
-                      {" "}
-                      {t("LEAVE_COURSE")}
-                    </Button>
-                  )}{" "}
-                </Box>
-              </div>
-
-              {showConfirmation && (
-                <Dialog
-                  open={showConfirmation}
-                  onClose={handleConfirmationClose}
+              <Button
+                onClick={() => handleLinkClick(childnode)}
+                className="custom-btn-primary mr-5"
+              >
+                {t("START_LEARNING")}
+              </Button>
+              {!isCompleted && (
+                <Button
+                  onClick={handleLeaveCourseClick}
+                  className="custom-btn-danger xs-mt-10"
                 >
-                  <DialogTitle>
-                    {t("LEAVE_COURSE_CONFIRMATION_TITLE")}
-                  </DialogTitle>
-                  <DialogContent>
-                    <DialogContentText>
-                      {t("LEAVE_COURSE_CONFIRMATION_MESSAGE")}
-                    </DialogContentText>
-                  </DialogContent>
-                  <DialogActions>
-                    <Button
-                      onClick={handleConfirmationClose}
-                      className="custom-btn-default"
-                    >
-                      {t("CANCEL")}
-                    </Button>
-                    <Button
-                      onClick={handleLeaveConfirmed}
-                      className="custom-btn-primary"
-                      autoFocus
-                    >
-                      {t("LEAVE_COURSE")}
-                    </Button>
-                  </DialogActions>
-                </Dialog>
+                  {t("LEAVE_COURSE")}
+                </Button>
               )}
             </Box>
-            {isCompleted && <Box>{t("COURSE_SUCCESSFULLY_COMPLETED")}</Box>}
-          </>
-        );
-      }
-    } else {
-      if (
-        (batchData?.enrollmentEndDate &&
-          new Date(batchData.enrollmentEndDate) < new Date()) ||
-        (!batchData?.enrollmentEndDate &&
-          batchData?.endDate &&
-          new Date(batchData.endDate) < new Date())
-      ) {
-        return (
-          <Typography
-            variant="h7"
-            style={{
-              margin: "12px 0",
-              display: "block",
-              fontSize: "14px",
-              color: "red",
-            }}
-          >
-            <Alert severity="warning">{t("BATCH_EXPIRED_MESSAGE")}</Alert>
-          </Typography>
-        );
-      } else {
-        const today = new Date();
-        let lastDayOfEnrollment = null;
-
-        if (batchData?.enrollmentEndDate) {
-          const enrollmentEndDate = new Date(batchData.enrollmentEndDate);
-          if (!isNaN(enrollmentEndDate.getTime())) {
-            lastDayOfEnrollment = enrollmentEndDate;
-          }
-        }
-
-        const isLastDayOfEnrollment =
-          lastDayOfEnrollment &&
-          lastDayOfEnrollment.toDateString() === today.toDateString();
-
-        const isExpired =
-          lastDayOfEnrollment &&
-          lastDayOfEnrollment < formatDate(today) &&
-          !isLastDayOfEnrollment;
-
-        if (isExpired) {
-          return (
-            <Typography
-              variant="h7"
-              style={{
-                margin: "12px 0",
-                display: "block",
-                fontSize: "14px",
-                color: "red",
-              }}
-            >
-              <Alert severity="warning">{t("BATCH_EXPIRED_MESSAGE")}</Alert>
-            </Typography>
-          );
-        }
-
-        return (
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Button
-              onClick={() => handleGoBack()}
-              className="custom-btn-primary mr-5"
-            >
-              {t("BACK")}
-            </Button>
-
-            <Button
-              onClick={handleJoinAndOpenModal}
-              disabled={isExpired || !activeBatch || isOwner}
-              className="custom-btn-primary"
-              style={{
-                background: isExpired ? "#ccc" : "#004367",
-              }}
-            >
-              {t("JOIN_COURSE")}
-            </Button>
           </div>
-        );
-      }
+          {renderConfirmationDialog()}
+        </Box>
+      );
     }
+
+    return (
+      <>
+        <Box>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Box>{backButton}</Box>
+            <Box>
+              <Button
+                disabled={isCompleted}
+                onClick={() =>
+                  handleLinkClick(
+                    ContinueLearning ?? NotConsumedContent ?? childnode
+                  )
+                }
+                className="custom-btn-primary mr-5"
+              >
+                {t("CONTINUE_LEARNNG")}
+              </Button>
+              {!isCompleted && (
+                <Button
+                  onClick={handleLeaveCourseClick}
+                  className="custom-btn-danger xs-mt-10"
+                >
+                  {t("LEAVE_COURSE")}
+                </Button>
+              )}
+            </Box>
+          </div>
+          {renderConfirmationDialog()}
+        </Box>
+        {isCompleted && <Box>{t("COURSE_SUCCESSFULLY_COMPLETED")}</Box>}
+      </>
+    );
+  };
+
+  // Helper function to render non-enrolled user buttons
+  const renderNonEnrolledUserButtons = () => {
+    if (isBatchExpired() || isEnrollmentExpired()) {
+      return (
+        <Typography
+          variant="h7"
+          style={{
+            margin: "12px 0",
+            display: "block",
+            fontSize: "14px",
+            color: "red",
+          }}
+        >
+          <Alert severity="warning">{t("BATCH_EXPIRED_MESSAGE")}</Alert>
+        </Typography>
+      );
+    }
+
+    const isExpired = isEnrollmentExpired();
+
+    return (
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <Button
+          onClick={() => handleGoBack()}
+          className="custom-btn-primary mr-5"
+        >
+          {t("BACK")}
+        </Button>
+        <Button
+          onClick={handleJoinAndOpenModal}
+          disabled={isExpired || !activeBatch || isOwner}
+          className="custom-btn-primary"
+          style={{ background: isExpired ? "#ccc" : "#004367" }}
+        >
+          {t("JOIN_COURSE")}
+        </Button>
+      </div>
+    );
+  };
+
+  const renderActionButton = () => {
+    if (isEnrolled() || enrolled) {
+      return renderEnrolledUserButtons();
+    }
+    return renderNonEnrolledUserButtons();
   };
 
   const handleJoinAndOpenModal = async () => {
@@ -1054,7 +1022,7 @@ const JoinCourse = () => {
           onClose={handleSnackbarClose}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
         >
-          <MuiAlert
+          <Alert
             elevation={6}
             variant="filled"
             onClose={handleSnackbarClose}
@@ -1062,7 +1030,7 @@ const JoinCourse = () => {
             sx={{ mt: 2 }}
           >
             {t("ENROLLMENT_SUCCESS_MESSAGE")}
-          </MuiAlert>
+          </Alert>
         </Snackbar>
         <Snackbar
           open={showUnEnrollmentSnackbar}
@@ -1070,7 +1038,7 @@ const JoinCourse = () => {
           onClose={handleSnackbarClose}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
         >
-          <MuiAlert
+          <Alert
             elevation={6}
             variant="filled"
             onClose={handleSnackbarClose}
@@ -1078,7 +1046,7 @@ const JoinCourse = () => {
             sx={{ mt: 2 }}
           >
             {t("UNENROLLMENT_SUCCESS_MESSAGE")}
-          </MuiAlert>
+          </Alert>
         </Snackbar>
 
         <Modal
