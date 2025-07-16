@@ -69,7 +69,7 @@ const JoinCourse = () => {
   const [creatorId, setCreatorId] = useState("");
   const [open, setOpen] = useState(false);
   const [chat, setChat] = useState([]);
-  const [childnode, setChildNode] = useState([]);
+  const [childNode, setChildNode] = useState([]);
   const [isOwner, setIsOwner] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
   const queryString = location.search;
@@ -839,16 +839,10 @@ const JoinCourse = () => {
   const isBatchExpired = () => {
     const enrollmentEndDate = batchData?.enrollmentEndDate;
     const endDate = batchData?.endDate;
-
-    if (enrollmentEndDate && new Date(enrollmentEndDate) < new Date()) {
-      return true;
-    }
-
-    if (!enrollmentEndDate && endDate && new Date(endDate) < new Date()) {
-      return true;
-    }
-
-    return false;
+    return (
+      (enrollmentEndDate && new Date(enrollmentEndDate) < new Date()) ||
+      (!enrollmentEndDate && endDate && new Date(endDate) < new Date())
+    );
   };
 
   // Helper function to check if enrollment is expired based on last day logic
@@ -915,7 +909,7 @@ const JoinCourse = () => {
             <Box>{backButton}</Box>
             <Box>
               <Button
-                onClick={() => handleLinkClick(childnode)}
+                onClick={() => handleLinkClick(childNode)}
                 className="custom-btn-primary mr-5"
               >
                 {t("START_LEARNING")}
@@ -945,7 +939,7 @@ const JoinCourse = () => {
                 disabled={isCompleted}
                 onClick={() =>
                   handleLinkClick(
-                    ContinueLearning ?? NotConsumedContent ?? childnode
+                    ContinueLearning ?? NotConsumedContent ?? childNode
                   )
                 }
                 className="custom-btn-primary mr-5"
@@ -1256,7 +1250,10 @@ const JoinCourse = () => {
           </Box>
         </Modal>
 
-        <main className="xs-pb-20 lg-mt-12 joinCourse">
+        <main
+          className="xs-pb-20 lg-mt-12 joinCourse"
+          style={{ margin: "20px" }}
+        >
           <Box className=" pos-relative xs-ml-15 pt-10">
             <Box>
               <img
@@ -1596,7 +1593,7 @@ const JoinCourse = () => {
                   </Modal>
                 )}
               </div>
-              {renderSocialShareButtons(isMobile)}
+              {renderSocialShareButtons()}
             </Grid>
             <Grid
               item
