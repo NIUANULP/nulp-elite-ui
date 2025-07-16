@@ -1,5 +1,6 @@
 import React from "react";
-import { Box, Button, Alert, Modal } from "@mui/material";
+import PropTypes from "prop-types";
+import { Button, Alert, Modal } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import Chat from "pages/connections/chat";
 
@@ -64,12 +65,12 @@ const ChatSection = ({
             style={{
               position: "absolute",
               top: "0",
-              left: isMobile ? "5%" : "35%",
+              left: "35%",
               padding: "20px",
               boxShadow: "0 3px 5px rgba(0, 0, 0, 0.3)",
               outline: "none",
               borderRadius: 8,
-              width: isMobile ? "90%" : "90%",
+              width: "90%",
               maxWidth: "700px",
               height: "80%",
               maxHeight: "90vh",
@@ -89,6 +90,25 @@ const ChatSection = ({
       )}
     </div>
   ) : null;
+};
+
+ChatSection.propTypes = {
+  chat: PropTypes.arrayOf(
+    PropTypes.shape({
+      is_accepted: PropTypes.bool,
+    })
+  ).isRequired,
+  handleDirectConnect: PropTypes.func.isRequired,
+  _userId: PropTypes.string,
+  creatorId: PropTypes.string,
+  open: PropTypes.bool.isRequired,
+  handleClose: PropTypes.func.isRequired,
+  isMobile: PropTypes.bool.isRequired,
+};
+
+ChatSection.defaultProps = {
+  _userId: "",
+  creatorId: "",
 };
 
 export default ChatSection;

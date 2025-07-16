@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Box, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
@@ -76,6 +77,21 @@ const BatchDetailsSection = ({ batchData, className, formatDate }) => {
       </Box>
     </Box>
   );
+};
+
+BatchDetailsSection.propTypes = {
+  batchData: PropTypes.shape({
+    startDate: PropTypes.string,
+    endDate: PropTypes.string,
+    enrollmentEndDate: PropTypes.string,
+  }),
+  className: PropTypes.string,
+  formatDate: PropTypes.func.isRequired,
+};
+
+BatchDetailsSection.defaultProps = {
+  batchData: {},
+  className: "",
 };
 
 export default BatchDetailsSection;

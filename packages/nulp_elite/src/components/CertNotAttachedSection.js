@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Box, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
@@ -36,6 +37,19 @@ const CertNotAttachedSection = ({
       </Typography>
     </Box>
   );
+};
+
+CertNotAttachedSection.propTypes = {
+  isEnrolled: PropTypes.bool,
+  batchDetails: PropTypes.object,
+  checkCertTemplate: PropTypes.func.isRequired,
+  className: PropTypes.string,
+};
+
+CertNotAttachedSection.defaultProps = {
+  isEnrolled: false,
+  batchDetails: null,
+  className: "",
 };
 
 export default CertNotAttachedSection;

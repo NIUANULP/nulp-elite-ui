@@ -1269,6 +1269,7 @@ const JoinCourse = () => {
                 creatorId={creatorId}
                 open={open}
                 handleClose={handleClose}
+                isMobile={isMobile}
               />
               <SocialShareButtons shareUrl={shareUrl} />
             </Grid>

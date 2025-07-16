@@ -1,6 +1,6 @@
 import React from "react";
+import PropTypes from "prop-types";
 import {
-  Box,
   Typography,
   Accordion,
   AccordionSummary,
@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 
 const OtherDetailsSection = ({
   userData,
+  courseData,
   formatDate,
   copyrightOpen,
   handlecopyrightOpen,

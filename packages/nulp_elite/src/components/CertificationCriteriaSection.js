@@ -1,11 +1,6 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-} from "@mui/material";
+import PropTypes from "prop-types";
+import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useTranslation } from "react-i18next";
 
@@ -61,6 +56,25 @@ const CertificationCriteriaSection = ({
       </AccordionDetails>
     </Accordion>
   );
+};
+
+CertificationCriteriaSection.propTypes = {
+  batchDetails: PropTypes.object,
+  batchDetail: PropTypes.object,
+  score: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+    PropTypes.bool,
+  ]),
+  checkCertTemplate: PropTypes.func.isRequired,
+  className: PropTypes.string,
+};
+
+CertificationCriteriaSection.defaultProps = {
+  batchDetails: null,
+  batchDetail: null,
+  score: "no certificate",
+  className: "",
 };
 
 export default CertificationCriteriaSection;
