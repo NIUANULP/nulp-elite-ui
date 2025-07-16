@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Footer from "components/Footer";
 import Header from "components/header";
-import Container from "@mui/material/Container";
 import FloatingChatIcon from "../../components/FloatingChatIcon";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -96,7 +95,7 @@ const JoinCourse = () => {
   const toggleShowMore = () => {
     setShowMore((prevShowMore) => !prevShowMore);
   };
-  const [activeBatch, SetActiveBatch] = useState(true);
+  const [activeBatch, setActiveBatch] = useState(true);
 
   const style = {
     position: "absolute",
@@ -489,7 +488,7 @@ const JoinCourse = () => {
         const { result } = response.data;
 
         if (!result?.response) {
-          SetActiveBatch(false);
+          setActiveBatch(false);
           showErrorMessage(t("This course has no active Batches"));
           return;
         }
@@ -497,7 +496,7 @@ const JoinCourse = () => {
         const { count, content: batchContent } = result.response;
 
         if (count === 0 || !batchContent?.length) {
-          SetActiveBatch(false);
+          setActiveBatch(false);
           showErrorMessage(t("This course has no active Batches"));
           return;
         }
@@ -1011,10 +1010,9 @@ const JoinCourse = () => {
   };
 
   const renderActionButton = () => {
-    if (isEnrolled() || enrolled) {
-      return renderEnrolledUserButtons();
-    }
-    return renderNonEnrolledUserButtons();
+    return isEnrolled() || enrolled
+      ? renderEnrolledUserButtons()
+      : renderNonEnrolledUserButtons();
   };
 
   const handleJoinAndOpenModal = async () => {
