@@ -188,7 +188,6 @@ OtherDetailsSection.propTypes = {
 OtherDetailsSection.defaultProps = {
   courseData: {},
   copyrightOpen: false,
-  isMobileView: false,
   className: "",
 };
 
