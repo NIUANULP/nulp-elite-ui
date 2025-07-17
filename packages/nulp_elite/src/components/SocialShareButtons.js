@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Box } from "@mui/material";
 import {
   FacebookShareButton,
@@ -35,6 +36,15 @@ const SocialShareButtons = ({ shareUrl, isMobileView = false }) => {
       </TwitterShareButton>
     </Box>
   );
+};
+
+SocialShareButtons.propTypes = {
+  shareUrl: PropTypes.string.isRequired,
+  isMobileView: PropTypes.bool,
+};
+
+SocialShareButtons.defaultProps = {
+  isMobileView: false,
 };
 
 export default SocialShareButtons;
