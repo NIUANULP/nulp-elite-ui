@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import PropTypes from "prop-types";
 import Footer from "components/Footer";
 import Header from "components/header";
 import FloatingChatIcon from "../../components/FloatingChatIcon";
@@ -43,6 +44,85 @@ const routeConfig = require("../../configs/routeConfig.json");
 
 const processString = (str) => {
   return str.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+};
+
+// Moved SectionRenderer component outside and added PropTypes
+const SectionRenderer = ({
+  className,
+  batchData,
+  batchDetails,
+  batchDetail,
+  score,
+  checkCertTemplate,
+  isEnrolled,
+  userData,
+  courseData,
+  formatDate,
+  copyrightOpen,
+  onCopyrightOpen,
+  onCopyrightClose,
+}) => (
+  <>
+    <BatchDetailsSection
+      batchData={batchData}
+      className={className}
+      formatDate={formatDate}
+    />
+    <CertificationCriteriaSection
+      batchDetails={batchDetails}
+      batchDetail={batchDetail}
+      score={score}
+      checkCertTemplate={checkCertTemplate}
+      className={className}
+    />
+    <CertNotAttachedSection
+      isEnrolled={isEnrolled}
+      batchDetails={batchDetails}
+      checkCertTemplate={checkCertTemplate}
+      className={className}
+    />
+    <OtherDetailsSection
+      userData={userData}
+      courseData={courseData}
+      formatDate={formatDate}
+      copyrightOpen={copyrightOpen}
+      handlecopyrightOpen={onCopyrightOpen}
+      handlecopyrightClose={onCopyrightClose}
+      className={className}
+    />
+  </>
+);
+
+SectionRenderer.propTypes = {
+  className: PropTypes.string,
+  batchData: PropTypes.object,
+  batchDetails: PropTypes.object,
+  batchDetail: PropTypes.object,
+  score: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+    PropTypes.bool,
+  ]),
+  checkCertTemplate: PropTypes.func.isRequired,
+  isEnrolled: PropTypes.bool,
+  userData: PropTypes.object,
+  courseData: PropTypes.object,
+  formatDate: PropTypes.func.isRequired,
+  copyrightOpen: PropTypes.bool,
+  onCopyrightOpen: PropTypes.func.isRequired,
+  onCopyrightClose: PropTypes.func.isRequired,
+};
+
+SectionRenderer.defaultProps = {
+  className: "",
+  batchData: null,
+  batchDetails: null,
+  batchDetail: null,
+  score: "no certificate",
+  isEnrolled: false,
+  userData: null,
+  courseData: null,
+  copyrightOpen: false,
 };
 
 // Custom hook for content ID extraction
@@ -340,12 +420,12 @@ const JoinCourse = () => {
       },
 
       handleEnrolledCourseCheck: (data) => {
-        const isEnrolled = data?.result?.courses?.some(
+        const isEnrolledCheck = data?.result?.courses?.some(
           (course) => course?.contentId === contentId
         );
         updateState({
           userCourseData: data.result,
-          isEnroll: isEnrolled,
+          isEnroll: isEnrolledCheck,
         });
       },
 
@@ -360,48 +440,6 @@ const JoinCourse = () => {
       },
     },
     [_userId, contentId, extractIdentifiers, getAllLeafIdentifiers, updateState]
-  );
-
-  // Course progress and completion logic
-  const checkCourseComplition = useCallback(
-    (allContents, userProgress) => {
-      if (!allContents?.length || !userProgress?.result?.contentList?.length) {
-        return;
-      }
-
-      const completedCount = userProgress.result.contentList.reduce(
-        (count, content) => count + (content.status ? 1 : 0),
-        0
-      );
-
-      updateState({ isCompleted: allContents.length === completedCount });
-    },
-    [updateState]
-  );
-
-  const processContentList = useCallback(
-    (contentList) => {
-      const contentIds = contentList.map((item) => item.contentId);
-      const continueLearningContent = contentList.find(
-        (content) => content.status === 1
-      );
-      const newCompletedContents = contentList
-        .filter((content) => content.status === 2)
-        .map((content) => content.contentId);
-
-      updateState({
-        ConsumedContents: contentIds,
-        isNotStarted: contentIds.length === 0,
-        ContinueLearning: continueLearningContent?.contentId,
-        completedContents: [
-          ...state.completedContents,
-          ...newCompletedContents,
-        ],
-      });
-
-      return { contentIds, newCompletedContents };
-    },
-    [state.completedContents, updateState]
   );
 
   // API calls
@@ -799,39 +837,6 @@ const JoinCourse = () => {
     );
   }, [state.courseData, state.showMore, t, toggleShowMore]);
 
-  // Consolidated section component renderer
-  const SectionRenderer = ({ className }) => (
-    <>
-      <BatchDetailsSection
-        batchData={state.batchData}
-        className={className}
-        formatDate={formatDate}
-      />
-      <CertificationCriteriaSection
-        batchDetails={state.batchDetails}
-        batchDetail={state.batchDetail}
-        score={state.score}
-        checkCertTemplate={checkCertTemplate}
-        className={className}
-      />
-      <CertNotAttachedSection
-        isEnrolled={isEnrolled}
-        batchDetails={state.batchDetails}
-        checkCertTemplate={checkCertTemplate}
-        className={className}
-      />
-      <OtherDetailsSection
-        userData={state.userData}
-        courseData={state.courseData}
-        formatDate={formatDate}
-        copyrightOpen={state.copyrightOpen}
-        handlecopyrightOpen={() => updateState({ copyrightOpen: true })}
-        handlecopyrightClose={() => updateState({ copyrightOpen: false })}
-        className={className}
-      />
-    </>
-  );
-
   // Action button renderer
   const renderActionButton = useMemo(() => {
     const backButton = (
@@ -1168,7 +1173,21 @@ const JoinCourse = () => {
 
               <Box className="lg-hide">{renderActionButton}</Box>
 
-              <SectionRenderer className="xs-hide" />
+              <SectionRenderer
+                className="xs-hide"
+                batchData={state.batchData}
+                batchDetails={state.batchDetails}
+                batchDetail={state.batchDetail}
+                score={state.score}
+                checkCertTemplate={checkCertTemplate}
+                isEnrolled={isEnrolled}
+                userData={state.userData}
+                courseData={state.courseData}
+                formatDate={formatDate}
+                copyrightOpen={state.copyrightOpen}
+                onCopyrightOpen={() => updateState({ copyrightOpen: true })}
+                onCopyrightClose={() => updateState({ copyrightOpen: false })}
+              />
 
               <ChatSection
                 chat={state.chat}
@@ -1260,7 +1279,21 @@ const JoinCourse = () => {
                 </AccordionDetails>
               </Accordion>
 
-              <SectionRenderer className="lg-hide accordionBoxShadow" />
+              <SectionRenderer
+                className="lg-hide accordionBoxShadow"
+                batchData={state.batchData}
+                batchDetails={state.batchDetails}
+                batchDetail={state.batchDetail}
+                score={state.score}
+                checkCertTemplate={checkCertTemplate}
+                isEnrolled={isEnrolled}
+                userData={state.userData}
+                courseData={state.courseData}
+                formatDate={formatDate}
+                copyrightOpen={state.copyrightOpen}
+                onCopyrightOpen={() => updateState({ copyrightOpen: true })}
+                onCopyrightClose={() => updateState({ copyrightOpen: false })}
+              />
 
               <ChatSection
                 chat={state.chat}
