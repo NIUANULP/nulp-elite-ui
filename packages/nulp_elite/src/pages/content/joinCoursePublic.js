@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import Footer from "components/Footer";
 import Header from "components/header";
@@ -40,75 +40,27 @@ import SocialShareButtons from "../../components/SocialShareButtons";
 import CertNotAttachedSection from "../../components/CertNotAttachedSection";
 
 const routeConfig = require("../../configs/routeConfig.json");
+
 const processString = (str) => {
   return str.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 };
-const JoinCourse = () => {
-  const { t } = useTranslation();
-  const [courseData, setCourseData] = useState();
-  const [batchData, setBatchData] = useState();
-  const [batchDetails, setBatchDetails] = useState();
-  const [userCourseData, setUserCourseData] = useState({});
-  const [showEnrollmentSnackbar, setShowEnrollmentSnackbar] = useState(false);
-  const [showUnEnrollmentSnackbar, setShowUnEnrollmentSnackbar] =
-    useState(false);
-  const [showConsentForm, setShowConsentForm] = useState(false);
-  const [enrolled, setEnrolled] = useState(false);
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [userInfo, setUserInfo] = useState();
-  const [consentChecked, setConsentChecked] = useState(false);
-  const [shareEnabled, setShareEnabled] = useState(false);
-  const [userData, setUserData] = useState();
+
+// Custom hook for content ID extraction
+const useContentId = () => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const [toasterMessage, setToasterMessage] = useState("");
-  const [creatorId, setCreatorId] = useState("");
-  const [open, setOpen] = useState(false);
-  const [chat, setChat] = useState([]);
-  const [childNode, setChildNode] = useState([]);
-  const [isOwner, setIsOwner] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
   const queryString = location.search;
   let contentId = queryString.startsWith("?do_") ? queryString.slice(1) : null;
-  // Check if contentId ends with '=' and remove it
+
   if (contentId && contentId.endsWith("=")) {
     contentId = contentId.slice(0, -1);
   }
-  const _userId = util.userId(); // Assuming util.userId() is defined
-  const shareUrl = window.location.href; // Current page URL
-  const [showMore, setShowMore] = useState(false);
-  const [batchDetail, setBatchDetail] = useState("");
-  const [score, setScore] = useState("");
-  const [isEnroll, setIsEnroll] = useState(false);
-  const [ConsumedContents, setConsumedContents] = useState();
-  const [isNotStarted, setIsNotStarted] = useState(false);
-  const [ContinueLearning, setContinueLearning] = useState();
-  const [allContents, setAllContents] = useState();
-  const [NotConsumedContent, setNotConsumedContent] = useState();
-  const [completedContents, setCompletedContents] = useState([]);
-  const [isCompleted, setIsCompleted] = useState();
-  const [copyrightOpen, setcopyrightOpen] = useState(false);
-  const toggleShowMore = () => {
-    setShowMore((prevShowMore) => !prevShowMore);
-  };
-  const [activeBatch, setActiveBatch] = useState(true);
 
-  const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    width: "50%",
-    transform: "translate(-50%, -50%)",
-    bgcolor: "background.paper",
-    boxShadow: 24,
-    p: 4,
-  };
-  const showErrorMessage = (msg) => {
-    setToasterMessage(msg);
-    setTimeout(() => {
-      setToasterMessage("");
-    }, 2000);
-  };
+  return contentId;
+};
+
+// Custom hook for responsive behavior
+const useResponsive = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 767);
@@ -116,17 +68,206 @@ const JoinCourse = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const newPath = location.pathname + "?" + contentId;
-  sessionStorage.setItem("previousRoutes", newPath);
+  return isMobile;
+};
 
-  // Helper function to extract identifiers efficiently
-  const extractIdentifiers = (content) => {
+// Custom hook for API operations
+const useApiOperations = (contentId, _userId, t) => {
+  const showErrorMessage = useCallback((msg) => {
+    setToasterMessage(msg);
+    setTimeout(() => setToasterMessage(""), 2000);
+  }, []);
+
+  const [toasterMessage, setToasterMessage] = useState("");
+
+  const fetchCourseData = useCallback(
+    async (signal) => {
+      const url = `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.COURSE.HIERARCHY}/${contentId}?orgdetails=${appConfig.ContentPlayer.contentApiQueryParams.orgdetails}&licenseDetails=${appConfig.ContentPlayer.contentApiQueryParams.licenseDetails}`;
+
+      const response = await fetch(url, {
+        headers: { "Content-Type": "application/json" },
+        signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      return response.json();
+    },
+    [contentId]
+  );
+
+  const fetchBatchData = useCallback(
+    async (signal) => {
+      const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.BATCH.GET_BATCHS}`;
+      const requestBody = {
+        request: {
+          filters: {
+            status: "1",
+            courseId: contentId,
+            enrollmentType: "open",
+          },
+          sort_by: { createdDate: "desc" },
+        },
+      };
+
+      const response = await axios.post(url, requestBody, { signal });
+      return response.data;
+    },
+    [contentId]
+  );
+
+  const checkEnrolledCourse = useCallback(
+    async (signal) => {
+      const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.COURSE.GET_ENROLLED_COURSES}/${_userId}?orgdetails=${appConfig.Course.contentApiQueryParams.orgdetails}&licenseDetails=${appConfig.Course.contentApiQueryParams.licenseDetails}&fields=${urlConfig.params.enrolledCourses.fields}&batchDetails=${urlConfig.params.enrolledCourses.batchDetails}`;
+
+      const response = await fetch(url, { signal });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      return response.json();
+    },
+    [_userId]
+  );
+
+  const getBatchDetail = useCallback(async (batchId, signal) => {
+    const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.BATCH.GET_DETAILS}/${batchId}`;
+
+    const response = await fetch(url, { signal });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return response.json();
+  }, []);
+
+  const getUserData = useCallback(
+    async (signal) => {
+      const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.GET_PROFILE}${_userId}?fields=${urlConfig.params.userReadParam.fields}`;
+
+      const response = await fetch(url, { signal });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      return response.json();
+    },
+    [_userId]
+  );
+
+  return {
+    fetchCourseData,
+    fetchBatchData,
+    checkEnrolledCourse,
+    getBatchDetail,
+    getUserData,
+    showErrorMessage,
+    toasterMessage,
+  };
+};
+
+const JoinCourse = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const contentId = useContentId();
+  const isMobile = useResponsive();
+  const _userId = util.userId();
+  const shareUrl = window.location.href;
+
+  // State management - consolidated
+  const [state, setState] = useState({
+    courseData: undefined,
+    batchData: undefined,
+    batchDetails: undefined,
+    userCourseData: {},
+    showEnrollmentSnackbar: false,
+    showUnEnrollmentSnackbar: false,
+    showConsentForm: false,
+    enrolled: false,
+    showConfirmation: false,
+    userInfo: undefined,
+    consentChecked: false,
+    shareEnabled: false,
+    userData: undefined,
+    creatorId: "",
+    open: false,
+    chat: [],
+    childNode: [],
+    isOwner: false,
+    showMore: false,
+    batchDetail: "",
+    score: "",
+    isEnroll: false,
+    ConsumedContents: undefined,
+    isNotStarted: false,
+    ContinueLearning: undefined,
+    allContents: undefined,
+    NotConsumedContent: undefined,
+    completedContents: [],
+    isCompleted: undefined,
+    copyrightOpen: false,
+    activeBatch: true,
+  });
+
+  const {
+    showErrorMessage,
+    toasterMessage,
+    fetchCourseData,
+    fetchBatchData,
+    checkEnrolledCourse,
+    getBatchDetail,
+    getUserData,
+  } = useApiOperations(contentId, _userId, t);
+
+  // Helper function to update state efficiently
+  const updateState = useCallback((updates) => {
+    setState((prev) => ({ ...prev, ...updates }));
+  }, []);
+
+  // Memoized computed values
+  const isEnrolled = useMemo(() => {
+    return state.userCourseData?.courses?.some(
+      (course) => course.contentId === contentId
+    );
+  }, [state.userCourseData, contentId]);
+
+  const isBatchExpired = useMemo(() => {
+    const { enrollmentEndDate, endDate } = state.batchData || {};
+    return (
+      (enrollmentEndDate && new Date(enrollmentEndDate) < new Date()) ||
+      (!enrollmentEndDate && endDate && new Date(endDate) < new Date())
+    );
+  }, [state.batchData]);
+
+  const isEnrollmentExpired = useMemo(() => {
+    if (!state.batchData?.enrollmentEndDate) return false;
+
+    const today = new Date();
+    const enrollmentEndDate = new Date(state.batchData.enrollmentEndDate);
+
+    if (isNaN(enrollmentEndDate.getTime())) return false;
+
+    const isLastDayOfEnrollment =
+      enrollmentEndDate.toDateString() === today.toDateString();
+    return enrollmentEndDate < formatDate(today) && !isLastDayOfEnrollment;
+  }, [state.batchData]);
+
+  // Store previous route
+  useEffect(() => {
+    const newPath = location.pathname + "?" + contentId;
+    sessionStorage.setItem("previousRoutes", newPath);
+  }, [location.pathname, contentId]);
+
+  // Helper functions
+  const extractIdentifiers = useCallback((content) => {
     if (!content?.children?.length) return null;
 
     const firstChild = content.children[0];
     if (!firstChild) return null;
 
-    // Check for nested structure
     if (firstChild.children?.[0]?.children) {
       return firstChild.children[0].children[0]?.identifier;
     } else if (firstChild.children) {
@@ -134,10 +275,9 @@ const JoinCourse = () => {
     } else {
       return firstChild.identifier;
     }
-  };
+  }, []);
 
-  // Optimized function to get all leaf identifiers
-  const getAllLeafIdentifiers = (nodes) => {
+  const getAllLeafIdentifiers = useCallback((nodes) => {
     const identifiers = [];
 
     const traverse = (nodeList) => {
@@ -157,62 +297,363 @@ const JoinCourse = () => {
     }
 
     return identifiers;
-  };
+  }, []);
 
-  // Helper function to handle course data updates
-  const updateCourseData = (content, data) => {
-    const updates = {
-      creatorId: content.createdBy,
-      courseData: data,
-      userData: data,
-      isOwner: _userId === content.createdBy,
-      childNode: extractIdentifiers(content),
-      allContents: getAllLeafIdentifiers(content.children),
-    };
-
-    setCreatorId(updates.creatorId);
-    setCourseData(updates.courseData);
-    setUserData(updates.userData);
-    setIsOwner(updates.isOwner);
-    setChildNode(updates.childNode);
-    setAllContents(updates.allContents);
-  };
-
-  // Helper function to handle batch data updates
-  const updateBatchData = (batchDetails) => {
-    setBatchData({
-      startDate: batchDetails.startDate,
-      endDate: batchDetails.endDate,
-      enrollmentEndDate: batchDetails.enrollmentEndDate,
-      batchId: batchDetails.batchId,
+  const formatDate = useCallback((dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
     });
-    setBatchDetails(batchDetails);
-  };
+  }, []);
 
-  // Helper function to handle enrolled course check
-  const handleEnrolledCourseCheck = (data) => {
-    setUserCourseData(data.result);
-    const isEnrolled = data?.result?.courses?.some(
-      (course) => course?.contentId === contentId
-    );
-    setIsEnroll(isEnrolled);
-  };
+  const toggleShowMore = useCallback(() => {
+    updateState({ showMore: !state.showMore });
+  }, [state.showMore, updateState]);
 
-  // Helper function to handle batch detail processing
-  const handleBatchDetailProcessing = (data) => {
-    setBatchDetail(data.result);
-    getScoreCriteria(data.result);
-    checkCertTemplate(data.result);
-  };
+  // API data processing functions
+  const processApiData = useCallback(
+    {
+      updateCourseData: (content, data) => {
+        const updates = {
+          creatorId: content.createdBy,
+          courseData: data,
+          userData: data,
+          isOwner: _userId === content.createdBy,
+          childNode: extractIdentifiers(content),
+          allContents: getAllLeafIdentifiers(content.children),
+        };
+        updateState(updates);
+      },
 
-  // Helper function to handle user data processing
-  const handleUserDataProcessing = (data) => {
-    setUserInfo(data.result.response);
-  };
+      updateBatchData: (batchDetails) => {
+        updateState({
+          batchData: {
+            startDate: batchDetails.startDate,
+            endDate: batchDetails.endDate,
+            enrollmentEndDate: batchDetails.enrollmentEndDate,
+            batchId: batchDetails.batchId,
+          },
+          batchDetails,
+        });
+      },
 
-  // Helper functions to reduce cognitive complexity in render
-  const renderContentTags = () => {
-    const content = courseData?.result?.content;
+      handleEnrolledCourseCheck: (data) => {
+        const isEnrolled = data?.result?.courses?.some(
+          (course) => course?.contentId === contentId
+        );
+        updateState({
+          userCourseData: data.result,
+          isEnroll: isEnrolled,
+        });
+      },
+
+      handleBatchDetailProcessing: (data) => {
+        updateState({ batchDetail: data.result });
+        getScoreCriteria(data.result);
+        checkCertTemplate(data.result);
+      },
+
+      handleUserDataProcessing: (data) => {
+        updateState({ userInfo: data.result.response });
+      },
+    },
+    [_userId, contentId, extractIdentifiers, getAllLeafIdentifiers, updateState]
+  );
+
+  // Course progress and completion logic
+  const checkCourseComplition = useCallback(
+    (allContents, userProgress) => {
+      if (!allContents?.length || !userProgress?.result?.contentList?.length) {
+        return;
+      }
+
+      const completedCount = userProgress.result.contentList.reduce(
+        (count, content) => count + (content.status ? 1 : 0),
+        0
+      );
+
+      updateState({ isCompleted: allContents.length === completedCount });
+    },
+    [updateState]
+  );
+
+  const processContentList = useCallback(
+    (contentList) => {
+      const contentIds = contentList.map((item) => item.contentId);
+      const continueLearningContent = contentList.find(
+        (content) => content.status === 1
+      );
+      const newCompletedContents = contentList
+        .filter((content) => content.status === 2)
+        .map((content) => content.contentId);
+
+      updateState({
+        ConsumedContents: contentIds,
+        isNotStarted: contentIds.length === 0,
+        ContinueLearning: continueLearningContent?.contentId,
+        completedContents: [
+          ...state.completedContents,
+          ...newCompletedContents,
+        ],
+      });
+
+      return { contentIds, newCompletedContents };
+    },
+    [state.completedContents, updateState]
+  );
+
+  // API calls
+  const initializeData = useCallback(async () => {
+    const abortController = new AbortController();
+
+    try {
+      const fetchPromises = [fetchCourseData(abortController.signal)];
+
+      if (_userId) {
+        fetchPromises.push(
+          fetchBatchData(abortController.signal),
+          checkEnrolledCourse(abortController.signal),
+          getUserData(abortController.signal)
+        );
+      }
+
+      const [courseResponse, batchResponse, enrolledResponse, userResponse] =
+        await Promise.all(fetchPromises);
+
+      // Process course data
+      if (courseResponse?.result?.content) {
+        processApiData.updateCourseData(
+          courseResponse.result.content,
+          courseResponse
+        );
+      }
+
+      // Process batch data
+      if (batchResponse?.result?.response) {
+        const { count, content: batchContent } = batchResponse.result.response;
+
+        if (count === 0 || !batchContent?.length) {
+          updateState({ activeBatch: false });
+          showErrorMessage(t("This course has no active Batches"));
+        } else {
+          const batchDetails = batchContent[0];
+          const batchDetailResponse = await getBatchDetail(
+            batchDetails.batchId,
+            abortController.signal
+          );
+          processApiData.updateBatchData(batchDetails);
+          processApiData.handleBatchDetailProcessing(batchDetailResponse);
+        }
+      }
+
+      // Process enrollment data
+      if (enrolledResponse) {
+        processApiData.handleEnrolledCourseCheck(enrolledResponse);
+      }
+
+      // Process user data
+      if (userResponse) {
+        processApiData.handleUserDataProcessing(userResponse);
+      }
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error("Error during data initialization:", error);
+        showErrorMessage(t("FAILED_TO_FETCH_DATA"));
+      }
+    }
+
+    return () => abortController.abort();
+  }, [
+    contentId,
+    _userId,
+    t,
+    fetchCourseData,
+    fetchBatchData,
+    checkEnrolledCourse,
+    getUserData,
+    getBatchDetail,
+    processApiData,
+    showErrorMessage,
+    updateState,
+  ]);
+
+  useEffect(() => {
+    initializeData();
+  }, [initializeData]);
+
+  // Event handlers
+  const handleGoBack = useCallback(() => {
+    navigate(-1);
+  }, [navigate]);
+
+  const handleLinkClick = useCallback(
+    (id) => {
+      if (state.isEnroll) {
+        navigate(
+          `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${id}&cId=${contentId}&bId=${state.batchDetails?.batchId}`,
+          {
+            state: {
+              coursename: state.userData?.result?.content?.name,
+              batchid: state.batchDetails?.batchId,
+              courseid: contentId,
+              isenroll: state.isEnroll,
+              consumedcontents: state.ConsumedContents,
+            },
+          }
+        );
+      } else {
+        showErrorMessage(
+          "You must join the course to get complete access to content."
+        );
+      }
+    },
+    [
+      state.isEnroll,
+      state.batchDetails,
+      state.userData,
+      contentId,
+      state.ConsumedContents,
+      navigate,
+      showErrorMessage,
+    ]
+  );
+
+  const handleJoinCourse = useCallback(async () => {
+    try {
+      const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.COURSE.ENROLL_USER_COURSE}`;
+      const requestBody = {
+        request: {
+          courseId: contentId,
+          userId: _userId,
+          batchId: state.batchData?.batchId,
+        },
+      };
+      const response = await axios.post(url, requestBody);
+      if (response.status === 200) {
+        updateState({
+          enrolled: true,
+          showEnrollmentSnackbar: true,
+          isEnroll: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error enrolling in the course:", error);
+      showErrorMessage(t("FAILED_TO_ENROLL_INTO_COURSE"));
+    }
+  }, [contentId, _userId, state.batchData, updateState, showErrorMessage, t]);
+
+  const handleJoinAndOpenModal = useCallback(async () => {
+    if (!_userId) {
+      window.location.href = `/webapp/joinCourse?${contentId}`;
+      return;
+    }
+    try {
+      await handleJoinCourse();
+      updateState({ showConsentForm: true });
+    } catch (error) {
+      showErrorMessage(t("FAILED_TO_ENROLL_INTO_COURSE"));
+      console.error("Error:", error);
+    }
+  }, [_userId, contentId, handleJoinCourse, updateState, showErrorMessage, t]);
+
+  const handleLeaveConfirmed = useCallback(async () => {
+    try {
+      const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.COURSE.UNENROLL_USER_COURSE}`;
+      const requestBody = {
+        request: {
+          courseId: contentId,
+          userId: _userId,
+          batchId: state.batchData?.batchId,
+        },
+      };
+      const response = await axios.post(url, requestBody);
+      if (response.status === 200) {
+        updateState({
+          enrolled: true,
+          showUnEnrollmentSnackbar: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error enrolling in the course:", error);
+      showErrorMessage(t("FAILED_TO_ENROLL_INTO_COURSE"));
+    }
+    window.location.reload();
+  }, [contentId, _userId, state.batchData, updateState, showErrorMessage, t]);
+
+  const consentUpdate = useCallback(
+    async (status) => {
+      try {
+        const urlUpdate = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.CONSENT_UPDATE}`;
+        const updateRequestBody = {
+          request: {
+            consent: {
+              status: status,
+              userId: _userId,
+              consumerId: state.courseData.result.content.channel,
+              objectId: contentId,
+              objectType: "Collection",
+            },
+          },
+        };
+        const response = await axios.post(urlUpdate, updateRequestBody);
+        if (response.status === 200) {
+          const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.CONSENT_READ}`;
+          const requestBody = {
+            request: {
+              consent: {
+                filters: {
+                  userId: _userId,
+                  consumerId: state.courseData.result.content.channel,
+                  objectId: contentId,
+                },
+              },
+            },
+          };
+          await axios.post(url, requestBody);
+          updateState({ showConsentForm: false });
+        }
+      } catch (error) {
+        console.error("Error updating consent:", error);
+        showErrorMessage(t("FAILED_TO_FETCH_DATA"));
+      }
+    },
+    [_userId, state.courseData, contentId, updateState, showErrorMessage, t]
+  );
+
+  // Utility functions
+  const getScoreCriteria = useCallback(
+    (data) => {
+      if (
+        !data?.response?.certTemplates ||
+        typeof data.response.certTemplates !== "object"
+      ) {
+        updateState({ score: false });
+        return "no certificate";
+      }
+
+      const certTemplateKeys = Object.keys(data.response.certTemplates);
+      const certTemplateId = certTemplateKeys[0];
+      const criteria =
+        data.response.certTemplates[certTemplateId]?.criteria?.assessment ||
+        data.response.cert_templates?.[certTemplateId]?.criteria?.assessment;
+      const score = criteria?.score?.[">="] || "no certificate";
+
+      updateState({ score });
+      return score;
+    },
+    [updateState]
+  );
+
+  const checkCertTemplate = useCallback((data) => {
+    const certTemplates = data.cert_templates;
+    return certTemplates && Object.keys(certTemplates).length > 0;
+  }, []);
+
+  // Render helper functions
+  const renderContentTags = useMemo(() => {
+    const content = state.courseData?.result?.content;
     const hasTags =
       content?.board ||
       content?.se_boards ||
@@ -251,89 +692,90 @@ const JoinCourse = () => {
         {renderTagButtons(content.se_gradeLevels, "se_gradeLevels")}
       </Box>
     );
-  };
+  }, [state.courseData, t]);
 
-  // Removed duplicated render functions - now using reusable components
+  const renderContentItem = useCallback(
+    (item, level = 0) => {
+      const hasChildren = item.children && item.children.length > 0;
+      const isCompleted = state.completedContents.includes(item.identifier);
 
-  const renderContentItem = (item, level = 0) => {
-    const hasChildren = item.children && item.children.length > 0;
-    const isCompleted = completedContents.includes(item.identifier);
+      if (item.mimeType === "application/vnd.ekstep.content-collection") {
+        return (
+          <AccordionDetails
+            key={item.identifier || item.name}
+            className="border-bottom"
+            style={{ padding: "12px", margin: "-10px 0px" }}
+          >
+            {hasChildren ? (
+              <span className="h6-title" style={{ verticalAlign: "super" }}>
+                {item.name}
+              </span>
+            ) : (
+              <Link
+                href="#"
+                underline="none"
+                style={{ verticalAlign: "super" }}
+                onClick={() => handleLinkClick(item.identifier)}
+                className="h6-title"
+              >
+                {item.name}
+                {isCompleted && (
+                  <CheckCircleIcon
+                    style={{
+                      color: "green",
+                      fontSize: "24px",
+                      paddingLeft: "10px",
+                      float: "right",
+                    }}
+                  />
+                )}
+              </Link>
+            )}
+            {hasChildren && (
+              <div style={{ paddingLeft: "20px" }}>
+                {item.children.map((child) =>
+                  renderContentItem(child, level + 1)
+                )}
+              </div>
+            )}
+          </AccordionDetails>
+        );
+      }
 
-    if (item.mimeType === "application/vnd.ekstep.content-collection") {
       return (
-        <AccordionDetails
-          key={item.identifier || item.name}
-          className="border-bottom"
-          style={{ padding: "12px", margin: "-10px 0px" }}
+        <Link
+          href="#"
+          underline="none"
+          style={{ verticalAlign: "super" }}
+          onClick={() => handleLinkClick(item.identifier)}
+          className="h6-title"
         >
-          {hasChildren ? (
-            <span className="h6-title" style={{ verticalAlign: "super" }}>
-              {item.name}
-            </span>
-          ) : (
-            <Link
-              href="#"
-              underline="none"
-              style={{ verticalAlign: "super" }}
-              onClick={() => handleLinkClick(item.identifier)}
-              className="h6-title"
-            >
-              {item.name}
-              {isCompleted && (
-                <CheckCircleIcon
-                  style={{
-                    color: "green",
-                    fontSize: "24px",
-                    paddingLeft: "10px",
-                    float: "right",
-                  }}
-                />
-              )}
-            </Link>
+          {item.name}
+          {isCompleted && (
+            <CheckCircleIcon
+              style={{
+                color: "green",
+                fontSize: "24px",
+                paddingLeft: "10px",
+                float: "right",
+              }}
+            />
           )}
-          {hasChildren && (
-            <div style={{ paddingLeft: "20px" }}>
-              {item.children.map((child) =>
-                renderContentItem(child, level + 1)
-              )}
-            </div>
-          )}
-        </AccordionDetails>
+        </Link>
       );
-    }
+    },
+    [state.completedContents, handleLinkClick]
+  );
 
-    return (
-      <Link
-        href="#"
-        underline="none"
-        style={{ verticalAlign: "super" }}
-        onClick={() => handleLinkClick(item.identifier)}
-        className="h6-title"
-      >
-        {item.name}
-        {isCompleted && (
-          <CheckCircleIcon
-            style={{
-              color: "green",
-              fontSize: "24px",
-              paddingLeft: "10px",
-              float: "right",
-            }}
-          />
-        )}
-      </Link>
-    );
-  };
+  const renderDescription = useMemo(() => {
+    if (!state.courseData?.result?.content) return null;
 
-  const renderDescription = () => {
-    if (!courseData?.result?.content) return null;
-
-    const description = courseData.result.content.description;
+    const description = state.courseData.result.content.description;
     const wordCount = description?.split(" ").length || 0;
     const shouldTruncate = wordCount > 100;
 
     const displayText =
-      shouldTruncate && !showMore
+      shouldTruncate && !state.showMore
         ? description.split(" ").slice(0, 30).join(" ") + "..."
         : description;
 
@@ -350,443 +792,59 @@ const JoinCourse = () => {
         </Typography>
         {shouldTruncate && (
           <Button onClick={toggleShowMore}>
-            {showMore ? t("Show Less") : t("Show More")}
+            {state.showMore ? t("Show Less") : t("Show More")}
           </Button>
         )}
       </Box>
     );
-  };
+  }, [state.courseData, state.showMore, t, toggleShowMore]);
 
-  useEffect(() => {
-    const abortController = new AbortController();
+  // Consolidated section component renderer
+  const SectionRenderer = ({ className }) => (
+    <>
+      <BatchDetailsSection
+        batchData={state.batchData}
+        className={className}
+        formatDate={formatDate}
+      />
+      <CertificationCriteriaSection
+        batchDetails={state.batchDetails}
+        batchDetail={state.batchDetail}
+        score={state.score}
+        checkCertTemplate={checkCertTemplate}
+        className={className}
+      />
+      <CertNotAttachedSection
+        isEnrolled={isEnrolled}
+        batchDetails={state.batchDetails}
+        checkCertTemplate={checkCertTemplate}
+        className={className}
+      />
+      <OtherDetailsSection
+        userData={state.userData}
+        courseData={state.courseData}
+        formatDate={formatDate}
+        copyrightOpen={state.copyrightOpen}
+        handlecopyrightOpen={() => updateState({ copyrightOpen: true })}
+        handlecopyrightClose={() => updateState({ copyrightOpen: false })}
+        className={className}
+      />
+    </>
+  );
 
-    const fetchCourseData = async () => {
-      try {
-        const url = `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.COURSE.HIERARCHY}/${contentId}?orgdetails=${appConfig.ContentPlayer.contentApiQueryParams.orgdetails}&licenseDetails=${appConfig.ContentPlayer.contentApiQueryParams.licenseDetails}`;
-
-        const response = await fetch(url, {
-          headers: { "Content-Type": "application/json" },
-          signal: abortController.signal,
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        const content = data?.result?.content;
-
-        if (!content) {
-          throw new Error("Invalid course data structure");
-        }
-
-        updateCourseData(content, data);
-      } catch (error) {
-        if (error.name === "AbortError") return;
-        console.error("Error fetching course data:", error);
-        showErrorMessage(t("FAILED_TO_FETCH_DATA"));
-      }
-    };
-
-    const fetchBatchData = async () => {
-      try {
-        const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.BATCH.GET_BATCHS}`;
-        const requestBody = {
-          request: {
-            filters: {
-              status: "1",
-              courseId: contentId,
-              enrollmentType: "open",
-            },
-            sort_by: { createdDate: "desc" },
-          },
-        };
-
-        const response = await axios.post(url, requestBody, {
-          signal: abortController.signal,
-        });
-
-        const { result } = response.data;
-
-        if (!result?.response) {
-          setActiveBatch(false);
-          showErrorMessage(t("This course has no active Batches"));
-          return;
-        }
-
-        const { count, content: batchContent } = result.response;
-
-        if (count === 0 || !batchContent?.length) {
-          setActiveBatch(false);
-          showErrorMessage(t("This course has no active Batches"));
-          return;
-        }
-
-        const batchDetails = batchContent[0];
-        await getBatchDetail(batchDetails.batchId);
-        updateBatchData(batchDetails);
-      } catch (error) {
-        if (error.name === "AbortError") return;
-        console.error("Error fetching batch data:", error);
-        showErrorMessage(t("FAILED_TO_FETCH_DATA"));
-      }
-    };
-
-    const checkEnrolledCourse = async () => {
-      try {
-        const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.COURSE.GET_ENROLLED_COURSES}/${_userId}?orgdetails=${appConfig.Course.contentApiQueryParams.orgdetails}&licenseDetails=${appConfig.Course.contentApiQueryParams.licenseDetails}&fields=${urlConfig.params.enrolledCourses.fields}&batchDetails=${urlConfig.params.enrolledCourses.batchDetails}`;
-
-        const response = await fetch(url, {
-          signal: abortController.signal,
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        handleEnrolledCourseCheck(data);
-      } catch (error) {
-        if (error.name === "AbortError") return;
-        console.error("Error while fetching courses:", error);
-        showErrorMessage(t("FAILED_TO_FETCH_DATA"));
-      }
-    };
-
-    const getBatchDetail = async (batchId) => {
-      try {
-        const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.BATCH.GET_DETAILS}/${batchId}`;
-
-        const response = await fetch(url, {
-          signal: abortController.signal,
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        handleBatchDetailProcessing(data);
-      } catch (error) {
-        if (error.name === "AbortError") return;
-        console.error("Error while fetching batch details:", error);
-        showErrorMessage(t("FAILED_TO_FETCH_DATA"));
-      }
-    };
-
-    const getUserData = async () => {
-      try {
-        const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.GET_PROFILE}${_userId}?fields=${urlConfig.params.userReadParam.fields}`;
-
-        const response = await fetch(url, {
-          signal: abortController.signal,
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        handleUserDataProcessing(data);
-      } catch (error) {
-        if (error.name === "AbortError") return;
-        console.error("Error while getting user data:", error);
-        showErrorMessage(t("FAILED_TO_FETCH_DATA"));
-      }
-    };
-
-    const initializeData = async () => {
-      try {
-        await Promise.all([
-          fetchCourseData(),
-          _userId ? fetchBatchData() : Promise.resolve(),
-          _userId ? checkEnrolledCourse() : Promise.resolve(),
-          _userId ? getUserData() : Promise.resolve(),
-        ]);
-      } catch (error) {
-        if (error.name === "AbortError") return;
-        console.error("Error during data initialization:", error);
-      }
-    };
-
-    initializeData();
-
-    return () => {
-      abortController.abort();
-    };
-  }, [contentId, _userId, t]);
-
-  const checkCourseComplition = (allContents, userProgress) => {
-    if (!allContents?.length || !userProgress?.result?.contentList?.length) {
-      return;
-    }
-
-    const completedCount = userProgress.result.contentList.reduce(
-      (count, content) => count + (content.status ? 1 : 0),
-      0
+  // Action button renderer
+  const renderActionButton = useMemo(() => {
+    const backButton = (
+      <Button onClick={handleGoBack} className="custom-btn-primary mr-5">
+        {t("BACK")}
+      </Button>
     );
 
-    setIsCompleted(allContents.length === completedCount);
-  };
-
-  // Helper function to process content list and set basic states
-  const processContentList = (contentList) => {
-    const contentIds = contentList.map((item) => item.contentId);
-    setConsumedContents(contentIds);
-    setIsNotStarted(contentIds.length === 0);
-
-    // Find continue learning content
-    const continueLearningContent = contentList.find(
-      (content) => content.status === 1
-    );
-    if (continueLearningContent) {
-      setContinueLearning(continueLearningContent.contentId);
-    }
-
-    // Process completed contents
-    const newCompletedContents = contentList
-      .filter((content) => content.status === 2)
-      .map((content) => content.contentId);
-
-    if (newCompletedContents.length > 0) {
-      setCompletedContents((prevContents) => [
-        ...prevContents,
-        ...newCompletedContents,
-      ]);
-    }
-
-    return { contentIds, newCompletedContents };
-  };
-
-  // Helper function to handle course completion
-  const handleCourseCompletion = async (consumedSet) => {
-    try {
-      const updateUrl = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
-      await axios.patch(updateUrl, {
-        request: {
-          userId: _userId,
-          courseId: contentId,
-          batchId: batchDetails.batchId,
-        },
-      });
-
-      setToasterMessage(t("COURSE_SUCCESSFULLY_COMPLETED"));
-      setTimeout(() => setToasterMessage(""), 2000);
-    } catch (error) {
-      console.error("Error updating course completion:", error);
-    }
-    setNotConsumedContent(allContents[0]);
-  };
-
-  // Helper function to determine not consumed content
-  const determineNotConsumedContent = (consumedSet) => {
-    if (!Array.isArray(allContents) || !allContents.length) {
-      setNotConsumedContent(null);
-      return;
-    }
-
-    const allConsumed = allContents.every((identifier) =>
-      consumedSet.has(identifier)
-    );
-
-    if (allConsumed) {
-      handleCourseCompletion(consumedSet);
-    } else {
-      const notConsumedContent = allContents.find(
-        (identifier) => !consumedSet.has(identifier)
-      );
-      setNotConsumedContent(notConsumedContent);
-    }
-  };
-
-  // Helper function to fetch chats
-  const fetchChats = async () => {
-    try {
-      const url = `${
-        urlConfig.URLS.DIRECT_CONNECT.GET_CHATS
-      }?sender_id=${_userId}&receiver_id=${creatorId}&is_accepted=${true}`;
-
-      const response = await axios.get(url, {
-        withCredentials: true,
-      });
-      setChat(response.data.result || []);
-    } catch (error) {
-      console.error("Error fetching chats:", error);
-    }
-  };
-
-  // Helper function to get course progress
-  const getCourseProgress = async () => {
-    if (!batchDetails) return;
-
-    const request = {
-      request: {
-        userId: _userId,
-        courseId: contentId,
-        contentIds: allContents,
-        batchId: batchDetails.batchId,
-        fields: ["progress", "score"],
-      },
-    };
-
-    try {
-      const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_READ}`;
-      const response = await axios.post(url, request);
-      const data = response.data;
-
-      setCourseProgress(data);
-      checkCourseComplition(allContents, data);
-
-      const contentList = data?.result?.contentList || [];
-      processContentList(contentList);
-
-      const consumedSet = new Set(
-        contentList
-          .filter((item) => item.status === 2)
-          .map((item) => item.contentId)
-      );
-
-      determineNotConsumedContent(consumedSet);
-    } catch (error) {
-      console.error("Error while fetching course progress:", error);
-      showErrorMessage(t("FAILED_TO_FETCH_DATA"));
-    }
-  };
-
-  useEffect(() => {
-    if (!_userId || _userId.trim() === "") return;
-    fetchChats();
-    getCourseProgress();
-  }, [batchDetails, creatorId, allContents, _userId]);
-
-  const handleDirectConnect = () => {
-    if (!_userId) {
-      window.location.href = `/webapp/joinCourse?${contentId}`;
-      return;
-    }
-
-    const shouldOpenModal =
-      chat.length === 0 || (!isMobile && chat[0]?.is_accepted === true);
-
-    if (shouldOpenModal) {
-      setOpen(true);
-    } else {
-      navigate(routeConfig.ROUTES.ADDCONNECTION_PAGE.CHAT, {
-        state: { senderUserId: _userId, receiverUserId: creatorId },
-      });
-    }
-  };
-
-  const handleGoBack = () => {
-    navigate(-1); // Go back to the previous page
-  };
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
-  };
-
-  const handleLinkClick = (id) => {
-    if (isEnroll) {
-      navigate(
-        `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${id}&cId=${contentId}&bId=${batchDetails?.batchId}`,
-        {
-          state: {
-            coursename: userData?.result?.content?.name,
-            batchid: batchDetails?.batchId,
-            courseid: contentId,
-            isenroll: isEnroll,
-            consumedcontents: ConsumedContents,
-          },
-        }
-      );
-    } else {
-      showErrorMessage(
-        "You must join the course to get complete access to content."
-      );
-    }
-  };
-
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setShowEnrollmentSnackbar(false);
-  };
-
-  const isEnrolled = () => {
-    return (
-      userCourseData &&
-      userCourseData.courses &&
-      userCourseData?.courses?.some((course) => course.contentId === contentId)
-    );
-  };
-
-  const handleLeaveCourseClick = () => {
-    setShowConfirmation(true);
-  };
-
-  const handleConfirmationClose = () => {
-    setShowConfirmation(false);
-  };
-
-  const handleLeaveConfirmed = async () => {
-    try {
-      const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.COURSE.UNENROLL_USER_COURSE}`;
-      const requestBody = {
-        request: {
-          courseId: contentId,
-          userId: _userId,
-          batchId: batchData?.batchId,
-        },
-      };
-      const response = await axios.post(url, requestBody);
-      if (response.status === 200) {
-        setEnrolled(true);
-        setShowUnEnrollmentSnackbar(true);
-      }
-    } catch (error) {
-      console.error("Error enrolling in the course:", error);
-      showErrorMessage(t("FAILED_TO_ENROLL_INTO_COURSE"));
-    }
-    window.location.reload();
-  };
-
-  // Helper function to check if batch is expired
-  const isBatchExpired = () => {
-    const enrollmentEndDate = batchData?.enrollmentEndDate;
-    const endDate = batchData?.endDate;
-    return (
-      (enrollmentEndDate && new Date(enrollmentEndDate) < new Date()) ||
-      (!enrollmentEndDate && endDate && new Date(endDate) < new Date())
-    );
-  };
-
-  // Helper function to check if enrollment is expired based on last day logic
-  const isEnrollmentExpired = () => {
-    if (!batchData?.enrollmentEndDate) return false;
-
-    const today = new Date();
-    const enrollmentEndDate = new Date(batchData.enrollmentEndDate);
-
-    if (isNaN(enrollmentEndDate.getTime())) return false;
-
-    const isLastDayOfEnrollment =
-      enrollmentEndDate.toDateString() === today.toDateString();
-
-    return enrollmentEndDate < formatDate(today) && !isLastDayOfEnrollment;
-  };
-
-  // Helper function to render confirmation dialog
-  const renderConfirmationDialog = () => {
-    if (!showConfirmation) return null;
-
-    return (
-      <Dialog open={showConfirmation} onClose={handleConfirmationClose}>
+    const renderConfirmationDialog = () => (
+      <Dialog
+        open={state.showConfirmation}
+        onClose={() => updateState({ showConfirmation: false })}
+      >
         <DialogTitle>{t("LEAVE_COURSE_CONFIRMATION_TITLE")}</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -795,7 +853,7 @@ const JoinCourse = () => {
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={handleConfirmationClose}
+            onClick={() => updateState({ showConfirmation: false })}
             className="custom-btn-default"
           >
             {t("CANCEL")}
@@ -810,83 +868,73 @@ const JoinCourse = () => {
         </DialogActions>
       </Dialog>
     );
-  };
 
-  // Helper function to render enrolled user buttons
-  const renderEnrolledUserButtons = () => {
-    const backButton = (
-      <Button
-        onClick={() => handleGoBack()}
-        className="custom-btn-primary mr-5"
-      >
-        {t("BACK")}
-      </Button>
-    );
-
-    if (isNotStarted) {
-      return (
-        <Box>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Box>{backButton}</Box>
-            <Box>
-              <Button
-                onClick={() => handleLinkClick(childNode)}
-                className="custom-btn-primary mr-5"
-              >
-                {t("START_LEARNING")}
-              </Button>
-              {!isCompleted && (
+    if (isEnrolled || state.enrolled) {
+      if (state.isNotStarted) {
+        return (
+          <Box>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <Box>{backButton}</Box>
+              <Box>
                 <Button
-                  onClick={handleLeaveCourseClick}
-                  className="custom-btn-danger xs-mt-10"
+                  onClick={() => handleLinkClick(state.childNode)}
+                  className="custom-btn-primary mr-5"
                 >
-                  {t("LEAVE_COURSE")}
+                  {t("START_LEARNING")}
                 </Button>
-              )}
-            </Box>
-          </div>
-          {renderConfirmationDialog()}
-        </Box>
+                {!state.isCompleted && (
+                  <Button
+                    onClick={() => updateState({ showConfirmation: true })}
+                    className="custom-btn-danger xs-mt-10"
+                  >
+                    {t("LEAVE_COURSE")}
+                  </Button>
+                )}
+              </Box>
+            </div>
+            {renderConfirmationDialog()}
+          </Box>
+        );
+      }
+
+      return (
+        <>
+          <Box>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <Box>{backButton}</Box>
+              <Box>
+                <Button
+                  disabled={state.isCompleted}
+                  onClick={() =>
+                    handleLinkClick(
+                      state.ContinueLearning ??
+                        state.NotConsumedContent ??
+                        state.childNode
+                    )
+                  }
+                  className="custom-btn-primary mr-5"
+                >
+                  {t("CONTINUE_LEARNNG")}
+                </Button>
+                {!state.isCompleted && (
+                  <Button
+                    onClick={() => updateState({ showConfirmation: true })}
+                    className="custom-btn-danger xs-mt-10"
+                  >
+                    {t("LEAVE_COURSE")}
+                  </Button>
+                )}
+              </Box>
+            </div>
+            {renderConfirmationDialog()}
+          </Box>
+          {state.isCompleted && <Box>{t("COURSE_SUCCESSFULLY_COMPLETED")}</Box>}
+        </>
       );
     }
 
-    return (
-      <>
-        <Box>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Box>{backButton}</Box>
-            <Box>
-              <Button
-                disabled={isCompleted}
-                onClick={() =>
-                  handleLinkClick(
-                    ContinueLearning ?? NotConsumedContent ?? childNode
-                  )
-                }
-                className="custom-btn-primary mr-5"
-              >
-                {t("CONTINUE_LEARNNG")}
-              </Button>
-              {!isCompleted && (
-                <Button
-                  onClick={handleLeaveCourseClick}
-                  className="custom-btn-danger xs-mt-10"
-                >
-                  {t("LEAVE_COURSE")}
-                </Button>
-              )}
-            </Box>
-          </div>
-          {renderConfirmationDialog()}
-        </Box>
-        {isCompleted && <Box>{t("COURSE_SUCCESSFULLY_COMPLETED")}</Box>}
-      </>
-    );
-  };
-
-  // Helper function to render non-enrolled user buttons
-  const renderNonEnrolledUserButtons = () => {
-    if (isBatchExpired() || isEnrollmentExpired()) {
+    // Non-enrolled user buttons
+    if (isBatchExpired || isEnrollmentExpired) {
       return (
         <Typography
           variant="h7"
@@ -902,174 +950,41 @@ const JoinCourse = () => {
       );
     }
 
-    const isExpired = isEnrollmentExpired();
-
     return (
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <Button
-          onClick={() => handleGoBack()}
-          className="custom-btn-primary mr-5"
-        >
+        <Button onClick={handleGoBack} className="custom-btn-primary mr-5">
           {t("BACK")}
         </Button>
         <Button
           onClick={handleJoinAndOpenModal}
-          disabled={isExpired || !activeBatch || isOwner}
+          disabled={isEnrollmentExpired || !state.activeBatch || state.isOwner}
           className="custom-btn-primary"
-          style={{ background: isExpired ? "#ccc" : "#004367" }}
+          style={{ background: isEnrollmentExpired ? "#ccc" : "#004367" }}
         >
           {t("JOIN_COURSE")}
         </Button>
       </div>
     );
-  };
-
-  const renderActionButton = () => {
-    return isEnrolled() || enrolled
-      ? renderEnrolledUserButtons()
-      : renderNonEnrolledUserButtons();
-  };
-
-  const handleJoinAndOpenModal = async () => {
-    if (!_userId) {
-      // Redirect to login with return URL to this page (without hostname)
-      const currentUrl = encodeURIComponent(window.location.search);
-      console.log("currentUrl--------------------->", currentUrl);
-      console.log("contentId--------------------->", contentId);
-
-      window.location.href = `/webapp/joinCourse?${contentId}`;
-      return;
-    }
-    try {
-      await handleJoinCourse(); // Wait for the user to join the course
-      setShowConsentForm(true); // Open the consent form after joining the course
-    } catch (error) {
-      showErrorMessage(t("FAILED_TO_ENROLL_INTO_COURSE"));
-      console.error("Error:", error);
-    }
-  };
-
-  const handleJoinCourse = async () => {
-    try {
-      const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.COURSE.ENROLL_USER_COURSE}`;
-      const requestBody = {
-        request: {
-          courseId: contentId,
-          userId: _userId,
-          batchId: batchData?.batchId,
-        },
-      };
-      const response = await axios.post(url, requestBody);
-      if (response.status === 200) {
-        setEnrolled(true);
-        setShowEnrollmentSnackbar(true);
-        setIsEnroll(true);
-      }
-    } catch (error) {
-      console.error("Error enrolling in the course:", error);
-      showErrorMessage(t("FAILED_TO_ENROLL_INTO_COURSE"));
-    }
-  };
-
-  const consentUpdate = async (status) => {
-    try {
-      const urlUpdate = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.CONSENT_UPDATE}`;
-      const updateRequestBody = {
-        request: {
-          consent: {
-            status: status,
-            userId: _userId,
-            consumerId: courseData.result.content.channel,
-            objectId: contentId,
-            objectType: "Collection",
-          },
-        },
-      };
-      const response = await axios.post(urlUpdate, updateRequestBody);
-      if (response.status === 200) {
-        const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.CONSENT_READ}`;
-        const requestBody = {
-          request: {
-            consent: {
-              filters: {
-                userId: _userId,
-                consumerId: courseData.result.content.channel,
-                objectId: contentId,
-              },
-            },
-          },
-        };
-        const response = await axios.post(url, requestBody);
-        if (response.status === 200) {
-          setShowConsentForm(false);
-        }
-      }
-    } catch (error) {
-      console.error("Error updating consent:", error);
-      showErrorMessage(t("FAILED_TO_FETCH_DATA"));
-    }
-  };
-
-  const handleCheckboxChange = (event) => {
-    setConsentChecked(event.target.checked);
-    setShareEnabled(event.target.checked);
-  };
-
-  const handleShareClick = () => {
-    consentUpdate("ACTIVE");
-    setShowConsentForm(false);
-  };
-
-  const handleDontShareClick = () => {
-    consentUpdate("REVOKED");
-    setShowConsentForm(false);
-  };
-  const handlecopyrightOpen = () => {
-    setcopyrightOpen(true);
-  };
-
-  const handlecopyrightClose = () => {
-    setcopyrightOpen(false);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-    window.location.reload();
-  };
-  function getScoreCriteria(data) {
-    // Check if certTemplates exists and is an object
-    if (
-      !data?.response?.certTemplates ||
-      typeof data.response.certTemplates !== "object"
-    ) {
-      setScore(false);
-      return "no certificate";
-    }
-
-    const certTemplateKeys = Object.keys(data.response.certTemplates);
-
-    const certTemplateId = certTemplateKeys[0];
-
-    const criteria =
-      data.response.certTemplates[certTemplateId]?.criteria?.assessment ||
-      data.response.cert_templates?.[certTemplateId]?.criteria?.assessment;
-
-    const score = criteria?.score?.[">="] || "no certificate";
-    setScore(score);
-    return score;
-  }
-
-  function checkCertTemplate(data) {
-    const certTemplates = data.cert_templates; // Assuming data contains your JSON object
-
-    if (certTemplates && Object.keys(certTemplates).length > 0) {
-      console.log("cert_templates is not empty");
-      return true;
-    } else {
-      console.log("cert_templates is empty");
-      return false;
-    }
-  }
+  }, [
+    isEnrolled,
+    state.enrolled,
+    state.isNotStarted,
+    state.isCompleted,
+    state.childNode,
+    state.ContinueLearning,
+    state.NotConsumedContent,
+    state.showConfirmation,
+    isBatchExpired,
+    isEnrollmentExpired,
+    state.activeBatch,
+    state.isOwner,
+    handleGoBack,
+    handleLinkClick,
+    handleLeaveConfirmed,
+    handleJoinAndOpenModal,
+    updateState,
+    t,
+  ]);
 
   return (
     <div>
@@ -1077,31 +992,32 @@ const JoinCourse = () => {
       {toasterMessage && <ToasterCommon response={toasterMessage} />}
       <Box>
         <Snackbar
-          open={showEnrollmentSnackbar}
+          open={state.showEnrollmentSnackbar}
           autoHideDuration={6000}
-          onClose={handleSnackbarClose}
+          onClose={() => updateState({ showEnrollmentSnackbar: false })}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
         >
           <Alert
             elevation={6}
             variant="filled"
-            onClose={handleSnackbarClose}
+            onClose={() => updateState({ showEnrollmentSnackbar: false })}
             severity="success"
             sx={{ mt: 2 }}
           >
             {t("ENROLLMENT_SUCCESS_MESSAGE")}
           </Alert>
         </Snackbar>
+
         <Snackbar
-          open={showUnEnrollmentSnackbar}
+          open={state.showUnEnrollmentSnackbar}
           autoHideDuration={6000}
-          onClose={handleSnackbarClose}
+          onClose={() => updateState({ showUnEnrollmentSnackbar: false })}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
         >
           <Alert
             elevation={6}
             variant="filled"
-            onClose={handleSnackbarClose}
+            onClose={() => updateState({ showUnEnrollmentSnackbar: false })}
             severity="success"
             sx={{ mt: 2 }}
           >
@@ -1112,10 +1028,22 @@ const JoinCourse = () => {
         <Modal
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
-          open={showConsentForm}
-          onClose={() => setShowConsentForm(false)}
+          open={state.showConsentForm}
+          onClose={() => updateState({ showConsentForm: false })}
         >
-          <Box sx={style} className="joinCourse">
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              width: "50%",
+              transform: "translate(-50%, -50%)",
+              bgcolor: "background.paper",
+              boxShadow: 24,
+              p: 4,
+            }}
+            className="joinCourse"
+          >
             <Typography
               id="modal-modal-title"
               variant="h5"
@@ -1126,44 +1054,48 @@ const JoinCourse = () => {
             </Typography>
             <Box>
               <label>
-                {t("USERNAME")}: {userInfo?.firstName}
+                {t("USERNAME")}: {state.userInfo?.firstName}
               </label>
             </Box>
             <Box>
               <label>
-                {t("USER_ID")}: {userInfo?.organisations[0]?.userId}
+                {t("USER_ID")}: {state.userInfo?.organisations[0]?.userId}
               </label>
             </Box>
             <Box>
               <label>
-                {t("MOBILENUMBER")}: {userInfo?.phone}
+                {t("MOBILENUMBER")}: {state.userInfo?.phone}
               </label>
             </Box>
             <Box>
               <label>
-                {t("EMAIL_ADDRESS")}: {userInfo?.email}
+                {t("EMAIL_ADDRESS")}: {state.userInfo?.email}
               </label>
             </Box>
-
             <Box>
               <input
                 type="checkbox"
-                checked={consentChecked}
-                onChange={handleCheckboxChange}
+                checked={state.consentChecked}
+                onChange={(e) =>
+                  updateState({
+                    consentChecked: e.target.checked,
+                    shareEnabled: e.target.checked,
+                  })
+                }
               />
               <label>{t("CONSENT_TEXT")}</label>
             </Box>
             <Box className="d-flex jc-en">
               <Button
-                onClick={handleDontShareClick}
+                onClick={() => consentUpdate("REVOKED")}
                 className="custom-btn-default mr-5"
               >
                 {t("DONT_SHARE")}
               </Button>
               <Button
-                onClick={handleShareClick}
+                onClick={() => consentUpdate("ACTIVE")}
                 className="custom-btn-primary"
-                disabled={!shareEnabled}
+                disabled={!state.shareEnabled}
               >
                 {t("SHARE")}
               </Button>
@@ -1175,13 +1107,13 @@ const JoinCourse = () => {
           className="xs-pb-20 lg-mt-12 joinCourse"
           style={{ margin: "20px" }}
         >
-          <Box className=" pos-relative xs-ml-15 pt-10">
+          <Box className="pos-relative xs-ml-15 pt-10">
             <Box>
               <img
                 src={
-                  userData?.result?.content.se_gradeLevels
+                  state.userData?.result?.content.se_gradeLevels
                     ? require(`../../assets/cardBanner/${processString(
-                        userData?.result?.content?.se_gradeLevels[0]
+                        state.userData?.result?.content?.se_gradeLevels[0]
                       )}.png`)
                     : require("../../assets/cardBanner/management.png")
                 }
@@ -1194,6 +1126,7 @@ const JoinCourse = () => {
               />
             </Box>
           </Box>
+
           <Grid container spacing={2} className="mt-9 m-0">
             <Grid
               item
@@ -1222,57 +1155,57 @@ const JoinCourse = () => {
                     aria-current="page"
                     className="h6-title oneLineEllipsis height-inherit"
                   >
-                    {userData?.result?.content?.name}
+                    {state.userData?.result?.content?.name}
                   </Link>
                 </Breadcrumbs>
               </Grid>
+
               <Box className="h3-title my-10">
-                {" "}
-                {userData?.result?.content?.name}
+                {state.userData?.result?.content?.name}
               </Box>
 
-              {renderContentTags()}
-              <Box className="lg-hide"> {renderActionButton()}</Box>
-              <BatchDetailsSection
-                batchData={batchData}
-                className="xs-hide"
-                formatDate={formatDate}
-              />
-              <CertificationCriteriaSection
-                batchDetails={batchDetails}
-                batchDetail={batchDetail}
-                score={score}
-                checkCertTemplate={checkCertTemplate}
-                className="xs-hide"
-              />
+              {renderContentTags}
 
-              <CertNotAttachedSection
-                isEnrolled={isEnrolled}
-                batchDetails={batchDetails}
-                checkCertTemplate={checkCertTemplate}
-                className="xs-hide"
-              />
-              <OtherDetailsSection
-                userData={userData}
-                courseData={courseData}
-                formatDate={formatDate}
-                copyrightOpen={copyrightOpen}
-                handlecopyrightOpen={handlecopyrightOpen}
-                handlecopyrightClose={handlecopyrightClose}
-                className="xs-hide"
-              />
+              <Box className="lg-hide">{renderActionButton}</Box>
+
+              <SectionRenderer className="xs-hide" />
 
               <ChatSection
-                chat={chat}
-                handleDirectConnect={handleDirectConnect}
+                chat={state.chat}
+                handleDirectConnect={() => {
+                  if (!_userId) {
+                    window.location.href = `/webapp/joinCourse?${contentId}`;
+                    return;
+                  }
+
+                  const shouldOpenModal =
+                    state.chat.length === 0 ||
+                    (!isMobile && state.chat[0]?.is_accepted === true);
+
+                  if (shouldOpenModal) {
+                    updateState({ open: true });
+                  } else {
+                    navigate(routeConfig.ROUTES.ADDCONNECTION_PAGE.CHAT, {
+                      state: {
+                        senderUserId: _userId,
+                        receiverUserId: state.creatorId,
+                      },
+                    });
+                  }
+                }}
                 _userId={_userId}
-                creatorId={creatorId}
-                open={open}
-                handleClose={handleClose}
+                creatorId={state.creatorId}
+                open={state.open}
+                handleClose={() => {
+                  updateState({ open: false });
+                  window.location.reload();
+                }}
                 isMobile={isMobile}
               />
+
               <SocialShareButtons shareUrl={shareUrl} />
             </Grid>
+
             <Grid
               item
               xs={12}
@@ -1281,10 +1214,10 @@ const JoinCourse = () => {
               className="mb-20 xs-pr-16 lg-pr-20"
             >
               <Box style={{ textAlign: "right" }} className="xs-hide">
-                {" "}
-                {renderActionButton()}
+                {renderActionButton}
               </Box>
-              {renderDescription()}
+
+              {renderDescription}
 
               <Accordion
                 defaultExpanded
@@ -1304,7 +1237,7 @@ const JoinCourse = () => {
                   {t("COURSES_MODULE")}
                 </AccordionSummary>
                 <AccordionDetails>
-                  {userData?.result?.content?.children.map((faqIndex) => (
+                  {state.userData?.result?.content?.children.map((faqIndex) => (
                     <Accordion
                       key={faqIndex.id}
                       style={{ borderRadius: "10px", margin: "10px 0" }}
@@ -1317,7 +1250,6 @@ const JoinCourse = () => {
                       >
                         {faqIndex.name}
                       </AccordionSummary>
-
                       <AccordionDetails
                         style={{ padding: "12px", margin: "-10px 0px" }}
                       >
@@ -1327,44 +1259,42 @@ const JoinCourse = () => {
                   ))}
                 </AccordionDetails>
               </Accordion>
-              <BatchDetailsSection
-                batchData={batchData}
-                className="lg-hide accordionBoxShadow"
-                formatDate={formatDate}
-              />
 
-              <CertificationCriteriaSection
-                batchDetails={batchDetails}
-                batchDetail={batchDetail}
-                score={score}
-                checkCertTemplate={checkCertTemplate}
-                className="lg-hide"
-              />
+              <SectionRenderer className="lg-hide accordionBoxShadow" />
 
-              <CertNotAttachedSection
-                isEnrolled={isEnrolled}
-                batchDetails={batchDetails}
-                checkCertTemplate={checkCertTemplate}
-                className="lg-hide"
-              />
-              <OtherDetailsSection
-                userData={userData}
-                courseData={courseData}
-                formatDate={formatDate}
-                copyrightOpen={copyrightOpen}
-                handlecopyrightOpen={handlecopyrightOpen}
-                handlecopyrightClose={handlecopyrightClose}
-                className="lg-hide"
-              />
               <ChatSection
-                chat={chat}
-                handleDirectConnect={handleDirectConnect}
+                chat={state.chat}
+                handleDirectConnect={() => {
+                  if (!_userId) {
+                    window.location.href = `/webapp/joinCourse?${contentId}`;
+                    return;
+                  }
+
+                  const shouldOpenModal =
+                    state.chat.length === 0 ||
+                    (!isMobile && state.chat[0]?.is_accepted === true);
+
+                  if (shouldOpenModal) {
+                    updateState({ open: true });
+                  } else {
+                    navigate(routeConfig.ROUTES.ADDCONNECTION_PAGE.CHAT, {
+                      state: {
+                        senderUserId: _userId,
+                        receiverUserId: state.creatorId,
+                      },
+                    });
+                  }
+                }}
                 _userId={_userId}
-                creatorId={creatorId}
-                open={open}
-                handleClose={handleClose}
+                creatorId={state.creatorId}
+                open={state.open}
+                handleClose={() => {
+                  updateState({ open: false });
+                  window.location.reload();
+                }}
                 isMobile={isMobile}
               />
+
               <Box className="my-20 lg-hide social-icons">
                 <SocialShareButtons shareUrl={shareUrl} isMobileView={true} />
               </Box>
