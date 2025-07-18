@@ -39,7 +39,8 @@
     },
     "JOIN_COURSE_PAGE": {
       "JOIN_COURSE": "/webapp/joinCourse",
-      "CONTENT_ID": "/:contentId"
+      "CONTENT_ID": "/:contentId",
+      "JOIN_COURSE_PUBLIC": "/webapp/join-course"
     },
     "PLAYER_PAGE": {
       "PLAYER": "/webapp/player"

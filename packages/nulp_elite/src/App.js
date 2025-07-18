@@ -49,6 +49,7 @@ import dayjs from "dayjs";
 import Forum from "components/Forum";
 import Cookies from "js-cookie";
 import AllPublicContent from "pages/content/AllPublicContent";
+import JoinCoursePublic from "pages/content/joinCoursePublic";
 
 function App() {
   // const [t] = useTranslation();
@@ -265,6 +266,11 @@ function App() {
       path: "/public-content",
       component: AllPublicContent,
     },
+    {
+      moduleName: "nulp_elite",
+      path: "/webapp/join-course",
+      component: JoinCoursePublic,
+    },
   ];
 
   initializeI18n(
@@ -272,6 +278,7 @@ function App() {
     `${process.env.PUBLIC_URL}/locales/{{lng}}/{{ns}}.json`
   );
   useEffect(() => {
+    if (!_userId || _userId.trim() === "") return;
     const fetchUserData = async () => {
       try {
         const uservData = await util.userData();
@@ -352,7 +359,7 @@ function App() {
     };
     fetchData();
     UserData();
-  }, []);
+  }, [_userId]);
 
   return (
     <NativeBaseProvider>
