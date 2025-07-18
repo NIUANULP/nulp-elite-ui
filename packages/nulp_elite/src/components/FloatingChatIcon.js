@@ -29,7 +29,7 @@ const FloatingChatIcon = () => {
 
   const open = Boolean(anchorEl);
   const id = open ? "chat-popover" : undefined;
-  const chatBotUrl = `${window.location.origin}/chatbot`
+  const chatBotUrl = `${window.location.origin}/chatbot`;
 
   return (
     <>
@@ -43,30 +43,23 @@ const FloatingChatIcon = () => {
           horizontal: "left",
         }}
       >
-        <iframe
-          src={chatBotUrl}
-          width="350"
-          height="500"
-          title="ChatBot"
-        />
+        <iframe src={chatBotUrl} width="350" height="500" title="ChatBot" />
       </Popover>
       <Tooltip title={t("NULP_ASSIST")} placement="left">
-      <Link
-        onClick={handleOpenPopover}
-        color="primary"
-        aria-label="chat"
-        className="chatIcon"
-      >
-        <HeadsetMicOutlinedIcon
-          style={{
-            paddingRight: "8px",
-            borderRadius: "50%",
-            width: "30px", // Adjust the size as needed
-            height: "3  2px", // Adjust the size as needed
-          }}
-        />
-        
-      </Link>
+        <Link
+          onClick={handleOpenPopover}
+          color="primary"
+          aria-label="chat"
+          className="chatIcon"
+        >
+          <HeadsetMicOutlinedIcon
+            style={{
+              borderRadius: "50%",
+              width: "30px", // Adjust the size as needed
+              height: "3  2px", // Adjust the size as needed
+            }}
+          />
+        </Link>
       </Tooltip>
     </>
   );

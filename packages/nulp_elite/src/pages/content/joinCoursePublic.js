@@ -1219,7 +1219,6 @@ const JoinCourse = () => {
                   updateState({ open: false });
                   window.location.reload();
                 }}
-                isMobile={isMobile}
               />
 
               <SocialShareButtons shareUrl={shareUrl} />
@@ -1256,26 +1255,28 @@ const JoinCourse = () => {
                   {t("COURSES_MODULE")}
                 </AccordionSummary>
                 <AccordionDetails>
-                  {state.userData?.result?.content?.children.map((faqIndex) => (
-                    <Accordion
-                      key={faqIndex.id}
-                      style={{ borderRadius: "10px", margin: "10px 0" }}
-                    >
-                      <AccordionSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls={`panel${faqIndex.id}-content`}
-                        id={`panel${faqIndex.id}-header`}
-                        className="h5-title"
+                  {state?.userData?.result?.content?.children?.map(
+                    (faqIndex) => (
+                      <Accordion
+                        key={faqIndex.id}
+                        style={{ borderRadius: "10px", margin: "10px 0" }}
                       >
-                        {faqIndex.name}
-                      </AccordionSummary>
-                      <AccordionDetails
-                        style={{ padding: "12px", margin: "-10px 0px" }}
-                      >
-                        {renderContentItem(faqIndex)}
-                      </AccordionDetails>
-                    </Accordion>
-                  ))}
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          aria-controls={`panel${faqIndex.id}-content`}
+                          id={`panel${faqIndex.id}-header`}
+                          className="h5-title"
+                        >
+                          {faqIndex.name}
+                        </AccordionSummary>
+                        <AccordionDetails
+                          style={{ padding: "12px", margin: "-10px 0px" }}
+                        >
+                          {renderContentItem(faqIndex)}
+                        </AccordionDetails>
+                      </Accordion>
+                    )
+                  )}
                 </AccordionDetails>
               </Accordion>
 
@@ -1295,39 +1296,40 @@ const JoinCourse = () => {
                 onCopyrightClose={() => updateState({ copyrightOpen: false })}
               />
 
-              <ChatSection
-                chat={state.chat}
-                handleDirectConnect={() => {
-                  if (!_userId) {
-                    window.location.href = `/webapp/joinCourse?${contentId}`;
-                    return;
-                  }
+              {isMobile && (
+                <ChatSection
+                  chat={state.chat}
+                  handleDirectConnect={() => {
+                    if (!_userId) {
+                      window.location.href = `/webapp/joinCourse?${contentId}`;
+                      return;
+                    }
 
-                  const shouldOpenModal =
-                    state.chat.length === 0 ||
-                    (!isMobile && state.chat[0]?.is_accepted === true);
+                    const shouldOpenModal =
+                      state.chat.length === 0 ||
+                      (!isMobile && state.chat[0]?.is_accepted === true);
 
-                  if (shouldOpenModal) {
-                    updateState({ open: true });
-                  } else {
-                    navigate(routeConfig.ROUTES.ADDCONNECTION_PAGE.CHAT, {
-                      state: {
-                        senderUserId: _userId,
-                        receiverUserId: state.creatorId,
-                      },
-                    });
-                  }
-                }}
-                _userId={_userId}
-                creatorId={state.creatorId}
-                open={state.open}
-                handleClose={() => {
-                  updateState({ open: false });
-                  window.location.reload();
-                }}
-                isMobile={isMobile}
-              />
-
+                    if (shouldOpenModal) {
+                      updateState({ open: true });
+                    } else {
+                      navigate(routeConfig.ROUTES.ADDCONNECTION_PAGE.CHAT, {
+                        state: {
+                          senderUserId: _userId,
+                          receiverUserId: state.creatorId,
+                        },
+                      });
+                    }
+                  }}
+                  _userId={_userId}
+                  creatorId={state.creatorId}
+                  open={state.open}
+                  handleClose={() => {
+                    updateState({ open: false });
+                    window.location.reload();
+                  }}
+                  isMobile={isMobile}
+                />
+              )}
               <Box className="my-20 lg-hide social-icons">
                 <SocialShareButtons shareUrl={shareUrl} isMobileView={true} />
               </Box>
