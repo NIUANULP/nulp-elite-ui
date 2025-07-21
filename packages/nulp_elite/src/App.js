@@ -268,7 +268,7 @@ function App() {
     },
     {
       moduleName: "nulp_elite",
-      path: "/webapp/join-course",
+      path: "/join-course",
       component: JoinCoursePublic,
     },
   ];
