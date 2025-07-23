@@ -85,6 +85,9 @@ const Player = () => {
   const [reviewEnable, setReviewEnable] = useState(false);
 
   const fetchUserData = useCallback(async () => {
+    if (!_userId) {
+      return;
+    }
     try {
       const userData = await util.userData();
       extractedRoles = userData?.data?.result?.response.roles.map(
@@ -100,7 +103,9 @@ const Player = () => {
 
   const handleTrackData = useCallback(
     async ({ score, trackData, attempts, ...props }, playerType = "quml") => {
-
+      if (!_userId) {
+        return;
+      }
       console.log("propLength", Object.keys(props).length);
       console.log("playerType", playerType);
       console.log("assessEvents.length", assessEvents.length);
@@ -108,49 +113,46 @@ const Player = () => {
       setPropLength(Object.keys(props).length);
       CheckfeedBackSubmitted();
 
-      if ( 
+      if (
         playerType === "pdf-video" &&
         props.currentPage === props.totalPages
       ) {
         setIsCompleted(true);
-      } 
+      }
       // else if (playerType === "ecml" && propLength === assessEvents.length) {
       //   await updateContentStateForAssessment();
       // }
     },
-    [assessEvents]
+    [assessEvents, _userId]
   );
 
   const handleAssessmentData = async (data) => {
-
     console.log("handleAssessmentData called with data:", data);
     console.log("Current assessEvents state:", assessEvents);
-    
-    if (data.eid === "ASSESS") {
 
+    if (data.eid === "ASSESS") {
       console.log("Processing ASSESS event");
-      
+
       setAssessEvents((prevAssessEvents) => {
         console.log("Previous assessEvents:", prevAssessEvents);
-      
+
         const updatedAssessEvents = [...prevAssessEvents, data];
         console.log("Updated assessEvents:", updatedAssessEvents);
-      
+
         return updatedAssessEvents;
       });
 
       // setAssessEvents(...assessEvents, data);
     } else if (data.eid === "END") {
-      console.log("END event received. Waiting for assessEvents to match propLength...");
+      console.log(
+        "END event received. Waiting for assessEvents to match propLength..."
+      );
       setIsEndEventReceived(true); // mark END event received
       // await updateContentState(2);
     } else if (data.eid === "START" && playerType === "ecml") {
-      
       // console.log("Processing START event for ecml");
       await updateContentState(1);
-    
     } else if (data.eid === "START" && playerType != "ecml") {
-
       // console.log("Processing START event for non-ecml");
       await updateContentState(2);
     }
@@ -163,28 +165,37 @@ const Player = () => {
 
   useEffect(() => {
     console.log("Component mounted");
-  
+
     return () => {
       console.log("Component unmounted");
     };
   }, []);
-  
-  useEffect(() => {
 
-    console.log("##########################################################################");
+  useEffect(() => {
+    console.log(
+      "##########################################################################"
+    );
     console.log("useEffect isEndEventReceived -", isEndEventReceived);
     console.log("useEffect assessEvents.length - ", assessEvents.length);
     console.log("useEffect propLength - ", propLength);
-    
-    if (isEndEventReceived && assessEvents.length > 0 && propLength === assessEvents.length) {
-      console.log("Calling updateContentState with status 2 after all assessments and END event");
-    
+
+    if (
+      isEndEventReceived &&
+      assessEvents.length > 0 &&
+      propLength === assessEvents.length
+    ) {
+      console.log(
+        "Calling updateContentState with status 2 after all assessments and END event"
+      );
+      if (!_userId) {
+        return;
+      }
       updateContentStateForAssessment();
 
       // Reset flag to prevent repeated calls
       setIsEndEventReceived(false);
     }
-  }, [isEndEventReceived, assessEvents, propLength]);
+  }, [isEndEventReceived, assessEvents, propLength, _userId]);
 
   const CheckfeedBackSubmitted = async () => {
     try {
@@ -257,9 +268,12 @@ const Player = () => {
   }
 
   const updateContentStateForAssessment = async () => {
+    if (!_userId) {
+      return;
+    }
     // await updateContentState(2);
     try {
-      console.log('end assessment', courseId);
+      console.log("end assessment", courseId);
       const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
       const requestBody = {
         request: {
@@ -294,9 +308,10 @@ const Player = () => {
   };
 
   const updateContentState = useCallback(
-
     async (status) => {
-
+      if (!_userId) {
+        return;
+      }
       // if (isEnrolled) {
       const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
       await axios.patch(url, {
@@ -510,6 +525,9 @@ const Player = () => {
   };
 
   const CheckAlreadyVoted = async () => {
+    if (!_userId) {
+      return;
+    }
     if (learnathonDetails?.status === "Live") {
       try {
         const url = `${urlConfig.URLS.POLL.GET_USER_POLL}?poll_id=${pollId}&user_id=${_userId}`;
@@ -542,6 +560,9 @@ const Player = () => {
     window.location.reload();
   };
   const Publish = async () => {
+    if (!_userId) {
+      return;
+    }
     const reqBody = {
       request: {
         content: {
@@ -584,7 +605,7 @@ const Player = () => {
         is_live_poll_result: true,
         content_id: learnathonDetails?.learnathon_content_id,
         category: "Learnathon",
-        content_category: learnathonDetails?.category_of_participation
+        content_category: learnathonDetails?.category_of_participation,
       };
       try {
         const response = await fetch(`${urlConfig.URLS.POLL.CREATE}`, {
@@ -723,10 +744,9 @@ const Player = () => {
 
   useEffect(() => {
     if (contentId) {
-      localStorage.setItem('playerVisited', 'true');
+      localStorage.setItem("playerVisited", "true");
     }
   }, [location.search]);
-
 
   return (
     <div>
@@ -819,7 +839,6 @@ const Player = () => {
                         </Button>
                       )
                     )}
-
                     {!isLearnathon &&
                       !lesson.board &&
                       lesson.se_boards &&
@@ -838,10 +857,9 @@ const Player = () => {
                           {item}
                         </Button>
                       ))}
-
                     {isLearnathon &&
-                      learnathonDetails.indicative_sub_theme &&
-                      learnathonDetails.indicative_sub_theme != null ? (
+                    learnathonDetails.indicative_sub_theme &&
+                    learnathonDetails.indicative_sub_theme != null ? (
                       <Button
                         key={`board`}
                         size="small"
@@ -873,6 +891,7 @@ const Player = () => {
                         </Button>
                       ))
                     )}
+                    /
                     {isLearnathon &&
                       learnathonDetails.other_indicative_themes &&
                       learnathonDetails.other_indicative_themes != null && (
@@ -890,7 +909,6 @@ const Player = () => {
                           {learnathonDetails.other_indicative_themes}
                         </Button>
                       )}
-
                     {!isLearnathon &&
                       !lesson.gradeLevel &&
                       lesson.se_gradeLevels &&
