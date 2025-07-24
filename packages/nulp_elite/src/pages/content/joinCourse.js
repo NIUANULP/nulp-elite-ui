@@ -302,7 +302,7 @@ const JoinCourse = () => {
         completedCount = completedCount + 1;
       }
     });
-    if (allContents.length == completedCount) {
+    if (allContents?.length == completedCount) {
       setIsCompleted(true);
     }
   };
