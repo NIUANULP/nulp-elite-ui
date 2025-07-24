@@ -33,7 +33,17 @@ export default function BoxCard({ items, index, onClick, continueLearning }) {
     const options = { day: "2-digit", month: "long", year: "numeric" };
     return dateObject.toLocaleDateString("en-GB", options);
   };
-
+  const getCardImage = (subdomain) => {
+    if (!subdomain) {
+      return require("./../assets/cards/knowledge.png");
+    }
+    
+    try {
+      return require(`./../assets/cards/${subdomain}.png`);
+    } catch (error) {
+      return require("./../assets/cards/knowledge.png");
+    }
+  };
 
   if (items.content) {
     return (
@@ -44,11 +54,7 @@ export default function BoxCard({ items, index, onClick, continueLearning }) {
       >
         <CardMedia
           className="card-media"
-          image={
-            subdomain
-              ? require(`./../assets/cards/${subdomain}.png`)
-              : require("./../assets/cards/management.png")
-          }
+          image={getCardImage(subdomain)}
           title="green iguana"
         />
         <div onClick={onClick} className="card-div"></div>
@@ -156,11 +162,7 @@ export default function BoxCard({ items, index, onClick, continueLearning }) {
     >
       <CardMedia
         className="card-media"
-        image={
-          subdomain
-            ? require(`./../assets/cards/${subdomain}.png`)
-            : require("./../assets/cards/management.png")
-        }
+        image={getCardImage(subdomain)}
         title="green iguana"
       />
       <div onClick={onClick} className="card-div"></div>
