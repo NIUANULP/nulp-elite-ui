@@ -991,6 +991,20 @@ const JoinCourse = () => {
     t,
   ]);
 
+  const getCardImage = (subdomain) => {
+    if (!subdomain) {
+      return require("../../assets/cardBanner/urbandesign.png");
+    }
+
+    try {
+      return require(`../../assets/cardBanner/${subdomain}.png`);
+    } catch (error) {
+      console.log("Switching to default image");
+
+      return require("../../assets/cardBanner/urbandesign.png");
+    }
+  };
+
   return (
     <div>
       <Header />
@@ -1117,10 +1131,10 @@ const JoinCourse = () => {
               <img
                 src={
                   state.userData?.result?.content.se_gradeLevels
-                    ? require(`../../assets/cardBanner/${processString(
+                    ? getCardImage(
                         state.userData?.result?.content?.se_gradeLevels[0]
-                      )}.png`)
-                    : require("../../assets/cardBanner/management.png")
+                      )
+                    : getCardImage("urbandesign")
                 }
                 alt="Speaker One"
                 className="contentdetail-bg"
