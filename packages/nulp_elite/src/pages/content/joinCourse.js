@@ -613,6 +613,20 @@ const JoinCourse = () => {
     window.location.reload();
   };
 
+  const getCardImage = (subdomain) => {
+    if (!subdomain) {
+      return require("../../assets/cardBanner/urbandesign.png");
+    }
+
+    try {
+      return require(`../../assets/cardBanner/${subdomain}.png`);
+    } catch (error) {
+      console.log("Switching to default image");
+
+      return require("../../assets/cardBanner/urbandesign.png");
+    }
+  };
+
   const renderActionButton = () => {
     if (isEnrolled() || enrolled) {
       if (isNotStarted) {
@@ -1136,10 +1150,8 @@ const JoinCourse = () => {
               <img
                 src={
                   userData?.result?.content.se_gradeLevels
-                    ? require(`../../assets/cardBanner/${processString(
-                        userData?.result?.content?.se_gradeLevels[0]
-                      )}.png`)
-                    : require("../../assets/cardBanner/management.png")
+                    ? getCardImage(userData?.result?.content?.se_gradeLevels[0])
+                    : getCardImage("urbandesign")
                 }
                 alt="Speaker One"
                 className="contentdetail-bg"

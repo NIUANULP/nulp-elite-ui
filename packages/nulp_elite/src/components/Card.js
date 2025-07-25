@@ -35,13 +35,13 @@ export default function BoxCard({ items, index, onClick, continueLearning }) {
   };
   const getCardImage = (subdomain) => {
     if (!subdomain) {
-      return require("./../assets/cards/knowledge.png");
+      return require("./../assets/cards/urbandesign.png");
     }
     
     try {
       return require(`./../assets/cards/${subdomain}.png`);
     } catch (error) {
-      return require("./../assets/cards/knowledge.png");
+      return require("./../assets/cards/urbandesign.png");
     }
   };
 
