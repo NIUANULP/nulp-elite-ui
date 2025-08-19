@@ -162,7 +162,17 @@ const Certificate = () => {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) {
+      return "Not Provided";
+    }
+    
     const date = new Date(dateString);
+    
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      return "Not Provided";
+    }
+    
     const options = { day: "2-digit", month: "long", year: "numeric" };
     return date.toLocaleDateString("en-GB", options);
   };
