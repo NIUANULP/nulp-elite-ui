@@ -704,23 +704,30 @@ button {
   }
 
   .chatIcon {
-    bottom: 162px;
-    width: 65px;
-    height: 46px;
-    background: #484848;
-    border-radius: 10px;
-    color: #fff;
-    right: 5px;
-    display: block;
-    text-align: center;
-    position: fixed;
-    box-shadow: 0px 4px 4px 0px #00000040;
-    z-index: 999;
-    text-decoration: none;
+    border: none;
+    border-radius: 70px;
+    bottom: 103px;
     cursor: pointer;
+    height: 31px;
+    padding: 20px;
+    position: fixed;
+    right: 20px;
     display: flex;
+    overflow: hidden;
     align-items: center;
-    justify-content: center;
+    width: auto;
+    max-width: 70px;
+    transition: all 400ms;
+    color: var(--color-white);
+    background-color: #484848;
+    text-align: left;
+    z-index: 99999;
+  }
+  .chatIcon svg {
+    padding-right: 0px !important;
+  }
+  .uw-widget-custom-trigger {
+    z-index: 1000 !important;
   }
 
   .ml-10 {
@@ -1860,7 +1867,7 @@ button {
   }
 
   .chatIcon {
-    bottom: 82px;
+    bottom: 102px;
   }
 
   .card-img-container {

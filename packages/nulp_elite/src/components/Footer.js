@@ -51,9 +51,10 @@ export default function Footer() {
     setAnchorEl(null);
   };
   React.useEffect(() => {
+    if (!_userId || _userId.trim() === "") return;
     setActivePath(location.pathname);
     fetchData();
-  }, [location.pathname]);
+  }, [location.pathname, _userId]);
   const fetchData = async () => {
     try {
       const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.GET_PROFILE}${_userId}?fields=${urlConfig.params.userReadParam.fields}`;

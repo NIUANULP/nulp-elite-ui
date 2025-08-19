@@ -77,7 +77,7 @@ find ../dist -type f -name 'index.html' -exec bash -c 'mv "$1" "${1%.html}.ejs" 
 
 # rm ../dist/webapp/index.ejs  # need to uncomment this line when dev deployment
 find ../dist -type f -name 'index.ejs' -exec sed -i '/<head>/a \
-<% if (structuredData && structuredData.length) { %>\
+<% if (typeof structuredData !== "undefined" && structuredData.length) { %>\
   <% structuredData.forEach(function(jsonLd) { %>\
     <script type="application/ld+json">\
       <%- jsonLd %>\
@@ -85,14 +85,16 @@ find ../dist -type f -name 'index.ejs' -exec sed -i '/<head>/a \
   <% }); %>\
 <% } %>\
 <% \
-  const totalPages = Math.ceil(totalCount / pageSize);\
+  const _page = typeof page !== "undefined" ? page : 1;\
+  const _pageSize = typeof pageSize !== "undefined" ? pageSize : 10;\
+  const _totalCount = typeof totalCount !== "undefined" ? totalCount : 0;\
+  const totalPages = Math.ceil(_totalCount / _pageSize);\
 %>\
-<% if (page > 1) { %>\
-  <link rel="prev" href="/webapp?page=<%= page - 1 %>&pageSize=<%= pageSize %>">\
+<% if (_page > 1) { %>\
+  <link rel="prev" href="/webapp?page=<%= _page - 1 %>&pageSize=<%= _pageSize %>">\
 <% } %>\
-<% if (page < totalPages) { %>\
-  <link rel="next" href="/webapp?page=<%= page + 1 %>&pageSize=<%= pageSize %>">\
+<% if (_page < totalPages) { %>\
+  <link rel="next" href="/webapp?page=<%= _page + 1 %>&pageSize=<%= _pageSize %>">\
 <% } %>\
 ' {} \;
-
 cp -r ../dist/webapp/* ../dist/
