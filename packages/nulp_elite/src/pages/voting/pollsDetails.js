@@ -43,7 +43,17 @@ const pollsDetailes = () => {
   const [selectedPollId, setSelectedPollId] = useState(null);
   const shareUrl = window.location.href;
   const formatDate = (dateString) => {
+    if (!dateString) {
+      return "Not Provided";
+    }
+    
     const date = new Date(dateString);
+    
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      return "Not Provided";
+    }
+    
     return date.toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "long",
