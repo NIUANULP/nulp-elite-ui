@@ -782,15 +782,7 @@ const DomainList = ({ globalSearchQuery }) => {
                             </Button>
                           </Grid>
                         )}
-                        {/* {isAfterSubmission && (
-                          <Grid item xs={12}>
-                            <Button 
-                             className="viewAll" 
-                             onClick={handleCheckUser}>
-                            {t("SEE_YOUR_SUBMISSION")}
-                            </Button>
-                          </Grid>  
-                        )} */}
+                        
                         {isReviewNow && isReviewer && (
                           <Grid item xs={12}>
                             <Button
