@@ -75,6 +75,7 @@ const DomainList = ({ globalSearchQuery }) => {
   const [orgId, setOrgId] = useState([]);
   const [isLearnathonUser, setIsLearnathonUser] = useState(false);
   const [searchQuery, setSearchQuery] = useState(globalSearchQuery || "");
+  const [hasLearnSubmissionList, setHasLearnSubmissionList] = useState(false);
 
   const [lernUser, setLernUser] = useState([]);
   const _userId = util.userId();
@@ -109,7 +110,7 @@ const DomainList = ({ globalSearchQuery }) => {
 
   const fetchData = async () => {
     try {
-      const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.USER.GET_PROFILE}${_userId}`;
+      const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.ULEARNATHON_DATESRLS.USER.GET_PROFILE}${_userId}`;
       const response = await fetch(url);
       const data = await response.json();
       const rolesData = data.result.response.channel;
@@ -143,6 +144,48 @@ const DomainList = ({ globalSearchQuery }) => {
     }
   }, [_userId]);
 
+  useEffect(() => {
+    if (_userId) {
+      fetchHasLearnSubmissionList();
+    }
+  }, [_userId]);
+
+  const fetchHasLearnSubmissionList = async () => {
+    try {
+      const assetBody = {
+        request: {
+          filters: {
+            created_by: _userId,
+          },
+          sort_by: {
+            created_on: "desc",
+          },
+          limit: 1, // Only need to check if any submissions exist
+          offset: 0,
+        },
+      };
+
+      const response = await fetch(`${urlConfig.URLS.LEARNATHON.LIST}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(assetBody),
+      });
+
+      if (!response.ok) {
+        throw new Error("Something went wrong");
+      }
+
+      const result = await response.json();
+      const hasSubmissions = result.result && result.result.totalCount > 0;
+      setHasLearnSubmissionList(hasSubmissions);
+    } catch (error) {
+      console.log("Error checking submissions:", error);
+      setHasLearnSubmissionList(false);
+    }
+  };
+
   const checkAccess = async () => {
     try {
       const url = `${urlConfig.URLS.CHECK_USER_ACCESS}`;
@@ -167,7 +210,6 @@ const DomainList = ({ globalSearchQuery }) => {
       console.error("Error fetching user data:", error);
     }
   };
-
   const navigateConsecutively = async () => {
     console.log("navigateConsecutively1111");
     // navigate("/logoff");
@@ -708,14 +750,15 @@ const DomainList = ({ globalSearchQuery }) => {
                             Vote Now
                           </Button>
                         </Grid>
-                        {isAfterSubmission && (
-                        <Grid item xs={12}>
-                          <Button 
-                             className="viewAll" 
-                             onClick={handleCheckUser}>
-                             {t("SEE_YOUR_SUBMISSION")}
-                          </Button>
-                        </Grid>
+                        {isAfterSubmission && hasLearnSubmissionList && (
+                          <Grid item xs={12}>
+                            <Button
+                              className="viewAll"
+                              onClick={() => navigate("/webapp/mylernsubmissions")}
+                            >
+                              {t("SEE_YOUR_SUBMISSION")}
+                            </Button>
+                          </Grid>
                         )}
                       </Grid>
                     </Grid>
@@ -739,15 +782,7 @@ const DomainList = ({ globalSearchQuery }) => {
                             </Button>
                           </Grid>
                         )}
-                        {isAfterSubmission && (
-                          <Grid item xs={12}>
-                            <Button 
-                             className="viewAll" 
-                             onClick={handleCheckUser}>
-                            {t("SEE_YOUR_SUBMISSION")}
-                            </Button>
-                          </Grid>  
-                        )}
+                        
                         {isReviewNow && isReviewer && (
                           <Grid item xs={12}>
                             <Button
