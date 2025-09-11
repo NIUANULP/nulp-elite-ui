@@ -110,6 +110,12 @@ const JoinCourse = () => {
   };
   const [activeBatch, SetActiveBatch] = useState(true);
 
+  // Assessment state variables
+  const [assessmentData, setAssessmentData] = useState([]);
+  const [failedAssessments, setFailedAssessments] = useState([]);
+  const [assessmentAttempts, setAssessmentAttempts] = useState({});
+  const [showAssessmentStatus, setShowAssessmentStatus] = useState(false);
+
   const style = {
     position: "absolute",
     top: "50%",
@@ -392,12 +398,206 @@ const JoinCourse = () => {
   //   calculateProgress();
   // }, [batchDetails, courseData]);
 
+  const processAssessmentData = (contentList, requiredScore) => {
+    const assessments = [];
+    const failed = [];
+    const attempts = {};
+
+    contentList.forEach(content => {
+      // Check if content has score data (it's an array in the API response)
+      if (content.score && Array.isArray(content.score)) {
+        // Calculate attempts from score array length
+        const currentAttempts = content.score.length;
+        console.log("currentAttempts", currentAttempts)
+        
+        // Only process if there are actual attempts (score array is not empty)
+        if (currentAttempts > 0) {
+          // Find the best score from all attempts
+          const bestScoreData = content.score.reduce((best, current) => {
+            const currentScore = parseFloat(current.totalScore);
+            const bestScore = parseFloat(best.totalScore);
+            return currentScore > bestScore ? current : best;
+          });
+
+          const currentScore = parseFloat(bestScoreData.totalScore);
+          const maxScore = parseFloat(bestScoreData.totalMaxScore);
+          const scorePercentage = (currentScore / maxScore) * 100;
+          
+          // Find the maxAttempts from courseData for this content
+          let maxAttempts = 10; // Default value
+          if (courseData?.result?.content?.children) {
+            const findMaxAttempts = (children) => {
+              for (let child of children) {
+                if (child.children) {
+                  for (let grandchild of child.children) {
+                    if (grandchild.identifier === content.contentId && grandchild.maxAttempts) {
+                      return grandchild.maxAttempts;
+                    }
+                  }
+                }
+              }
+              return 10; // Default if not found
+            };
+            maxAttempts = findMaxAttempts(courseData.result.content.children);
+          }
+          
+          assessments.push({
+            contentId: content.contentId,
+            score: currentScore,
+            maxScore: maxScore,
+            scorePercentage: scorePercentage,
+            status: content.status,
+            attempts: currentAttempts // Use calculated attempts from score array length
+          });
+
+          // Check if assessment failed (score below required threshold)
+          if (requiredScore && scorePercentage < requiredScore) {
+            failed.push({
+              contentId: content.contentId,
+              score: currentScore,
+              maxScore: maxScore,
+              scorePercentage: scorePercentage,
+              attempts: currentAttempts, // Use calculated attempts
+              maxAttempts: maxAttempts // Use the actual maxAttempts from API
+            });
+          }
+
+          attempts[content.contentId] = currentAttempts; // Use calculated attempts
+        } else {
+          // No attempts made yet, set attempts to 0
+          attempts[content.contentId] = 0;
+        }
+      } else {
+        // No score data at all, set attempts to 0
+        attempts[content.contentId] = 0;
+      }
+    });
+
+    setAssessmentData(assessments);
+    setFailedAssessments(failed);
+    setAssessmentAttempts(attempts);
+    setShowAssessmentStatus(failed.length > 0);
+  };
+
+  const getCourseProgress = async () => {
+    if (batchDetails) {
+      const request = {
+        request: {
+          userId: _userId,
+          courseId: contentId,
+          contentIds: allContents,
+          batchId: batchDetails.batchId,
+          fields: ["progress", "score"],
+        },
+      };
+
+      try {
+        const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_READ}`;
+        const response = await axios.post(url, request);
+        const data = response.data;
+        setCourseProgress(data);
+        checkCourseComplition(allContents, data);
+
+        // Process assessment data
+        if (data?.result?.contentList) {
+          const currentScore = batchDetail?.response?.certTemplates ?
+            getScoreCriteria(batchDetail) : 70; // Default to 70% if no criteria
+          processAssessmentData(data.result.contentList, currentScore);
+        }
+
+        const contentIds =
+          data?.result?.contentList?.map((item) => item.contentId) || [];
+        if (contentIds.length === 0) {
+          setIsNotStarted(true);
+        }
+        setConsumedContents(contentIds);
+
+        for (let content of data?.result?.contentList) {
+          if (content.status === 1) {
+            setContinueLearning(content.contentId);
+            break;
+          }
+        }
+
+        const newCompletedContents = [];
+
+        for (let content of data?.result?.contentList) {
+          if (content.status === 2) {
+            newCompletedContents.push(content.contentId);
+          }
+        }
+
+        if (newCompletedContents.length > 0) {
+          setCompletedContents((prevContents) => [
+            ...prevContents,
+            ...newCompletedContents,
+          ]);
+          setIsContentConsumed(true);
+        }
+
+        const contentList = data.result.contentList;
+
+        let allFound = true;
+        let notConsumedContent;
+
+        if (Array.isArray(allContents)) {
+          for (let identifier of allContents) {
+            const found = Array.isArray(contentList)
+              ? contentList.find(
+                (item) => item.contentId === identifier && item.status === 2
+              )
+              : undefined;
+
+            if (!found) {
+              notConsumedContent = identifier;
+              allFound = false;
+              break;
+            }
+          }
+        } else {
+          console.error("Error: allContents is not an array or is undefined");
+        }
+
+        if (allFound) {
+          if (Array.isArray(allContents) && allContents?.length > 0) {
+            notConsumedContent = allContents[0];
+            try {
+              const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
+              const response = await axios.patch(url, {
+                request: {
+                  userId: _userId,
+                  courseId: contentId,
+                  batchId: batchDetails?.batchId,
+                },
+              });
+              setToasterMessage(t("COURSE_SUCCESSFULLY_COMPLETED"));
+              setTimeout(() => {
+                setToasterMessage("");
+              }, 2000);
+              setToasterOpen(true);
+            } catch (error) {
+              console.error("Error while fetching courses:", error);
+            }
+          } else {
+            console.error(
+              "Error: allContents is either not an array or it is empty."
+            );
+          }
+        }
+
+        setNotConsumedContent(notConsumedContent);
+      } catch (error) {
+        console.error("Error while fetching courses:", error);
+        showErrorMessage(t("FAILED_TO_FETCH_DATA"));
+      }
+    }
+  };
+
   useEffect(() => {
     const fetchChats = async () => {
       try {
-        const url = `${
-          urlConfig.URLS.DIRECT_CONNECT.GET_CHATS
-        }?sender_id=${_userId}&receiver_id=${creatorId}&is_accepted=${true}`;
+        const url = `${urlConfig.URLS.DIRECT_CONNECT.GET_CHATS
+          }?sender_id=${_userId}&receiver_id=${creatorId}&is_accepted=${true}`;
 
         const response = await axios.get(url, {
           withCredentials: true,
@@ -406,112 +606,6 @@ const JoinCourse = () => {
         setChat(response.data.result || []);
       } catch (error) {
         console.error("Error fetching chats:", error);
-      }
-    };
-    const getCourseProgress = async () => {
-      if (batchDetails) {
-        const request = {
-          request: {
-            userId: _userId,
-            courseId: contentId,
-            contentIds: allContents,
-            batchId: batchDetails.batchId,
-            fields: ["progress", "score"],
-          },
-        };
-
-        try {
-          const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_READ}`;
-          const response = await axios.post(url, request);
-          const data = response.data;
-          setCourseProgress(data);
-          checkCourseComplition(allContents, data);
-
-          const contentIds =
-            data?.result?.contentList?.map((item) => item.contentId) || [];
-          if (contentIds.length === 0) {
-            setIsNotStarted(true);
-          }
-          setConsumedContents(contentIds);
-
-          for (let content of data?.result?.contentList) {
-            if (content.status === 1) {
-              setContinueLearning(content.contentId);
-              break;
-            }
-          }
-
-          const newCompletedContents = [];
-
-          for (let content of data?.result?.contentList) {
-            if (content.status === 2) {
-              newCompletedContents.push(content.contentId);
-            }
-          }
-
-          if (newCompletedContents.length > 0) {
-            setCompletedContents((prevContents) => [
-              ...prevContents,
-              ...newCompletedContents,
-            ]);
-            setIsContentConsumed(true);
-          }
-
-          const contentList = data.result.contentList;
-
-          let allFound = true;
-          let notConsumedContent;
-
-          if (Array.isArray(allContents)) {
-            for (let identifier of allContents) {
-              const found = Array.isArray(contentList)
-                ? contentList.find(
-                    (item) => item.contentId === identifier && item.status === 2
-                  )
-                : undefined;
-
-              if (!found) {
-                notConsumedContent = identifier;
-                allFound = false;
-                break;
-              }
-            }
-          } else {
-            console.error("Error: allContents is not an array or is undefined");
-          }
-
-          if (allFound) {
-            if (Array.isArray(allContents) && allContents?.length > 0) {
-              notConsumedContent = allContents[0];
-              try {
-                const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
-                const response = await axios.patch(url, {
-                  request: {
-                    userId: _userId,
-                    courseId: contentId,
-                    batchId: batchDetails?.batchId,
-                  },
-                });
-                setToasterMessage(t("COURSE_SUCCESSFULLY_COMPLETED"));
-                setTimeout(() => {
-                  setToasterMessage("");
-                }, 2000);
-                setToasterOpen(true);
-              } catch (error) {
-                console.error("Error while fetching courses:", error);
-              }
-            } else {
-              console.error(
-                "Error: allContents is either not an array or it is empty."
-              );
-            }
-          }
-
-          setNotConsumedContent(notConsumedContent);
-        } catch (error) {
-          console.error("Error while fetching courses:", error);
-          showErrorMessage(t("FAILED_TO_FETCH_DATA"));
-        }
       }
     };
     fetchChats();
@@ -542,14 +636,14 @@ const JoinCourse = () => {
     if (!dateString) {
       return "Not Provided";
     }
-    
+
     const date = new Date(dateString);
-    
+
     // Check if the date is valid
     if (isNaN(date.getTime())) {
       return "Not Provided";
     }
-    
+
     return date.toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "long",
@@ -559,6 +653,14 @@ const JoinCourse = () => {
 
   const handleLinkClick = (id) => {
     if (isEnroll) {
+      // Check if this is an assessment and if max attempts are exceeded
+      const assessmentData = failedAssessments.find(assessment => assessment.contentId === id);
+      
+      if (assessmentData && assessmentData.attempts >= assessmentData.maxAttempts) {
+        showErrorMessage(t("MAX_ATTEMPTS_EXCEEDED"));
+        return;
+      }
+      
       navigate(
         `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${id}&cId=${contentId}&bId=${batchDetails?.batchId}`,
         {
@@ -771,6 +873,7 @@ const JoinCourse = () => {
               )}
             </Box>
             {isCompleted && <Box>{t("COURSE_SUCCESSFULLY_COMPLETED")}</Box>}
+            {isCompleted && showAssessmentStatus && failedAssessments?.length > 0 && <Box color="error.main">{t("ASSESSMENT_NOT_CLEARED")}</Box>}
           </>
         );
       }
@@ -1028,6 +1131,7 @@ const JoinCourse = () => {
       data.response.cert_templates?.[certTemplateId]?.criteria?.assessment;
 
     const score = criteria?.score?.[">="] || "no certificate";
+    console.log("score")
     setScore(score);
     return score;
   }
@@ -1043,6 +1147,103 @@ const JoinCourse = () => {
       return false;
     }
   }
+
+  const AssessmentStatusDisplay = () => {
+    console.log("AssessmentStatusDisplay rendered");
+    console.log("showAssessmentStatus:", showAssessmentStatus);
+    console.log("failedAssessments.length:", failedAssessments.length);
+
+    if (!showAssessmentStatus || failedAssessments.length === 0) {
+      console.log("Not showing assessment status - showAssessmentStatus:", showAssessmentStatus, "failedAssessments.length:", failedAssessments.length);
+      return null;
+    }
+
+    const handleRetryAssessment = (assessmentContentId) => {
+      // Navigate to the assessment content for retry
+      navigate(
+        `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${assessmentContentId}&cId=${contentId}&bId=${batchDetails?.batchId}`,
+        {
+          state: {
+            coursename: userData?.result?.content?.name,
+            batchid: batchDetails?.batchId,
+            courseid: contentId, // This should also be the course ID, not content ID
+            isenroll: isEnroll,
+            consumedcontents: ConsumedContents,
+            isRetry: true
+          },
+        }
+      );
+    };
+
+    return (
+      <Box className="assessment-status-container" style={{ marginBottom: "20px" }}>
+        {/* Failed Assessments Details */}
+        {failedAssessments.map((assessment, index) => (
+          <Box
+            key={assessment.contentId}
+            style={{
+              borderRadius: "8px",
+              paddingTop: "15px",
+              marginBottom: "10px"
+            }}
+          >
+            <Typography
+              variant="h6"
+              style={{
+                color: "#e65100",
+                fontWeight: "bold",
+                fontSize: "1rem"
+              }}
+            >
+              {t("ASSESSMENT_FAILED")} ({t("YOUR_SCORE")}: {assessment.score}/{assessment.maxScore})
+            </Typography>
+
+            <Button
+              variant="contained"
+              onClick={() => handleRetryAssessment(assessment.contentId)}
+              className="custom-btn-primary my-20"
+              style={{
+                background: "#ff9800",
+                color: "white",
+                marginRight: "10px",
+                textTransform: "none",
+              }}
+              disabled={assessment.attempts >= assessment.maxAttempts}
+            >
+              {t("CLICK_TO_RE_ATTEMPT")}
+            </Button>
+
+
+            <Typography
+              variant="body2"
+              style={{
+                color: "#bf360c"
+              }}
+            >
+              {assessment.maxAttempts - assessment.attempts}/{assessment.maxAttempts} {t("ATTEMPTS_LEFT")}
+            </Typography>
+          </Box>
+        ))}
+      </Box>
+    );
+  };
+
+  useEffect(() => {
+    if (progress && score && score !== "" && score !== "no certificate") {
+      processAssessmentData(progress.result.contentList, score);
+    }
+  }, [progress, score]);
+
+  const isContentAccessible = (contentId) => {
+    // Check if this is an assessment with max attempts exceeded
+    const assessmentData = failedAssessments.find(assessment => assessment.contentId === contentId);
+    
+    if (assessmentData && assessmentData.attempts >= assessmentData.maxAttempts) {
+      return false;
+    }
+    
+    return true;
+  };
 
   return (
     <div>
@@ -1155,6 +1356,12 @@ const JoinCourse = () => {
           role="main"
           className="xs-pb-20 lg-mt-12 joinCourse"
         >
+          {/* Add Assessment Status Display here */}
+          {console.log("isEnrolled():", isEnrolled())}
+          {console.log("showAssessmentStatus:", showAssessmentStatus)}
+          {console.log("failedAssessments:", failedAssessments)}
+
+          {/* Rest of the existing content */}
           <Box className=" pos-relative xs-ml-15 pt-10">
             <Box>
               <img
@@ -1213,35 +1420,18 @@ const JoinCourse = () => {
                 courseData?.result?.content?.se_boards ||
                 courseData?.result?.content?.gradeLevel ||
                 courseData?.result?.content?.se_gradeLevels) && (
-                <Box className="xs-mb-20">
-                  <Typography
-                    className="h6-title"
-                    style={{ display: "inline-block" }}
-                  >
-                    {t("CONTENT_TAGS")}:{" "}
-                  </Typography>
+                  <Box className="xs-mb-20">
+                    <Typography
+                      className="h6-title"
+                      style={{ display: "inline-block" }}
+                    >
+                      {t("CONTENT_TAGS")}:{" "}
+                    </Typography>
 
-                  {Array.isArray(courseData?.result?.content?.board) &&
-                    courseData?.result?.content?.board?.map((item, index) => (
-                      <Button
-                        key={`board-${index}`}
-                        size="small"
-                        style={{
-                          color: "#424242",
-                          fontSize: "10px",
-                          margin: "0 10px 3px 6px",
-                          cursor: "auto",
-                        }}
-                        className="bg-blueShade3"
-                      >
-                        {item}
-                      </Button>
-                    ))}
-                  {courseData?.result?.content?.se_boards &&
-                    courseData?.result?.content?.se_boards?.map(
-                      (item, index) => (
+                    {Array.isArray(courseData?.result?.content?.board) &&
+                      courseData?.result?.content?.board?.map((item, index) => (
                         <Button
-                          key={`se_boards-${index}`}
+                          key={`board-${index}`}
                           size="small"
                           style={{
                             color: "#424242",
@@ -1253,46 +1443,63 @@ const JoinCourse = () => {
                         >
                           {item}
                         </Button>
-                      )
-                    )}
-                  {courseData?.result?.content?.gradeLevel &&
-                    courseData?.result?.content?.gradeLevel?.map(
-                      (item, index) => (
-                        <Button
-                          key={`gradeLevel-${index}`}
-                          size="small"
-                          style={{
-                            color: "#424242",
-                            fontSize: "10px",
-                            margin: "0 10px 3px 6px",
-                            cursor: "auto",
-                          }}
-                          className="bg-blueShade3"
-                        >
-                          {item}
-                        </Button>
-                      )
-                    )}
-                  {courseData?.result?.content?.se_gradeLevels &&
-                    courseData?.result?.content?.se_gradeLevels?.map(
-                      (item, index) => (
-                        <Button
-                          key={`se_gradeLevels-${index}`}
-                          size="small"
-                          style={{
-                            color: "#424242",
-                            fontSize: "10px",
-                            margin: "0 10px 3px 6px",
-                            cursor: "auto",
-                          }}
-                          className="bg-blueShade3"
-                        >
-                          {item}
-                        </Button>
-                      )
-                    )}
-                </Box>
-              )}
+                      ))}
+                    {courseData?.result?.content?.se_boards &&
+                      courseData?.result?.content?.se_boards?.map(
+                        (item, index) => (
+                          <Button
+                            key={`se_boards-${index}`}
+                            size="small"
+                            style={{
+                              color: "#424242",
+                              fontSize: "10px",
+                              margin: "0 10px 3px 6px",
+                              cursor: "auto",
+                            }}
+                            className="bg-blueShade3"
+                          >
+                            {item}
+                          </Button>
+                        )
+                      )}
+                    {courseData?.result?.content?.gradeLevel &&
+                      courseData?.result?.content?.gradeLevel?.map(
+                        (item, index) => (
+                          <Button
+                            key={`gradeLevel-${index}`}
+                            size="small"
+                            style={{
+                              color: "#424242",
+                              fontSize: "10px",
+                              margin: "0 10px 3px 6px",
+                              cursor: "auto",
+                            }}
+                            className="bg-blueShade3"
+                          >
+                            {item}
+                          </Button>
+                        )
+                      )}
+                    {courseData?.result?.content?.se_gradeLevels &&
+                      courseData?.result?.content?.se_gradeLevels?.map(
+                        (item, index) => (
+                          <Button
+                            key={`se_gradeLevels-${index}`}
+                            size="small"
+                            style={{
+                              color: "#424242",
+                              fontSize: "10px",
+                              margin: "0 10px 3px 6px",
+                              cursor: "auto",
+                            }}
+                            className="bg-blueShade3"
+                          >
+                            {item}
+                          </Button>
+                        )
+                      )}
+                  </Box>
+                )}
               <Box className="lg-hide"> {renderActionButton()}</Box>
               <Box
                 style={{
@@ -1370,8 +1577,7 @@ const JoinCourse = () => {
                   className="xs-hide accordionBoxShadow"
                   style={{
                     background: "#F9FAFC",
-                    borderRadius: "10px",
-                    margin: "10px",
+                    borderRadius: "10px"
                   }}
                 >
                   <AccordionSummary
@@ -1504,10 +1710,10 @@ const JoinCourse = () => {
                         {t("COPYRIGHT")}
                       </p>
                       {userData?.result?.content?.orgDetails?.orgName &&
-                      userData?.result?.content?.copyrightYear
+                        userData?.result?.content?.copyrightYear
                         ? `${userData.result.content.orgDetails.orgName}, ${userData.result.content.copyrightYear}`
                         : userData?.result?.content?.orgDetails?.orgName ||
-                          userData?.result?.content?.copyrightYear}
+                        userData?.result?.content?.copyrightYear}
                       <h5>{t("THIS_CONTENT_IS_DERIVED_FROM")}</h5>
                       <p
                         style={{
@@ -1668,17 +1874,17 @@ const JoinCourse = () => {
                         ? showMore
                           ? courseData?.result?.content?.description
                           : courseData?.result?.content?.description
-                              .split(" ")
-                              .slice(0, 30)
-                              .join(" ") + "..."
+                            .split(" ")
+                            .slice(0, 30)
+                            .join(" ") + "..."
                         : courseData?.result?.content?.description}
                     </Typography>
                     {courseData?.result?.content?.description.split(" ")
                       .length > 100 && (
-                      <Button onClick={toggleShowMore}>
-                        {showMore ? t("Show Less") : t("Show More")}
-                      </Button>
-                    )}
+                        <Button onClick={toggleShowMore}>
+                          {showMore ? t("Show Less") : t("Show More")}
+                        </Button>
+                      )}
                   </>
                 )}
               </Box>
@@ -1720,27 +1926,34 @@ const JoinCourse = () => {
                       >
                         {/* If it's not a content collection, render it like a clickable child */}
                         {faqIndex.mimeType !==
-                        "application/vnd.ekstep.content-collection" ? (
+                          "application/vnd.ekstep.content-collection" ? (
                           <Link
                             href="#"
                             underline="none"
-                            style={{ verticalAlign: "super" }}
+                            style={{ 
+                              verticalAlign: "super",
+                              opacity: !isContentAccessible(faqIndex.identifier) ? 0.5 : 1,
+                              cursor: !isContentAccessible(faqIndex.identifier) ? "not-allowed" : "pointer"
+                            }}
                             onClick={() => handleLinkClick(faqIndex.identifier)}
                             className="h6-title"
                           >
                             {faqIndex.name}
-                            {completedContents.includes(
-                              faqIndex.identifier
-                            ) && (
-                              <CheckCircleIcon
-                                style={{
-                                  color: "green",
-                                  fontSize: "24px",
-                                  paddingLeft: "10px",
-                                  float: "right",
-                                }}
-                              />
+                            {!isContentAccessible(faqIndex.identifier) && (
+                              <span style={{ color: "red", fontSize: "12px", marginLeft: "5px" }}>
+                                {t("COURSES_MODULE")}
+                              </span>
                             )}
+                            {completedContents.includes(faqIndex.identifier) && (
+                                <CheckCircleIcon
+                                  style={{
+                                    color: "green",
+                                    fontSize: "24px",
+                                    paddingLeft: "10px",
+                                    float: "right",
+                                  }}
+                                />
+                              )}
                           </Link>
                         ) : (
                           faqIndex?.children?.map((faqIndexname) => (
@@ -1750,7 +1963,7 @@ const JoinCourse = () => {
                               style={{ padding: "12px", margin: "-10px 0px" }}
                             >
                               {faqIndexname.children &&
-                              faqIndexname.children.length > 0 ? (
+                                faqIndexname.children.length > 0 ? (
                                 <span
                                   className="h6-title"
                                   style={{ verticalAlign: "super" }}
@@ -1761,25 +1974,34 @@ const JoinCourse = () => {
                                 <Link
                                   href="#"
                                   underline="none"
-                                  style={{ verticalAlign: "super" }}
+                                  style={{ 
+                                    verticalAlign: "super",
+                                    opacity: !isContentAccessible(faqIndexname.identifier) ? 0.5 : 1,
+                                    cursor: !isContentAccessible(faqIndexname.identifier) ? "not-allowed" : "pointer"
+                                  }}
                                   onClick={() =>
                                     handleLinkClick(faqIndexname.identifier)
                                   }
                                   className="h6-title"
                                 >
                                   {faqIndexname.name}
+                                  {!isContentAccessible(faqIndexname.identifier) && (
+                                    // <span style={{ color: "red", fontSize: "12px", marginLeft: "5px" }}>
+                                    //   {t("MAX_ATTEMPTS_EXCEEDED")}
+                                    // </span>
+                                  )}
                                   {completedContents.includes(
                                     faqIndexname.identifier
                                   ) && (
-                                    <CheckCircleIcon
-                                      style={{
-                                        color: "green",
-                                        fontSize: "24px",
-                                        paddingLeft: "10px",
-                                        float: "right",
-                                      }}
-                                    />
-                                  )}
+                                      <CheckCircleIcon
+                                        style={{
+                                          color: "green",
+                                          fontSize: "24px",
+                                          paddingLeft: "10px",
+                                          float: "right",
+                                        }}
+                                      />
+                                    )}
                                 </Link>
                               )}
 
@@ -1796,7 +2018,7 @@ const JoinCourse = () => {
                                         }}
                                       >
                                         {child.children &&
-                                        child.children.length > 0 ? (
+                                          child.children.length > 0 ? (
                                           <span
                                             className="h6-title"
                                             style={{ verticalAlign: "super" }}
@@ -1807,25 +2029,34 @@ const JoinCourse = () => {
                                           <Link
                                             href="#"
                                             underline="none"
-                                            style={{ verticalAlign: "super" }}
+                                            style={{ 
+                                              verticalAlign: "super",
+                                              opacity: !isContentAccessible(child.identifier) ? 0.5 : 1,
+                                              cursor: !isContentAccessible(child.identifier) ? "not-allowed" : "pointer"
+                                            }}
                                             onClick={() =>
                                               handleLinkClick(child.identifier)
                                             }
                                             className="h6-title"
                                           >
                                             {child.name}
+                                            {!isContentAccessible(child.identifier) && (
+                                              <span style={{ color: "red", fontSize: "12px", marginLeft: "5px" }}>
+                                                {t("MAX_ATTEMPTS_EXCEEDED")}
+                                              </span>
+                                            )}
                                             {completedContents.includes(
                                               child.identifier
                                             ) && (
-                                              <CheckCircleIcon
-                                                style={{
-                                                  color: "green",
-                                                  fontSize: "24px",
-                                                  paddingLeft: "10px",
-                                                  float: "right",
-                                                }}
-                                              />
-                                            )}
+                                                <CheckCircleIcon
+                                                  style={{
+                                                    color: "green",
+                                                    fontSize: "24px",
+                                                    paddingLeft: "10px",
+                                                    float: "right",
+                                                  }}
+                                                />
+                                              )}
                                           </Link>
                                         )}
                                         {child.children &&
@@ -1846,7 +2077,7 @@ const JoinCourse = () => {
                                                     }}
                                                   >
                                                     {grandchild.children &&
-                                                    grandchild.children.length >
+                                                      grandchild.children.length >
                                                       0 ? (
                                                       <span
                                                         className="h6-title"
@@ -1876,16 +2107,16 @@ const JoinCourse = () => {
                                                         {completedContents.includes(
                                                           grandchild.identifier
                                                         ) && (
-                                                          <CheckCircleIcon
-                                                            style={{
-                                                              color: "green",
-                                                              fontSize: "24px",
-                                                              paddingLeft:
-                                                                "10px",
-                                                              float: "right",
-                                                            }}
-                                                          />
-                                                        )}
+                                                            <CheckCircleIcon
+                                                              style={{
+                                                                color: "green",
+                                                                fontSize: "24px",
+                                                                paddingLeft:
+                                                                  "10px",
+                                                                float: "right",
+                                                              }}
+                                                            />
+                                                          )}
                                                       </Link>
                                                     )}
                                                   </AccordionDetails>
@@ -1899,6 +2130,11 @@ const JoinCourse = () => {
                                 )}
                             </AccordionDetails>
                           ))
+                        )}
+
+                        {/* Show assessment status AFTER the accordion content */}
+                        {faqIndex.name === "Assessment" && isEnrolled() && showAssessmentStatus && (
+                          <AssessmentStatusDisplay />
                         )}
                       </AccordionDetails>
                     </Accordion>
@@ -1973,8 +2209,7 @@ const JoinCourse = () => {
                   className="lg-hide accordionBoxShadow"
                   style={{
                     background: "#F9FAFC",
-                    borderRadius: "10px",
-                    marginTop: "10px",
+                    borderRadius: "10px"
                   }}
                 >
                   <AccordionSummary
