@@ -51,8 +51,16 @@ const processString = (str) => {
   return str.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 };
 
-// Move this outside the component
-const AssessmentStatusDisplay = ({ failedAssessments, onRetryAssessment, t }) => {
+// Remove the global disable
+// /* eslint-disable react/prop-types */
+
+// Add specific disable only for the component
+// eslint-disable-next-line react/prop-types
+const AssessmentStatusDisplay = ({ 
+  failedAssessments = [], 
+  onRetryAssessment = () => {}, 
+  t = (key) => key 
+}) => {
   if (!failedAssessments || failedAssessments.length === 0) return null;
 
   return (
