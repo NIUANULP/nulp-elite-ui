@@ -50,6 +50,62 @@ const routeConfig = require("../../configs/routeConfig.json");
 const processString = (str) => {
   return str.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 };
+
+// Move this outside the component
+const AssessmentStatusDisplay = ({ failedAssessments, onRetryAssessment, t }) => {
+  if (!failedAssessments || failedAssessments.length === 0) return null;
+
+  return (
+    <Box className="assessment-status-container" style={{ marginBottom: "20px" }}>
+      {failedAssessments.map((assessment) => (
+        <Box
+          key={assessment.contentId}
+          style={{
+            borderRadius: "8px",
+            paddingTop: "15px",
+            marginBottom: "10px"
+          }}
+        >
+          <Typography
+            variant="h6"
+            style={{
+              color: "#e65100",
+              fontWeight: "bold",
+              fontSize: "1rem"
+            }}
+          >
+            {t("ASSESSMENT_FAILED")} ({t("YOUR_SCORE")}: {assessment.score}/{assessment.maxScore})
+          </Typography>
+
+          <Button
+            variant="contained"
+            onClick={() => onRetryAssessment(assessment.contentId)}
+            className="custom-btn-primary my-20"
+            style={{
+              background: "#ff9800",
+              color: "white",
+              marginRight: "10px",
+              textTransform: "none",
+            }}
+            disabled={assessment.attempts >= assessment.maxAttempts}
+          >
+            {t("CLICK_TO_RE_ATTEMPT")}
+          </Button>
+
+          <Typography
+            variant="body2"
+            style={{
+              color: "#bf360c"
+            }}
+          >
+            {assessment.maxAttempts - assessment.attempts}/{assessment.maxAttempts} {t("ATTEMPTS_LEFT")}
+          </Typography>
+        </Box>
+      ))}
+    </Box>
+  );
+};
+
 const JoinCourse = () => {
   const { t } = useTranslation();
   const [courseData, setCourseData] = useState();
@@ -113,7 +169,6 @@ const JoinCourse = () => {
   // Assessment state variables
   const [assessmentData, setAssessmentData] = useState([]);
   const [failedAssessments, setFailedAssessments] = useState([]);
-  const [assessmentAttempts, setAssessmentAttempts] = useState({});
   const [showAssessmentStatus, setShowAssessmentStatus] = useState(false);
 
   const style = {
@@ -401,7 +456,6 @@ const JoinCourse = () => {
   const processAssessmentData = (contentList, requiredScore) => {
     const assessments = [];
     const failed = [];
-    const attempts = {};
 
     contentList.forEach(content => {
       // Check if content has score data (it's an array in the API response)
@@ -409,7 +463,7 @@ const JoinCourse = () => {
         // Calculate attempts from score array length
         const currentAttempts = content.score.length;
         console.log("currentAttempts", currentAttempts)
-        
+
         // Only process if there are actual attempts (score array is not empty)
         if (currentAttempts > 0) {
           // Find the best score from all attempts
@@ -422,7 +476,7 @@ const JoinCourse = () => {
           const currentScore = parseFloat(bestScoreData.totalScore);
           const maxScore = parseFloat(bestScoreData.totalMaxScore);
           const scorePercentage = (currentScore / maxScore) * 100;
-          
+
           // Find the maxAttempts from courseData for this content
           let maxAttempts = 10; // Default value
           if (courseData?.result?.content?.children) {
@@ -440,7 +494,7 @@ const JoinCourse = () => {
             };
             maxAttempts = findMaxAttempts(courseData.result.content.children);
           }
-          
+
           assessments.push({
             contentId: content.contentId,
             score: currentScore,
@@ -461,21 +515,12 @@ const JoinCourse = () => {
               maxAttempts: maxAttempts // Use the actual maxAttempts from API
             });
           }
-
-          attempts[content.contentId] = currentAttempts; // Use calculated attempts
-        } else {
-          // No attempts made yet, set attempts to 0
-          attempts[content.contentId] = 0;
         }
-      } else {
-        // No score data at all, set attempts to 0
-        attempts[content.contentId] = 0;
       }
     });
 
     setAssessmentData(assessments);
     setFailedAssessments(failed);
-    setAssessmentAttempts(attempts);
     setShowAssessmentStatus(failed.length > 0);
   };
 
@@ -653,10 +698,7 @@ const JoinCourse = () => {
 
   const handleLinkClick = (id) => {
     if (isEnroll) {
-      // Check if this is an assessment and if max attempts are exceeded
-      const assessmentData = failedAssessments.find(assessment => assessment.contentId === id);
-      
-      if (assessmentData && assessmentData.attempts >= assessmentData.maxAttempts) {
+      if (!isContentAccessible(id)) {
         showErrorMessage(t("MAX_ATTEMPTS_EXCEEDED"));
         return;
       }
@@ -1148,83 +1190,19 @@ const JoinCourse = () => {
     }
   }
 
-  const AssessmentStatusDisplay = () => {
-    console.log("AssessmentStatusDisplay rendered");
-    console.log("showAssessmentStatus:", showAssessmentStatus);
-    console.log("failedAssessments.length:", failedAssessments.length);
-
-    if (!showAssessmentStatus || failedAssessments.length === 0) {
-      console.log("Not showing assessment status - showAssessmentStatus:", showAssessmentStatus, "failedAssessments.length:", failedAssessments.length);
-      return null;
-    }
-
-    const handleRetryAssessment = (assessmentContentId) => {
-      // Navigate to the assessment content for retry
-      navigate(
-        `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${assessmentContentId}&cId=${contentId}&bId=${batchDetails?.batchId}`,
-        {
-          state: {
-            coursename: userData?.result?.content?.name,
-            batchid: batchDetails?.batchId,
-            courseid: contentId, // This should also be the course ID, not content ID
-            isenroll: isEnroll,
-            consumedcontents: ConsumedContents,
-            isRetry: true
-          },
-        }
-      );
-    };
-
-    return (
-      <Box className="assessment-status-container" style={{ marginBottom: "20px" }}>
-        {/* Failed Assessments Details */}
-        {failedAssessments.map((assessment, index) => (
-          <Box
-            key={assessment.contentId}
-            style={{
-              borderRadius: "8px",
-              paddingTop: "15px",
-              marginBottom: "10px"
-            }}
-          >
-            <Typography
-              variant="h6"
-              style={{
-                color: "#e65100",
-                fontWeight: "bold",
-                fontSize: "1rem"
-              }}
-            >
-              {t("ASSESSMENT_FAILED")} ({t("YOUR_SCORE")}: {assessment.score}/{assessment.maxScore})
-            </Typography>
-
-            <Button
-              variant="contained"
-              onClick={() => handleRetryAssessment(assessment.contentId)}
-              className="custom-btn-primary my-20"
-              style={{
-                background: "#ff9800",
-                color: "white",
-                marginRight: "10px",
-                textTransform: "none",
-              }}
-              disabled={assessment.attempts >= assessment.maxAttempts}
-            >
-              {t("CLICK_TO_RE_ATTEMPT")}
-            </Button>
-
-
-            <Typography
-              variant="body2"
-              style={{
-                color: "#bf360c"
-              }}
-            >
-              {assessment.maxAttempts - assessment.attempts}/{assessment.maxAttempts} {t("ATTEMPTS_LEFT")}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
+  const handleRetryAssessment = (assessmentContentId) => {
+    navigate(
+      `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${assessmentContentId}&cId=${contentId}&bId=${batchDetails?.batchId}`,
+      {
+        state: {
+          coursename: userData?.result?.content?.name,
+          batchid: batchDetails?.batchId,
+          courseid: contentId,
+          isenroll: isEnroll,
+          consumedcontents: ConsumedContents,
+          isRetry: true
+        },
+      }
     );
   };
 
@@ -1237,11 +1215,11 @@ const JoinCourse = () => {
   const isContentAccessible = (contentId) => {
     // Check if this is an assessment with max attempts exceeded
     const assessmentData = failedAssessments.find(assessment => assessment.contentId === contentId);
-    
+
     if (assessmentData && assessmentData.attempts >= assessmentData.maxAttempts) {
       return false;
     }
-    
+
     return true;
   };
 
@@ -1930,7 +1908,7 @@ const JoinCourse = () => {
                           <Link
                             href="#"
                             underline="none"
-                            style={{ 
+                            style={{
                               verticalAlign: "super",
                               opacity: !isContentAccessible(faqIndex.identifier) ? 0.5 : 1,
                               cursor: !isContentAccessible(faqIndex.identifier) ? "not-allowed" : "pointer"
@@ -1945,15 +1923,15 @@ const JoinCourse = () => {
                               </span>
                             )}
                             {completedContents.includes(faqIndex.identifier) && (
-                                <CheckCircleIcon
-                                  style={{
-                                    color: "green",
-                                    fontSize: "24px",
-                                    paddingLeft: "10px",
-                                    float: "right",
-                                  }}
-                                />
-                              )}
+                              <CheckCircleIcon
+                                style={{
+                                  color: "green",
+                                  fontSize: "24px",
+                                  paddingLeft: "10px",
+                                  float: "right",
+                                }}
+                              />
+                            )}
                           </Link>
                         ) : (
                           faqIndex?.children?.map((faqIndexname) => (
@@ -1974,7 +1952,7 @@ const JoinCourse = () => {
                                 <Link
                                   href="#"
                                   underline="none"
-                                  style={{ 
+                                  style={{
                                     verticalAlign: "super",
                                     opacity: !isContentAccessible(faqIndexname.identifier) ? 0.5 : 1,
                                     cursor: !isContentAccessible(faqIndexname.identifier) ? "not-allowed" : "pointer"
@@ -1986,9 +1964,9 @@ const JoinCourse = () => {
                                 >
                                   {faqIndexname.name}
                                   {!isContentAccessible(faqIndexname.identifier) && (
-                                    // <span style={{ color: "red", fontSize: "12px", marginLeft: "5px" }}>
-                                    //   {t("MAX_ATTEMPTS_EXCEEDED")}
-                                    // </span>
+                                    <span style={{ color: "red", fontSize: "12px", marginLeft: "5px" }}>
+                                      {t("MAX_ATTEMPTS_EXCEEDED")}
+                                    </span>
                                   )}
                                   {completedContents.includes(
                                     faqIndexname.identifier
@@ -2029,7 +2007,7 @@ const JoinCourse = () => {
                                           <Link
                                             href="#"
                                             underline="none"
-                                            style={{ 
+                                            style={{
                                               verticalAlign: "super",
                                               opacity: !isContentAccessible(child.identifier) ? 0.5 : 1,
                                               cursor: !isContentAccessible(child.identifier) ? "not-allowed" : "pointer"
@@ -2134,7 +2112,11 @@ const JoinCourse = () => {
 
                         {/* Show assessment status AFTER the accordion content */}
                         {faqIndex.name === "Assessment" && isEnrolled() && showAssessmentStatus && (
-                          <AssessmentStatusDisplay />
+                          <AssessmentStatusDisplay 
+                            failedAssessments={failedAssessments}
+                            onRetryAssessment={handleRetryAssessment}
+                            t={t}
+                          />
                         )}
                       </AccordionDetails>
                     </Accordion>
