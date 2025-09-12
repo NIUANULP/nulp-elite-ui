@@ -51,69 +51,6 @@ const processString = (str) => {
   return str.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 };
 
-// Remove the global disable
-// /* eslint-disable react/prop-types */
-
-// Add specific disable only for the component
-// eslint-disable-next-line react/prop-types
-const AssessmentStatusDisplay = ({ 
-  failedAssessments = [], 
-  onRetryAssessment = () => {}, 
-  t = (key) => key 
-}) => {
-  if (!failedAssessments || failedAssessments.length === 0) return null;
-
-  return (
-    <Box className="assessment-status-container" style={{ marginBottom: "20px" }}>
-      {failedAssessments.map((assessment) => (
-        <Box
-          key={assessment.contentId}
-          style={{
-            borderRadius: "8px",
-            paddingTop: "15px",
-            marginBottom: "10px"
-          }}
-        >
-          <Typography
-            variant="h6"
-            style={{
-              color: "#e65100",
-              fontWeight: "bold",
-              fontSize: "1rem"
-            }}
-          >
-            {t("ASSESSMENT_FAILED")} ({t("YOUR_SCORE")}: {assessment.score}/{assessment.maxScore})
-          </Typography>
-
-          <Button
-            variant="contained"
-            onClick={() => onRetryAssessment(assessment.contentId)}
-            className="custom-btn-primary my-20"
-            style={{
-              background: "#ff9800",
-              color: "white",
-              marginRight: "10px",
-              textTransform: "none",
-            }}
-            disabled={assessment.attempts >= assessment.maxAttempts}
-          >
-            {t("CLICK_TO_RE_ATTEMPT")}
-          </Button>
-
-          <Typography
-            variant="body2"
-            style={{
-              color: "#bf360c"
-            }}
-          >
-            {assessment.maxAttempts - assessment.attempts}/{assessment.maxAttempts} {t("ATTEMPTS_LEFT")}
-          </Typography>
-        </Box>
-      ))}
-    </Box>
-  );
-};
-
 const JoinCourse = () => {
   const { t } = useTranslation();
   const [courseData, setCourseData] = useState();
@@ -1231,6 +1168,60 @@ const JoinCourse = () => {
     return true;
   };
 
+  const AssessmentStatusDisplay = () => {
+    if (!failedAssessments || failedAssessments.length === 0) return null;
+
+    return (
+      <Box className="assessment-status-container" style={{ marginBottom: "20px" }}>
+        {failedAssessments.map((assessment) => (
+          <Box
+            key={assessment.contentId}
+            style={{
+              borderRadius: "8px",
+              paddingTop: "15px",
+              marginBottom: "10px"
+            }}
+          >
+            <Typography
+              variant="h6"
+              style={{
+                color: "#e65100",
+                fontWeight: "bold",
+                fontSize: "1rem"
+              }}
+            >
+              {t("ASSESSMENT_FAILED")} ({t("YOUR_SCORE")}: {assessment.score}/{assessment.maxScore})
+            </Typography>
+
+            <Button
+              variant="contained"
+              onClick={() => handleRetryAssessment(assessment.contentId)}
+              className="custom-btn-primary my-20"
+              style={{
+                background: "#ff9800",
+                color: "white",
+                marginRight: "10px",
+                textTransform: "none",
+              }}
+              disabled={assessment.attempts >= assessment.maxAttempts}
+            >
+              {t("CLICK_TO_RE_ATTEMPT")}
+            </Button>
+
+            <Typography
+              variant="body2"
+              style={{
+                color: "#bf360c"
+              }}
+            >
+              {assessment.maxAttempts - assessment.attempts}/{assessment.maxAttempts} {t("ATTEMPTS_LEFT")}
+            </Typography>
+          </Box>
+        ))}
+      </Box>
+    );
+  };
+
   return (
     <div>
       <Header />
@@ -1927,7 +1918,7 @@ const JoinCourse = () => {
                             {faqIndex.name}
                             {!isContentAccessible(faqIndex.identifier) && (
                               <span style={{ color: "red", fontSize: "12px", marginLeft: "5px" }}>
-                                {t("COURSES_MODULE")}
+                                {t("MAX_ATTEMPTS_EXCEEDED")}
                               </span>
                             )}
                             {completedContents.includes(faqIndex.identifier) && (
@@ -2120,11 +2111,7 @@ const JoinCourse = () => {
 
                         {/* Show assessment status AFTER the accordion content */}
                         {faqIndex.name === "Assessment" && isEnrolled() && showAssessmentStatus && (
-                          <AssessmentStatusDisplay 
-                            failedAssessments={failedAssessments}
-                            onRetryAssessment={handleRetryAssessment}
-                            t={t}
-                          />
+                          <AssessmentStatusDisplay />
                         )}
                       </AccordionDetails>
                     </Accordion>
