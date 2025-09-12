@@ -380,6 +380,7 @@ const JoinCourse = () => {
   }, []);
 
   const formatDate = useCallback((dateString) => {
+
     if (!dateString) {
       return "Not Provided";
     }
@@ -390,7 +391,7 @@ const JoinCourse = () => {
     if (isNaN(date.getTime())) {
       return "Not Provided";
     }
-    
+
     return date.toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "long",
