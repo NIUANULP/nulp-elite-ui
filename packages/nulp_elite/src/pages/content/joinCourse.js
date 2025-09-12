@@ -409,7 +409,7 @@ const JoinCourse = () => {
         // Calculate attempts from score array length
         const currentAttempts = content.score.length;
         console.log("currentAttempts", currentAttempts)
-
+        
         // Only process if there are actual attempts (score array is not empty)
         if (currentAttempts > 0) {
           // Find the best score from all attempts
@@ -422,7 +422,7 @@ const JoinCourse = () => {
           const currentScore = parseFloat(bestScoreData.totalScore);
           const maxScore = parseFloat(bestScoreData.totalMaxScore);
           const scorePercentage = (currentScore / maxScore) * 100;
-
+          
           // Find the maxAttempts from courseData for this content
           let maxAttempts = 10; // Default value
           if (courseData?.result?.content?.children) {
@@ -440,7 +440,7 @@ const JoinCourse = () => {
             };
             maxAttempts = findMaxAttempts(courseData.result.content.children);
           }
-
+          
           assessments.push({
             contentId: content.contentId,
             score: currentScore,
@@ -655,12 +655,12 @@ const JoinCourse = () => {
     if (isEnroll) {
       // Check if this is an assessment and if max attempts are exceeded
       const assessmentData = failedAssessments.find(assessment => assessment.contentId === id);
-
+      
       if (assessmentData && assessmentData.attempts >= assessmentData.maxAttempts) {
         showErrorMessage(t("MAX_ATTEMPTS_EXCEEDED"));
         return;
       }
-
+      
       navigate(
         `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${id}&cId=${contentId}&bId=${batchDetails?.batchId}`,
         {
@@ -1237,11 +1237,11 @@ const JoinCourse = () => {
   const isContentAccessible = (contentId) => {
     // Check if this is an assessment with max attempts exceeded
     const assessmentData = failedAssessments.find(assessment => assessment.contentId === contentId);
-
+    
     if (assessmentData && assessmentData.attempts >= assessmentData.maxAttempts) {
       return false;
     }
-
+    
     return true;
   };
 
@@ -1930,7 +1930,7 @@ const JoinCourse = () => {
                           <Link
                             href="#"
                             underline="none"
-                            style={{
+                            style={{ 
                               verticalAlign: "super",
                               opacity: !isContentAccessible(faqIndex.identifier) ? 0.5 : 1,
                               cursor: !isContentAccessible(faqIndex.identifier) ? "not-allowed" : "pointer"
@@ -1945,15 +1945,15 @@ const JoinCourse = () => {
                               </span>
                             )}
                             {completedContents.includes(faqIndex.identifier) && (
-                              <CheckCircleIcon
-                                style={{
-                                  color: "green",
-                                  fontSize: "24px",
-                                  paddingLeft: "10px",
-                                  float: "right",
-                                }}
-                              />
-                            )}
+                                <CheckCircleIcon
+                                  style={{
+                                    color: "green",
+                                    fontSize: "24px",
+                                    paddingLeft: "10px",
+                                    float: "right",
+                                  }}
+                                />
+                              )}
                           </Link>
                         ) : (
                           faqIndex?.children?.map((faqIndexname) => (
@@ -1974,7 +1974,7 @@ const JoinCourse = () => {
                                 <Link
                                   href="#"
                                   underline="none"
-                                  style={{
+                                  style={{ 
                                     verticalAlign: "super",
                                     opacity: !isContentAccessible(faqIndexname.identifier) ? 0.5 : 1,
                                     cursor: !isContentAccessible(faqIndexname.identifier) ? "not-allowed" : "pointer"
@@ -1986,9 +1986,9 @@ const JoinCourse = () => {
                                 >
                                   {faqIndexname.name}
                                   {!isContentAccessible(faqIndexname.identifier) && (
-                                    <span style={{ color: "red", fontSize: "12px", marginLeft: "5px" }}>
-                                      {t("MAX_ATTEMPTS_EXCEEDED")}
-                                    </span>
+                                    // <span style={{ color: "red", fontSize: "12px", marginLeft: "5px" }}>
+                                    //   {t("MAX_ATTEMPTS_EXCEEDED")}
+                                    // </span>
                                   )}
                                   {completedContents.includes(
                                     faqIndexname.identifier
@@ -2029,7 +2029,7 @@ const JoinCourse = () => {
                                           <Link
                                             href="#"
                                             underline="none"
-                                            style={{
+                                            style={{ 
                                               verticalAlign: "super",
                                               opacity: !isContentAccessible(child.identifier) ? 0.5 : 1,
                                               cursor: !isContentAccessible(child.identifier) ? "not-allowed" : "pointer"
