@@ -118,10 +118,6 @@ AssessmentStatusDisplay.propTypes = {
   t: PropTypes.func.isRequired,
 };
 
-AssessmentStatusDisplay.defaultProps = {
-  failedAssessments: [],
-};
-
 const JoinCourse = () => {
   const { t } = useTranslation();
   const [courseData, setCourseData] = useState();
