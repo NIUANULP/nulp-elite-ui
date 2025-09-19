@@ -65,7 +65,7 @@ const AllPublicContent = () => {
   const search = params.get("query") || "";
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState(search);
-  const [toasterOpen, setToasterOpen] = useState(false);
+
 
   // show error message
   const showErrorMessage = (msg) => {
