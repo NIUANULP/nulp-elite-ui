@@ -186,6 +186,7 @@ const AllPublicContent = () => {
   };
 
   const handleSearch = () => {
+    console.log("handleSearch")
     if (searchQuery.trim()) {
       navigate(`${routeConfig.ROUTES.CONTENTLIST_PAGE.CONTENTLIST}?1`, {
         state: { globalSearchQuery: searchQuery },
