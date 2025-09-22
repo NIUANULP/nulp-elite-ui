@@ -63,9 +63,8 @@ const AllPublicContent = () => {
   const queryString = location.search;
   const params = new URLSearchParams(queryString);
   const search = params.get("query") || "";
-  const [scrolled, setScrolled] = useState(false);
+  const [scrolled, setScrolled] = useState(false);do_11440084324635443211
   const [searchQuery, setSearchQuery] = useState(search);
-
 
   // show error message
   const showErrorMessage = (msg) => {
@@ -73,7 +72,6 @@ const AllPublicContent = () => {
     setTimeout(() => {
       setToasterMessage("");
     }, 2000);
-    setToasterOpen(true);
   };
 
   const handlePageChange = (event, newValue) => {
@@ -188,6 +186,7 @@ const AllPublicContent = () => {
   };
 
   const handleSearch = () => {
+    console.log("handleSearch")
     if (searchQuery.trim()) {
       navigate(`${routeConfig.ROUTES.CONTENTLIST_PAGE.CONTENTLIST}?1`, {
         state: { globalSearchQuery: searchQuery },
