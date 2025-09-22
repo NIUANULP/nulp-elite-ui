@@ -63,7 +63,7 @@ const AllPublicContent = () => {
   const queryString = location.search;
   const params = new URLSearchParams(queryString);
   const search = params.get("query") || "";
-  const [scrolled, setScrolled] = useState(false);do_11440084324635443211
+  const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState(search);
 
   // show error message
