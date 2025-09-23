@@ -695,7 +695,6 @@ const JoinCourse = () => {
     }
 
     const date = new Date(dateString);
-
     // Check if the date is valid
     if (isNaN(date.getTime())) {
       return "Not Provided";
