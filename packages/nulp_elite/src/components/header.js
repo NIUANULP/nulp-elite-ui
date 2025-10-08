@@ -51,6 +51,7 @@ function Header({ globalSearchQuery }) {
 
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [anchorElUserMobile, setAnchorElUserMobile] = React.useState(null);
   const [anchorElNotify, setAnchorElNotify] = React.useState(null);
 
   const [searchQuery, setSearchQuery] = useState(globalSearchQuery || "");
@@ -157,6 +158,9 @@ function Header({ globalSearchQuery }) {
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
+  const handleOpenUserMenuMobile = (event) => {
+    setAnchorElUserMobile(event.currentTarget);
+  };
   const handleOpenNotifyMenu = (event) => {
     setAnchorElNotify(event.currentTarget);
   };
@@ -167,6 +171,9 @@ function Header({ globalSearchQuery }) {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+  };
+  const handleCloseUserMenuMobile = () => {
+    setAnchorElUserMobile(null);
   };
   const handleCloseNotifyMenu = () => {
     setAnchorElNotify(null);
@@ -608,6 +615,18 @@ function Header({ globalSearchQuery }) {
               >
                 <MenuItem>{t("PROFILE")}</MenuItem>
               </Link>
+              {roleNames.some((role) => 
+                ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR", "ORG_ADMIN"].includes(role)
+              ) && (
+                <Link
+                  target="_blank"
+                  href={urlConfig.DASHBOARD.ADMIN_DASHBOARD_URL}
+                  underline="none"
+                  textAlign="center"
+                >
+                  <MenuItem>{t("ADMIN_DASHBOARD")}</MenuItem>
+                </Link>
+              )}
               {roleNames.some((role) => ["CONTENT_CREATOR"].includes(role)) && (
                 <Link
                   href={routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}
@@ -862,7 +881,7 @@ function Header({ globalSearchQuery }) {
                   }
                 >
                   <IconButton
-                    onClick={handleOpenUserMenu}
+                    onClick={handleOpenUserMenuMobile}
                     sx={{ p: 0 }}
                     className="profile-btn"
                   >
@@ -878,8 +897,8 @@ function Header({ globalSearchQuery }) {
                 </Tooltip>
                 <Menu
                   sx={{ mt: "45px" }}
-                  id="menu-appbar"
-                  anchorEl={anchorElUser}
+                  id="menu-appbar-mobile"
+                  anchorEl={anchorElUserMobile}
                   anchorOrigin={{
                     vertical: "top",
                     horizontal: "right",
@@ -889,8 +908,8 @@ function Header({ globalSearchQuery }) {
                     vertical: "top",
                     horizontal: "right",
                   }}
-                  open={Boolean(anchorElUser)}
-                  onClose={handleCloseUserMenu}
+                  open={Boolean(anchorElUserMobile)}
+                  onClose={handleCloseUserMenuMobile}
                   PaperProps={{
                     sx: {
                       width: "170px",

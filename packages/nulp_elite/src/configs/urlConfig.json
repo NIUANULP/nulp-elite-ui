@@ -482,5 +482,8 @@
   "FORUM": {
     "FORUM_URL": "/discussion-forum/",
     "AUTH_TOKEN": "/auth/token"
+  },
+  "DASHBOARD": {
+    "ADMIN_DASHBOARD_URL": "https://dashboard.nulp.niua.org/"
   }
 }
