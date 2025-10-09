@@ -179,6 +179,8 @@ const JoinCourse = () => {
   const [activeBatch, SetActiveBatch] = useState(true);
 
   // Assessment state variables
+
+
   const [failedAssessments, setFailedAssessments] = useState([]);
   const [showAssessmentStatus, setShowAssessmentStatus] = useState(false);
 
