@@ -433,5 +433,9 @@
   "YOUR_SCORE": "Your score",
   "CLICK_TO_RE_ATTEMPT": "Click to re-attempt",
   "ATTEMPTS_LEFT": "Attempts left",
-  "MAX_ATTEMPTS_EXCEEDED": "Maximum attempts exceeded for this assessment."
+
+  "MAX_ATTEMPTS_EXCEEDED": "Maximum attempts exceeded for this assessment.",
+
+  "ADMIN_DASHBOARD": "Admin Dashboard"
+
 }

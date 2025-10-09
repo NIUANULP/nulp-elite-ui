@@ -179,7 +179,8 @@ const JoinCourse = () => {
   const [activeBatch, SetActiveBatch] = useState(true);
 
   // Assessment state variables
-  const [assessmentData, setAssessmentData] = useState([]);
+
+
   const [failedAssessments, setFailedAssessments] = useState([]);
   const [showAssessmentStatus, setShowAssessmentStatus] = useState(false);
 
@@ -465,73 +466,74 @@ const JoinCourse = () => {
   //   calculateProgress();
   // }, [batchDetails, courseData]);
 
-  const processAssessmentData = (contentList, requiredScore) => {
-    const assessments = [];
-    const failed = [];
+  // Helper function to find best score from attempts
+  const findBestScore = (scoreArray) => {
+    return scoreArray.reduce((best, current) => {
+      const currentScore = Number.parseFloat(current.totalScore);
+      const bestScore = Number.parseFloat(best.totalScore);
+      return currentScore > bestScore ? current : best;
+    });
+  };
 
-    contentList.forEach(content => {
-      // Check if content has score data (it's an array in the API response)
-      if (content.score && Array.isArray(content.score)) {
-        // Calculate attempts from score array length
-        const currentAttempts = content.score.length;
-        console.log("currentAttempts", currentAttempts)
-
-        // Only process if there are actual attempts (score array is not empty)
-        if (currentAttempts > 0) {
-          // Find the best score from all attempts
-          const bestScoreData = content.score.reduce((best, current) => {
-            const currentScore = parseFloat(current.totalScore);
-            const bestScore = parseFloat(best.totalScore);
-            return currentScore > bestScore ? current : best;
-          });
-
-          const currentScore = parseFloat(bestScoreData.totalScore);
-          const maxScore = parseFloat(bestScoreData.totalMaxScore);
-          const scorePercentage = (currentScore / maxScore) * 100;
-
-          // Find the maxAttempts from courseData for this content
-          let maxAttempts = 10; // Default value
-          if (courseData?.result?.content?.children) {
-            const findMaxAttempts = (children) => {
-              for (let child of children) {
-                if (child.children) {
-                  for (let grandchild of child.children) {
-                    if (grandchild.identifier === content.contentId && grandchild.maxAttempts) {
-                      return grandchild.maxAttempts;
-                    }
-                  }
-                }
-              }
-              return 10; // Default if not found
-            };
-            maxAttempts = findMaxAttempts(courseData.result.content.children);
-          }
-
-          assessments.push({
-            contentId: content.contentId,
-            score: currentScore,
-            maxScore: maxScore,
-            scorePercentage: scorePercentage,
-            status: content.status,
-            attempts: currentAttempts // Use calculated attempts from score array length
-          });
-
-          // Check if assessment failed (score below required threshold)
-          if (requiredScore && scorePercentage < requiredScore) {
-            failed.push({
-              contentId: content.contentId,
-              score: currentScore,
-              maxScore: maxScore,
-              scorePercentage: scorePercentage,
-              attempts: currentAttempts, // Use calculated attempts
-              maxAttempts: maxAttempts // Use the actual maxAttempts from API
-            });
+  // Helper function to find max attempts for content
+  const findMaxAttempts = (contentId, children) => {
+    for (const child of children) {
+      if (child.children) {
+        for (const grandchild of child.children) {
+          if (grandchild.identifier === contentId && grandchild.maxAttempts) {
+            return grandchild.maxAttempts;
           }
         }
       }
-    });
+    }
+    return 10; // Default if not found
+  };
 
-    setAssessmentData(assessments);
+  // Helper function to process individual content
+  const processContent = (content, requiredScore) => {
+    if (!content.score || !Array.isArray(content.score) || content.score.length === 0) {
+      return null;
+    }
+
+    const currentAttempts = content.score.length;
+    console.log("currentAttempts", currentAttempts);
+
+    const bestScoreData = findBestScore(content.score);
+    const currentScore = Number.parseFloat(bestScoreData.totalScore);
+    const maxScore = Number.parseFloat(bestScoreData.totalMaxScore);
+    const scorePercentage = (currentScore / maxScore) * 100;
+
+    const maxAttempts = courseData?.result?.content?.children 
+      ? findMaxAttempts(content.contentId, courseData.result.content.children)
+      : 10;
+
+    const assessmentData = {
+      contentId: content.contentId,
+      score: currentScore,
+      maxScore: maxScore,
+      scorePercentage: scorePercentage,
+      status: content.status,
+      attempts: currentAttempts
+    };
+
+    const failedData = requiredScore && scorePercentage < requiredScore ? {
+      ...assessmentData,
+      maxAttempts: maxAttempts
+    } : null;
+
+    return { assessmentData, failedData };
+  };
+
+  const processAssessmentData = (contentList, requiredScore) => {
+    const failed = [];
+
+    for (const content of contentList) {
+      const result = processContent(content, requiredScore);
+      if (result && result.failedData) {
+        failed.push(result.failedData);
+      }
+    }
+
     setFailedAssessments(failed);
     setShowAssessmentStatus(failed.length > 0);
   };
@@ -1227,11 +1229,7 @@ const JoinCourse = () => {
     // Check if this is an assessment with max attempts exceeded
     const assessmentData = failedAssessments.find(assessment => assessment.contentId === contentId);
 
-    if (assessmentData && assessmentData.attempts >= assessmentData.maxAttempts) {
-      return false;
-    }
-
-    return true;
+    return !(assessmentData && assessmentData.attempts >= assessmentData.maxAttempts);
   };
 
   return (
@@ -1921,8 +1919,8 @@ const JoinCourse = () => {
                             underline="none"
                             style={{
                               verticalAlign: "super",
-                              opacity: !isContentAccessible(faqIndex.identifier) ? 0.5 : 1,
-                              cursor: !isContentAccessible(faqIndex.identifier) ? "not-allowed" : "pointer"
+                              opacity: isContentAccessible(faqIndex.identifier) ? 1 : 0.5,
+                              cursor: isContentAccessible(faqIndex.identifier) ? "pointer" : "not-allowed"
                             }}
                             onClick={() => handleLinkClick(faqIndex.identifier)}
                             className="h6-title"
@@ -1965,8 +1963,8 @@ const JoinCourse = () => {
                                   underline="none"
                                   style={{
                                     verticalAlign: "super",
-                                    opacity: !isContentAccessible(faqIndexname.identifier) ? 0.5 : 1,
-                                    cursor: !isContentAccessible(faqIndexname.identifier) ? "not-allowed" : "pointer"
+                                    opacity: isContentAccessible(faqIndexname.identifier) ? 1 : 0.5,
+                                    cursor: isContentAccessible(faqIndexname.identifier) ? "pointer" : "not-allowed"
                                   }}
                                   onClick={() =>
                                     handleLinkClick(faqIndexname.identifier)
@@ -2020,8 +2018,8 @@ const JoinCourse = () => {
                                             underline="none"
                                             style={{
                                               verticalAlign: "super",
-                                              opacity: !isContentAccessible(child.identifier) ? 0.5 : 1,
-                                              cursor: !isContentAccessible(child.identifier) ? "not-allowed" : "pointer"
+                                              opacity: isContentAccessible(child.identifier) ? 1 : 0.5,
+                                              cursor: isContentAccessible(child.identifier) ? "pointer" : "not-allowed"
                                             }}
                                             onClick={() =>
                                               handleLinkClick(child.identifier)
