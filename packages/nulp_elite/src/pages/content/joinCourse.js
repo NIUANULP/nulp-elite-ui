@@ -523,16 +523,12 @@ const JoinCourse = () => {
   };
 
   const processAssessmentData = (contentList, requiredScore) => {
-    const assessments = [];
     const failed = [];
 
     for (const content of contentList) {
       const result = processContent(content, requiredScore);
-      if (result) {
-        assessments.push(result.assessmentData);
-        if (result.failedData) {
-          failed.push(result.failedData);
-        }
+      if (result && result.failedData) {
+        failed.push(result.failedData);
       }
     }
 
