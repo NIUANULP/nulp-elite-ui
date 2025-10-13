@@ -425,6 +425,17 @@
   "REVIEW_NOW": "Review Now",
 
   "LEARNATHON": "Learnathon",
-  "MOBILE_NUMBER": "Mobile Number",
-  "SEE_YOUR_SUBMISSION": "See Your Submission"
+
+  "SEE_YOUR_SUBMISSION": "See Your Submission",
+
+  "ASSESSMENT_NOT_CLEARED": "Assessment not cleared",
+  "ASSESSMENT_FAILED": "Assessment failed",
+  "YOUR_SCORE": "Your score",
+  "CLICK_TO_RE_ATTEMPT": "Click to re-attempt",
+  "ATTEMPTS_LEFT": "Attempts left",
+
+  "MAX_ATTEMPTS_EXCEEDED": "Maximum attempts exceeded for this assessment.",
+
+  "ADMIN_DASHBOARD": "Admin Dashboard"
+
 }

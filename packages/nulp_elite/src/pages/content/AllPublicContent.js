@@ -65,18 +65,19 @@ const AllPublicContent = () => {
   const search = params.get("query") || "";
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState(search);
+
   // show error message
   const showErrorMessage = (msg) => {
     setToasterMessage(msg);
     setTimeout(() => {
       setToasterMessage("");
     }, 2000);
-    setToasterOpen(true);
   };
 
   const handlePageChange = (event, newValue) => {
     setCurrentPage(newValue);
   };
+
   useEffect(() => {
     fetchMoreItems();
   }, [currentPage]);
@@ -172,21 +173,33 @@ const AllPublicContent = () => {
       navigate(`${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${contentId}`);
     }
   };
+  
   const textFieldStyle = {
     fontSize: "12px",
     backgroundColor: searchQuery ? "#065872" : "transparent",
     boxShadow: searchQuery ? "0 2px 4px rgba(0, 0, 0, 0.2)" : "none",
     color: searchQuery ? "#fff" : "#000",
   };
+  
   const handleInputChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
-  const handleKeyPress = (event) => {
-    if (event.key === "Enter") {
-      fetchMoreItems();
+  const handleSearch = () => {
+    console.log("handleSearch")
+    if (searchQuery.trim()) {
+      navigate(`${routeConfig.ROUTES.CONTENTLIST_PAGE.CONTENTLIST}?1`, {
+        state: { globalSearchQuery: searchQuery },
+      });
     }
   };
+
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 0) {
@@ -201,9 +214,11 @@ const AllPublicContent = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+  
   useEffect(() => {
     setActivePath(location.pathname);
   }, [location.pathname]);
+  
   const [activePath, setActivePath] = useState(location.pathname);
   const [language, setLanguage] = useState(Cookies.get("language") || "en");
   const [show, setShow] = useState(false);
@@ -216,9 +231,11 @@ const AllPublicContent = () => {
     setLanguage(event.target.value);
     changeLanguage(event.target.value);
   };
+  
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
+  
   const handleClickOpenNotification = () => {
     setOpenNotification(true);
   };
@@ -271,7 +288,7 @@ const AllPublicContent = () => {
                     <IconButton
                       type="submit"
                       aria-label="search"
-                      onClick={() => fetchMoreItems()}
+                      onClick={handleSearch}
                     >
                       <SearchIcon
                         style={{ color: searchQuery ? "#fff" : "#000" }}
@@ -325,7 +342,6 @@ const AllPublicContent = () => {
                     fontSize: "30px",
                   }}
                 />
-                {/* {t("HOME")} */}
               </Tooltip>
             </Link>
             <Link
@@ -554,16 +570,7 @@ const AllPublicContent = () => {
                   />
                 </Link>
               </Box>
-              {/* <Tooltip
-                title={t("Language")}
-                placement="bottom"
-                arrow
-                open={show}
-                onMouseEnter={() => setShow(true)}
-                onMouseLeave={() => setShow(false)}
-              > */}
               <Box className="lg-hide  translate">
-                {/* Language Select */}
                 <Box>
                   <FormControl
                     fullWidth
@@ -575,9 +582,6 @@ const AllPublicContent = () => {
                       justifyContent: "end",
                     }}
                   >
-                    {/* <InputLabel id="language-select-label">
-                  {t("LANGUAGE")}
-                </InputLabel> */}
                     <GTranslateIcon style={{ color: "#000" }} />
                     <Select
                       labelId="language-select-label"
@@ -601,14 +605,9 @@ const AllPublicContent = () => {
                   </FormControl>
                 </Box>
               </Box>
-              {/* </Tooltip> */}
               <Box className="d-flex">
                 <Tooltip title={t("Notification")} placement="bottom" arrow>
                   <Box className="notification-circle lg-hide">
-                    {/* <NotificationsNoneOutlinedIcon />
-                    ekta */}
-                    {/* <IconButton onClick={handleOpenNotifyMenu} sx={{ p: 0 }}> */}
-
                     <Tooltip>
                       <IconButton sx={{ p: 0 }}>
                         <NotificationsNoneOutlinedIcon />
@@ -639,8 +638,7 @@ const AllPublicContent = () => {
                   </IconButton>
                 </Tooltip>
               </Box>
-              {/* Language Select */}
-            </Toolbar>{" "}
+            </Toolbar>
             {/* Search Box */}
             <Box
               className="lg-hide d-flex"
@@ -667,7 +665,7 @@ const AllPublicContent = () => {
                     <IconButton
                       type="submit"
                       aria-label="search"
-                      onClick={() => fetchMoreItems()}
+                      onClick={handleSearch}
                     >
                       <SearchIcon />
                     </IconButton>
