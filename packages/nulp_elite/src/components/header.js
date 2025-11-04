@@ -640,7 +640,7 @@ function Header({ globalSearchQuery }) {
               {/* Check if roles array is empty or contains "PUBLIC" */}
 
               {/* {accessWorkspace && ( */}
-              {roleNames.some((role) => ["CONTENT_CREATOR"].includes(role)) && (
+              {roleNames.some((role) => ["CONTENT_CREATOR", "CONTENT_REVIEWER", "ORG_ADMIN"].includes(role)) && (
                 <Link
                   target="_blank"
                   href="/workspace/content/create"
@@ -1020,9 +1020,9 @@ function Header({ globalSearchQuery }) {
                       "ORG_ADMIN",
                       "SYSTEM_ADMINISTRATION",
                       "CONTENT_CREATOR",
+                      "CONTENT_REVIEWER",
                     ].includes(role)
-                  ) &&
-                    accessWorkspace && (
+                  ) && (
                       <Link
                         target="_blank"
                         href="/workspace/content/create"
