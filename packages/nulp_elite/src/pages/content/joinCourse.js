@@ -55,7 +55,7 @@ const processString = (str) => {
 // Helper function to check if a name is an assessment section
 const isAssessmentSection = (name) => {
   if (!name) return false;
-  const normalizedName = name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+  const normalizedName = name.replaceAll(/[^a-zA-Z0-9]/g, "").toLowerCase();
   // Check for variations: assessment, asessment, course assessment, etc.
   return normalizedName.includes("assessment") || normalizedName.includes("asessment");
 };
