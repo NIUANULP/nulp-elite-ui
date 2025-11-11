@@ -77,6 +77,96 @@ PollListLink.defaultProps = {
   className: "",
 };
 
+// Reusable Poll Submenu component
+const PollSubmenu = ({ 
+  roleNames, 
+  openSubmenu, 
+  onToggle, 
+  isMobile = false 
+}) => {
+  const { t } = useTranslation();
+  const submenuStyle = { background: "#f9fafc", color: "#1976d2" };
+  const listStyle = { background: "#f9fafc" };
+
+  if (!hasPrivilegedPollAccess(roleNames)) {
+    return <PollListLink />;
+  }
+
+  return (
+    <>
+      <MenuItem onClick={onToggle} style={submenuStyle}>
+        {t("POLL")}
+        <Link primary="Submenu" />
+        {openSubmenu ? <ExpandLess /> : <ExpandMore />}
+      </MenuItem>
+      <Collapse
+        in={openSubmenu}
+        timeout="auto"
+        unmountOnExit
+        style={isMobile ? listStyle : undefined}
+      >
+        <List
+          component="div"
+          disablePadding
+          style={listStyle}
+        >
+          {canCreatePoll(roleNames) && (
+            isMobile ? (
+              <Link
+                href={routeConfig.ROUTES.POLL.POLL_FORM}
+                underline="none"
+                textAlign="center"
+              >
+                <MenuItem className="ml-10">{t("CREATE_POLL")}</MenuItem>
+              </Link>
+            ) : (
+              <MenuItem className="ml-10" style={listStyle}>
+                <Link
+                  href={routeConfig.ROUTES.POLL.POLL_FORM}
+                  underline="none"
+                  textAlign="center"
+                >
+                  {t("CREATE_POLL")}
+                </Link>
+              </MenuItem>
+            )
+          )}
+          {isMobile ? (
+            <Link
+              href={routeConfig.ROUTES.POLL.POLL_LIST}
+              underline="none"
+              textAlign="center"
+            >
+              <MenuItem className="ml-10">{t("POLL_LIST")}</MenuItem>
+            </Link>
+          ) : (
+            <MenuItem className="ml-10">
+              <Link
+                href={routeConfig.ROUTES.POLL.POLL_LIST}
+                underline="none"
+                textAlign="center"
+              >
+                {t("POLL_LIST")}
+              </Link>
+            </MenuItem>
+          )}
+        </List>
+      </Collapse>
+    </>
+  );
+};
+
+PollSubmenu.propTypes = {
+  roleNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+  openSubmenu: PropTypes.bool.isRequired,
+  onToggle: PropTypes.func.isRequired,
+  isMobile: PropTypes.bool,
+};
+
+PollSubmenu.defaultProps = {
+  isMobile: false,
+};
+
 function Header({ globalSearchQuery }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -692,54 +782,12 @@ function Header({ globalSearchQuery }) {
                   <MenuItem>{t("WORKSPACE")}</MenuItem>
                 </Link>
               )}
-              {hasPrivilegedPollAccess(roleNames) && (
-                <>
-                  <MenuItem
-                    onClick={handleSubmenuToggle}
-                    style={{ background: "#f9fafc", color: "#1976d2" }}
-                  >
-                    {t("POLL")}
-                    <Link primary="Submenu" />
-                    {openSubmenu ? <ExpandLess /> : <ExpandMore />}
-                  </MenuItem>
-                  <Collapse
-                    in={openSubmenu}
-                    timeout="auto"
-                    unmountOnExit
-                  >
-                    <List
-                      component="div"
-                      disablePadding
-                      style={{ background: "#f9fafc" }}
-                    >
-                      {canCreatePoll(roleNames) && (
-                        <MenuItem
-                          className="ml-10"
-                          style={{ background: "#f9fafc" }}
-                        >
-                          <Link
-                            href={routeConfig.ROUTES.POLL.POLL_FORM}
-                            underline="none"
-                            textAlign="center"
-                          >
-                            {t("CREATE_POLL")}
-                          </Link>
-                        </MenuItem>
-                      )}
-                      <MenuItem className="ml-10">
-                        <Link
-                          href={routeConfig.ROUTES.POLL.POLL_LIST}
-                          underline="none"
-                          textAlign="center"
-                        >
-                          {t("POLL_LIST")}
-                        </Link>
-                      </MenuItem>
-                    </List>
-                  </Collapse>
-                </>
-              )}
-              {!hasPrivilegedPollAccess(roleNames) && <PollListLink />}
+              <PollSubmenu
+                roleNames={roleNames}
+                openSubmenu={openSubmenu}
+                onToggle={handleSubmenuToggle}
+                isMobile={false}
+              />
               <Link
                 href={routeConfig.ROUTES.HELP_PAGE.HELP}
                 underline="none"
@@ -1064,50 +1112,12 @@ function Header({ globalSearchQuery }) {
                   {/* <NotificationsNoneOutlinedIcon />
                     ekta */}
 
-                  {hasPrivilegedPollAccess(roleNames) && (
-                    <>
-                      <MenuItem
-                        onClick={handleSubmenuToggle}
-                        style={{ background: "#f9fafc", color: "#1976d2" }}
-                      >
-                        {t("POLL")}
-                        <Link primary="Submenu" />
-                        {openSubmenu ? <ExpandLess /> : <ExpandMore />}
-                      </MenuItem>
-                      <Collapse
-                        in={openSubmenu}
-                        timeout="auto"
-                        unmountOnExit
-                        style={{ background: "#f9fafc" }}
-                      >
-                        <List
-                          component="div"
-                          disablePadding
-                          style={{ background: "#f9fafc" }}
-                        >
-                          {canCreatePoll(roleNames) && (
-                            <Link
-                              href={routeConfig.ROUTES.POLL.POLL_FORM}
-                              underline="none"
-                              textAlign="center"
-                            >
-                              <MenuItem className="ml-10">
-                                {t("CREATE_POLL")}
-                              </MenuItem>
-                            </Link>
-                          )}
-                          <Link
-                            href={routeConfig.ROUTES.POLL.POLL_LIST}
-                            underline="none"
-                            textAlign="center"
-                          >
-                            <MenuItem className="ml-10">{t("POLL_LIST")}</MenuItem>
-                          </Link>
-                        </List>
-                      </Collapse>
-                    </>
-                  )}
-                  {!hasPrivilegedPollAccess(roleNames) && <PollListLink />}
+                  <PollSubmenu
+                    roleNames={roleNames}
+                    openSubmenu={openSubmenu}
+                    onToggle={handleSubmenuToggle}
+                    isMobile={true}
+                  />
                   <Link
                     href={routeConfig.ROUTES.HELP_PAGE.HELP}
                     underline="none"
