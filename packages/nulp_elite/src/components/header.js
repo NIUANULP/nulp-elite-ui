@@ -40,6 +40,21 @@ import Cookies from "js-cookie";
 const PRIVILEGED_POLL_ROLES = new Set(["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR", "CONTENT_REVIEWER", "ORG_ADMIN"]);
 const POLL_CREATOR_ROLES = new Set(["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"]);
 
+// Helper function to check if user has any of the specified roles
+const hasAnyRole = (roleNames, allowedRoles) => {
+  return roleNames.some((role) => allowedRoles.has(role));
+};
+
+// Helper function to check if user has privileged poll roles
+const hasPrivilegedPollAccess = (roleNames) => {
+  return hasAnyRole(roleNames, PRIVILEGED_POLL_ROLES);
+};
+
+// Helper function to check if user can create polls
+const canCreatePoll = (roleNames) => {
+  return hasAnyRole(roleNames, POLL_CREATOR_ROLES);
+};
+
 // Reusable POLL_LIST link component
 const PollListLink = ({ className = "" }) => {
   const { t } = useTranslation();
@@ -321,16 +336,6 @@ function Header({ globalSearchQuery }) {
   }, []);
   const roleNames =
     userData?.result?.response?.roles.map((role) => role.role) || [];
-
-  // Helper function to check if user has privileged poll roles
-  const hasPrivilegedPollAccess = () => {
-    return roleNames.some((role) => PRIVILEGED_POLL_ROLES.has(role));
-  };
-
-  // Helper function to check if user can create polls
-  const canCreatePoll = () => {
-    return roleNames.some((role) => POLL_CREATOR_ROLES.has(role));
-  };
 
   const textFieldStyle = {
     fontSize: "12px",
@@ -687,7 +692,7 @@ function Header({ globalSearchQuery }) {
                   <MenuItem>{t("WORKSPACE")}</MenuItem>
                 </Link>
               )}
-              {hasPrivilegedPollAccess() && (
+              {hasPrivilegedPollAccess(roleNames) && (
                 <>
                   <MenuItem
                     onClick={handleSubmenuToggle}
@@ -707,7 +712,7 @@ function Header({ globalSearchQuery }) {
                       disablePadding
                       style={{ background: "#f9fafc" }}
                     >
-                      {canCreatePoll() && (
+                      {canCreatePoll(roleNames) && (
                         <MenuItem
                           className="ml-10"
                           style={{ background: "#f9fafc" }}
@@ -734,7 +739,7 @@ function Header({ globalSearchQuery }) {
                   </Collapse>
                 </>
               )}
-              {!hasPrivilegedPollAccess() && <PollListLink />}
+              {!hasPrivilegedPollAccess(roleNames) && <PollListLink />}
               <Link
                 href={routeConfig.ROUTES.HELP_PAGE.HELP}
                 underline="none"
@@ -1059,7 +1064,7 @@ function Header({ globalSearchQuery }) {
                   {/* <NotificationsNoneOutlinedIcon />
                     ekta */}
 
-                  {hasPrivilegedPollAccess() && (
+                  {hasPrivilegedPollAccess(roleNames) && (
                     <>
                       <MenuItem
                         onClick={handleSubmenuToggle}
@@ -1080,7 +1085,7 @@ function Header({ globalSearchQuery }) {
                           disablePadding
                           style={{ background: "#f9fafc" }}
                         >
-                          {canCreatePoll() && (
+                          {canCreatePoll(roleNames) && (
                             <Link
                               href={routeConfig.ROUTES.POLL.POLL_FORM}
                               underline="none"
@@ -1102,7 +1107,7 @@ function Header({ globalSearchQuery }) {
                       </Collapse>
                     </>
                   )}
-                  {!hasPrivilegedPollAccess() && <PollListLink />}
+                  {!hasPrivilegedPollAccess(roleNames) && <PollListLink />}
                   <Link
                     href={routeConfig.ROUTES.HELP_PAGE.HELP}
                     underline="none"
