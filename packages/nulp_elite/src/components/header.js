@@ -39,20 +39,34 @@ import Cookies from "js-cookie";
 // Constants for role-based access control
 const PRIVILEGED_POLL_ROLES = new Set(["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR", "CONTENT_REVIEWER", "ORG_ADMIN"]);
 const POLL_CREATOR_ROLES = new Set(["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"]);
+const ADMIN_DASHBOARD_ROLES = new Set(["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR", "ORG_ADMIN"]);
+const DASHBOARD_ROLES = new Set(["CONTENT_CREATOR"]);
+const WORKSPACE_ROLES = new Set(["CONTENT_CREATOR", "CONTENT_REVIEWER", "ORG_ADMIN"]);
+const WORKSPACE_MOBILE_ROLES = new Set(["ORG_ADMIN", "SYSTEM_ADMINISTRATION", "CONTENT_CREATOR", "CONTENT_REVIEWER"]);
+const POLL_DASHBOARD_ROLES = new Set(["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"]);
+const EVENTS_ROLES = new Set(["ORG_ADMIN", "SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"]);
+const LEARNATHON_ROLES = new Set(["ORG_ADMIN", "SYSTEM_ADMINISTRATION"]);
+const ADMIN_ROLES = new Set(["ORG_ADMIN", "SYSTEM_ADMINISTRATION"]);
 
 // Helper function to check if user has any of the specified roles
 const hasAnyRole = (roleNames, allowedRoles) => {
+  if (!roleNames || !Array.isArray(roleNames)) return false;
   return roleNames.some((role) => allowedRoles.has(role));
+};
+
+// Uniform helper function for role-based access checks
+const hasRoleAccess = (roleNames, roleSet) => {
+  return hasAnyRole(roleNames, roleSet);
 };
 
 // Helper function to check if user has privileged poll roles
 const hasPrivilegedPollAccess = (roleNames) => {
-  return hasAnyRole(roleNames, PRIVILEGED_POLL_ROLES);
+  return hasRoleAccess(roleNames, PRIVILEGED_POLL_ROLES);
 };
 
 // Helper function to check if user can create polls
 const canCreatePoll = (roleNames) => {
-  return hasAnyRole(roleNames, POLL_CREATOR_ROLES);
+  return hasRoleAccess(roleNames, POLL_CREATOR_ROLES);
 };
 
 // Reusable POLL_LIST link component
@@ -747,9 +761,7 @@ function Header({ globalSearchQuery }) {
               >
                 <MenuItem>{t("PROFILE")}</MenuItem>
               </Link>
-              {roleNames.some((role) => 
-                ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR", "ORG_ADMIN"].includes(role)
-              ) && (
+              {hasRoleAccess(roleNames, ADMIN_DASHBOARD_ROLES) && (
                 <Link
                   target="_blank"
                   href={urlConfig.DASHBOARD.ADMIN_DASHBOARD_URL}
@@ -759,7 +771,7 @@ function Header({ globalSearchQuery }) {
                   <MenuItem>{t("ADMIN_DASHBOARD")}</MenuItem>
                 </Link>
               )}
-              {roleNames.some((role) => ["CONTENT_CREATOR"].includes(role)) && (
+              {hasRoleAccess(roleNames, DASHBOARD_ROLES) && (
                 <Link
                   href={routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}
                   underline="none"
@@ -772,7 +784,7 @@ function Header({ globalSearchQuery }) {
               {/* Check if roles array is empty or contains "PUBLIC" */}
 
               {/* {accessWorkspace && ( */}
-              {roleNames.some((role) => ["CONTENT_CREATOR", "CONTENT_REVIEWER", "ORG_ADMIN"].includes(role)) && (
+              {hasRoleAccess(roleNames, WORKSPACE_ROLES) && (
                 <Link
                   target="_blank"
                   href="/workspace/content/create"
@@ -1019,11 +1031,7 @@ function Header({ globalSearchQuery }) {
                       disablePadding
                       style={{ background: "#f9fafc" }}
                     >
-                      {roleNames.some((role) =>
-                        ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"].includes(
-                          role
-                        )
-                      ) && (
+                      {hasRoleAccess(roleNames, POLL_DASHBOARD_ROLES) && (
                         <Link
                           href={routeConfig.ROUTES.POLL.POLL_DASHBOARD}
                           underline="none"
@@ -1032,13 +1040,7 @@ function Header({ globalSearchQuery }) {
                           <MenuItem className="ml-10">{t("POLL")}</MenuItem>
                         </Link>
                       )}
-                      {roleNames.some((role) =>
-                        [
-                          "ORG_ADMIN",
-                          "SYSTEM_ADMINISTRATION",
-                          "CONTENT_CREATOR",
-                        ].includes(role)
-                      ) && (
+                      {hasRoleAccess(roleNames, EVENTS_ROLES) && (
                         <Link
                           href={routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}
                           underline="none"
@@ -1060,9 +1062,7 @@ function Header({ globalSearchQuery }) {
                       >
                         {t("LEARNING_REPORT")}
                       </MenuItem>
-                      {roleNames.some((role) =>
-                        ["ORG_ADMIN", "SYSTEM_ADMINISTRATION"].includes(role)
-                      ) && (
+                      {hasRoleAccess(roleNames, LEARNATHON_ROLES) && (
                         <Link
                           href={routeConfig.ROUTES.LEARNATHON.DASHBOARD}
                           underline="none"
@@ -1079,9 +1079,7 @@ function Header({ globalSearchQuery }) {
                       )}
                     </List>
                   </Collapse>
-                  {roleNames.some((role) =>
-                    ["ORG_ADMIN", "SYSTEM_ADMINISTRATION"].includes(role)
-                  ) && (
+                  {hasRoleAccess(roleNames, ADMIN_ROLES) && (
                     <Link
                       href={routeConfig.ROUTES.ADMIN}
                       underline="none"
@@ -1092,14 +1090,7 @@ function Header({ globalSearchQuery }) {
                     </Link>
                   )}
 
-                  {roleNames.some((role) =>
-                    [
-                      "ORG_ADMIN",
-                      "SYSTEM_ADMINISTRATION",
-                      "CONTENT_CREATOR",
-                      "CONTENT_REVIEWER",
-                    ].includes(role)
-                  ) && (
+                  {hasRoleAccess(roleNames, WORKSPACE_MOBILE_ROLES) && (
                       <Link
                         target="_blank"
                         href="/workspace/content/create"
