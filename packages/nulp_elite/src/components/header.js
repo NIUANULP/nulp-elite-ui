@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -34,6 +35,32 @@ import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { Collapse, List } from "@mui/material";
 import NotificationPopup from "./Notification";
 import Cookies from "js-cookie";
+
+// Constants for role-based access control
+const PRIVILEGED_POLL_ROLES = new Set(["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR", "CONTENT_REVIEWER", "ORG_ADMIN"]);
+const POLL_CREATOR_ROLES = new Set(["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"]);
+
+// Reusable POLL_LIST link component
+const PollListLink = ({ className = "" }) => {
+  const { t } = useTranslation();
+  return (
+    <Link
+      href={routeConfig.ROUTES.POLL.POLL_LIST}
+      underline="none"
+      textAlign="center"
+    >
+      <MenuItem className={className}>{t("POLL_LIST")}</MenuItem>
+    </Link>
+  );
+};
+
+PollListLink.propTypes = {
+  className: PropTypes.string,
+};
+
+PollListLink.defaultProps = {
+  className: "",
+};
 
 function Header({ globalSearchQuery }) {
   const navigate = useNavigate();
@@ -295,30 +322,15 @@ function Header({ globalSearchQuery }) {
   const roleNames =
     userData?.result?.response?.roles.map((role) => role.role) || [];
 
-  // Constants for role-based access control
-  const PRIVILEGED_POLL_ROLES = ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR", "CONTENT_REVIEWER", "ORG_ADMIN"];
-  const POLL_CREATOR_ROLES = ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"];
-
   // Helper function to check if user has privileged poll roles
   const hasPrivilegedPollAccess = () => {
-    return roleNames.some((role) => PRIVILEGED_POLL_ROLES.includes(role));
+    return roleNames.some((role) => PRIVILEGED_POLL_ROLES.has(role));
   };
 
   // Helper function to check if user can create polls
   const canCreatePoll = () => {
-    return roleNames.some((role) => POLL_CREATOR_ROLES.includes(role));
+    return roleNames.some((role) => POLL_CREATOR_ROLES.has(role));
   };
-
-  // Reusable POLL_LIST link component
-  const PollListLink = ({ className = "" }) => (
-    <Link
-      href={routeConfig.ROUTES.POLL.POLL_LIST}
-      underline="none"
-      textAlign="center"
-    >
-      <MenuItem className={className}>{t("POLL_LIST")}</MenuItem>
-    </Link>
-  );
 
   const textFieldStyle = {
     fontSize: "12px",
