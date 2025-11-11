@@ -295,6 +295,31 @@ function Header({ globalSearchQuery }) {
   const roleNames =
     userData?.result?.response?.roles.map((role) => role.role) || [];
 
+  // Constants for role-based access control
+  const PRIVILEGED_POLL_ROLES = ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR", "CONTENT_REVIEWER", "ORG_ADMIN"];
+  const POLL_CREATOR_ROLES = ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"];
+
+  // Helper function to check if user has privileged poll roles
+  const hasPrivilegedPollAccess = () => {
+    return roleNames.some((role) => PRIVILEGED_POLL_ROLES.includes(role));
+  };
+
+  // Helper function to check if user can create polls
+  const canCreatePoll = () => {
+    return roleNames.some((role) => POLL_CREATOR_ROLES.includes(role));
+  };
+
+  // Reusable POLL_LIST link component
+  const PollListLink = ({ className = "" }) => (
+    <Link
+      href={routeConfig.ROUTES.POLL.POLL_LIST}
+      underline="none"
+      textAlign="center"
+    >
+      <MenuItem className={className}>{t("POLL_LIST")}</MenuItem>
+    </Link>
+  );
+
   const textFieldStyle = {
     fontSize: "12px",
     backgroundColor: searchQuery ? "#065872" : "transparent",
@@ -650,9 +675,7 @@ function Header({ globalSearchQuery }) {
                   <MenuItem>{t("WORKSPACE")}</MenuItem>
                 </Link>
               )}
-              {(roleNames.some((role) =>
-                ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR", "CONTENT_REVIEWER", "ORG_ADMIN"].includes(role)
-              )) && (
+              {hasPrivilegedPollAccess() && (
                 <>
                   <MenuItem
                     onClick={handleSubmenuToggle}
@@ -672,23 +695,20 @@ function Header({ globalSearchQuery }) {
                       disablePadding
                       style={{ background: "#f9fafc" }}
                     >
-                      {roleNames.some((role) =>
-                        ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"].includes(role)
-                      ) &&
-                        accessWorkspace && (
-                          <MenuItem
-                            className="ml-10"
-                            style={{ background: "#f9fafc" }}
+                      {canCreatePoll() && (
+                        <MenuItem
+                          className="ml-10"
+                          style={{ background: "#f9fafc" }}
+                        >
+                          <Link
+                            href={routeConfig.ROUTES.POLL.POLL_FORM}
+                            underline="none"
+                            textAlign="center"
                           >
-                            <Link
-                              href={routeConfig.ROUTES.POLL.POLL_FORM}
-                              underline="none"
-                              textAlign="center"
-                            >
-                              {t("CREATE_POLL")}
-                            </Link>
-                          </MenuItem>
-                        )}
+                            {t("CREATE_POLL")}
+                          </Link>
+                        </MenuItem>
+                      )}
                       <MenuItem className="ml-10">
                         <Link
                           href={routeConfig.ROUTES.POLL.POLL_LIST}
@@ -702,17 +722,7 @@ function Header({ globalSearchQuery }) {
                   </Collapse>
                 </>
               )}
-              {!roleNames.some((role) =>
-                ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR", "CONTENT_REVIEWER", "ORG_ADMIN"].includes(role)
-              ) && (
-                <Link
-                  href={routeConfig.ROUTES.POLL.POLL_LIST}
-                  underline="none"
-                  textAlign="center"
-                >
-                  <MenuItem>{t("POLL_LIST")}</MenuItem>
-                </Link>
-              )}
+              {!hasPrivilegedPollAccess() && <PollListLink />}
               <Link
                 href={routeConfig.ROUTES.HELP_PAGE.HELP}
                 underline="none"
@@ -1037,11 +1047,7 @@ function Header({ globalSearchQuery }) {
                   {/* <NotificationsNoneOutlinedIcon />
                     ekta */}
 
-                  {(roleNames.some((role) =>
-                    ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR", "CONTENT_REVIEWER", "ORG_ADMIN"].includes(
-                      role
-                    )
-                  )) && (
+                  {hasPrivilegedPollAccess() && (
                     <>
                       <MenuItem
                         onClick={handleSubmenuToggle}
@@ -1062,11 +1068,7 @@ function Header({ globalSearchQuery }) {
                           disablePadding
                           style={{ background: "#f9fafc" }}
                         >
-                          {roleNames.some((role) =>
-                            ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"].includes(
-                              role
-                            )
-                          ) && (
+                          {canCreatePoll() && (
                             <Link
                               href={routeConfig.ROUTES.POLL.POLL_FORM}
                               underline="none"
@@ -1088,19 +1090,7 @@ function Header({ globalSearchQuery }) {
                       </Collapse>
                     </>
                   )}
-                  {!roleNames.some((role) =>
-                    ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR", "CONTENT_REVIEWER", "ORG_ADMIN"].includes(
-                      role
-                    )
-                  ) && (
-                    <Link
-                      href={routeConfig.ROUTES.POLL.POLL_LIST}
-                      underline="none"
-                      textAlign="center"
-                    >
-                      <MenuItem>{t("POLL_LIST")}</MenuItem>
-                    </Link>
-                  )}
+                  {!hasPrivilegedPollAccess() && <PollListLink />}
                   <Link
                     href={routeConfig.ROUTES.HELP_PAGE.HELP}
                     underline="none"
