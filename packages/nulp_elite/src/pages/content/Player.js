@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
 import Footer from "components/Footer";
@@ -50,6 +50,12 @@ const Player = () => {
   const [consumedContent, setConsumedContents] = useState(
     location.state?.consumedcontents || []
   );
+  const [courseHierarchy, setCourseHierarchy] = useState(
+    location.state?.courseHierarchy
+  );
+  const [allContents, setAllContents] = useState(
+    location.state?.allContents || []
+  );
   const [lesson, setLesson] = useState();
   const [isCompleted, setIsCompleted] = useState(false);
   const [openFeedBack, setOpenFeedBack] = useState(false);
@@ -62,9 +68,12 @@ const Player = () => {
   const [learnathonDetails, setLearnathonDetails] = useState();
   const [isPublished, setIsPublished] = useState(false);
 
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(location.search);
   const pageParam = params.get("page");
-  let contentId = params.get("id");
+  const [contentId, setContentId] = useState(() => {
+    const id = params.get("id");
+    return id && id.endsWith("=") ? id.slice(0, -1) : id;
+  });
   const [courseId, setCourseId] = useState(params.get("cId"));
   const [batchId, setBatchId] = useState(params.get("bId"));
 
@@ -79,10 +88,54 @@ const Player = () => {
       : "https://nulp.niua.org/newplayer";
 
   let extractedRoles;
-  if (contentId && contentId.endsWith("=")) {
-    contentId = contentId.slice(0, -1);
-  }
   const [reviewEnable, setReviewEnable] = useState(false);
+
+  // Update contentId and state when URL changes
+  useEffect(() => {
+    const newParams = new URLSearchParams(location.search);
+    const newContentId = newParams.get("id");
+    const newCourseId = newParams.get("cId");
+    const newBatchId = newParams.get("bId");
+    
+    if (newContentId) {
+      const cleanedId = newContentId.endsWith("=") ? newContentId.slice(0, -1) : newContentId;
+      // Always update contentId if URL changed, even if same value (to trigger re-fetch)
+      setContentId(cleanedId);
+      
+      // Reset lesson state when content changes
+      setLesson(null);
+      setIsCompleted(false);
+      setAssessEvents([]);
+      setPropLength(undefined);
+      setIsEndEventReceived(false);
+    }
+    
+    if (newCourseId) {
+      setCourseId(newCourseId);
+    }
+    if (newBatchId) {
+      setBatchId(newBatchId);
+    }
+    
+    // Update state from location.state if available (for navigation between content)
+    if (location.state) {
+      if (location.state.coursename) {
+        setCourseName(location.state.coursename);
+      }
+      if (location.state.courseHierarchy) {
+        setCourseHierarchy(location.state.courseHierarchy);
+      }
+      if (location.state.allContents) {
+        setAllContents(location.state.allContents);
+      }
+      if (location.state.consumedcontents) {
+        setConsumedContents(location.state.consumedcontents);
+      }
+      if (location.state.isenroll !== undefined) {
+        setIsEnrolled(location.state.isenroll);
+      }
+    }
+  }, [location.search, location.state]);
 
   const fetchUserData = useCallback(async () => {
     if (!_userId) {
@@ -340,71 +393,98 @@ const Player = () => {
     return obj;
   };
 
-  useEffect(
-    async () => {
-      setPreviousRoute(sessionStorage.getItem("previousRoutes"));
-      if (pageParam != "vote") {
-        const fetchData = async (content_Id) => {
-          try {
-            const response = await fetch(
-              `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CONTENT.GET}/${content_Id}?fields=transcripts,ageGroup,appIcon,artifactUrl,attributions,attributions,audience,author,badgeAssertions,board,body,channel,code,concepts,contentCredits,contentType,contributors,copyright,copyrightYear,createdBy,createdOn,creator,creators,description,displayScore,domain,editorState,flagReasons,flaggedBy,flags,framework,gradeLevel,identifier,itemSetPreviewUrl,keywords,language,languageCode,lastUpdatedOn,license,mediaType,medium,mimeType,name,originData,osId,owner,pkgVersion,publisher,questions,resourceType,scoreDisplayConfig,status,streamingUrl,subject,template,templateId,totalQuestions,totalScore,versionKey,visibility,year,primaryCategory,additionalCategories,interceptionPoints,interceptionType&orgdetails=orgName,email&licenseDetails=name,description,url`,
-              {
-                headers: { "Content-Type": "application/json" },
-              }
-            );
-            if (!response.ok) throw new Error("Failed to fetch course data");
-            const data = await response.json();
-            console.log("data.result.content", data.result.content);
-            const updatedResponse = replaceDomain(
-              data.result.content,
-
-              "nulpstorage1.blob.core.windows.net",
-              "nulpstorage.blob.core.windows.net"
-            );
-            console.log("updatedResponse", updatedResponse);
-
-            setLesson(updatedResponse);
-          } catch (error) {
-            console.error("Error fetching course data:", error);
+  useEffect(() => {
+    // Get contentId from URL to ensure we're using the latest value
+    const params = new URLSearchParams(location.search);
+    const urlContentId = params.get("id");
+    const actualContentId = urlContentId && urlContentId.endsWith("=") 
+      ? urlContentId.slice(0, -1) 
+      : urlContentId;
+    
+    if (!actualContentId) {
+      setLesson(null);
+      return;
+    }
+    
+    // Ensure contentId state matches URL
+    if (actualContentId !== contentId) {
+      setContentId(actualContentId);
+      return; // Let the URL change effect handle the update first
+    }
+    
+    setPreviousRoute(sessionStorage.getItem("previousRoutes"));
+    
+    // Reset lesson to show loading state
+    setLesson(null);
+    
+    const fetchData = async (content_Id) => {
+      if (!content_Id) return;
+      try {
+        const response = await fetch(
+          `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CONTENT.GET}/${content_Id}?fields=transcripts,ageGroup,appIcon,artifactUrl,attributions,attributions,audience,author,badgeAssertions,board,body,channel,code,concepts,contentCredits,contentType,contributors,copyright,copyrightYear,createdBy,createdOn,creator,creators,description,displayScore,domain,editorState,flagReasons,flaggedBy,flags,framework,gradeLevel,identifier,itemSetPreviewUrl,keywords,language,languageCode,lastUpdatedOn,license,mediaType,medium,mimeType,name,originData,osId,owner,pkgVersion,publisher,questions,resourceType,scoreDisplayConfig,status,streamingUrl,subject,template,templateId,totalQuestions,totalScore,versionKey,visibility,year,primaryCategory,additionalCategories,interceptionPoints,interceptionType&orgdetails=orgName,email&licenseDetails=name,description,url`,
+          {
+            headers: { "Content-Type": "application/json" },
           }
-        };
+        );
+        if (!response.ok) throw new Error("Failed to fetch course data");
+        const data = await response.json();
+        console.log("data.result.content", data.result.content);
+        const updatedResponse = replaceDomain(
+          data.result.content,
+          "nulpstorage1.blob.core.windows.net",
+          "nulpstorage.blob.core.windows.net"
+        );
+        console.log("updatedResponse", updatedResponse);
 
-        if (
-          pageParam == "review" ||
-          pageParam == "lern" ||
-          pageParam == "lernpreview" ||
-          pageParam == "dashboard"
-        ) {
-          setIsLearnathon(true);
+        // Only set lesson if contentId hasn't changed during fetch
+        const currentParams = new URLSearchParams(window.location.search);
+        const currentContentId = currentParams.get("id");
+        const currentCleanedId = currentContentId && currentContentId.endsWith("=") 
+          ? currentContentId.slice(0, -1) 
+          : currentContentId;
+        
+        if (currentCleanedId === content_Id) {
+          setLesson(updatedResponse);
+        }
+      } catch (error) {
+        console.error("Error fetching course data:", error);
+        setLesson(null);
+      }
+    };
 
-          const assetBody = {
-            request: {
-              filters: {
-                learnathon_content_id: contentId,
-              },
+    if (pageParam != "vote") {
+      if (
+        pageParam == "review" ||
+        pageParam == "lern" ||
+        pageParam == "lernpreview" ||
+        pageParam == "dashboard"
+      ) {
+        setIsLearnathon(true);
+
+        const assetBody = {
+          request: {
+            filters: {
+              learnathon_content_id: contentId,
             },
-          };
-          try {
-            const response = await fetch(`${urlConfig.URLS.LEARNATHON.LIST}`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(assetBody),
-            });
-
-            setLearnathonDetails(response?.data?.result?.data[0]);
-
+          },
+        };
+        
+        fetch(`${urlConfig.URLS.LEARNATHON.LIST}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(assetBody),
+        })
+          .then(async (response) => {
             if (!response.ok) {
               throw new Error("Something went wrong");
             }
-
             const result = await response.json();
             console.log("suceesss----", result);
             console.log(result.result);
 
             setLearnathonDetails(result.result.data[0]);
-            // setCourseId(result.result.data[0].content_id);
             setPlayerContent(result.result.data[0].content_id);
             if (result.result.data[0].status == "Live") {
               setIsPublished(true);
@@ -415,23 +495,20 @@ const Player = () => {
             } else {
               fetchData(result.result.data[0].content_id);
             }
-          } catch (error) {
+          })
+          .catch((error) => {
             console.log("error---", error);
-          } finally {
-          }
-        } else {
-          fetchData(contentId);
-        }
-
-        fetchUserData();
-        if (!consumedContent.includes(contentId)) {
-          updateContentState(2);
-        }
+          });
+      } else {
+        fetchData(actualContentId);
       }
-    },
-    [contentId, consumedContent, fetchUserData, updateContentState],
-    pageParam
-  );
+
+      fetchUserData();
+      if (actualContentId && consumedContent && !consumedContent.includes(actualContentId)) {
+        updateContentState(2);
+      }
+    }
+  }, [location.search, contentId, consumedContent, fetchUserData, updateContentState, pageParam]);
 
   useEffect(() => {
     if (isCompleted) {
@@ -468,6 +545,161 @@ const Player = () => {
       }
     }
   };
+
+  // Helper function to build a flat list of content with module information
+  const buildContentList = (hierarchy) => {
+    const contentList = [];
+    
+    if (!hierarchy || !hierarchy.children) {
+      return contentList;
+    }
+
+    const traverse = (nodes, moduleInfo = null) => {
+      nodes.forEach((node) => {
+        if (!node.children || node.children.length === 0) {
+          // This is a leaf node (content)
+          contentList.push({
+            identifier: node.identifier,
+            name: node.name,
+            moduleIdentifier: moduleInfo?.identifier || null,
+            moduleName: moduleInfo?.name || null,
+          });
+        } else {
+          // This is a module/unit
+          const currentModuleInfo = {
+            identifier: node.identifier,
+            name: node.name,
+          };
+          traverse(node.children, currentModuleInfo);
+        }
+      });
+    };
+
+    traverse(hierarchy.children);
+    return contentList;
+  };
+
+  // Get navigation information for current content
+  const getNavigationInfo = () => {
+    if (!courseHierarchy || !contentId || !allContents || allContents.length === 0) {
+      return {
+        previousContent: null,
+        nextContent: null,
+        previousModule: null,
+        nextModule: null,
+      };
+    }
+
+    const contentList = buildContentList(courseHierarchy);
+    const currentIndex = contentList.findIndex(
+      (item) => item.identifier === contentId
+    );
+
+    if (currentIndex === -1) {
+      return {
+        previousContent: null,
+        nextContent: null,
+        previousModule: null,
+        nextModule: null,
+      };
+    }
+
+    const currentContent = contentList[currentIndex];
+    const previousContent = currentIndex > 0 ? contentList[currentIndex - 1] : null;
+    const nextContent =
+      currentIndex < contentList.length - 1 ? contentList[currentIndex + 1] : null;
+
+    // Find previous module (different module than current)
+    let previousModule = null;
+    if (currentContent.moduleIdentifier) {
+      let foundModuleIdentifier = null;
+      // Find the first different module going backwards
+      for (let i = currentIndex - 1; i >= 0; i--) {
+        if (
+          contentList[i].moduleIdentifier &&
+          contentList[i].moduleIdentifier !== currentContent.moduleIdentifier
+        ) {
+          foundModuleIdentifier = contentList[i].moduleIdentifier;
+          break;
+        }
+      }
+      // Now find the first content in that module
+      if (foundModuleIdentifier) {
+        for (let i = 0; i < contentList.length; i++) {
+          if (contentList[i].moduleIdentifier === foundModuleIdentifier) {
+            previousModule = {
+              identifier: foundModuleIdentifier,
+              name: contentList[i].moduleName,
+              firstContentId: contentList[i].identifier,
+            };
+            break;
+          }
+        }
+      }
+    }
+
+    // Find next module (different module than current)
+    let nextModule = null;
+    if (currentContent.moduleIdentifier) {
+      let foundModuleIdentifier = null;
+      // Find the first different module going forwards
+      for (let i = currentIndex + 1; i < contentList.length; i++) {
+        if (
+          contentList[i].moduleIdentifier &&
+          contentList[i].moduleIdentifier !== currentContent.moduleIdentifier
+        ) {
+          foundModuleIdentifier = contentList[i].moduleIdentifier;
+          break;
+        }
+      }
+      // Now find the first content in that module
+      if (foundModuleIdentifier) {
+        for (let i = 0; i < contentList.length; i++) {
+          if (contentList[i].moduleIdentifier === foundModuleIdentifier) {
+            nextModule = {
+              identifier: foundModuleIdentifier,
+              name: contentList[i].moduleName,
+              firstContentId: contentList[i].identifier,
+            };
+            break;
+          }
+        }
+      }
+    }
+
+    return {
+      previousContent,
+      nextContent,
+      previousModule,
+      nextModule,
+    };
+  };
+
+  // Navigate to a content item
+  const navigateToContent = (targetContentId) => {
+    if (!targetContentId) return;
+    
+    // Reset lesson immediately to show loading state
+    setLesson(null);
+    
+    navigate(
+      `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${targetContentId}&cId=${courseId}&bId=${batchId}`,
+      {
+        replace: false,
+        state: {
+          coursename: courseName,
+          batchid: batchId,
+          courseid: courseId,
+          isenroll: isEnrolled,
+          consumedcontents: consumedContent,
+          courseHierarchy: courseHierarchy,
+          allContents: allContents,
+        },
+      }
+    );
+  };
+
+  const navigationInfo = useMemo(() => getNavigationInfo(), [courseHierarchy, contentId, allContents]);
 
   const fetchData = async (content_Id) => {
     try {
@@ -1023,6 +1255,75 @@ const Player = () => {
               <Box>{t("NO_CONTENT_TO_PLAY")}</Box>
             )}
           </Box>
+          
+          {/* Navigation Buttons */}
+          {courseHierarchy && courseId && (
+            <Box
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginTop: "20px",
+                marginBottom: "20px",
+                flexWrap: "wrap",
+                gap: "10px",
+              }}
+            >
+              <Box style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                {navigationInfo.previousModule && (
+                  <Button
+                    variant="outlined"
+                    onClick={() =>
+                      navigateToContent(navigationInfo.previousModule.firstContentId)
+                    }
+                    className="custom-btn-outline"
+                    disabled={!navigationInfo.previousModule}
+                  >
+                    {t("PREVIOUS_MODULE")}
+                  </Button>
+                )}
+                {navigationInfo.previousContent && (
+                  <Button
+                    variant="outlined"
+                    onClick={() =>
+                      navigateToContent(navigationInfo.previousContent.identifier)
+                    }
+                    className="custom-btn-outline"
+                    disabled={!navigationInfo.previousContent}
+                  >
+                    {t("PREVIOUS")}
+                  </Button>
+                )}
+              </Box>
+              <Box style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                {navigationInfo.nextContent && (
+                  <Button
+                    variant="contained"
+                    onClick={() =>
+                      navigateToContent(navigationInfo.nextContent.identifier)
+                    }
+                    className="custom-btn-primary"
+                    disabled={!navigationInfo.nextContent}
+                  >
+                    {t("NEXT")}
+                  </Button>
+                )}
+                {navigationInfo.nextModule && (
+                  <Button
+                    variant="contained"
+                    onClick={() =>
+                      navigateToContent(navigationInfo.nextModule.firstContentId)
+                    }
+                    className="custom-btn-primary"
+                    disabled={!navigationInfo.nextModule}
+                  >
+                    {t("NEXT_MODULE")}
+                  </Button>
+                )}
+              </Box>
+            </Box>
+          )}
+          
           <Box
             style={{
               paddingBottom: "2%",
