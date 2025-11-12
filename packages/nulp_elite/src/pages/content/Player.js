@@ -90,6 +90,17 @@ const Player = () => {
   let extractedRoles;
   const [reviewEnable, setReviewEnable] = useState(false);
 
+  // Helper function to update state from location.state
+  const updateStateFromLocation = useCallback((state) => {
+    if (!state) return;
+    
+    if (state.coursename) setCourseName(state.coursename);
+    if (state.courseHierarchy) setCourseHierarchy(state.courseHierarchy);
+    if (state.allContents) setAllContents(state.allContents);
+    if (state.consumedcontents) setConsumedContents(state.consumedcontents);
+    if (state.isenroll !== undefined) setIsEnrolled(state.isenroll);
+  }, []);
+
   // Update contentId and state when URL changes
   useEffect(() => {
     const newParams = new URLSearchParams(location.search);
@@ -99,7 +110,6 @@ const Player = () => {
     
     if (newContentId) {
       const cleanedId = newContentId.endsWith("=") ? newContentId.slice(0, -1) : newContentId;
-      // Always update contentId if URL changed, even if same value (to trigger re-fetch)
       setContentId(cleanedId);
       
       // Reset lesson state when content changes
@@ -110,32 +120,11 @@ const Player = () => {
       setIsEndEventReceived(false);
     }
     
-    if (newCourseId) {
-      setCourseId(newCourseId);
-    }
-    if (newBatchId) {
-      setBatchId(newBatchId);
-    }
+    if (newCourseId) setCourseId(newCourseId);
+    if (newBatchId) setBatchId(newBatchId);
     
-    // Update state from location.state if available (for navigation between content)
-    if (location.state) {
-      if (location.state.coursename) {
-        setCourseName(location.state.coursename);
-      }
-      if (location.state.courseHierarchy) {
-        setCourseHierarchy(location.state.courseHierarchy);
-      }
-      if (location.state.allContents) {
-        setAllContents(location.state.allContents);
-      }
-      if (location.state.consumedcontents) {
-        setConsumedContents(location.state.consumedcontents);
-      }
-      if (location.state.isenroll !== undefined) {
-        setIsEnrolled(location.state.isenroll);
-      }
-    }
-  }, [location.search, location.state]);
+    updateStateFromLocation(location.state);
+  }, [location.search, location.state, updateStateFromLocation]);
 
   const fetchUserData = useCallback(async () => {
     if (!_userId) {
@@ -437,7 +426,7 @@ const Player = () => {
         console.log("updatedResponse", updatedResponse);
 
         // Only set lesson if contentId hasn't changed during fetch
-        const currentParams = new URLSearchParams(window.location.search);
+        const currentParams = new URLSearchParams(globalThis.location.search);
         const currentContentId = currentParams.get("id");
         const currentCleanedId = currentContentId && currentContentId.endsWith("=") 
           ? currentContentId.slice(0, -1) 
@@ -555,7 +544,7 @@ const Player = () => {
     }
 
     const traverse = (nodes, moduleInfo = null) => {
-      nodes.forEach((node) => {
+      for (const node of nodes) {
         if (!node.children || node.children.length === 0) {
           // This is a leaf node (content)
           contentList.push({
@@ -572,22 +561,72 @@ const Player = () => {
           };
           traverse(node.children, currentModuleInfo);
         }
-      });
+      }
     };
 
     traverse(hierarchy.children);
     return contentList;
   };
 
+  // Helper function to find first content in a module
+  const findFirstContentInModule = (contentList, moduleIdentifier) => {
+    for (const item of contentList) {
+      if (item.moduleIdentifier === moduleIdentifier) {
+        return {
+          identifier: moduleIdentifier,
+          name: item.moduleName,
+          firstContentId: item.identifier,
+        };
+      }
+    }
+    return null;
+  };
+
+  // Helper function to find previous module
+  const findPreviousModule = (contentList, currentIndex, currentModuleIdentifier) => {
+    if (!currentModuleIdentifier) return null;
+    
+    // Find the first different module going backwards
+    for (let i = currentIndex - 1; i >= 0; i--) {
+      const item = contentList[i];
+      if (
+        item.moduleIdentifier &&
+        item.moduleIdentifier !== currentModuleIdentifier
+      ) {
+        return findFirstContentInModule(contentList, item.moduleIdentifier);
+      }
+    }
+    return null;
+  };
+
+  // Helper function to find next module
+  const findNextModule = (contentList, currentIndex, currentModuleIdentifier) => {
+    if (!currentModuleIdentifier) return null;
+    
+    // Find the first different module going forwards
+    for (let i = currentIndex + 1; i < contentList.length; i++) {
+      const item = contentList[i];
+      if (
+        item.moduleIdentifier &&
+        item.moduleIdentifier !== currentModuleIdentifier
+      ) {
+        return findFirstContentInModule(contentList, item.moduleIdentifier);
+      }
+    }
+    return null;
+  };
+
   // Get navigation information for current content
   const getNavigationInfo = () => {
+    const emptyResult = {
+      previousContent: null,
+      nextContent: null,
+      previousModule: null,
+      nextModule: null,
+    };
+
     if (!courseHierarchy || !contentId || !allContents || allContents.length === 0) {
-      return {
-        previousContent: null,
-        nextContent: null,
-        previousModule: null,
-        nextModule: null,
-      };
+      return emptyResult;
     }
 
     const contentList = buildContentList(courseHierarchy);
@@ -596,12 +635,7 @@ const Player = () => {
     );
 
     if (currentIndex === -1) {
-      return {
-        previousContent: null,
-        nextContent: null,
-        previousModule: null,
-        nextModule: null,
-      };
+      return emptyResult;
     }
 
     const currentContent = contentList[currentIndex];
@@ -609,63 +643,16 @@ const Player = () => {
     const nextContent =
       currentIndex < contentList.length - 1 ? contentList[currentIndex + 1] : null;
 
-    // Find previous module (different module than current)
-    let previousModule = null;
-    if (currentContent.moduleIdentifier) {
-      let foundModuleIdentifier = null;
-      // Find the first different module going backwards
-      for (let i = currentIndex - 1; i >= 0; i--) {
-        if (
-          contentList[i].moduleIdentifier &&
-          contentList[i].moduleIdentifier !== currentContent.moduleIdentifier
-        ) {
-          foundModuleIdentifier = contentList[i].moduleIdentifier;
-          break;
-        }
-      }
-      // Now find the first content in that module
-      if (foundModuleIdentifier) {
-        for (let i = 0; i < contentList.length; i++) {
-          if (contentList[i].moduleIdentifier === foundModuleIdentifier) {
-            previousModule = {
-              identifier: foundModuleIdentifier,
-              name: contentList[i].moduleName,
-              firstContentId: contentList[i].identifier,
-            };
-            break;
-          }
-        }
-      }
-    }
-
-    // Find next module (different module than current)
-    let nextModule = null;
-    if (currentContent.moduleIdentifier) {
-      let foundModuleIdentifier = null;
-      // Find the first different module going forwards
-      for (let i = currentIndex + 1; i < contentList.length; i++) {
-        if (
-          contentList[i].moduleIdentifier &&
-          contentList[i].moduleIdentifier !== currentContent.moduleIdentifier
-        ) {
-          foundModuleIdentifier = contentList[i].moduleIdentifier;
-          break;
-        }
-      }
-      // Now find the first content in that module
-      if (foundModuleIdentifier) {
-        for (let i = 0; i < contentList.length; i++) {
-          if (contentList[i].moduleIdentifier === foundModuleIdentifier) {
-            nextModule = {
-              identifier: foundModuleIdentifier,
-              name: contentList[i].moduleName,
-              firstContentId: contentList[i].identifier,
-            };
-            break;
-          }
-        }
-      }
-    }
+    const previousModule = findPreviousModule(
+      contentList,
+      currentIndex,
+      currentContent.moduleIdentifier
+    );
+    const nextModule = findNextModule(
+      contentList,
+      currentIndex,
+      currentContent.moduleIdentifier
+    );
 
     return {
       previousContent,
