@@ -422,5 +422,10 @@
   "INDUSTRY": "उद्योग",
   "STATE_COUNT": "राज्य संख्या",
   "REVIEW_NOW": "आता पुनरावलोकन करा",
-  "SEE_YOUR_SUBMISSION":"तुमचे सबमिशन पहा"
+  "SEE_YOUR_SUBMISSION":"तुमचे सबमिशन पहा",
+  "ADMIN_DASHBOARD": "एडमिन डॅशबोर्ड",
+  "NEXT": "पुढील",
+  "NEXT_MODULE": "पुढील मॉड्यूल",
+  "PREVIOUS": "मागील",
+  "PREVIOUS_MODULE": "मागील मॉड्यूल"
 }

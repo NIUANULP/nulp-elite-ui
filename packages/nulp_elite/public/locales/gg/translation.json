@@ -403,5 +403,10 @@
   "STATE_COUNT": "રાજ્યની સંખ્યા",
   "REVIEW_NOW": "હવે સમીક્ષા કરો",
    "VOTE_NOW": "હવે મત આપો",
-   "SEE_YOUR_SUBMISSION":"તમારું સબમિશન જુઓ"
+   "SEE_YOUR_SUBMISSION":"તમારું સબમિશન જુઓ",
+  "ADMIN_DASHBOARD": "એડમિન ડેશબોર્ડ",
+  "NEXT": "આગળ",
+  "NEXT_MODULE": "આગળનું મોડ્યુલ",
+  "PREVIOUS": "પહેલાં",
+  "PREVIOUS_MODULE": "પહેલાંનું મોડ્યુલ"
 }
