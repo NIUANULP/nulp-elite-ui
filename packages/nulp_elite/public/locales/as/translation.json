@@ -415,8 +415,10 @@
   "CITY": "City",
   "ORGANISATION": "Organisation",
   "SUBMISSION_DATE": "Submission Date",
-
+  "VIEW": "View",
   "ADMIN_DASHBOARD": "Admin Dashboard",
-
-  "VIEW": "View"
+  "NEXT": "Next",
+  "NEXT_MODULE": "Next Module",
+  "PREVIOUS": "Previous",
+  "PREVIOUS_MODULE": "Previous Module"
 }

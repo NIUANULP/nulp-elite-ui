@@ -733,6 +733,8 @@ const JoinCourse = () => {
             courseid: contentId,
             isenroll: isEnroll,
             consumedcontents: ConsumedContents,
+            courseHierarchy: courseData?.result?.content,
+            allContents: allContents,
           },
         }
       );
@@ -1221,6 +1223,8 @@ const JoinCourse = () => {
           courseid: contentId,
           isenroll: isEnroll,
           consumedcontents: ConsumedContents,
+          courseHierarchy: courseData?.result?.content,
+          allContents: allContents,
           isRetry: true
         },
       }
