@@ -431,6 +431,10 @@
   "STATE_COUNT": "राज्य गणना",
   "REVIEW_NOW": "अभी समीक्षा करें",
   "VOTE_NOW": "अभी वोट करें",
-  "SEE_YOUR_SUBMISSION":"अपना सबमिशन देखें"
-
+  "SEE_YOUR_SUBMISSION":"अपना सबमिशन देखें",
+  "ADMIN_DASHBOARD": "एडमिन डैशबोर्ड",
+  "NEXT": "अगला",
+  "NEXT_MODULE": "अगला मॉड्यूल",
+  "PREVIOUS": "पिछला",
+  "PREVIOUS_MODULE": "पिछला मॉड्यूल"
 }
