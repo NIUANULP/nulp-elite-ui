@@ -334,7 +334,7 @@ const Player = () => {
 
         // Reset flag to prevent repeated calls
         setIsEndEventReceived(false);
-      }, propLength !== undefined ? 2000 : 1000); // Wait longer if propLength is set but doesn't match
+      }, propLength === undefined ? 1000 : 2000); // Wait longer if propLength is set but doesn't match
 
       return () => clearTimeout(timeoutId);
     }
