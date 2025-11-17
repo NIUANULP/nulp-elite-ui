@@ -61,6 +61,7 @@ const Player = () => {
   const [openFeedBack, setOpenFeedBack] = useState(false);
   const [assessEvents, setAssessEvents] = useState([]);
   const [propLength, setPropLength] = useState();
+  const [hasCalledUpdateAPI, setHasCalledUpdateAPI] = useState(false);
   const _userId = util.userId();
   const [isLearnathon, setIsLearnathon] = useState(false);
   const [alreadyVoted, setAlreadyVoted] = useState(false);
@@ -118,6 +119,7 @@ const Player = () => {
       setAssessEvents([]);
       setPropLength(undefined);
       setIsEndEventReceived(false);
+      setHasCalledUpdateAPI(false);
     }
     
     if (newCourseId) setCourseId(newCourseId);
@@ -213,55 +215,6 @@ const Player = () => {
     };
   }, []);
 
-  useEffect(() => {
-    console.log(
-      "##########################################################################"
-    );
-    console.log("useEffect isEndEventReceived -", isEndEventReceived);
-    console.log("useEffect assessEvents.length - ", assessEvents.length);
-    console.log("useEffect propLength - ", propLength);
-
-    if (
-      isEndEventReceived &&
-      assessEvents.length > 0 &&
-      propLength === assessEvents.length
-    ) {
-      console.log(
-        "Calling updateContentState with status 2 after all assessments and END event"
-      );
-      if (!_userId) {
-        return;
-      }
-      updateContentStateForAssessment();
-
-      // Reset flag to prevent repeated calls
-      setIsEndEventReceived(false);
-    }
-  }, [isEndEventReceived, assessEvents, propLength, _userId]);
-
-  const CheckfeedBackSubmitted = async () => {
-    try {
-      const url = `${urlConfig.URLS.FEEDBACK.LIST}`;
-      const RequestBody = {
-        request: {
-          filters: {
-            content_id: contentId,
-            user_id: _userId,
-          },
-        },
-      };
-      const response = await axios.post(url, RequestBody);
-      console.log(response.data);
-      if (response.data?.result?.totalCount === 0) {
-        setOpenFeedBack(true);
-      } else {
-        setOpenFeedBack(false);
-      }
-    } catch (error) {
-      console.error("Error fetching course data:", error);
-    }
-  };
-
   function formatDate() {
     const now = new Date();
 
@@ -295,21 +248,7 @@ const Player = () => {
     return hashValue;
   };
 
-  function checkIsReview() {
-    if (
-      pageParam == "review" &&
-      extractedRoles.includes("SYSTEM_ADMINISTRATION")
-    ) {
-      setReviewEnable(true);
-    } else if (
-      pageParam == "lern" &&
-      extractedRoles.includes("SYSTEM_ADMINISTRATION")
-    ) {
-      setReviewEnable(true);
-    }
-  }
-
-  const updateContentStateForAssessment = async () => {
+  const updateContentStateForAssessment = useCallback(async () => {
     if (!_userId) {
       return;
     }
@@ -347,7 +286,96 @@ const Player = () => {
     } catch (error) {
       console.error("Error updating content state:", error);
     }
+  }, [_userId, contentId, batchId, courseId, assessEvents]);
+
+  useEffect(() => {
+    console.log(
+      "##########################################################################"
+    );
+    console.log("useEffect isEndEventReceived -", isEndEventReceived);
+    console.log("useEffect assessEvents.length - ", assessEvents.length);
+    console.log("useEffect propLength - ", propLength);
+    console.log("useEffect hasCalledUpdateAPI - ", hasCalledUpdateAPI);
+
+    // Prevent duplicate API calls
+    if (hasCalledUpdateAPI) {
+      return;
+    }
+
+    // Check if END event is received and we have assessment events
+    if (isEndEventReceived && assessEvents.length > 0) {
+      // If propLength is defined and matches, call API immediately
+      if (propLength !== undefined && propLength === assessEvents.length) {
+        console.log(
+          "Calling updateContentState with status 2 after all assessments and END event (exact match)"
+        );
+        if (!_userId) {
+          return;
+        }
+        setHasCalledUpdateAPI(true);
+        updateContentStateForAssessment();
+
+        // Reset flag to prevent repeated calls
+        setIsEndEventReceived(false);
+        return;
+      }
+
+      // If propLength doesn't match or is undefined, set a timeout fallback
+      // This ensures the API is called even if propLength never matches
+      const timeoutId = setTimeout(() => {
+        console.log(
+          `Calling updateContentState with status 2 after END event (timeout fallback) - propLength: ${propLength}, assessEvents.length: ${assessEvents.length}`
+        );
+        if (!_userId || hasCalledUpdateAPI) {
+          return;
+        }
+        setHasCalledUpdateAPI(true);
+        updateContentStateForAssessment();
+
+        // Reset flag to prevent repeated calls
+        setIsEndEventReceived(false);
+      }, propLength !== undefined ? 2000 : 1000); // Wait longer if propLength is set but doesn't match
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isEndEventReceived, assessEvents, propLength, _userId, updateContentStateForAssessment, hasCalledUpdateAPI]);
+
+  const CheckfeedBackSubmitted = async () => {
+    try {
+      const url = `${urlConfig.URLS.FEEDBACK.LIST}`;
+      const RequestBody = {
+        request: {
+          filters: {
+            content_id: contentId,
+            user_id: _userId,
+          },
+        },
+      };
+      const response = await axios.post(url, RequestBody);
+      console.log(response.data);
+      if (response.data?.result?.totalCount === 0) {
+        setOpenFeedBack(true);
+      } else {
+        setOpenFeedBack(false);
+      }
+    } catch (error) {
+      console.error("Error fetching course data:", error);
+    }
   };
+
+  function checkIsReview() {
+    if (
+      pageParam == "review" &&
+      extractedRoles.includes("SYSTEM_ADMINISTRATION")
+    ) {
+      setReviewEnable(true);
+    } else if (
+      pageParam == "lern" &&
+      extractedRoles.includes("SYSTEM_ADMINISTRATION")
+    ) {
+      setReviewEnable(true);
+    }
+  }
 
   const updateContentState = useCallback(
     async (status) => {
