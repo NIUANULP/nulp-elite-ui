@@ -750,6 +750,16 @@ const DomainList = ({ globalSearchQuery }) => {
                             Vote Now
                           </Button>
                         </Grid>
+                        <Grid item xs={12}>
+                          <Button
+                            className="viewAll"
+                            onClick={() => {
+                              navigate(routeConfig.ROUTES.FORUM.FORUM);
+                            }}
+                          >
+                            Go to discussion forum
+                          </Button>
+                        </Grid>
                         {isAfterSubmission && hasLearnSubmissionList && (
                           <Grid item xs={12}>
                             <Button
@@ -813,6 +823,16 @@ const DomainList = ({ globalSearchQuery }) => {
                             </Button>
                           </Grid>
                         )}
+                        <Grid item xs={12}>
+                          <Button
+                            className="viewAll"
+                            onClick={() => {
+                              navigate(routeConfig.ROUTES.FORUM.FORUM);
+                            }}
+                          >
+                            Go to discussion forum
+                          </Button>
+                        </Grid>
                       </Grid>
                     </Grid>
                   )}
