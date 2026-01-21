@@ -706,7 +706,9 @@ const DomainList = ({ globalSearchQuery }) => {
                   </Grid>
 
                   <Grid item xs={12} md={9}>
-                    <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
+                    <Box className="mt-20">
+                      {t("LERN_MESSAGE_LINE_TWO")}
+                    </Box>
                   </Grid>
                   {!isLearnathonStarted && (
                     <Grid item xs={12} md={3}>
@@ -835,7 +837,7 @@ const DomainList = ({ globalSearchQuery }) => {
                         </Grid>
                       </Grid>
                     </Grid>
-                  )}
+                  </Grid>
                   <Grid item xs={12}>
                     {toasterMessage && (
                       <Box>
