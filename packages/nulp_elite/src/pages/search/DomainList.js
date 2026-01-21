@@ -710,23 +710,131 @@ const DomainList = ({ globalSearchQuery }) => {
                       {t("LERN_MESSAGE_LINE_TWO")}
                     </Box>
                   </Grid>
-                  <Grid item xs={12} md={3}>
-                    <Grid
-                      container
-                      direction="column"
-                      spacing={2}
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <Grid item xs={12}>
-                        <Button
-                          className="viewAll"
-                          onClick={() => {
-                            window.open("/discussion-forum", "_blank");
-                          }}
-                        >
-                          Go to Discussion Forum
-                        </Button>
+                  {!isLearnathonStarted && (
+                    <Grid item xs={12} md={3}>
+                      <Grid
+                        container
+                        direction="column"
+                        spacing={2}
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        <Grid item xs={12}>
+                          <Button className="viewAll" onClick={handleCheckUser}>
+                            {lernUser === "nulp-learn"
+                              ? t("PARTICIPATE_NOW")
+                              : t("PARTICIPATE_NOW")}
+                          </Button>
+                        </Grid>
+                        <Grid item xs={12}>
+                          <Button
+                            className="viewAll"
+                            onClick={() => {
+                              window.open(
+                                routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
+                                "_blank"
+                              );
+                            }}
+                          >
+                            Review Now
+                          </Button>
+                        </Grid>
+                        <Grid item xs={12}>
+                          <Button
+                            className="viewAll"
+                            onClick={() => {
+                              window.open(
+                                routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
+                                "_blank"
+                              );
+                            }}
+                          >
+                            Vote Now
+                          </Button>
+                        </Grid>
+                        <Grid item xs={12}>
+                          <Button
+                            className="viewAll"
+                            onClick={() => {
+                              navigate(routeConfig.ROUTES.FORUM.FORUM);
+                            }}
+                          >
+                            Go to discussion forum
+                          </Button>
+                        </Grid>
+                        {isAfterSubmission && hasLearnSubmissionList && (
+                          <Grid item xs={12}>
+                            <Button
+                              className="viewAll"
+                              onClick={() => navigate("/webapp/mylernsubmissions")}
+                            >
+                              {t("SEE_YOUR_SUBMISSION")}
+                            </Button>
+                          </Grid>
+                        )}
+                      </Grid>
+                    </Grid>
+                  )}
+                  {isLearnathonStarted && (
+                    <Grid item xs={12} md={3}>
+                      <Grid
+                        container
+                        direction="column"
+                        spacing={2}
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        {isParticipateNow && (
+                          <Grid item xs={12}>
+                            <Button
+                              className="viewAll"
+                              onClick={handleCheckUser}
+                            >
+                              {t("PARTICIPATE_NOW")}
+                            </Button>
+                          </Grid>
+                        )}
+                        
+                        {isReviewNow && isReviewer && (
+                          <Grid item xs={12}>
+                            <Button
+                              className="viewAll"
+                              onClick={() => {
+                                window.open(
+                                  routeConfig.ROUTES.LEARNATHON.LERNREVIEWLIST,
+                                  "_blank"
+                                );
+                              }}
+                            >
+                              {t("REVIEW_NOW")}
+                            </Button>
+                          </Grid>
+                        )}
+                        {isVoteNow && (
+                          <Grid item xs={12}>
+                            <Button
+                              className="viewAll"
+                              onClick={() => {
+                                window.open(
+                                  routeConfig.ROUTES.LEARNATHON.LERNVOTINGLIST,
+                                  "_blank"
+                                );
+                              }}
+                            >
+                              {t("VOTE_NOW")}
+                            </Button>
+                          </Grid>
+                        )}
+                        <Grid item xs={12}>
+                          <Button
+                            className="viewAll"
+                            onClick={() => {
+                              navigate(routeConfig.ROUTES.FORUM.FORUM);
+                            }}
+                          >
+                            Go to discussion forum
+                          </Button>
+                        </Grid>
                       </Grid>
                     </Grid>
                   </Grid>
