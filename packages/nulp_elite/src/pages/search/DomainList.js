@@ -706,9 +706,8 @@ const DomainList = ({ globalSearchQuery }) => {
                   </Grid>
 
                   <Grid item xs={12} md={9}>
-                    <Box className="mt-20">
-                      {t("LERN_MESSAGE_LINE_TWO")}
-                    </Box>
+                    <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
+                    
                   </Grid>
                   {!isLearnathonStarted && (
                     <Grid item xs={12} md={3}>
@@ -750,16 +749,6 @@ const DomainList = ({ globalSearchQuery }) => {
                             }}
                           >
                             Vote Now
-                          </Button>
-                        </Grid>
-                        <Grid item xs={12}>
-                          <Button
-                            className="viewAll"
-                            onClick={() => {
-                              navigate(routeConfig.ROUTES.FORUM.FORUM);
-                            }}
-                          >
-                            Go to discussion forum
                           </Button>
                         </Grid>
                         {isAfterSubmission && hasLearnSubmissionList && (
@@ -825,19 +814,9 @@ const DomainList = ({ globalSearchQuery }) => {
                             </Button>
                           </Grid>
                         )}
-                        <Grid item xs={12}>
-                          <Button
-                            className="viewAll"
-                            onClick={() => {
-                              navigate(routeConfig.ROUTES.FORUM.FORUM);
-                            }}
-                          >
-                            Go to discussion forum
-                          </Button>
-                        </Grid>
                       </Grid>
                     </Grid>
-                  </Grid>
+                  )}
                   <Grid item xs={12}>
                     {toasterMessage && (
                       <Box>
