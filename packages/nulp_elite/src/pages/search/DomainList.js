@@ -814,6 +814,7 @@ const DomainList = ({ globalSearchQuery }) => {
                             </Button>
                           </Grid>
                         )}
+<<<<<<< HEAD
 =======
                   <Grid item xs={12} md={3}>
                     <Grid
@@ -833,6 +834,8 @@ const DomainList = ({ globalSearchQuery }) => {
                           Go to Discussion Forum
                         </Button>
 >>>>>>> parent of 8b1398e1 (Merge pull request #1105 from suraj-tekdi/CR-252507)
+=======
+>>>>>>> parent of 88fb0a22 (Fix translations + DomainList changes)
                       </Grid>
                     </Grid>
                   )}
