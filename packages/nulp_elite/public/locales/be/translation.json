@@ -421,10 +421,5 @@
   "STATE_COUNT": "রাজ্য গণনা",
   "REVIEW_NOW": "এখন পর্যালোচনা করুন",
    "VOTE_NOW": "এখনই ভোট দিন",
-   "SEE_YOUR_SUBMISSION":"আপনার জমা দেখুন",
-  "ADMIN_DASHBOARD": "অ্যাডমিন ড্যাশবোর্ড",
-  "NEXT": "পরবর্তী",
-  "NEXT_MODULE": "পরবর্তী মডিউল",
-  "PREVIOUS": "পূর্ববর্তী",
-  "PREVIOUS_MODULE": "পূর্ববর্তী মডিউল"
+   "SEE_YOUR_SUBMISSION":"আপনার জমা দেখুন"
 }
