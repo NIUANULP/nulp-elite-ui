@@ -708,7 +708,6 @@ const DomainList = ({ globalSearchQuery }) => {
                   <Grid item xs={12} md={9}>
                     <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
                   </Grid>
-<<<<<<< HEAD
                   {!isLearnathonStarted && (
                     <Grid item xs={12} md={3}>
                       <Grid
@@ -814,28 +813,6 @@ const DomainList = ({ globalSearchQuery }) => {
                             </Button>
                           </Grid>
                         )}
-<<<<<<< HEAD
-=======
-                  <Grid item xs={12} md={3}>
-                    <Grid
-                      container
-                      direction="column"
-                      spacing={2}
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <Grid item xs={12}>
-                        <Button
-                          className="viewAll"
-                          onClick={() => {
-                            window.open("/discussion-forum", "_blank");
-                          }}
-                        >
-                          Go to Discussion Forum
-                        </Button>
->>>>>>> parent of 8b1398e1 (Merge pull request #1105 from suraj-tekdi/CR-252507)
-=======
->>>>>>> parent of 88fb0a22 (Fix translations + DomainList changes)
                       </Grid>
                     </Grid>
                   )}
