@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -35,151 +34,6 @@ import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { Collapse, List } from "@mui/material";
 import NotificationPopup from "./Notification";
 import Cookies from "js-cookie";
-
-// Constants for role-based access control
-const PRIVILEGED_POLL_ROLES = new Set(["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR", "CONTENT_REVIEWER", "ORG_ADMIN"]);
-const POLL_CREATOR_ROLES = new Set(["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"]);
-const ADMIN_DASHBOARD_ROLES = new Set(["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR", "ORG_ADMIN"]);
-const DASHBOARD_ROLES = new Set(["CONTENT_CREATOR"]);
-const WORKSPACE_ROLES = new Set(["CONTENT_CREATOR", "CONTENT_REVIEWER", "ORG_ADMIN"]);
-const WORKSPACE_MOBILE_ROLES = new Set(["ORG_ADMIN", "SYSTEM_ADMINISTRATION", "CONTENT_CREATOR", "CONTENT_REVIEWER"]);
-const POLL_DASHBOARD_ROLES = new Set(["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"]);
-const EVENTS_ROLES = new Set(["ORG_ADMIN", "SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"]);
-const LEARNATHON_ROLES = new Set(["ORG_ADMIN", "SYSTEM_ADMINISTRATION"]);
-const ADMIN_ROLES = new Set(["ORG_ADMIN", "SYSTEM_ADMINISTRATION"]);
-
-// Helper function to check if user has any of the specified roles
-const hasAnyRole = (roleNames, allowedRoles) => {
-  if (!roleNames || !Array.isArray(roleNames)) return false;
-  return roleNames.some((role) => allowedRoles.has(role));
-};
-
-// Uniform helper function for role-based access checks
-const hasRoleAccess = (roleNames, roleSet) => {
-  return hasAnyRole(roleNames, roleSet);
-};
-
-// Helper function to check if user has privileged poll roles
-const hasPrivilegedPollAccess = (roleNames) => {
-  return hasRoleAccess(roleNames, PRIVILEGED_POLL_ROLES);
-};
-
-// Helper function to check if user can create polls
-const canCreatePoll = (roleNames) => {
-  return hasRoleAccess(roleNames, POLL_CREATOR_ROLES);
-};
-
-// Reusable POLL_LIST link component
-const PollListLink = ({ className = "" }) => {
-  const { t } = useTranslation();
-  return (
-    <Link
-      href={routeConfig.ROUTES.POLL.POLL_LIST}
-      underline="none"
-      textAlign="center"
-    >
-      <MenuItem className={className}>{t("POLL_LIST")}</MenuItem>
-    </Link>
-  );
-};
-
-PollListLink.propTypes = {
-  className: PropTypes.string,
-};
-
-PollListLink.defaultProps = {
-  className: "",
-};
-
-// Reusable Poll Submenu component
-const PollSubmenu = ({ 
-  roleNames, 
-  openSubmenu, 
-  onToggle, 
-  isMobile = false 
-}) => {
-  const { t } = useTranslation();
-  const submenuStyle = { background: "#f9fafc", color: "#1976d2" };
-  const listStyle = { background: "#f9fafc" };
-
-  if (!hasPrivilegedPollAccess(roleNames)) {
-    return <PollListLink />;
-  }
-
-  return (
-    <>
-      <MenuItem onClick={onToggle} style={submenuStyle}>
-        {t("POLL")}
-        <Link primary="Submenu" />
-        {openSubmenu ? <ExpandLess /> : <ExpandMore />}
-      </MenuItem>
-      <Collapse
-        in={openSubmenu}
-        timeout="auto"
-        unmountOnExit
-        style={isMobile ? listStyle : undefined}
-      >
-        <List
-          component="div"
-          disablePadding
-          style={listStyle}
-        >
-          {canCreatePoll(roleNames) && (
-            isMobile ? (
-              <Link
-                href={routeConfig.ROUTES.POLL.POLL_FORM}
-                underline="none"
-                textAlign="center"
-              >
-                <MenuItem className="ml-10">{t("CREATE_POLL")}</MenuItem>
-              </Link>
-            ) : (
-              <MenuItem className="ml-10" style={listStyle}>
-                <Link
-                  href={routeConfig.ROUTES.POLL.POLL_FORM}
-                  underline="none"
-                  textAlign="center"
-                >
-                  {t("CREATE_POLL")}
-                </Link>
-              </MenuItem>
-            )
-          )}
-          {isMobile ? (
-            <Link
-              href={routeConfig.ROUTES.POLL.POLL_LIST}
-              underline="none"
-              textAlign="center"
-            >
-              <MenuItem className="ml-10">{t("POLL_LIST")}</MenuItem>
-            </Link>
-          ) : (
-            <MenuItem className="ml-10">
-              <Link
-                href={routeConfig.ROUTES.POLL.POLL_LIST}
-                underline="none"
-                textAlign="center"
-              >
-                {t("POLL_LIST")}
-              </Link>
-            </MenuItem>
-          )}
-        </List>
-      </Collapse>
-    </>
-  );
-};
-
-PollSubmenu.propTypes = {
-  roleNames: PropTypes.arrayOf(PropTypes.string).isRequired,
-  openSubmenu: PropTypes.bool.isRequired,
-  onToggle: PropTypes.func.isRequired,
-  isMobile: PropTypes.bool,
-};
-
-PollSubmenu.defaultProps = {
-  isMobile: false,
-};
 
 function Header({ globalSearchQuery }) {
   const navigate = useNavigate();
@@ -761,7 +615,9 @@ function Header({ globalSearchQuery }) {
               >
                 <MenuItem>{t("PROFILE")}</MenuItem>
               </Link>
-              {hasRoleAccess(roleNames, ADMIN_DASHBOARD_ROLES) && (
+              {roleNames.some((role) => 
+                ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR", "ORG_ADMIN"].includes(role)
+              ) && (
                 <Link
                   target="_blank"
                   href={urlConfig.DASHBOARD.ADMIN_DASHBOARD_URL}
@@ -771,7 +627,7 @@ function Header({ globalSearchQuery }) {
                   <MenuItem>{t("ADMIN_DASHBOARD")}</MenuItem>
                 </Link>
               )}
-              {hasRoleAccess(roleNames, DASHBOARD_ROLES) && (
+              {roleNames.some((role) => ["CONTENT_CREATOR"].includes(role)) && (
                 <Link
                   href={routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}
                   underline="none"
@@ -784,7 +640,7 @@ function Header({ globalSearchQuery }) {
               {/* Check if roles array is empty or contains "PUBLIC" */}
 
               {/* {accessWorkspace && ( */}
-              {hasRoleAccess(roleNames, WORKSPACE_ROLES) && (
+              {roleNames.some((role) => ["CONTENT_CREATOR", "CONTENT_REVIEWER", "ORG_ADMIN"].includes(role)) && (
                 <Link
                   target="_blank"
                   href="/workspace/content/create"
@@ -794,12 +650,67 @@ function Header({ globalSearchQuery }) {
                   <MenuItem>{t("WORKSPACE")}</MenuItem>
                 </Link>
               )}
-              <PollSubmenu
-                roleNames={roleNames}
-                openSubmenu={openSubmenu}
-                onToggle={handleSubmenuToggle}
-                isMobile={false}
-              />
+              <MenuItem
+                onClick={handleSubmenuToggle}
+                style={{ background: "#f9fafc", color: "#1976d2" }}
+                className="lg-hide"
+              >
+                {t("POLL")}
+                <Link primary="Submenu" />
+                {openSubmenu ? <ExpandLess /> : <ExpandMore />}
+              </MenuItem>
+              <Collapse
+                in={openSubmenu}
+                timeout="auto"
+                unmountOnExit
+                className="lg-hide"
+              >
+                <List
+                  component="div"
+                  disablePadding
+                  style={{ background: "#f9fafc" }}
+                >
+                  {roleNames.some((role) =>
+                    ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"].includes(role)
+                  ) &&
+                    accessWorkspace && (
+                      <MenuItem
+                        className="ml-10"
+                        style={{ background: "#f9fafc" }}
+                      >
+                        <Link
+                          href={routeConfig.ROUTES.POLL.POLL_FORM}
+                          underline="none"
+                          textAlign="center"
+                        >
+                          {t("CREATE_POLL")}
+                        </Link>
+                      </MenuItem>
+                    )}
+                  <MenuItem className="ml-10">
+                    <Link
+                      href={routeConfig.ROUTES.POLL.POLL_LIST}
+                      underline="none"
+                      textAlign="center"
+                    >
+                      {t("POLL_LIST")}
+                    </Link>
+                  </MenuItem>
+                  {roleNames.some((role) =>
+                    ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"].includes(role)
+                  ) && (
+                    <MenuItem className="ml-10">
+                      <Link
+                        href={routeConfig.ROUTES.POLL.POLL_DASHBOARD}
+                        underline="none"
+                        textAlign="center"
+                      >
+                        {t("DASHBOARD")}
+                      </Link>
+                    </MenuItem>
+                  )}
+                </List>
+              </Collapse>
               <Link
                 href={routeConfig.ROUTES.HELP_PAGE.HELP}
                 underline="none"
@@ -1031,7 +942,11 @@ function Header({ globalSearchQuery }) {
                       disablePadding
                       style={{ background: "#f9fafc" }}
                     >
-                      {hasRoleAccess(roleNames, POLL_DASHBOARD_ROLES) && (
+                      {roleNames.some((role) =>
+                        ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"].includes(
+                          role
+                        )
+                      ) && (
                         <Link
                           href={routeConfig.ROUTES.POLL.POLL_DASHBOARD}
                           underline="none"
@@ -1040,7 +955,13 @@ function Header({ globalSearchQuery }) {
                           <MenuItem className="ml-10">{t("POLL")}</MenuItem>
                         </Link>
                       )}
-                      {hasRoleAccess(roleNames, EVENTS_ROLES) && (
+                      {roleNames.some((role) =>
+                        [
+                          "ORG_ADMIN",
+                          "SYSTEM_ADMINISTRATION",
+                          "CONTENT_CREATOR",
+                        ].includes(role)
+                      ) && (
                         <Link
                           href={routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}
                           underline="none"
@@ -1062,7 +983,9 @@ function Header({ globalSearchQuery }) {
                       >
                         {t("LEARNING_REPORT")}
                       </MenuItem>
-                      {hasRoleAccess(roleNames, LEARNATHON_ROLES) && (
+                      {roleNames.some((role) =>
+                        ["ORG_ADMIN", "SYSTEM_ADMINISTRATION"].includes(role)
+                      ) && (
                         <Link
                           href={routeConfig.ROUTES.LEARNATHON.DASHBOARD}
                           underline="none"
@@ -1079,7 +1002,9 @@ function Header({ globalSearchQuery }) {
                       )}
                     </List>
                   </Collapse>
-                  {hasRoleAccess(roleNames, ADMIN_ROLES) && (
+                  {roleNames.some((role) =>
+                    ["ORG_ADMIN", "SYSTEM_ADMINISTRATION"].includes(role)
+                  ) && (
                     <Link
                       href={routeConfig.ROUTES.ADMIN}
                       underline="none"
@@ -1090,7 +1015,14 @@ function Header({ globalSearchQuery }) {
                     </Link>
                   )}
 
-                  {hasRoleAccess(roleNames, WORKSPACE_MOBILE_ROLES) && (
+                  {roleNames.some((role) =>
+                    [
+                      "ORG_ADMIN",
+                      "SYSTEM_ADMINISTRATION",
+                      "CONTENT_CREATOR",
+                      "CONTENT_REVIEWER",
+                    ].includes(role)
+                  ) && (
                       <Link
                         target="_blank"
                         href="/workspace/content/create"
@@ -1103,12 +1035,49 @@ function Header({ globalSearchQuery }) {
                   {/* <NotificationsNoneOutlinedIcon />
                     ekta */}
 
-                  <PollSubmenu
-                    roleNames={roleNames}
-                    openSubmenu={openSubmenu}
-                    onToggle={handleSubmenuToggle}
-                    isMobile={true}
-                  />
+                  <MenuItem
+                    onClick={handleSubmenuToggle}
+                    style={{ background: "#f9fafc", color: "#1976d2" }}
+                  >
+                    {t("POLL")}
+                    <Link primary="Submenu" />
+                    {openSubmenu ? <ExpandLess /> : <ExpandMore />}
+                  </MenuItem>
+                  <Collapse
+                    in={openSubmenu}
+                    timeout="auto"
+                    unmountOnExit
+                    style={{ background: "#f9fafc" }}
+                  >
+                    <List
+                      component="div"
+                      disablePadding
+                      style={{ background: "#f9fafc" }}
+                    >
+                      {roleNames.some((role) =>
+                        ["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"].includes(
+                          role
+                        )
+                      ) && (
+                        <Link
+                          href={routeConfig.ROUTES.POLL.POLL_FORM}
+                          underline="none"
+                          textAlign="center"
+                        >
+                          <MenuItem className="ml-10">
+                            {t("CREATE_POLL")}
+                          </MenuItem>
+                        </Link>
+                      )}
+                      <Link
+                        href={routeConfig.ROUTES.POLL.POLL_LIST}
+                        underline="none"
+                        textAlign="center"
+                      >
+                        <MenuItem className="ml-10">{t("POLL_LIST")}</MenuItem>
+                      </Link>
+                    </List>
+                  </Collapse>
                   <Link
                     href={routeConfig.ROUTES.HELP_PAGE.HELP}
                     underline="none"

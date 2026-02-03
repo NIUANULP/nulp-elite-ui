@@ -52,14 +52,6 @@ const processString = (str) => {
   return str.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 };
 
-// Helper function to check if a name is an assessment section
-const isAssessmentSection = (name) => {
-  if (!name) return false;
-  const normalizedName = name.replaceAll(/[^a-zA-Z0-9]/g, "").toLowerCase();
-  // Check for variations: assessment, asessment, course assessment, etc.
-  return normalizedName.includes("assessment") || normalizedName.includes("asessment");
-};
-
 const AssessmentStatusDisplay = ({ failedAssessments, onRetryAssessment, t }) => {
   return (!failedAssessments || failedAssessments.length === 0) ? null : (
     <Box className="assessment-status-container" style={{ marginBottom: "20px" }}>
@@ -733,8 +725,6 @@ const JoinCourse = () => {
             courseid: contentId,
             isenroll: isEnroll,
             consumedcontents: ConsumedContents,
-            courseHierarchy: courseData?.result?.content,
-            allContents: allContents,
           },
         }
       );
@@ -1223,8 +1213,6 @@ const JoinCourse = () => {
           courseid: contentId,
           isenroll: isEnroll,
           consumedcontents: ConsumedContents,
-          courseHierarchy: courseData?.result?.content,
-          allContents: allContents,
           isRetry: true
         },
       }
@@ -1906,10 +1894,7 @@ const JoinCourse = () => {
                   {t("COURSES_MODULE")}
                 </AccordionSummary>
                 <AccordionDetails>
-                  {userData?.result?.content?.children.map((faqIndex, index, array) => {
-                    const isLastItem = index === array.length - 1;
-                    const isAssessment = isAssessmentSection(faqIndex.name);
-                    return (
+                  {userData?.result?.content?.children.map((faqIndex) => (
                     <Accordion
                       key={faqIndex.id}
                       style={{ borderRadius: "10px", margin: "10px 0" }}
@@ -2135,8 +2120,7 @@ const JoinCourse = () => {
                         )}
 
                         {/* Show assessment status AFTER the accordion content */}
-                        {/* Show in assessment section OR in the last accordion box */}
-                        { isAssessment && isLastItem && isEnrolled() && showAssessmentStatus && (
+                        {faqIndex.name === "Assessment" && isEnrolled() && showAssessmentStatus && (
                           <AssessmentStatusDisplay 
                             failedAssessments={failedAssessments}
                             onRetryAssessment={handleRetryAssessment}
@@ -2145,8 +2129,7 @@ const JoinCourse = () => {
                         )}
                       </AccordionDetails>
                     </Accordion>
-                    );
-                  })}
+                  ))}
                 </AccordionDetails>
               </Accordion>
               <Box

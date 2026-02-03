@@ -436,10 +436,6 @@
 
   "MAX_ATTEMPTS_EXCEEDED": "Maximum attempts exceeded for this assessment.",
 
-  "ADMIN_DASHBOARD": "Admin Dashboard",
+  "ADMIN_DASHBOARD": "Admin Dashboard"
 
-  "NEXT": "Next",
-  "NEXT_MODULE": "Next Module",
-  "PREVIOUS": "Previous",
-  "PREVIOUS_MODULE": "Previous Module"
 }
