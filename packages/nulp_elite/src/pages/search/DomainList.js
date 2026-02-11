@@ -708,6 +708,22 @@ const DomainList = ({ globalSearchQuery }) => {
                   <Grid item xs={12} md={9}>
                     <Box className="mt-20">{t("LERN_MESSAGE_LINE_TWO")}</Box>
                   </Grid>
+                  <Grid item xs={12} md={3}>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      height="100%"
+                      className="mt-20"
+                    >
+                      <Button
+                        className="viewAll"
+                        onClick={() => navigate(routeConfig.ROUTES.FORUM.FORUM)}
+                      >
+                        {t("Join The Discussions")}
+                      </Button>
+                    </Box>
+                  </Grid>
                   {!isLearnathonStarted && (
                     <Grid item xs={12} md={3}>
                       <Grid
