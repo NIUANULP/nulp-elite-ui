@@ -458,11 +458,14 @@ const JoinCourse = () => {
     const abortController = new AbortController();
 
     try {
-      const fetchPromises = [fetchCourseData(abortController.signal)];
+      // Always fetch course and batch data; user-specific calls only when logged in
+      const fetchPromises = [
+        fetchCourseData(abortController.signal),
+        fetchBatchData(abortController.signal),
+      ];
 
       if (_userId) {
         fetchPromises.push(
-          fetchBatchData(abortController.signal),
           checkEnrolledCourse(abortController.signal),
           getUserData(abortController.signal)
         );
