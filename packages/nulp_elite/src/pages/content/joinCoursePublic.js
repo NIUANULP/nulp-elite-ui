@@ -61,12 +61,15 @@ const SectionRenderer = ({
   copyrightOpen,
   onCopyrightOpen,
   onCopyrightClose,
-}) => (
+}) => {
+  const isGuest = !util.userId();
+  return (
   <>
     <BatchDetailsSection
       batchData={batchData}
       className={className}
       formatDate={formatDate}
+      isGuest={isGuest}
     />
     <CertificationCriteriaSection
       batchDetails={batchDetails}
@@ -91,7 +94,8 @@ const SectionRenderer = ({
       className={className}
     />
   </>
-);
+  );
+};
 
 SectionRenderer.propTypes = {
   className: PropTypes.string,
