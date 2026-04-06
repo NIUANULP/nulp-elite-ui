@@ -61,12 +61,15 @@ const SectionRenderer = ({
   copyrightOpen,
   onCopyrightOpen,
   onCopyrightClose,
-}) => (
+}) => {
+  const isGuest = !util.userId();
+  return (
   <>
     <BatchDetailsSection
       batchData={batchData}
       className={className}
       formatDate={formatDate}
+      isGuest={isGuest}
     />
     <CertificationCriteriaSection
       batchDetails={batchDetails}
@@ -91,7 +94,8 @@ const SectionRenderer = ({
       className={className}
     />
   </>
-);
+  );
+};
 
 SectionRenderer.propTypes = {
   className: PropTypes.string,
@@ -382,14 +386,14 @@ const JoinCourse = () => {
   const formatDate = useCallback((dateString) => {
 
     if (!dateString) {
-      return "Not Provided";
+      return "";
     }
     
     const date = new Date(dateString);
     
     // Check if the date is valid
     if (isNaN(date.getTime())) {
-      return "Not Provided";
+      return "";
     }
 
     return date.toLocaleDateString("en-GB", {
@@ -460,12 +464,12 @@ const JoinCourse = () => {
     try {
       // Always fetch course and batch data; user-specific calls only when logged in
       const fetchPromises = [
-        fetchCourseData(abortController.signal),
-        fetchBatchData(abortController.signal),
+        fetchCourseData(abortController.signal)
       ];
 
       if (_userId) {
         fetchPromises.push(
+          fetchBatchData(abortController.signal),
           checkEnrolledCourse(abortController.signal),
           getUserData(abortController.signal)
         );
