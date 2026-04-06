@@ -52,6 +52,7 @@ const SectionRenderer = ({
   batchData,
   batchDetails,
   batchDetail,
+  isGuest,
   score,
   checkCertTemplate,
   isEnrolled,
@@ -67,6 +68,7 @@ const SectionRenderer = ({
       batchData={batchData}
       className={className}
       formatDate={formatDate}
+      isGuest={isGuest}
     />
     <CertificationCriteriaSection
       batchDetails={batchDetails}
@@ -103,6 +105,7 @@ SectionRenderer.propTypes = {
     PropTypes.number,
     PropTypes.bool,
   ]),
+  isGuest: PropTypes.bool,
   checkCertTemplate: PropTypes.func.isRequired,
   isEnrolled: PropTypes.bool,
   userData: PropTypes.object,
@@ -118,6 +121,7 @@ SectionRenderer.defaultProps = {
   batchData: null,
   batchDetails: null,
   batchDetail: null,
+  isGuest: false,
   score: "no certificate",
   isEnrolled: false,
   userData: null,
@@ -1206,6 +1210,7 @@ const JoinCourse = () => {
                 batchData={state.batchData}
                 batchDetails={state.batchDetails}
                 batchDetail={state.batchDetail}
+                isGuest={!_userId}
                 score={state.score}
                 checkCertTemplate={checkCertTemplate}
                 isEnrolled={isEnrolled}
@@ -1313,6 +1318,7 @@ const JoinCourse = () => {
                 batchData={state.batchData}
                 batchDetails={state.batchDetails}
                 batchDetail={state.batchDetail}
+                isGuest={!_userId}
                 score={state.score}
                 checkCertTemplate={checkCertTemplate}
                 isEnrolled={isEnrolled}

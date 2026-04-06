@@ -3,8 +3,9 @@ import PropTypes from "prop-types";
 import { Box, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
-const BatchDetailsSection = ({ batchData, className, formatDate }) => {
+const BatchDetailsSection = ({ batchData, className, formatDate, isGuest }) => {
   const { t } = useTranslation();
+  const fallback = isGuest ? "" : "Not Provided";
 
   return (
     <Box
@@ -46,7 +47,7 @@ const BatchDetailsSection = ({ batchData, className, formatDate }) => {
           {t("BATCH_START_DATE")}:{" "}
           {batchData?.startDate
             ? formatDate(batchData?.startDate)
-            : "Not Provided"}
+            : fallback}
         </Typography>
         <Typography
           variant="h7"
@@ -58,7 +59,7 @@ const BatchDetailsSection = ({ batchData, className, formatDate }) => {
           }}
         >
           {t("BATCH_END_DATE")}:{" "}
-          {batchData?.endDate ? formatDate(batchData?.endDate) : "Not Provided"}
+          {batchData?.endDate ? formatDate(batchData?.endDate) : fallback}
         </Typography>
         <Typography
           variant="h7"
@@ -72,7 +73,7 @@ const BatchDetailsSection = ({ batchData, className, formatDate }) => {
           {t("LAST_DATE_FOR_ENROLLMENT")}:{" "}
           {batchData?.enrollmentEndDate
             ? formatDate(batchData.enrollmentEndDate)
-            : "Not Provided"}
+            : fallback}
         </Typography>
       </Box>
     </Box>
@@ -87,11 +88,13 @@ BatchDetailsSection.propTypes = {
   }),
   className: PropTypes.string,
   formatDate: PropTypes.func.isRequired,
+  isGuest: PropTypes.bool,
 };
 
 BatchDetailsSection.defaultProps = {
   batchData: {},
   className: "",
+  isGuest: false,
 };
 
 export default BatchDetailsSection;
