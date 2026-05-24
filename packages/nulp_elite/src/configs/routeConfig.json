@@ -40,10 +40,12 @@
     "JOIN_COURSE_PAGE": {
       "JOIN_COURSE": "/webapp/joinCourse",
       "CONTENT_ID": "/:contentId",
-      "JOIN_COURSE_PUBLIC": "/webapp/join-course"
+      "JOIN_COURSE_PUBLIC": "/webapp/join-course",
+      "JOIN_COURSE_SSO": "/webapp/joinCourseSSO"
     },
     "PLAYER_PAGE": {
-      "PLAYER": "/webapp/player"
+      "PLAYER": "/webapp/player",
+      "PLAYER_SSO": "/webapp/playerSSO"
     },
     "PDF_PAGE": {
       "PDF": "/webapp/pdf"

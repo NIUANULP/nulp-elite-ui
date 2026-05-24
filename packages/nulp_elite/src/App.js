@@ -50,6 +50,8 @@ import Forum from "components/Forum";
 import Cookies from "js-cookie";
 import AllPublicContent from "pages/content/AllPublicContent";
 import JoinCoursePublic from "pages/content/joinCoursePublic";
+import JoinCourseSSO from "pages/content/joinCourseSSO";
+import PlayerSSO from "pages/content/playerSSO";
 
 function App() {
   // const [t] = useTranslation();
@@ -270,6 +272,16 @@ function App() {
       moduleName: "nulp_elite",
       path: "/webapp/join-course",
       component: JoinCoursePublic,
+    },
+    {
+      moduleName: "nulp_elite",
+      path: routeConfig.ROUTES.JOIN_COURSE_PAGE.JOIN_COURSE_SSO,
+      component: JoinCourseSSO,
+    },
+    {
+      moduleName: "nulp_elite",
+      path: routeConfig.ROUTES.PLAYER_PAGE.PLAYER_SSO,
+      component: PlayerSSO,
     },
   ];
 
