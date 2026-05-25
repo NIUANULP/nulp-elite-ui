@@ -112,7 +112,7 @@ const JoinCourseSSO = () => {
   const [isOwner, setIsOwner] = useState(false);
 
   // ── Progress ─────────────────────────────────────────────────────────────
-  const [childnode, setChildNode] = useState(null);
+  const [childNode, setChildNode] = useState(null);
   const [allContents, setAllContents] = useState([]);
   const [completedContents, setCompletedContents] = useState([]);
   const [ConsumedContents, setConsumedContents] = useState([]);
@@ -431,7 +431,7 @@ const JoinCourseSSO = () => {
 
   const renderActionButton = () => {
     if (isEnrolled()) {
-      const nextId = ContinueLearning ?? NotConsumedContent ?? childnode;
+      const nextId = ContinueLearning ?? NotConsumedContent ?? childNode;
       return (
         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
           <Button
