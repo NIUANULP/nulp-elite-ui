@@ -386,7 +386,7 @@ function App() {
             onClose={() => setCheckPref(true)}
           />
         )}
-        {_userId && userData && (
+        {_userId && userData && !window.location.pathname.includes('joinCourseSSO') && (
           <PopupForm
             open={userData}
             handleClose={() => setUserData(false)}
