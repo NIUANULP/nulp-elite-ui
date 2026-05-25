@@ -97,7 +97,7 @@
 
 .sso-nav-btn:hover {
   border-color: #aaa !important;
-  background: rgba(255, 255, 255, 0.07) !important;
+  background: #333 !important;
   color: #fff !important;
 }
 

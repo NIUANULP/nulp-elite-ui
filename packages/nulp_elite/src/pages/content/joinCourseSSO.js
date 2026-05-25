@@ -38,7 +38,6 @@ import Grid from "@mui/material/Grid";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
-import MuiAlert from "@mui/material/Alert";
 import Link from "@mui/material/Link";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -53,11 +52,6 @@ const routeConfig = require("../../configs/routeConfig.json");
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-/** Returns true when the current visitor arrived via IGOT SSO. */
-const detectSSOUser = (searchParams) =>
-  searchParams.get("sso") === "igot" ||
-  sessionStorage.getItem("isIgotSSO") === "true";
 
 /** Normalise course section names for assessment detection. */
 const isAssessmentSection = (name) => {
@@ -82,7 +76,7 @@ const getCardImage = (subdomain) => {
 const formatDate = (dateString) => {
   if (!dateString) return "Not Provided";
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) return "Not Provided";
+  if (Number.isNaN(date.getTime())) return "Not Provided";
   return date.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "long",
@@ -103,8 +97,6 @@ const JoinCourseSSO = () => {
 
   // SSO URL format: /webapp/joinCourseSSO?courseId=do_xxx&sso=igot
   const contentId = searchParams.get("courseId");
-  // isSSOUser is informational; the page is SSO-only by design
-  const isSSOUser = detectSSOUser(searchParams);
 
   const _userId = util.userId();
 
@@ -112,12 +104,10 @@ const JoinCourseSSO = () => {
   const [courseData, setCourseData] = useState(null);
   const [batchData, setBatchData] = useState(null);
   const [batchDetails, setBatchDetails] = useState(null);
-  const [batchDetail, setBatchDetail] = useState(null);
 
   // ── Enrollment ───────────────────────────────────────────────────────────
   const [userCourseData, setUserCourseData] = useState({});
   const [enrolled, setEnrolled] = useState(false);   // set after successful join
-  const [isEnroll, setIsEnroll] = useState(false);   // already enrolled on load
   const [activeBatch, setActiveBatch] = useState(true);
   const [isOwner, setIsOwner] = useState(false);
 
@@ -138,7 +128,6 @@ const JoinCourseSSO = () => {
   const [showUnEnrollmentSnackbar, setShowUnEnrollmentSnackbar] =
     useState(false);
   const [toasterMessage, setToasterMessage] = useState("");
-  const [toasterOpen, setToasterOpen] = useState(false);
 
   // ── Loading / error ──────────────────────────────────────────────────────
   const [loading, setLoading] = useState(true);
@@ -162,7 +151,6 @@ const JoinCourseSSO = () => {
   const showErrorMessage = (msg) => {
     setToasterMessage(msg);
     setTimeout(() => setToasterMessage(""), 3000);
-    setToasterOpen(true);
   };
 
   // ── API calls (same logic as joinCourse.js) ──────────────────────────────
@@ -209,14 +197,6 @@ const JoinCourseSSO = () => {
     setAllContents(leafIds);
   };
 
-  const fetchBatchDetail = async (batchId) => {
-    const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.BATCH.GET_DETAILS}/${batchId}`;
-    const response = await fetch(url);
-    if (!response.ok) return;
-    const data = await response.json();
-    setBatchDetail(data.result);
-  };
-
   const fetchBatchData = async () => {
     const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.BATCH.GET_BATCHS}`;
     const response = await axios.post(url, {
@@ -240,7 +220,6 @@ const JoinCourseSSO = () => {
         batchId: batch.batchId,
       });
       setBatchDetails(batch);
-      await fetchBatchDetail(batch.batchId);
     }
   };
 
@@ -256,8 +235,29 @@ const JoinCourseSSO = () => {
     if (!response.ok) return;
     const data = await response.json();
     setUserCourseData(data.result || {});
-    if (data?.result?.courses?.some((c) => c.contentId === contentId)) {
-      setIsEnroll(true);
+  };
+
+  const markCourseCompleteIfNeeded = async (activeBatchDetails, leafIds, contentList) => {
+    const allDone =
+      leafIds.length > 0 &&
+      leafIds.every((id) =>
+        contentList.some((c) => c.contentId === id && c.status === 2)
+      );
+    if (!allDone) return;
+    setIsCompleted(true);
+    try {
+      await axios.patch(
+        `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`,
+        {
+          request: {
+            userId: _userId,
+            courseId: contentId,
+            batchId: activeBatchDetails.batchId,
+          },
+        }
+      );
+    } catch (e) {
+      console.error("Error marking course complete:", e);
     }
   };
 
@@ -294,36 +294,14 @@ const JoinCourseSSO = () => {
       // Find first unconsumed leaf for "next up"
       let nextUp = null;
       for (const id of leafIds) {
-        if (!contentList.find((c) => c.contentId === id && c.status === 2)) {
+        if (!contentList.some((c) => c.contentId === id && c.status === 2)) {
           nextUp = id;
           break;
         }
       }
       setNotConsumedContent(nextUp);
 
-      // All leafs completed → mark course complete
-      const allDone =
-        leafIds.length > 0 &&
-        leafIds.every((id) =>
-          contentList.some((c) => c.contentId === id && c.status === 2)
-        );
-      if (allDone) {
-        setIsCompleted(true);
-        try {
-          await axios.patch(
-            `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`,
-            {
-              request: {
-                userId: _userId,
-                courseId: contentId,
-                batchId: activeBatchDetails.batchId,
-              },
-            }
-          );
-        } catch (e) {
-          console.error("Error marking course complete:", e);
-        }
-      }
+      await markCourseCompleteIfNeeded(activeBatchDetails, leafIds, contentList);
     } catch (error) {
       console.error("Error fetching course progress:", error);
     }
@@ -366,11 +344,8 @@ const JoinCourseSSO = () => {
 
   const isBatchExpired = () => {
     if (!batchData) return false;
-    const expiry = batchData.enrollmentEndDate
-      ? new Date(batchData.enrollmentEndDate)
-      : batchData.endDate
-      ? new Date(batchData.endDate)
-      : null;
+    const expiryDate = batchData.enrollmentEndDate || batchData.endDate;
+    const expiry = expiryDate ? new Date(expiryDate) : null;
     return Boolean(expiry && expiry < new Date());
   };
 
@@ -393,7 +368,6 @@ const JoinCourseSSO = () => {
       });
       if (response.status === 200) {
         setEnrolled(true);
-        setIsEnroll(true);
         setShowEnrollmentSnackbar(true);
         setIsNotStarted(true);
       }
@@ -416,7 +390,7 @@ const JoinCourseSSO = () => {
       setShowConfirmation(false);
       setShowUnEnrollmentSnackbar(true);
       // Small delay so the snackbar is visible before reload
-      setTimeout(() => window.location.reload(), 1200);
+      setTimeout(() => globalThis.location.reload(), 1200);
     } catch (error) {
       console.error("Error unenrolling:", error);
       showErrorMessage(t("FAILED_TO_ENROLL_INTO_COURSE"));
@@ -624,6 +598,14 @@ const JoinCourseSSO = () => {
 
   const content = courseData?.result?.content;
 
+  const descWords = content?.description?.split(" ") ?? [];
+  let displayDescription = content?.description ?? "";
+  if (descWords.length > 50) {
+    displayDescription = showMore
+      ? content.description
+      : descWords.slice(0, 50).join(" ") + "…";
+  }
+
   // ── Main render ──────────────────────────────────────────────────────────
 
   return (
@@ -638,7 +620,7 @@ const JoinCourseSSO = () => {
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <MuiAlert
+        <Alert
           elevation={6}
           variant="filled"
           onClose={handleSnackbarClose}
@@ -646,7 +628,7 @@ const JoinCourseSSO = () => {
           sx={{ mt: 2 }}
         >
           {t("ENROLLMENT_SUCCESS_MESSAGE")}
-        </MuiAlert>
+        </Alert>
       </Snackbar>
 
       {/* Unenrollment success snackbar */}
@@ -656,7 +638,7 @@ const JoinCourseSSO = () => {
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <MuiAlert
+        <Alert
           elevation={6}
           variant="filled"
           onClose={handleSnackbarClose}
@@ -664,7 +646,7 @@ const JoinCourseSSO = () => {
           sx={{ mt: 2 }}
         >
           {t("UNENROLLMENT_SUCCESS_MESSAGE")}
-        </MuiAlert>
+        </Alert>
       </Snackbar>
 
       {/* Leave course confirmation dialog */}
@@ -794,14 +776,9 @@ const JoinCourseSSO = () => {
                   className="h5-title"
                   sx={{ fontWeight: 400, fontSize: "14px" }}
                 >
-                  {content.description.split(" ").length > 50
-                    ? showMore
-                      ? content.description
-                      : content.description.split(" ").slice(0, 50).join(" ") +
-                        "…"
-                    : content.description}
+                  {displayDescription}
                 </Typography>
-                {content.description.split(" ").length > 50 && (
+                {descWords.length > 50 && (
                   <Button
                     size="small"
                     onClick={() => setShowMore((v) => !v)}

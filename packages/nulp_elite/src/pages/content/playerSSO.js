@@ -63,10 +63,18 @@ const CONTENT_FIELDS =
   "subject,template,templateId,totalQuestions,totalScore,versionKey,visibility,year,primaryCategory," +
   "additionalCategories,interceptionPoints,interceptionType";
 
-/** Returns true when the visitor arrived via IGOT SSO. */
-const detectSSOUser = (searchParams) =>
-  searchParams.get("sso") === "igot" ||
-  sessionStorage.getItem("isIgotSSO") === "true";
+function formatDate() {
+  const now = new Date();
+  const pad = (n, l = 2) => String(n).padStart(l, "0");
+  const offset = -now.getTimezoneOffset();
+  const sign = offset >= 0 ? "+" : "-";
+  return (
+    `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ` +
+    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}:` +
+    `${pad(now.getMilliseconds(), 3)}${sign}${pad(Math.floor(Math.abs(offset) / 60))}` +
+    `${pad(Math.abs(offset) % 60)}`
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Component
@@ -77,12 +85,11 @@ const PlayerSSO = () => {
   const navigate = useNavigate();
 
   const params = new URLSearchParams(location.search);
-  const isSSOUser = detectSSOUser(params);
 
   // ── URL parameters ────────────────────────────────────────────────────────
   const [contentId, setContentId] = useState(() => {
     const id = params.get("id");
-    return id && id.endsWith("=") ? id.slice(0, -1) : id;
+    return id?.endsWith("=") ? id.slice(0, -1) : id;
   });
   const [courseId, setCourseId] = useState(params.get("cId"));
   const [batchId, setBatchId] = useState(params.get("bId"));
@@ -101,7 +108,6 @@ const PlayerSSO = () => {
   const [userFirstName, setUserFirstName] = useState("");
   const [userLastName, setUserLastName] = useState("");
   const [isCompleted, setIsCompleted] = useState(false);
-  const [trackData, setTrackData] = useState();
 
   // ── Assessment tracking (identical to Player.js) ──────────────────────────
   const [assessEvents, setAssessEvents] = useState([]);
@@ -116,9 +122,9 @@ const PlayerSSO = () => {
 
   // ── Player URL (identical to Player.js) ──────────────────────────────────
   const playerUrl =
-    window.location.origin !== "http://localhost:3000"
-      ? `${window.location.origin}/newplayer`
-      : "https://nulp.niua.org/newplayer";
+    globalThis.location.origin === "http://localhost:3000"
+      ? "https://nulp.niua.org/newplayer"
+      : `${globalThis.location.origin}/newplayer`;
 
   // ── Guards ────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -128,23 +134,10 @@ const PlayerSSO = () => {
 
   // ── Date / ID helpers (identical to Player.js) ───────────────────────────
 
-  function formatDate() {
-    const now = new Date();
-    const pad = (n, l = 2) => String(n).padStart(l, "0");
-    const offset = -now.getTimezoneOffset();
-    const sign = offset >= 0 ? "+" : "-";
-    return (
-      `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ` +
-      `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}:` +
-      `${pad(now.getMilliseconds(), 3)}${sign}${pad(Math.floor(Math.abs(offset) / 60))}` +
-      `${pad(Math.abs(offset) % 60)}`
-    );
-  }
-
   const getCurrentTimestamp = () => Date.now();
 
   const attemptid = () => {
-    const ts = new Date().getTime();
+    const ts = Date.now();
     return md5([courseId, batchId, contentId, _userId, ts].join("-"));
   };
 
@@ -216,10 +209,10 @@ const PlayerSSO = () => {
   // ── Telemetry / track handlers (identical to Player.js) ──────────────────
 
   const handleTrackData = useCallback(
-    async ({ score, trackData: td, attempts, ...props }, playerType = "quml") => {
+    async ({ score, trackData: td, attempts, currentPage, totalPages, ...props }, playerType = "quml") => {
       if (!_userId) return;
       setPropLength(Object.keys(props).length);
-      if (playerType === "pdf-video" && props.currentPage === props.totalPages) {
+      if (playerType === "pdf-video" && currentPage === totalPages) {
         setIsCompleted(true);
       }
     },
@@ -325,7 +318,7 @@ const PlayerSSO = () => {
   useEffect(() => {
     const newParams = new URLSearchParams(location.search);
     const rawId = newParams.get("id");
-    const cleanId = rawId && rawId.endsWith("=") ? rawId.slice(0, -1) : rawId;
+    const cleanId = rawId?.endsWith("=") ? rawId.slice(0, -1) : rawId;
     const newCId = newParams.get("cId");
     const newBId = newParams.get("bId");
 
@@ -572,7 +565,6 @@ const PlayerSSO = () => {
                   ? data.reduce((acc, n) => acc + (n?.score || 0), 0)
                   : 0;
                 handleTrackData({ ...data, score: `${score}` }, "ecml");
-                setTrackData(data);
               }
             }}
             public_url={playerUrl}
