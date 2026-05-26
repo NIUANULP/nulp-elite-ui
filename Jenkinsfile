@@ -18,7 +18,7 @@ pipeline {
         stage('Build') {
             environment {
                 // Define the Node.js version to use
-                NODE_VERSION = '18' // Adjust this to your desired Node.js version
+                NODE_VERSION = '20' // Adjust this to your desired Node.js version
                 NVM_DIR = '/var/lib/jenkins/.nvm'
             }
             steps {
