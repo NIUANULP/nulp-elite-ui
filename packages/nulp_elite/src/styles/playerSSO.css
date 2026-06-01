@@ -1,0 +1,143 @@
+/**
+ * playerSSO.css
+ *
+ * Scoped styles for the IGOT SSO embedded player page.
+ * All selectors are prefixed with .sso-player-* to avoid
+ * polluting any existing NULP styles.
+ *
+ * DO NOT import this file from any page other than playerSSO.js.
+ */
+
+/* ── Root container – fills the entire iframe viewport ──────────────────── */
+.sso-player-root {
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ── Utility: centre children (used for loading / error states) ─────────── */
+.sso-player-root.sso-center {
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Black stage area that holds the aspect-ratio player box ────────────── */
+.sso-player-stage {
+  flex: 1;
+  min-height: 0;           /* allow flex child to shrink */
+  width: 100%;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/**
+ * Standard 16:9 aspect-ratio box.
+ * Works identically to the wrapper used in the existing Player.js.
+ * SunbirdPlayer renders an <iframe> that fills this box absolutely.
+ */
+.sso-player-ratio {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 9/16 = 56.25% */
+  height: 0;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+/* SunbirdPlayer mounts an iframe – force it to fill the ratio box */
+.sso-player-ratio > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  border: none;
+}
+
+/* ── Bottom navigation bar ──────────────────────────────────────────────── */
+.sso-player-nav {
+  flex-shrink: 0;
+  background: #1a1a1a;
+  border-top: 1px solid #333;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-height: 48px;
+  box-sizing: border-box;
+}
+
+.sso-nav-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Outlined (prev) navigation buttons */
+.sso-nav-btn {
+  color: #ccc !important;
+  border-color: #555 !important;
+  font-size: 13px !important;
+  text-transform: none !important;
+  padding: 4px 14px !important;
+  min-width: unset !important;
+}
+
+.sso-nav-btn:hover {
+  border-color: #aaa !important;
+  background: #333 !important;
+  color: #fff !important;
+}
+
+/* Contained (next) navigation buttons */
+.sso-nav-btn-primary {
+  background: #004367 !important;
+  color: #fff !important;
+  font-size: 13px !important;
+  text-transform: none !important;
+  padding: 4px 14px !important;
+  min-width: unset !important;
+}
+
+.sso-nav-btn-primary:hover {
+  background: #00578a !important;
+}
+
+/* ── Responsive: tablet / smaller iframe ────────────────────────────────── */
+@media (max-width: 768px) {
+  .sso-player-nav {
+    padding: 6px 10px;
+    min-height: 44px;
+  }
+
+  .sso-nav-btn,
+  .sso-nav-btn-primary {
+    font-size: 12px !important;
+    padding: 3px 10px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .sso-player-nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .sso-nav-group {
+    justify-content: center;
+  }
+}
