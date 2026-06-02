@@ -170,7 +170,7 @@ const playerConfig = {
     cdata: [],
     timeDiff: 0,
     objectRollup: {},
-    host: "https://devnulp.niua.org",
+    host: window.location.origin,
     endpoint: "",
     userData: metadata?.userData ? metadata?.userData : {},
     app: [""], // Genie tags
