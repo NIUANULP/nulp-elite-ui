@@ -337,6 +337,22 @@ const JoinCourseSSO = () => {
     }
   }, [batchDetails, allContents]);
 
+  // Auto-enroll SSO users: once data has loaded, join immediately if eligible
+  useEffect(() => {
+    if (loading) return;
+    if (courseError || !courseData) return;
+    const alreadyEnrolled =
+      userCourseData?.courses?.some((c) => c.contentId === contentId) || enrolled;
+    if (alreadyEnrolled) return;
+    if (!activeBatch) return;
+    if (isOwner) return;
+    if (!batchData?.batchId) return;
+    const expiryDate = batchData.enrollmentEndDate || batchData.endDate;
+    const expired = expiryDate ? new Date(expiryDate) < new Date() : false;
+    if (expired) return;
+    handleJoinCourse();
+  }, [loading]);
+
   // ── Derived state ────────────────────────────────────────────────────────
 
   const isEnrolled = () =>
@@ -443,17 +459,16 @@ const JoinCourseSSO = () => {
           >
             {isNotStarted ? t("START_LEARNING") : t("CONTINUE_LEARNNG")}
           </Button>
-          {!isCompleted && (
-            <Button
-              variant="outlined"
-              color="error"
-              onClick={() => setShowConfirmation(true)}
-              className="custom-btn-danger"
-              sx={{ textTransform: "none" }}
-            >
-              {t("LEAVE_COURSE")}
-            </Button>
-          )}
+          <Button
+            variant="outlined"
+            color="error"
+            disabled
+            onClick={() => setShowConfirmation(true)}
+            className="custom-btn-danger"
+            sx={{ textTransform: "none" }}
+          >
+            {t("LEAVE_COURSE")}
+          </Button>
           {isCompleted && (
             <Typography
               variant="body2"

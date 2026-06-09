@@ -386,7 +386,7 @@ function App() {
             onClose={() => setCheckPref(true)}
           />
         )}
-        {_userId && userData && !globalThis.location.pathname.includes('joinCourseSSO') && (
+        {_userId && userData && !globalThis.location.pathname.includes('joinCourseSSO') && !globalThis.location.pathname.includes('playerSSO') && (
           <PopupForm
             open={userData}
             handleClose={() => setUserData(false)}
