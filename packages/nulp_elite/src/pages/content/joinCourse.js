@@ -52,14 +52,6 @@ const processString = (str) => {
   return str.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 };
 
-// Helper function to check if a name is an assessment section
-const isAssessmentSection = (name) => {
-  if (!name) return false;
-  const normalizedName = name.replaceAll(/[^a-zA-Z0-9]/g, "").toLowerCase();
-  // Check for variations: assessment, asessment, course assessment, etc.
-  return normalizedName.includes("assessment") || normalizedName.includes("asessment");
-};
-
 const AssessmentStatusDisplay = ({ failedAssessments, onRetryAssessment, t }) => {
   return (!failedAssessments || failedAssessments.length === 0) ? null : (
     <Box className="assessment-status-container" style={{ marginBottom: "20px" }}>
@@ -160,15 +152,13 @@ ContentLink.propTypes = {
   maxAttemptsLabel: PropTypes.string.isRequired,
 };
 
-const JoinCourse = () => {
+const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
   const { t } = useTranslation();
   const [courseData, setCourseData] = useState();
   const [batchData, setBatchData] = useState();
   const [batchDetails, setBatchDetails] = useState();
   const [userCourseData, setUserCourseData] = useState({});
-  const [showEnrollmentSnackbar, setShowEnrollmentSnackbar] = useState(false);
-  const [showUnEnrollmentSnackbar, setShowUnEnrollmentSnackbar] =
-    useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState("");
   const [showConsentForm, setShowConsentForm] = useState(false);
   const [enrolled, setEnrolled] = useState(false);
   const [progress, setCourseProgress] = useState();
@@ -193,9 +183,11 @@ const JoinCourse = () => {
   const [showChat, setShowChat] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
   const queryString = location.search;
-  let contentId = queryString.startsWith("?do_") ? queryString.slice(1) : null;
-  // Check if contentId ends with '=' and remove it
-  if (contentId && contentId.endsWith("=")) {
+  const _searchParams = new URLSearchParams(queryString);
+  let contentId = ssoMode
+    ? _searchParams.get("courseId")
+    : queryString.startsWith("?do_") ? queryString.slice(1) : null;
+  if (!ssoMode && contentId && contentId.endsWith("=")) {
     contentId = contentId.slice(0, -1);
   }
   const _userId = util.userId(); // Assuming util.userId() is defined
@@ -713,6 +705,15 @@ const JoinCourse = () => {
     getCourseProgress();
   }, [batchDetails, creatorId, allContents]);
 
+  // Auto-enroll SSO users as soon as batch data is available
+  useEffect(() => {
+    if (!ssoMode || !batchData?.batchId) return;
+    if (isEnrolled() || enrolled || !activeBatch || isOwner) return;
+    const expiryDate = batchData.enrollmentEndDate || batchData.endDate;
+    if (expiryDate && new Date(expiryDate) < new Date()) return;
+    handleJoinCourse();
+  }, [batchData?.batchId]);
+
   const handleDirectConnect = () => {
     if (!_userId) {
       window.location.reload();
@@ -759,7 +760,7 @@ const JoinCourse = () => {
       }
       
       navigate(
-        `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${id}&cId=${contentId}&bId=${batchDetails?.batchId}`,
+        `${ssoMode ? routeConfig.ROUTES.PLAYER_PAGE.PLAYER_SSO : routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${id}&cId=${contentId}&bId=${batchDetails?.batchId}${ssoMode ? "&sso=igot" : ""}`,
         {
           state: {
             coursename: userData?.result?.content?.name,
@@ -777,13 +778,6 @@ const JoinCourse = () => {
         "You must join the course to get complete access to content."
       );
     }
-  };
-
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setShowEnrollmentSnackbar(false);
   };
 
   const isEnrolled = () => {
@@ -815,7 +809,7 @@ const JoinCourse = () => {
       const response = await axios.post(url, requestBody);
       if (response.status === 200) {
         setEnrolled(true);
-        setShowUnEnrollmentSnackbar(true);
+        setSnackbarMsg(t("UNENROLLMENT_SUCCESS_MESSAGE"));
       }
     } catch (error) {
       console.error("Error enrolling in the course:", error);
@@ -1064,8 +1058,8 @@ const JoinCourse = () => {
       return;
     }
     try {
-      await handleJoinCourse(); // Wait for the user to join the course
-      setShowConsentForm(true); // Open the consent form after joining the course
+      await handleJoinCourse();
+      if (!ssoMode) setShowConsentForm(true);
     } catch (error) {
       console.error("Error:", error);
       showErrorMessage(t("FAILED_TO_ENROLL_INTO_COURSE"));
@@ -1085,7 +1079,7 @@ const JoinCourse = () => {
       const response = await axios.post(url, requestBody);
       if (response.status === 200) {
         setEnrolled(true);
-        setShowEnrollmentSnackbar(true);
+        setSnackbarMsg(t("ENROLLMENT_SUCCESS_MESSAGE"));
         setIsEnroll(true);
       }
     } catch (error) {
@@ -1249,7 +1243,7 @@ const JoinCourse = () => {
 
   const handleRetryAssessment = (assessmentContentId) => {
     navigate(
-      `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${assessmentContentId}&cId=${contentId}&bId=${batchDetails?.batchId}`,
+      `${ssoMode ? routeConfig.ROUTES.PLAYER_PAGE.PLAYER_SSO : routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${assessmentContentId}&cId=${contentId}&bId=${batchDetails?.batchId}${ssoMode ? "&sso=igot" : ""}`,
       {
         state: {
           coursename: userData?.result?.content?.name,
@@ -1328,39 +1322,23 @@ const JoinCourse = () => {
 
   return (
     <div>
-      <Header />
+      {!hideChrome && <Header />}
       {toasterMessage && <ToasterCommon response={toasterMessage} />}
       <Box>
         <Snackbar
-          open={showEnrollmentSnackbar}
+          open={Boolean(snackbarMsg)}
           autoHideDuration={6000}
-          onClose={handleSnackbarClose}
+          onClose={() => setSnackbarMsg("")}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
         >
           <MuiAlert
             elevation={6}
             variant="filled"
-            onClose={handleSnackbarClose}
+            onClose={() => setSnackbarMsg("")}
             severity="success"
             sx={{ mt: 2 }}
           >
-            {t("ENROLLMENT_SUCCESS_MESSAGE")}
-          </MuiAlert>
-        </Snackbar>
-        <Snackbar
-          open={showUnEnrollmentSnackbar}
-          autoHideDuration={6000}
-          onClose={handleSnackbarClose}
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        >
-          <MuiAlert
-            elevation={6}
-            variant="filled"
-            onClose={handleSnackbarClose}
-            severity="success"
-            sx={{ mt: 2 }}
-          >
-            {t("UNENROLLMENT_SUCCESS_MESSAGE")}
+            {snackbarMsg}
           </MuiAlert>
         </Snackbar>
 
@@ -2311,11 +2289,16 @@ const JoinCourse = () => {
             </Grid>
           </Grid>
         </Container>
-        <FloatingChatIcon />
+        {!hideChrome && <FloatingChatIcon />}
       </Box>
-      <Footer />
+      {!hideChrome && <Footer />}
     </div>
   );
+};
+
+JoinCourse.propTypes = {
+  hideChrome: PropTypes.bool,
+  ssoMode: PropTypes.bool,
 };
 
 export default JoinCourse;
