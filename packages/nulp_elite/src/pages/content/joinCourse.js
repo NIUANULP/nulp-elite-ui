@@ -26,8 +26,6 @@ import axios from "axios";
 import * as util from "../../services/utilService";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
-
-import data from "../../assets/courseHierarchy.json";
 import Alert from "@mui/material/Alert";
 import Modal from "@mui/material/Modal";
 
@@ -48,17 +46,6 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PropTypes from "prop-types";
 
 const routeConfig = require("../../configs/routeConfig.json");
-const processString = (str) => {
-  return str.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-};
-
-// Helper function to check if a name is an assessment section
-const isAssessmentSection = (name) => {
-  if (!name) return false;
-  const normalizedName = name.replaceAll(/[^a-zA-Z0-9]/g, "").toLowerCase();
-  // Check for variations: assessment, asessment, course assessment, etc.
-  return normalizedName.includes("assessment") || normalizedName.includes("asessment");
-};
 
 const AssessmentStatusDisplay = ({ failedAssessments, onRetryAssessment, t }) => {
   return (!failedAssessments || failedAssessments.length === 0) ? null : (
@@ -126,15 +113,60 @@ AssessmentStatusDisplay.propTypes = {
   t: PropTypes.func.isRequired,
 };
 
-const JoinCourse = () => {
+const ContentLink = ({ name, accessible, completed, onClickLink, maxAttemptsLabel }) => (
+  <Link
+    href="#"
+    underline="none"
+    style={{
+      verticalAlign: "super",
+      opacity: accessible ? 1 : 0.5,
+      cursor: accessible ? "pointer" : "not-allowed",
+    }}
+    onClick={onClickLink}
+    className="h6-title"
+  >
+    {name}
+    {!accessible && (
+      <span style={{ color: "red", fontSize: "12px", marginLeft: "5px" }}>
+        {maxAttemptsLabel}
+      </span>
+    )}
+    {completed && (
+      <CheckCircleIcon
+        style={{ color: "green", fontSize: "24px", paddingLeft: "10px", float: "right" }}
+      />
+    )}
+  </Link>
+);
+
+ContentLink.propTypes = {
+  name: PropTypes.string.isRequired,
+  accessible: PropTypes.bool.isRequired,
+  completed: PropTypes.bool.isRequired,
+  onClickLink: PropTypes.func.isRequired,
+  maxAttemptsLabel: PropTypes.string.isRequired,
+};
+
+const computeDisplayDescription = (description, showMore) => {
+  const words = description?.split(" ") ?? [];
+  if (words.length <= 100) return description ?? "";
+  if (showMore) return description;
+  return words.slice(0, 30).join(" ") + "...";
+};
+
+const parseContentId = (ssoMode, queryString, searchParams) => {
+  if (ssoMode) return searchParams.get("courseId");
+  const raw = queryString.startsWith("?do_") ? queryString.slice(1) : null;
+  return raw?.endsWith("=") ? raw.slice(0, -1) : raw;
+};
+
+const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
   const { t } = useTranslation();
   const [courseData, setCourseData] = useState();
   const [batchData, setBatchData] = useState();
   const [batchDetails, setBatchDetails] = useState();
   const [userCourseData, setUserCourseData] = useState({});
-  const [showEnrollmentSnackbar, setShowEnrollmentSnackbar] = useState(false);
-  const [showUnEnrollmentSnackbar, setShowUnEnrollmentSnackbar] =
-    useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState("");
   const [showConsentForm, setShowConsentForm] = useState(false);
   const [enrolled, setEnrolled] = useState(false);
   const [progress, setCourseProgress] = useState();
@@ -142,11 +174,9 @@ const JoinCourse = () => {
   const [userInfo, setUserInfo] = useState();
   const [consentChecked, setConsentChecked] = useState(false);
   const [shareEnabled, setShareEnabled] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
   const [userData, setUserData] = useState();
   const location = useLocation();
   const navigate = useNavigate();
-  const [toasterOpen, setToasterOpen] = useState(false);
   const [toasterMessage, setToasterMessage] = useState("");
   const [creatorId, setCreatorId] = useState("");
   const [open, setOpen] = useState(false);
@@ -156,14 +186,10 @@ const JoinCourse = () => {
   const [formData, setFormData] = useState({
     message: "",
   });
-  const [showChat, setShowChat] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
   const queryString = location.search;
-  let contentId = queryString.startsWith("?do_") ? queryString.slice(1) : null;
-  // Check if contentId ends with '=' and remove it
-  if (contentId && contentId.endsWith("=")) {
-    contentId = contentId.slice(0, -1);
-  }
+  const _searchParams = new URLSearchParams(queryString);
+  const contentId = parseContentId(ssoMode, queryString, _searchParams);
   const _userId = util.userId(); // Assuming util.userId() is defined
   const shareUrl = window.location.href; // Current page URL
   const [showMore, setShowMore] = useState(false);
@@ -171,13 +197,10 @@ const JoinCourse = () => {
   const [score, setScore] = useState("");
   const [isEnroll, setIsEnroll] = useState(false);
   const [ConsumedContents, setConsumedContents] = useState();
-  const [TotalContents, setTotalContents] = useState();
-  const [IsUnitCompleted, setIsUnitCompleted] = useState();
   const [isNotStarted, setIsNotStarted] = useState(false);
   const [ContinueLearning, setContinueLearning] = useState();
   const [allContents, setAllContents] = useState();
   const [NotConsumedContent, setNotConsumedContent] = useState();
-  const [isContentConsumed, setIsContentConsumed] = useState();
   const [completedContents, setCompletedContents] = useState([]);
   const [isCompleted, setIsCompleted] = useState();
   const [copyrightOpen, setcopyrightOpen] = useState(false);
@@ -204,15 +227,7 @@ const JoinCourse = () => {
   };
   const showErrorMessage = (msg) => {
     setToasterMessage(msg);
-    setTimeout(() => {
-      setToasterMessage("");
-    }, 2000);
-    setToasterOpen(true);
-  };
-
-  const showOpenContenErrorMessage = (msg) => {
-    setToasterMessage(msg);
-    setToasterOpen(true);
+    setTimeout(() => setToasterMessage(""), 2000);
   };
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 767);
@@ -389,91 +404,6 @@ const JoinCourse = () => {
     }
   };
 
-  const flattenDeep = async (contents) => {
-    if (contents) {
-      let result = [];
-      for (let val of contents) {
-        result.push(val);
-        if (val.children) {
-          const children = await flattenDeep(val.children);
-          result = result.concat(children);
-        }
-      }
-      return result;
-    }
-    return [];
-  };
-
-  const calculateProgress = async () => {
-    console.log(
-      "courseData?.result?.content?.children",
-      courseData?.result?.content?.children
-    );
-    let contentStatus = [];
-    if (batchDetails?.batchId && courseData?.result?.content?.children) {
-      let tempConsumedContents = 0;
-      let tempTotalContents = 0;
-
-      for (let unit of courseData?.result?.content?.children) {
-        if (unit.mimeType === "application/vnd.ekstep.content-collection") {
-          let consumedContents = [];
-          let flattenDeepContents = [];
-
-          if (unit.children) {
-            flattenDeepContents = (await flattenDeep(unit.children)).filter(
-              (item) =>
-                item.mimeType !== "application/vnd.ekstep.content-collection"
-            );
-            console.log("flattenDeepContents", flattenDeepContents);
-            consumedContents = flattenDeepContents?.filter((o) =>
-              contentStatus?.some(
-                ({ contentId, status }) =>
-                  o?.identifier === contentId && status === 2
-              )
-            );
-          }
-
-          unit.consumedContent = consumedContents.length;
-          unit.contentCount = flattenDeepContents.length;
-          unit.isUnitConsumed =
-            consumedContents.length === flattenDeepContents.length;
-          unit.isUnitConsumptionStart = consumedContents.length > 0;
-          unit.progress = flattenDeepContents.length
-            ? (consumedContents.length / flattenDeepContents.length) * 100
-            : 0;
-        } else {
-          const consumedContent = contentStatus.filter(
-            ({ contentId, status }) =>
-              unit.identifier === contentId && status === 2
-          );
-          unit.consumedContent = consumedContent.length;
-          unit.contentCount = 1;
-          unit.isUnitConsumed = consumedContent.length === 1;
-          unit.progress = consumedContent.length ? 100 : 0;
-          unit.isUnitConsumptionStart = Boolean(consumedContent.length);
-        }
-
-        tempConsumedContents += unit.consumedContent;
-        tempTotalContents += unit.contentCount;
-      }
-
-      const progress = tempTotalContents
-        ? (tempConsumedContents / tempTotalContents) * 100
-        : 0;
-      console.log("progress", progress);
-      setConsumedContents(tempConsumedContents);
-      setTotalContents(tempTotalContents);
-      let courseHierarchy = {};
-      courseHierarchy.progress = progress;
-      const unitCompleted = tempTotalContents === tempConsumedContents;
-      setIsUnitCompleted(unitCompleted);
-    }
-  };
-
-  // useEffect(() => {
-  //   calculateProgress();
-  // }, [batchDetails, courseData]);
-
   // Helper function to find best score from attempts
   const findBestScore = (scoreArray) => {
     return scoreArray.reduce((best, current) => {
@@ -599,7 +529,6 @@ const JoinCourse = () => {
             ...prevContents,
             ...newCompletedContents,
           ]);
-          setIsContentConsumed(true);
         }
 
         const contentList = data.result.contentList;
@@ -630,7 +559,7 @@ const JoinCourse = () => {
             notConsumedContent = allContents[0];
             try {
               const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
-              const response = await axios.patch(url, {
+              await axios.patch(url, {
                 request: {
                   userId: _userId,
                   courseId: contentId,
@@ -679,6 +608,15 @@ const JoinCourse = () => {
     getCourseProgress();
   }, [batchDetails, creatorId, allContents]);
 
+  // Auto-enroll SSO users as soon as batch data is available
+  useEffect(() => {
+    if (!ssoMode || !batchData?.batchId) return;
+    if (isEnrolled() || enrolled || !activeBatch || isOwner) return;
+    const expiryDate = batchData.enrollmentEndDate || batchData.endDate;
+    if (expiryDate && new Date(expiryDate) < new Date()) return;
+    handleJoinCourse();
+  }, [batchData?.batchId]);
+
   const handleDirectConnect = () => {
     if (!_userId) {
       window.location.reload();
@@ -725,7 +663,7 @@ const JoinCourse = () => {
       }
       
       navigate(
-        `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${id}&cId=${contentId}&bId=${batchDetails?.batchId}`,
+        `${ssoMode ? routeConfig.ROUTES.PLAYER_PAGE.PLAYER_SSO : routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${id}&cId=${contentId}&bId=${batchDetails?.batchId}${ssoMode ? "&sso=igot" : ""}`,
         {
           state: {
             coursename: userData?.result?.content?.name,
@@ -743,13 +681,6 @@ const JoinCourse = () => {
         "You must join the course to get complete access to content."
       );
     }
-  };
-
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setShowEnrollmentSnackbar(false);
   };
 
   const isEnrolled = () => {
@@ -781,7 +712,7 @@ const JoinCourse = () => {
       const response = await axios.post(url, requestBody);
       if (response.status === 200) {
         setEnrolled(true);
-        setShowUnEnrollmentSnackbar(true);
+        setSnackbarMsg(t("UNENROLLMENT_SUCCESS_MESSAGE"));
       }
     } catch (error) {
       console.error("Error enrolling in the course:", error);
@@ -1030,8 +961,8 @@ const JoinCourse = () => {
       return;
     }
     try {
-      await handleJoinCourse(); // Wait for the user to join the course
-      setShowConsentForm(true); // Open the consent form after joining the course
+      await handleJoinCourse();
+      if (!ssoMode) setShowConsentForm(true);
     } catch (error) {
       console.error("Error:", error);
       showErrorMessage(t("FAILED_TO_ENROLL_INTO_COURSE"));
@@ -1051,7 +982,7 @@ const JoinCourse = () => {
       const response = await axios.post(url, requestBody);
       if (response.status === 200) {
         setEnrolled(true);
-        setShowEnrollmentSnackbar(true);
+        setSnackbarMsg(t("ENROLLMENT_SUCCESS_MESSAGE"));
         setIsEnroll(true);
       }
     } catch (error) {
@@ -1126,51 +1057,12 @@ const JoinCourse = () => {
     consentUpdate("REVOKED");
     setShowConsentForm(false);
   };
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const handleSubmit = async () => {
-    const requestBody = {
-      sender_id: _userId,
-      receiver_id: creatorId,
-      message: formData.message,
-    };
-
-    try {
-      const url = `${urlConfig.URLS.DIRECT_CONNECT.SEND_CHATS}`;
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to send chat");
-      }
-      setOpen(false);
-      console.log("sentChatRequest", response);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
   const handlecopyrightOpen = () => {
     setcopyrightOpen(true);
   };
 
   const handlecopyrightClose = () => {
     setcopyrightOpen(false);
-  };
-
-  const handleOpen = () => {
-    setOpen(true);
   };
 
   const handleClose = () => {
@@ -1215,7 +1107,7 @@ const JoinCourse = () => {
 
   const handleRetryAssessment = (assessmentContentId) => {
     navigate(
-      `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${assessmentContentId}&cId=${contentId}&bId=${batchDetails?.batchId}`,
+      `${ssoMode ? routeConfig.ROUTES.PLAYER_PAGE.PLAYER_SSO : routeConfig.ROUTES.PLAYER_PAGE.PLAYER}?id=${assessmentContentId}&cId=${contentId}&bId=${batchDetails?.batchId}${ssoMode ? "&sso=igot" : ""}`,
       {
         state: {
           coursename: userData?.result?.content?.name,
@@ -1244,41 +1136,73 @@ const JoinCourse = () => {
     return !(assessmentData && assessmentData.attempts >= assessmentData.maxAttempts);
   };
 
+  const getModuleFailedAssessments = (module) => {
+    if (!failedAssessments.length) return [];
+    const leafIds = new Set();
+    const collect = (node) => {
+      if (!node.children || node.children.length === 0) {
+        if (node.identifier) leafIds.add(node.identifier);
+        return;
+      }
+      node.children.forEach(collect);
+    };
+    collect(module);
+    return failedAssessments.filter((a) => leafIds.has(a.contentId));
+  };
+
+  const renderContentNode = (node, level = 0) => {
+    const isCollection = node.children && node.children.length > 0;
+    const detailStyle = level < 2
+      ? { padding: "12px", margin: "-10px 0px" }
+      : { paddingLeft: "35px" };
+
+    return (
+      <AccordionDetails
+        key={node.identifier || node.name}
+        className="border-bottom"
+        style={detailStyle}
+      >
+        {isCollection ? (
+          <span className="h6-title" style={{ verticalAlign: "super" }}>
+            {node.name}
+          </span>
+        ) : (
+          <ContentLink
+            name={node.name}
+            accessible={isContentAccessible(node.identifier)}
+            completed={completedContents.includes(node.identifier)}
+            onClickLink={() => handleLinkClick(node.identifier)}
+            maxAttemptsLabel={t("MAX_ATTEMPTS_EXCEEDED")}
+          />
+        )}
+        {isCollection && (
+          <div style={{ paddingLeft: "20px" }}>
+            {node.children.map((child) => renderContentNode(child, level + 1))}
+          </div>
+        )}
+      </AccordionDetails>
+    );
+  };
+
   return (
     <div>
-      <Header />
+      {!hideChrome && <Header />}
       {toasterMessage && <ToasterCommon response={toasterMessage} />}
       <Box>
         <Snackbar
-          open={showEnrollmentSnackbar}
+          open={Boolean(snackbarMsg)}
           autoHideDuration={6000}
-          onClose={handleSnackbarClose}
+          onClose={() => setSnackbarMsg("")}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
         >
           <MuiAlert
             elevation={6}
             variant="filled"
-            onClose={handleSnackbarClose}
+            onClose={() => setSnackbarMsg("")}
             severity="success"
             sx={{ mt: 2 }}
           >
-            {t("ENROLLMENT_SUCCESS_MESSAGE")}
-          </MuiAlert>
-        </Snackbar>
-        <Snackbar
-          open={showUnEnrollmentSnackbar}
-          autoHideDuration={6000}
-          onClose={handleSnackbarClose}
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        >
-          <MuiAlert
-            elevation={6}
-            variant="filled"
-            onClose={handleSnackbarClose}
-            severity="success"
-            sx={{ mt: 2 }}
-          >
-            {t("UNENROLLMENT_SUCCESS_MESSAGE")}
+            {snackbarMsg}
           </MuiAlert>
         </Snackbar>
 
@@ -1286,11 +1210,9 @@ const JoinCourse = () => {
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
           open={showConsentForm}
-          onClose={(event, reason) => {
-            if (reason === "backdropClick" || reason === "escapeKeyDown") {
-              setOpenModal(true);
-            } else {
-              handleCloseModal();
+          onClose={(_, reason) => {
+            if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
+              setShowConsentForm(false);
             }
           }}
         >
@@ -1868,22 +1790,16 @@ const JoinCourse = () => {
                       className="h5-title mb-15"
                       style={{ fontWeight: "400", fontSize: "14px" }}
                     >
-                      {courseData?.result?.content?.description.split(" ")
-                        .length > 100
-                        ? showMore
-                          ? courseData?.result?.content?.description
-                          : courseData?.result?.content?.description
-                            .split(" ")
-                            .slice(0, 30)
-                            .join(" ") + "..."
-                        : courseData?.result?.content?.description}
-                    </Typography>
-                    {courseData?.result?.content?.description.split(" ")
-                      .length > 100 && (
-                        <Button onClick={toggleShowMore}>
-                          {showMore ? t("Show Less") : t("Show More")}
-                        </Button>
+                      {computeDisplayDescription(
+                        courseData?.result?.content?.description,
+                        showMore
                       )}
+                    </Typography>
+                    {(courseData?.result?.content?.description?.split(" ")?.length ?? 0) > 100 && (
+                      <Button onClick={toggleShowMore}>
+                        {showMore ? t("Show Less") : t("Show More")}
+                      </Button>
+                    )}
                   </>
                 )}
               </Box>
@@ -1906,245 +1822,42 @@ const JoinCourse = () => {
                   {t("COURSES_MODULE")}
                 </AccordionSummary>
                 <AccordionDetails>
-                  {userData?.result?.content?.children.map((faqIndex, index, array) => {
-                    const isLastItem = index === array.length - 1;
-                    const isAssessment = isAssessmentSection(faqIndex.name);
+                  {userData?.result?.content?.children.map((faqIndex) => {
+                    const moduleFailedAssessments = getModuleFailedAssessments(faqIndex);
                     return (
-                    <Accordion
-                      key={faqIndex.id}
-                      style={{ borderRadius: "10px", margin: "10px 0" }}
-                    >
-                      <AccordionSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls={`panel${faqIndex.id}-content`}
-                        id={`panel${faqIndex.id}-header`}
-                        className="h5-title"
+                      <Accordion
+                        key={faqIndex.id}
+                        style={{ borderRadius: "10px", margin: "10px 0" }}
                       >
-                        {faqIndex.name}
-                      </AccordionSummary>
-
-                      <AccordionDetails
-                        style={{ padding: "12px", margin: "-10px 0px" }}
-                      >
-                        {/* If it's not a content collection, render it like a clickable child */}
-                        {faqIndex.mimeType !==
-                          "application/vnd.ekstep.content-collection" ? (
-                          <Link
-                            href="#"
-                            underline="none"
-                            style={{
-                              verticalAlign: "super",
-                              opacity: isContentAccessible(faqIndex.identifier) ? 1 : 0.5,
-                              cursor: isContentAccessible(faqIndex.identifier) ? "pointer" : "not-allowed"
-                            }}
-                            onClick={() => handleLinkClick(faqIndex.identifier)}
-                            className="h6-title"
-                          >
-                            {faqIndex.name}
-                            {!isContentAccessible(faqIndex.identifier) && (
-                              <span style={{ color: "red", fontSize: "12px", marginLeft: "5px" }}>
-                                {t("MAX_ATTEMPTS_EXCEEDED")}
-                              </span>
-                            )}
-                            {completedContents.includes(faqIndex.identifier) && (
-                              <CheckCircleIcon
-                                style={{
-                                  color: "green",
-                                  fontSize: "24px",
-                                  paddingLeft: "10px",
-                                  float: "right",
-                                }}
-                              />
-                            )}
-                          </Link>
-                        ) : (
-                          faqIndex?.children?.map((faqIndexname) => (
-                            <AccordionDetails
-                              key={faqIndexname.identifier || faqIndexname.name}
-                              className="border-bottom"
-                              style={{ padding: "12px", margin: "-10px 0px" }}
-                            >
-                              {faqIndexname.children &&
-                                faqIndexname.children.length > 0 ? (
-                                <span
-                                  className="h6-title"
-                                  style={{ verticalAlign: "super" }}
-                                >
-                                  {faqIndexname.name}
-                                </span>
-                              ) : (
-                                <Link
-                                  href="#"
-                                  underline="none"
-                                  style={{
-                                    verticalAlign: "super",
-                                    opacity: isContentAccessible(faqIndexname.identifier) ? 1 : 0.5,
-                                    cursor: isContentAccessible(faqIndexname.identifier) ? "pointer" : "not-allowed"
-                                  }}
-                                  onClick={() =>
-                                    handleLinkClick(faqIndexname.identifier)
-                                  }
-                                  className="h6-title"
-                                >
-                                  {faqIndexname.name}
-                                  {!isContentAccessible(faqIndexname.identifier) && (
-                                    <span style={{ color: "red", fontSize: "12px", marginLeft: "5px" }}>
-                                      {t("MAX_ATTEMPTS_EXCEEDED")}
-                                    </span>
-                                  )}
-                                  {completedContents.includes(
-                                    faqIndexname.identifier
-                                  ) && (
-                                      <CheckCircleIcon
-                                        style={{
-                                          color: "green",
-                                          fontSize: "24px",
-                                          paddingLeft: "10px",
-                                          float: "right",
-                                        }}
-                                      />
-                                    )}
-                                </Link>
-                              )}
-
-                              {faqIndexname.children &&
-                                faqIndexname.children.length > 0 && (
-                                  <div style={{ paddingLeft: "20px" }}>
-                                    {faqIndexname.children.map((child) => (
-                                      <AccordionDetails
-                                        key={child.identifier || child.name}
-                                        className="border-bottom"
-                                        style={{
-                                          padding: "12px",
-                                          margin: "-10px 0px",
-                                        }}
-                                      >
-                                        {child.children &&
-                                          child.children.length > 0 ? (
-                                          <span
-                                            className="h6-title"
-                                            style={{ verticalAlign: "super" }}
-                                          >
-                                            {child.name}
-                                          </span>
-                                        ) : (
-                                          <Link
-                                            href="#"
-                                            underline="none"
-                                            style={{
-                                              verticalAlign: "super",
-                                              opacity: isContentAccessible(child.identifier) ? 1 : 0.5,
-                                              cursor: isContentAccessible(child.identifier) ? "pointer" : "not-allowed"
-                                            }}
-                                            onClick={() =>
-                                              handleLinkClick(child.identifier)
-                                            }
-                                            className="h6-title"
-                                          >
-                                            {child.name}
-                                            {!isContentAccessible(child.identifier) && (
-                                              <span style={{ color: "red", fontSize: "12px", marginLeft: "5px" }}>
-                                                {t("MAX_ATTEMPTS_EXCEEDED")}
-                                              </span>
-                                            )}
-                                            {completedContents.includes(
-                                              child.identifier
-                                            ) && (
-                                                <CheckCircleIcon
-                                                  style={{
-                                                    color: "green",
-                                                    fontSize: "24px",
-                                                    paddingLeft: "10px",
-                                                    float: "right",
-                                                  }}
-                                                />
-                                              )}
-                                          </Link>
-                                        )}
-                                        {child.children &&
-                                          child.children.length > 0 && (
-                                            <div
-                                              style={{ paddingLeft: "20px" }}
-                                            >
-                                              {child.children.map(
-                                                (grandchild) => (
-                                                  <AccordionDetails
-                                                    key={
-                                                      grandchild.identifier ||
-                                                      grandchild.name
-                                                    }
-                                                    className="border-bottom"
-                                                    style={{
-                                                      paddingLeft: "35px",
-                                                    }}
-                                                  >
-                                                    {grandchild.children &&
-                                                      grandchild.children.length >
-                                                      0 ? (
-                                                      <span
-                                                        className="h6-title"
-                                                        style={{
-                                                          verticalAlign:
-                                                            "super",
-                                                        }}
-                                                      >
-                                                        {grandchild.name}
-                                                      </span>
-                                                    ) : (
-                                                      <Link
-                                                        href="#"
-                                                        underline="none"
-                                                        style={{
-                                                          verticalAlign:
-                                                            "super",
-                                                        }}
-                                                        onClick={() =>
-                                                          handleLinkClick(
-                                                            grandchild.identifier
-                                                          )
-                                                        }
-                                                        className="h6-title"
-                                                      >
-                                                        {grandchild.name}
-                                                        {completedContents.includes(
-                                                          grandchild.identifier
-                                                        ) && (
-                                                            <CheckCircleIcon
-                                                              style={{
-                                                                color: "green",
-                                                                fontSize: "24px",
-                                                                paddingLeft:
-                                                                  "10px",
-                                                                float: "right",
-                                                              }}
-                                                            />
-                                                          )}
-                                                      </Link>
-                                                    )}
-                                                  </AccordionDetails>
-                                                )
-                                              )}
-                                            </div>
-                                          )}
-                                      </AccordionDetails>
-                                    ))}
-                                  </div>
-                                )}
-                            </AccordionDetails>
-                          ))
-                        )}
-
-                        {/* Show assessment status AFTER the accordion content */}
-                        {/* Show in assessment section OR in the last accordion box */}
-                        { isAssessment && isLastItem && isEnrolled() && showAssessmentStatus && (
-                          <AssessmentStatusDisplay 
-                            failedAssessments={failedAssessments}
-                            onRetryAssessment={handleRetryAssessment}
-                            t={t}
-                          />
-                        )}
-                      </AccordionDetails>
-                    </Accordion>
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          aria-controls={`panel${faqIndex.id}-content`}
+                          id={`panel${faqIndex.id}-header`}
+                          className="h5-title"
+                        >
+                          {faqIndex.name}
+                        </AccordionSummary>
+                        <AccordionDetails style={{ padding: "12px", margin: "-10px 0px" }}>
+                          {faqIndex.mimeType === "application/vnd.ekstep.content-collection" ? (
+                            faqIndex.children?.map((child) => renderContentNode(child, 0))
+                          ) : (
+                            <ContentLink
+                              name={faqIndex.name}
+                              accessible={isContentAccessible(faqIndex.identifier)}
+                              completed={completedContents.includes(faqIndex.identifier)}
+                              onClickLink={() => handleLinkClick(faqIndex.identifier)}
+                              maxAttemptsLabel={t("MAX_ATTEMPTS_EXCEEDED")}
+                            />
+                          )}
+                          {moduleFailedAssessments.length > 0 && isEnrolled() && (
+                            <AssessmentStatusDisplay
+                              failedAssessments={moduleFailedAssessments}
+                              onRetryAssessment={handleRetryAssessment}
+                              t={t}
+                            />
+                          )}
+                        </AccordionDetails>
+                      </Accordion>
                     );
                   })}
                 </AccordionDetails>
@@ -2432,11 +2145,16 @@ const JoinCourse = () => {
             </Grid>
           </Grid>
         </Container>
-        <FloatingChatIcon />
+        {!hideChrome && <FloatingChatIcon />}
       </Box>
-      <Footer />
+      {!hideChrome && <Footer />}
     </div>
   );
+};
+
+JoinCourse.propTypes = {
+  hideChrome: PropTypes.bool,
+  ssoMode: PropTypes.bool,
 };
 
 export default JoinCourse;
