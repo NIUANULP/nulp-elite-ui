@@ -45,6 +45,7 @@ import axios from "axios";
 import * as util from "../../services/utilService";
 import appConfig from "../../configs/appConfig.json";
 import ToasterCommon from "../ToasterCommon";
+import PropTypes from "prop-types";
 
 const urlConfig = require("../../configs/urlConfig.json");
 const routeConfig = require("../../configs/routeConfig.json");
@@ -82,6 +83,63 @@ const formatDate = (dateString) => {
     month: "long",
     year: "numeric",
   });
+};
+
+// ---------------------------------------------------------------------------
+// Assessment status sub-component
+// ---------------------------------------------------------------------------
+
+const AssessmentStatusDisplay = ({ failedAssessments, onRetryAssessment, t }) => {
+  if (!failedAssessments || failedAssessments.length === 0) return null;
+  return (
+    <Box style={{ marginBottom: "20px" }}>
+      {failedAssessments.map((assessment) => (
+        <Box
+          key={assessment.contentId}
+          style={{ borderRadius: "8px", paddingTop: "15px", marginBottom: "10px" }}
+        >
+          <Typography
+            variant="h6"
+            style={{ color: "#e65100", fontWeight: "bold", fontSize: "1rem" }}
+          >
+            {t("ASSESSMENT_FAILED")} ({t("YOUR_SCORE")}: {assessment.score}/{assessment.maxScore})
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => onRetryAssessment(assessment.contentId)}
+            className="custom-btn-primary my-20"
+            style={{
+              background: "#ff9800",
+              color: "white",
+              marginRight: "10px",
+              textTransform: "none",
+            }}
+            disabled={assessment.attempts >= assessment.maxAttempts}
+          >
+            {t("CLICK_TO_RE_ATTEMPT")}
+          </Button>
+          <Typography variant="body2" style={{ color: "#bf360c" }}>
+            {assessment.maxAttempts - assessment.attempts}/{assessment.maxAttempts}{" "}
+            {t("ATTEMPTS_LEFT")}
+          </Typography>
+        </Box>
+      ))}
+    </Box>
+  );
+};
+
+AssessmentStatusDisplay.propTypes = {
+  failedAssessments: PropTypes.arrayOf(
+    PropTypes.shape({
+      contentId: PropTypes.string.isRequired,
+      score: PropTypes.number.isRequired,
+      maxScore: PropTypes.number.isRequired,
+      attempts: PropTypes.number.isRequired,
+      maxAttempts: PropTypes.number.isRequired,
+    })
+  ).isRequired,
+  onRetryAssessment: PropTypes.func.isRequired,
+  t: PropTypes.func.isRequired,
 };
 
 // ---------------------------------------------------------------------------
@@ -133,6 +191,10 @@ const JoinCourseSSO = () => {
   const [loading, setLoading] = useState(true);
   const [courseError, setCourseError] = useState(null);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [score, setScore] = useState("");
+  const [batchDetail, setBatchDetail] = useState("");
+  const [failedAssessments, setFailedAssessments] = useState([]);
+  const [showAssessmentStatus, setShowAssessmentStatus] = useState(false);
 
   // ── Guard: validate required params immediately ──────────────────────────
   useEffect(() => {
@@ -154,6 +216,134 @@ const JoinCourseSSO = () => {
   };
 
   // ── API calls (same logic as joinCourse.js) ──────────────────────────────
+
+  const findBestScore = (scoreArray) =>
+    scoreArray.reduce((best, current) =>
+      Number.parseFloat(current.totalScore) > Number.parseFloat(best.totalScore)
+        ? current
+        : best
+    );
+
+  const findMaxAttempts = (cId, children) => {
+    for (const child of children || []) {
+      for (const grandchild of child.children || []) {
+        if (grandchild.identifier === cId && grandchild.maxAttempts)
+          return grandchild.maxAttempts;
+      }
+    }
+    return 10;
+  };
+
+  const processContent = (item, requiredScore) => {
+    if (!item.score || !Array.isArray(item.score) || item.score.length === 0)
+      return null;
+    const bestScoreData = findBestScore(item.score);
+    const currentScore = Number.parseFloat(bestScoreData.totalScore);
+    const maxScore = Number.parseFloat(bestScoreData.totalMaxScore);
+    const scorePercentage = (currentScore / maxScore) * 100;
+    const maxAttempts = findMaxAttempts(
+      item.contentId,
+      courseData?.result?.content?.children
+    );
+    const assessmentData = {
+      contentId: item.contentId,
+      score: currentScore,
+      maxScore,
+      scorePercentage,
+      status: item.status,
+      attempts: item.score.length,
+    };
+    const failedData =
+      requiredScore && scorePercentage < requiredScore
+        ? { ...assessmentData, maxAttempts }
+        : null;
+    return { assessmentData, failedData };
+  };
+
+  const processAssessmentData = (contentList, requiredScore) => {
+    const failed = [];
+    for (const item of contentList) {
+      const result = processContent(item, requiredScore);
+      if (result?.failedData) failed.push(result.failedData);
+    }
+    setFailedAssessments(failed);
+    setShowAssessmentStatus(failed.length > 0);
+  };
+
+  const isContentAccessible = (id) => {
+    const assessment = failedAssessments.find((a) => a.contentId === id);
+    return !(assessment && assessment.attempts >= assessment.maxAttempts);
+  };
+
+  /**
+   * Returns the subset of failedAssessments whose contentId appears
+   * anywhere in the subtree rooted at `module` (any nesting depth).
+   * Works regardless of the module name ("Quiz", "Final Test", etc.).
+   */
+  const getModuleFailedAssessments = (module) => {
+    if (!failedAssessments.length) return [];
+    const leafIds = new Set();
+    const collect = (node) => {
+      if (!node.children || node.children.length === 0) {
+        if (node.identifier) leafIds.add(node.identifier);
+        return;
+      }
+      node.children.forEach(collect);
+    };
+    collect(module);
+    return failedAssessments.filter((a) => leafIds.has(a.contentId));
+  };
+
+  const handleRetryAssessment = (assessmentContentId) => {
+    navigate(
+      `${routeConfig.ROUTES.PLAYER_PAGE.PLAYER_SSO}?id=${assessmentContentId}&cId=${contentId}&bId=${batchDetails?.batchId}&sso=igot`,
+      {
+        state: {
+          coursename: courseData?.result?.content?.name,
+          batchid: batchDetails?.batchId,
+          courseid: contentId,
+          isenroll: isEnrolled(),
+          consumedcontents: ConsumedContents,
+          courseHierarchy: courseData?.result?.content,
+          allContents: allContents,
+          isRetry: true,
+        },
+      }
+    );
+  };
+
+  const getScoreCriteria = (data) => {
+    if (!data?.response?.certTemplates || typeof data.response.certTemplates !== "object") {
+      setScore(false);
+      return "no certificate";
+    }
+    const certTemplateKeys = Object.keys(data.response.certTemplates);
+    const certTemplateId = certTemplateKeys[0];
+    const criteria =
+      data.response.certTemplates[certTemplateId]?.criteria?.assessment ||
+      data.response.cert_templates?.[certTemplateId]?.criteria?.assessment;
+    const scoreVal = criteria?.score?.[">="] || "no certificate";
+    setScore(scoreVal);
+    return scoreVal;
+  };
+
+  const checkCertTemplate = (data) => {
+    const certTemplates = data?.cert_templates;
+    return Boolean(certTemplates && Object.keys(certTemplates).length > 0);
+  };
+
+  const getBatchDetail = async (batchId) => {
+    try {
+      const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.BATCH.GET_DETAILS}/${batchId}`;
+      const response = await fetch(url);
+      if (!response.ok) return;
+      const data = await response.json();
+      setBatchDetail(data.result);
+      getScoreCriteria(data.result);
+    } catch (e) {
+      console.error("Error fetching batch detail:", e);
+    }
+  };
 
   const fetchCourseData = async () => {
     const url =
@@ -220,6 +410,7 @@ const JoinCourseSSO = () => {
         batchId: batch.batchId,
       });
       setBatchDetails(batch);
+      getBatchDetail(batch.batchId);
     }
   };
 
@@ -290,6 +481,13 @@ const JoinCourseSSO = () => {
       }
       setContinueLearning(continueId);
       setCompletedContents(completed);
+
+      if (contentList.length > 0) {
+        const currentScore = batchDetail?.response?.certTemplates
+          ? getScoreCriteria(batchDetail)
+          : 70;
+        processAssessmentData(contentList, currentScore);
+      }
 
       // Find first unconsumed leaf for "next up"
       let nextUp = null;
@@ -509,6 +707,7 @@ const JoinCourseSSO = () => {
       item.mimeType === "application/vnd.ekstep.content-collection";
 
     if (!isCollection) {
+      const accessible = isContentAccessible(item.identifier);
       return (
         <AccordionDetails
           key={item.identifier || item.name}
@@ -523,9 +722,21 @@ const JoinCourseSSO = () => {
               handleLinkClick(item.identifier);
             }}
             className="h6-title"
-            style={{ verticalAlign: "middle", display: "flex", alignItems: "center", gap: 4 }}
+            style={{
+              verticalAlign: "middle",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              opacity: accessible ? 1 : 0.5,
+              cursor: accessible ? "pointer" : "not-allowed",
+            }}
           >
             {item.name}
+            {!accessible && (
+              <span style={{ color: "red", fontSize: "12px", marginLeft: "5px" }}>
+                {t("MAX_ATTEMPTS_EXCEEDED")}
+              </span>
+            )}
             {completedContents.includes(item.identifier) && (
               <CheckCircleIcon
                 style={{ color: "green", fontSize: "18px", marginLeft: "auto" }}
@@ -774,6 +985,92 @@ const JoinCourseSSO = () => {
                 {t("This course has no active Batches")}
               </Alert>
             )}
+
+            {/* Certification criteria */}
+            {batchDetails && checkCertTemplate(batchDetails) && (
+              <Accordion
+                style={{ background: "#F9FAFC", borderRadius: "10px", marginTop: "10px" }}
+              >
+                <AccordionSummary expandIcon={<ExpandMoreIcon />} className="h4-title">
+                  {t("CERTIFICATION_CRITERIA")}
+                </AccordionSummary>
+                <AccordionDetails
+                  style={{ background: "#fff", margin: "5px 10px", borderRadius: "10px" }}
+                >
+                  {batchDetail && (
+                    <ul>
+                      <li className="h6-title">{t("COMPLETION_CERTIFICATE_ISSUED")}</li>
+                      {score !== "no certificate" && (
+                        <li className="h6-title">
+                          {t("CERT_ISSUED_SCORE")}{` ${score}% `}{t("ASSESSMENT")}
+                        </li>
+                      )}
+                    </ul>
+                  )}
+                </AccordionDetails>
+              </Accordion>
+            )}
+
+            {batchDetails && !checkCertTemplate(batchDetails) && (
+              <Box
+                sx={{
+                  background: "#e3f5ff",
+                  p: 1,
+                  borderRadius: "10px",
+                  color: "#424242",
+                  mt: 2,
+                }}
+              >
+                <Typography variant="body2" sx={{ display: "block", fontSize: "14px" }}>
+                  {t("CERT_NOT_ATTACHED")}
+                </Typography>
+              </Box>
+            )}
+
+            {/* Other details */}
+            <Accordion
+              style={{ background: "#F9FAFC", borderRadius: "10px", marginTop: "10px" }}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />} className="h4-title">
+                {t("OTHER_DETAILS")}
+              </AccordionSummary>
+              <AccordionDetails style={{ background: "#fff" }}>
+                {content?.creator && (
+                  <Typography className="h6-title">
+                    {t("CREATED_BY")}: {content.creator}
+                  </Typography>
+                )}
+                {content?.orgDetails?.orgName && (
+                  <Typography className="h6-title">
+                    {t("PUBLISHED_ON_NULP_BY")}: {content.orgDetails.orgName}
+                  </Typography>
+                )}
+                {content?.children?.[0]?.createdOn && (
+                  <Typography className="h6-title">
+                    {t("CREATED_ON")}: {formatDate(content.children[0].createdOn)}
+                  </Typography>
+                )}
+                {content?.children?.[0]?.lastUpdatedOn && (
+                  <Typography className="h6-title">
+                    {t("UPDATED_ON")}: {formatDate(content.children[0].lastUpdatedOn)}
+                  </Typography>
+                )}
+                {content?.licenseDetails?.name && (
+                  <Typography className="h6-title">
+                    {t("LICENSE_TERMS")}: {content.licenseDetails.name}{" "}
+                    {t("FOR_DETAILS")}:{" "}
+                    <a
+                      href={content.licenseDetails.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ wordWrap: "break-word" }}
+                    >
+                      {content.licenseDetails.url}
+                    </a>
+                  </Typography>
+                )}
+              </AccordionDetails>
+            </Accordion>
           </Grid>
 
           {/* ── Right panel: description + module tree ── */}
@@ -822,7 +1119,21 @@ const JoinCourseSSO = () => {
                 {t("COURSES_MODULE")}
               </AccordionSummary>
               <AccordionDetails>
-                {content?.children?.map((item) => renderContentItem(item))}
+                {content?.children?.map((item) => {
+                  const moduleFailedAssessments = getModuleFailedAssessments(item);
+                  return (
+                    <React.Fragment key={item.identifier || item.name}>
+                      {renderContentItem(item)}
+                      {moduleFailedAssessments.length > 0 && isEnrolled() && (
+                        <AssessmentStatusDisplay
+                          failedAssessments={moduleFailedAssessments}
+                          onRetryAssessment={handleRetryAssessment}
+                          t={t}
+                        />
+                      )}
+                    </React.Fragment>
+                  );
+                })}
               </AccordionDetails>
             </Accordion>
           </Grid>

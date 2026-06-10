@@ -1244,6 +1244,20 @@ const JoinCourse = () => {
     return !(assessmentData && assessmentData.attempts >= assessmentData.maxAttempts);
   };
 
+  const getModuleFailedAssessments = (module) => {
+    if (!failedAssessments.length) return [];
+    const leafIds = new Set();
+    const collect = (node) => {
+      if (!node.children || node.children.length === 0) {
+        if (node.identifier) leafIds.add(node.identifier);
+        return;
+      }
+      node.children.forEach(collect);
+    };
+    collect(module);
+    return failedAssessments.filter((a) => leafIds.has(a.contentId));
+  };
+
   return (
     <div>
       <Header />
@@ -1906,9 +1920,8 @@ const JoinCourse = () => {
                   {t("COURSES_MODULE")}
                 </AccordionSummary>
                 <AccordionDetails>
-                  {userData?.result?.content?.children.map((faqIndex, index, array) => {
-                    const isLastItem = index === array.length - 1;
-                    const isAssessment = isAssessmentSection(faqIndex.name);
+                  {userData?.result?.content?.children.map((faqIndex) => {
+                    const moduleFailedAssessments = getModuleFailedAssessments(faqIndex);
                     return (
                     <Accordion
                       key={faqIndex.id}
@@ -2134,11 +2147,9 @@ const JoinCourse = () => {
                           ))
                         )}
 
-                        {/* Show assessment status AFTER the accordion content */}
-                        {/* Show in assessment section OR in the last accordion box */}
-                        { isAssessment && isLastItem && isEnrolled() && showAssessmentStatus && (
-                          <AssessmentStatusDisplay 
-                            failedAssessments={failedAssessments}
+                        {moduleFailedAssessments.length > 0 && isEnrolled() && (
+                          <AssessmentStatusDisplay
+                            failedAssessments={moduleFailedAssessments}
                             onRetryAssessment={handleRetryAssessment}
                             t={t}
                           />
