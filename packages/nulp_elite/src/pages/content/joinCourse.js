@@ -26,8 +26,6 @@ import axios from "axios";
 import * as util from "../../services/utilService";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
-
-import data from "../../assets/courseHierarchy.json";
 import Alert from "@mui/material/Alert";
 import Modal from "@mui/material/Modal";
 
@@ -48,9 +46,6 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PropTypes from "prop-types";
 
 const routeConfig = require("../../configs/routeConfig.json");
-const processString = (str) => {
-  return str.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-};
 
 const AssessmentStatusDisplay = ({ failedAssessments, onRetryAssessment, t }) => {
   return (!failedAssessments || failedAssessments.length === 0) ? null : (
@@ -152,6 +147,19 @@ ContentLink.propTypes = {
   maxAttemptsLabel: PropTypes.string.isRequired,
 };
 
+const computeDisplayDescription = (description, showMore) => {
+  const words = description?.split(" ") ?? [];
+  if (words.length <= 100) return description ?? "";
+  if (showMore) return description;
+  return words.slice(0, 30).join(" ") + "...";
+};
+
+const parseContentId = (ssoMode, queryString, searchParams) => {
+  if (ssoMode) return searchParams.get("courseId");
+  const raw = queryString.startsWith("?do_") ? queryString.slice(1) : null;
+  return raw?.endsWith("=") ? raw.slice(0, -1) : raw;
+};
+
 const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
   const { t } = useTranslation();
   const [courseData, setCourseData] = useState();
@@ -166,11 +174,9 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
   const [userInfo, setUserInfo] = useState();
   const [consentChecked, setConsentChecked] = useState(false);
   const [shareEnabled, setShareEnabled] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
   const [userData, setUserData] = useState();
   const location = useLocation();
   const navigate = useNavigate();
-  const [toasterOpen, setToasterOpen] = useState(false);
   const [toasterMessage, setToasterMessage] = useState("");
   const [creatorId, setCreatorId] = useState("");
   const [open, setOpen] = useState(false);
@@ -180,16 +186,10 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
   const [formData, setFormData] = useState({
     message: "",
   });
-  const [showChat, setShowChat] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
   const queryString = location.search;
   const _searchParams = new URLSearchParams(queryString);
-  let contentId = ssoMode
-    ? _searchParams.get("courseId")
-    : queryString.startsWith("?do_") ? queryString.slice(1) : null;
-  if (!ssoMode && contentId && contentId.endsWith("=")) {
-    contentId = contentId.slice(0, -1);
-  }
+  const contentId = parseContentId(ssoMode, queryString, _searchParams);
   const _userId = util.userId(); // Assuming util.userId() is defined
   const shareUrl = window.location.href; // Current page URL
   const [showMore, setShowMore] = useState(false);
@@ -197,13 +197,10 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
   const [score, setScore] = useState("");
   const [isEnroll, setIsEnroll] = useState(false);
   const [ConsumedContents, setConsumedContents] = useState();
-  const [TotalContents, setTotalContents] = useState();
-  const [IsUnitCompleted, setIsUnitCompleted] = useState();
   const [isNotStarted, setIsNotStarted] = useState(false);
   const [ContinueLearning, setContinueLearning] = useState();
   const [allContents, setAllContents] = useState();
   const [NotConsumedContent, setNotConsumedContent] = useState();
-  const [isContentConsumed, setIsContentConsumed] = useState();
   const [completedContents, setCompletedContents] = useState([]);
   const [isCompleted, setIsCompleted] = useState();
   const [copyrightOpen, setcopyrightOpen] = useState(false);
@@ -230,15 +227,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
   };
   const showErrorMessage = (msg) => {
     setToasterMessage(msg);
-    setTimeout(() => {
-      setToasterMessage("");
-    }, 2000);
-    setToasterOpen(true);
-  };
-
-  const showOpenContenErrorMessage = (msg) => {
-    setToasterMessage(msg);
-    setToasterOpen(true);
+    setTimeout(() => setToasterMessage(""), 2000);
   };
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 767);
@@ -415,91 +404,6 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
     }
   };
 
-  const flattenDeep = async (contents) => {
-    if (contents) {
-      let result = [];
-      for (let val of contents) {
-        result.push(val);
-        if (val.children) {
-          const children = await flattenDeep(val.children);
-          result = result.concat(children);
-        }
-      }
-      return result;
-    }
-    return [];
-  };
-
-  const calculateProgress = async () => {
-    console.log(
-      "courseData?.result?.content?.children",
-      courseData?.result?.content?.children
-    );
-    let contentStatus = [];
-    if (batchDetails?.batchId && courseData?.result?.content?.children) {
-      let tempConsumedContents = 0;
-      let tempTotalContents = 0;
-
-      for (let unit of courseData?.result?.content?.children) {
-        if (unit.mimeType === "application/vnd.ekstep.content-collection") {
-          let consumedContents = [];
-          let flattenDeepContents = [];
-
-          if (unit.children) {
-            flattenDeepContents = (await flattenDeep(unit.children)).filter(
-              (item) =>
-                item.mimeType !== "application/vnd.ekstep.content-collection"
-            );
-            console.log("flattenDeepContents", flattenDeepContents);
-            consumedContents = flattenDeepContents?.filter((o) =>
-              contentStatus?.some(
-                ({ contentId, status }) =>
-                  o?.identifier === contentId && status === 2
-              )
-            );
-          }
-
-          unit.consumedContent = consumedContents.length;
-          unit.contentCount = flattenDeepContents.length;
-          unit.isUnitConsumed =
-            consumedContents.length === flattenDeepContents.length;
-          unit.isUnitConsumptionStart = consumedContents.length > 0;
-          unit.progress = flattenDeepContents.length
-            ? (consumedContents.length / flattenDeepContents.length) * 100
-            : 0;
-        } else {
-          const consumedContent = contentStatus.filter(
-            ({ contentId, status }) =>
-              unit.identifier === contentId && status === 2
-          );
-          unit.consumedContent = consumedContent.length;
-          unit.contentCount = 1;
-          unit.isUnitConsumed = consumedContent.length === 1;
-          unit.progress = consumedContent.length ? 100 : 0;
-          unit.isUnitConsumptionStart = Boolean(consumedContent.length);
-        }
-
-        tempConsumedContents += unit.consumedContent;
-        tempTotalContents += unit.contentCount;
-      }
-
-      const progress = tempTotalContents
-        ? (tempConsumedContents / tempTotalContents) * 100
-        : 0;
-      console.log("progress", progress);
-      setConsumedContents(tempConsumedContents);
-      setTotalContents(tempTotalContents);
-      let courseHierarchy = {};
-      courseHierarchy.progress = progress;
-      const unitCompleted = tempTotalContents === tempConsumedContents;
-      setIsUnitCompleted(unitCompleted);
-    }
-  };
-
-  // useEffect(() => {
-  //   calculateProgress();
-  // }, [batchDetails, courseData]);
-
   // Helper function to find best score from attempts
   const findBestScore = (scoreArray) => {
     return scoreArray.reduce((best, current) => {
@@ -625,7 +529,6 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
             ...prevContents,
             ...newCompletedContents,
           ]);
-          setIsContentConsumed(true);
         }
 
         const contentList = data.result.contentList;
@@ -656,7 +559,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
             notConsumedContent = allContents[0];
             try {
               const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_UPDATE}`;
-              const response = await axios.patch(url, {
+              await axios.patch(url, {
                 request: {
                   userId: _userId,
                   courseId: contentId,
@@ -1154,51 +1057,12 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
     consentUpdate("REVOKED");
     setShowConsentForm(false);
   };
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const handleSubmit = async () => {
-    const requestBody = {
-      sender_id: _userId,
-      receiver_id: creatorId,
-      message: formData.message,
-    };
-
-    try {
-      const url = `${urlConfig.URLS.DIRECT_CONNECT.SEND_CHATS}`;
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to send chat");
-      }
-      setOpen(false);
-      console.log("sentChatRequest", response);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
   const handlecopyrightOpen = () => {
     setcopyrightOpen(true);
   };
 
   const handlecopyrightClose = () => {
     setcopyrightOpen(false);
-  };
-
-  const handleOpen = () => {
-    setOpen(true);
   };
 
   const handleClose = () => {
@@ -1346,11 +1210,9 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
           open={showConsentForm}
-          onClose={(event, reason) => {
-            if (reason === "backdropClick" || reason === "escapeKeyDown") {
-              setOpenModal(true);
-            } else {
-              handleCloseModal();
+          onClose={(_, reason) => {
+            if (reason !== "backdropClick" && reason !== "escapeKeyDown") {
+              setShowConsentForm(false);
             }
           }}
         >
@@ -1928,22 +1790,16 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
                       className="h5-title mb-15"
                       style={{ fontWeight: "400", fontSize: "14px" }}
                     >
-                      {courseData?.result?.content?.description.split(" ")
-                        .length > 100
-                        ? showMore
-                          ? courseData?.result?.content?.description
-                          : courseData?.result?.content?.description
-                            .split(" ")
-                            .slice(0, 30)
-                            .join(" ") + "..."
-                        : courseData?.result?.content?.description}
-                    </Typography>
-                    {courseData?.result?.content?.description.split(" ")
-                      .length > 100 && (
-                        <Button onClick={toggleShowMore}>
-                          {showMore ? t("Show Less") : t("Show More")}
-                        </Button>
+                      {computeDisplayDescription(
+                        courseData?.result?.content?.description,
+                        showMore
                       )}
+                    </Typography>
+                    {(courseData?.result?.content?.description?.split(" ")?.length ?? 0) > 100 && (
+                      <Button onClick={toggleShowMore}>
+                        {showMore ? t("Show Less") : t("Show More")}
+                      </Button>
+                    )}
                   </>
                 )}
               </Box>
@@ -1982,7 +1838,9 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
                           {faqIndex.name}
                         </AccordionSummary>
                         <AccordionDetails style={{ padding: "12px", margin: "-10px 0px" }}>
-                          {faqIndex.mimeType !== "application/vnd.ekstep.content-collection" ? (
+                          {faqIndex.mimeType === "application/vnd.ekstep.content-collection" ? (
+                            faqIndex.children?.map((child) => renderContentNode(child, 0))
+                          ) : (
                             <ContentLink
                               name={faqIndex.name}
                               accessible={isContentAccessible(faqIndex.identifier)}
@@ -1990,8 +1848,6 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
                               onClickLink={() => handleLinkClick(faqIndex.identifier)}
                               maxAttemptsLabel={t("MAX_ATTEMPTS_EXCEEDED")}
                             />
-                          ) : (
-                            faqIndex.children?.map((child) => renderContentNode(child, 0))
                           )}
                           {moduleFailedAssessments.length > 0 && isEnrolled() && (
                             <AssessmentStatusDisplay
