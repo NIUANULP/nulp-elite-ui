@@ -126,6 +126,40 @@ AssessmentStatusDisplay.propTypes = {
   t: PropTypes.func.isRequired,
 };
 
+const ContentLink = ({ name, accessible, completed, onClickLink, maxAttemptsLabel }) => (
+  <Link
+    href="#"
+    underline="none"
+    style={{
+      verticalAlign: "super",
+      opacity: accessible ? 1 : 0.5,
+      cursor: accessible ? "pointer" : "not-allowed",
+    }}
+    onClick={onClickLink}
+    className="h6-title"
+  >
+    {name}
+    {!accessible && (
+      <span style={{ color: "red", fontSize: "12px", marginLeft: "5px" }}>
+        {maxAttemptsLabel}
+      </span>
+    )}
+    {completed && (
+      <CheckCircleIcon
+        style={{ color: "green", fontSize: "24px", paddingLeft: "10px", float: "right" }}
+      />
+    )}
+  </Link>
+);
+
+ContentLink.propTypes = {
+  name: PropTypes.string.isRequired,
+  accessible: PropTypes.bool.isRequired,
+  completed: PropTypes.bool.isRequired,
+  onClickLink: PropTypes.func.isRequired,
+  maxAttemptsLabel: PropTypes.string.isRequired,
+};
+
 const JoinCourse = () => {
   const { t } = useTranslation();
   const [courseData, setCourseData] = useState();
@@ -1258,6 +1292,40 @@ const JoinCourse = () => {
     return failedAssessments.filter((a) => leafIds.has(a.contentId));
   };
 
+  const renderContentNode = (node, level = 0) => {
+    const isCollection = node.children && node.children.length > 0;
+    const detailStyle = level < 2
+      ? { padding: "12px", margin: "-10px 0px" }
+      : { paddingLeft: "35px" };
+
+    return (
+      <AccordionDetails
+        key={node.identifier || node.name}
+        className="border-bottom"
+        style={detailStyle}
+      >
+        {isCollection ? (
+          <span className="h6-title" style={{ verticalAlign: "super" }}>
+            {node.name}
+          </span>
+        ) : (
+          <ContentLink
+            name={node.name}
+            accessible={isContentAccessible(node.identifier)}
+            completed={completedContents.includes(node.identifier)}
+            onClickLink={() => handleLinkClick(node.identifier)}
+            maxAttemptsLabel={t("MAX_ATTEMPTS_EXCEEDED")}
+          />
+        )}
+        {isCollection && (
+          <div style={{ paddingLeft: "20px" }}>
+            {node.children.map((child) => renderContentNode(child, level + 1))}
+          </div>
+        )}
+      </AccordionDetails>
+    );
+  };
+
   return (
     <div>
       <Header />
@@ -1923,239 +1991,39 @@ const JoinCourse = () => {
                   {userData?.result?.content?.children.map((faqIndex) => {
                     const moduleFailedAssessments = getModuleFailedAssessments(faqIndex);
                     return (
-                    <Accordion
-                      key={faqIndex.id}
-                      style={{ borderRadius: "10px", margin: "10px 0" }}
-                    >
-                      <AccordionSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls={`panel${faqIndex.id}-content`}
-                        id={`panel${faqIndex.id}-header`}
-                        className="h5-title"
+                      <Accordion
+                        key={faqIndex.id}
+                        style={{ borderRadius: "10px", margin: "10px 0" }}
                       >
-                        {faqIndex.name}
-                      </AccordionSummary>
-
-                      <AccordionDetails
-                        style={{ padding: "12px", margin: "-10px 0px" }}
-                      >
-                        {/* If it's not a content collection, render it like a clickable child */}
-                        {faqIndex.mimeType !==
-                          "application/vnd.ekstep.content-collection" ? (
-                          <Link
-                            href="#"
-                            underline="none"
-                            style={{
-                              verticalAlign: "super",
-                              opacity: isContentAccessible(faqIndex.identifier) ? 1 : 0.5,
-                              cursor: isContentAccessible(faqIndex.identifier) ? "pointer" : "not-allowed"
-                            }}
-                            onClick={() => handleLinkClick(faqIndex.identifier)}
-                            className="h6-title"
-                          >
-                            {faqIndex.name}
-                            {!isContentAccessible(faqIndex.identifier) && (
-                              <span style={{ color: "red", fontSize: "12px", marginLeft: "5px" }}>
-                                {t("MAX_ATTEMPTS_EXCEEDED")}
-                              </span>
-                            )}
-                            {completedContents.includes(faqIndex.identifier) && (
-                              <CheckCircleIcon
-                                style={{
-                                  color: "green",
-                                  fontSize: "24px",
-                                  paddingLeft: "10px",
-                                  float: "right",
-                                }}
-                              />
-                            )}
-                          </Link>
-                        ) : (
-                          faqIndex?.children?.map((faqIndexname) => (
-                            <AccordionDetails
-                              key={faqIndexname.identifier || faqIndexname.name}
-                              className="border-bottom"
-                              style={{ padding: "12px", margin: "-10px 0px" }}
-                            >
-                              {faqIndexname.children &&
-                                faqIndexname.children.length > 0 ? (
-                                <span
-                                  className="h6-title"
-                                  style={{ verticalAlign: "super" }}
-                                >
-                                  {faqIndexname.name}
-                                </span>
-                              ) : (
-                                <Link
-                                  href="#"
-                                  underline="none"
-                                  style={{
-                                    verticalAlign: "super",
-                                    opacity: isContentAccessible(faqIndexname.identifier) ? 1 : 0.5,
-                                    cursor: isContentAccessible(faqIndexname.identifier) ? "pointer" : "not-allowed"
-                                  }}
-                                  onClick={() =>
-                                    handleLinkClick(faqIndexname.identifier)
-                                  }
-                                  className="h6-title"
-                                >
-                                  {faqIndexname.name}
-                                  {!isContentAccessible(faqIndexname.identifier) && (
-                                    <span style={{ color: "red", fontSize: "12px", marginLeft: "5px" }}>
-                                      {t("MAX_ATTEMPTS_EXCEEDED")}
-                                    </span>
-                                  )}
-                                  {completedContents.includes(
-                                    faqIndexname.identifier
-                                  ) && (
-                                      <CheckCircleIcon
-                                        style={{
-                                          color: "green",
-                                          fontSize: "24px",
-                                          paddingLeft: "10px",
-                                          float: "right",
-                                        }}
-                                      />
-                                    )}
-                                </Link>
-                              )}
-
-                              {faqIndexname.children &&
-                                faqIndexname.children.length > 0 && (
-                                  <div style={{ paddingLeft: "20px" }}>
-                                    {faqIndexname.children.map((child) => (
-                                      <AccordionDetails
-                                        key={child.identifier || child.name}
-                                        className="border-bottom"
-                                        style={{
-                                          padding: "12px",
-                                          margin: "-10px 0px",
-                                        }}
-                                      >
-                                        {child.children &&
-                                          child.children.length > 0 ? (
-                                          <span
-                                            className="h6-title"
-                                            style={{ verticalAlign: "super" }}
-                                          >
-                                            {child.name}
-                                          </span>
-                                        ) : (
-                                          <Link
-                                            href="#"
-                                            underline="none"
-                                            style={{
-                                              verticalAlign: "super",
-                                              opacity: isContentAccessible(child.identifier) ? 1 : 0.5,
-                                              cursor: isContentAccessible(child.identifier) ? "pointer" : "not-allowed"
-                                            }}
-                                            onClick={() =>
-                                              handleLinkClick(child.identifier)
-                                            }
-                                            className="h6-title"
-                                          >
-                                            {child.name}
-                                            {!isContentAccessible(child.identifier) && (
-                                              <span style={{ color: "red", fontSize: "12px", marginLeft: "5px" }}>
-                                                {t("MAX_ATTEMPTS_EXCEEDED")}
-                                              </span>
-                                            )}
-                                            {completedContents.includes(
-                                              child.identifier
-                                            ) && (
-                                                <CheckCircleIcon
-                                                  style={{
-                                                    color: "green",
-                                                    fontSize: "24px",
-                                                    paddingLeft: "10px",
-                                                    float: "right",
-                                                  }}
-                                                />
-                                              )}
-                                          </Link>
-                                        )}
-                                        {child.children &&
-                                          child.children.length > 0 && (
-                                            <div
-                                              style={{ paddingLeft: "20px" }}
-                                            >
-                                              {child.children.map(
-                                                (grandchild) => (
-                                                  <AccordionDetails
-                                                    key={
-                                                      grandchild.identifier ||
-                                                      grandchild.name
-                                                    }
-                                                    className="border-bottom"
-                                                    style={{
-                                                      paddingLeft: "35px",
-                                                    }}
-                                                  >
-                                                    {grandchild.children &&
-                                                      grandchild.children.length >
-                                                      0 ? (
-                                                      <span
-                                                        className="h6-title"
-                                                        style={{
-                                                          verticalAlign:
-                                                            "super",
-                                                        }}
-                                                      >
-                                                        {grandchild.name}
-                                                      </span>
-                                                    ) : (
-                                                      <Link
-                                                        href="#"
-                                                        underline="none"
-                                                        style={{
-                                                          verticalAlign:
-                                                            "super",
-                                                        }}
-                                                        onClick={() =>
-                                                          handleLinkClick(
-                                                            grandchild.identifier
-                                                          )
-                                                        }
-                                                        className="h6-title"
-                                                      >
-                                                        {grandchild.name}
-                                                        {completedContents.includes(
-                                                          grandchild.identifier
-                                                        ) && (
-                                                            <CheckCircleIcon
-                                                              style={{
-                                                                color: "green",
-                                                                fontSize: "24px",
-                                                                paddingLeft:
-                                                                  "10px",
-                                                                float: "right",
-                                                              }}
-                                                            />
-                                                          )}
-                                                      </Link>
-                                                    )}
-                                                  </AccordionDetails>
-                                                )
-                                              )}
-                                            </div>
-                                          )}
-                                      </AccordionDetails>
-                                    ))}
-                                  </div>
-                                )}
-                            </AccordionDetails>
-                          ))
-                        )}
-
-                        {moduleFailedAssessments.length > 0 && isEnrolled() && (
-                          <AssessmentStatusDisplay
-                            failedAssessments={moduleFailedAssessments}
-                            onRetryAssessment={handleRetryAssessment}
-                            t={t}
-                          />
-                        )}
-                      </AccordionDetails>
-                    </Accordion>
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          aria-controls={`panel${faqIndex.id}-content`}
+                          id={`panel${faqIndex.id}-header`}
+                          className="h5-title"
+                        >
+                          {faqIndex.name}
+                        </AccordionSummary>
+                        <AccordionDetails style={{ padding: "12px", margin: "-10px 0px" }}>
+                          {faqIndex.mimeType !== "application/vnd.ekstep.content-collection" ? (
+                            <ContentLink
+                              name={faqIndex.name}
+                              accessible={isContentAccessible(faqIndex.identifier)}
+                              completed={completedContents.includes(faqIndex.identifier)}
+                              onClickLink={() => handleLinkClick(faqIndex.identifier)}
+                              maxAttemptsLabel={t("MAX_ATTEMPTS_EXCEEDED")}
+                            />
+                          ) : (
+                            faqIndex.children?.map((child) => renderContentNode(child, 0))
+                          )}
+                          {moduleFailedAssessments.length > 0 && isEnrolled() && (
+                            <AssessmentStatusDisplay
+                              failedAssessments={moduleFailedAssessments}
+                              onRetryAssessment={handleRetryAssessment}
+                              t={t}
+                            />
+                          )}
+                        </AccordionDetails>
+                      </Accordion>
                     );
                   })}
                 </AccordionDetails>
