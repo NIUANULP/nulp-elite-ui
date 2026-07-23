@@ -192,6 +192,81 @@ button {
   margin-top: -9px !important;
 }
 
+/* Player content box: single responsive aspect-ratio container for the SunbirdPlayer iframe.
+   Question/assessment content reflows with zoom and viewport width and cannot be locked to a
+   fixed 16:9 video ratio without clipping, so it gets a flexible min-height variant instead. */
+.player-ratio-box {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+  padding-bottom: 56.25%; /* 16:9 fallback for browsers without aspect-ratio support */
+  height: 0;
+}
+
+@supports (aspect-ratio: 16 / 9) {
+  .player-ratio-box {
+    padding-bottom: 0;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+}
+
+.player-ratio-box > div,
+.player-ratio-box iframe {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0;
+}
+
+.player-ratio-box .player-empty-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 16px;
+}
+
+/* The quml/ecml player's own internal CSS sizes its layout off "100vh" of the iframe box
+   itself (fixed header/footer bars, no internal scrolling). vh/% heights on the iframe shrink
+   as browser zoom increases while the player's content simultaneously needs more room to
+   reflow, so the internal layout gets clipped. A generous, zoom-independent fixed px height
+   keeps the iframe's box big enough for that internal layout at any zoom level. */
+.player-ratio-box.player-ratio-box--flexible {
+  padding-bottom: 0;
+  height: auto;
+  aspect-ratio: unset;
+  min-height: 820px;
+  overflow: visible;
+}
+
+.player-ratio-box.player-ratio-box--flexible > div,
+.player-ratio-box.player-ratio-box--flexible iframe {
+  position: static !important;
+  inset: auto;
+  width: 100% !important;
+  height: 820px !important;
+  min-height: 820px;
+  border: 0;
+}
+
+.player-ratio-box.player-ratio-box--flexible .player-empty-state {
+  position: static;
+  min-height: 300px;
+}
+
+@media (max-width: 480px) {
+  .player-ratio-box {
+    border-radius: 6px;
+  }
+}
+
 @media (min-width: 320px) {
   .custom-event-container .MuiChip-filled {
     margin: 10px 5px !important;
