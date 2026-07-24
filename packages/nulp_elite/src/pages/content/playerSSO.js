@@ -457,19 +457,6 @@ const PlayerSSO = () => {
     [courseHierarchy, contentId, allContents]
   );
 
-  // Video/PDF content keeps a fixed 16:9 box; question/assessment/document content's own
-  // internal layout sizes itself off the iframe's box height (fixed header/footer, no
-  // internal scroll), so it needs to fill the full player stage instead of being confined
-  // to a 16:9 ratio, or its content gets clipped/pushed out of view when it needs more room.
-  const FIXED_RATIO_MIME_TYPES = [
-    "video/mp4",
-    "video/webm",
-    "video/x-youtube",
-    "application/pdf",
-    "application/vnd.ekstep.h5p-archive",
-  ];
-  const isFixedRatioContent = FIXED_RATIO_MIME_TYPES.includes(lesson?.mimeType);
-
   // ── Feature flag guard ────────────────────────────────────────────────────
 
   if (!ENABLE_IGOT_SSO_PLAYER) {
@@ -531,15 +518,9 @@ const PlayerSSO = () => {
     <Box className="sso-player-root">
       {/* ── Player stage (fills all available height above nav) ── */}
       <Box className="sso-player-stage">
-        <Box
-          className={`sso-player-ratio${
-            isFixedRatioContent ? "" : " sso-player-ratio--flexible"
-          }`}
-        >
+        <Box className="sso-player-ratio">
           <SunbirdPlayer
             {...lesson}
-            width="100%"
-            height="100%"
             userData={{
               firstName: userFirstName || "",
               lastName: userLastName || "",
