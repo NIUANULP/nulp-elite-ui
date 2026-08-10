@@ -716,17 +716,6 @@ const Player = () => {
 
   const navigationInfo = useMemo(() => getNavigationInfo(), [courseHierarchy, contentId, allContents]);
 
-  // Video/PDF content keeps a fixed 16:9 box; question/assessment/document content reflows
-  // with zoom and viewport width, so it needs a flexible height instead of a clipped ratio box.
-  const FIXED_RATIO_MIME_TYPES = [
-    "video/mp4",
-    "video/webm",
-    "video/x-youtube",
-    "application/pdf",
-    "application/vnd.ekstep.h5p-archive",
-  ];
-  const isFixedRatioContent = FIXED_RATIO_MIME_TYPES.includes(lesson?.mimeType);
-
   const fetchData = async (content_Id) => {
     try {
       const response = await fetch(
@@ -1210,15 +1199,18 @@ const Player = () => {
             </Grid>
           </Grid>
           <Box
-            className={`player-ratio-box${
-              isFixedRatioContent ? "" : " player-ratio-box--flexible"
-            }`}
+            className="lg-mx-90"
+            style={{
+              position: "relative",
+              paddingBottom: "56.25%",
+              height: 0,
+              overflow: "hidden",
+              maxWidth: "100%",
+            }}
           >
             {lesson ? (
               <SunbirdPlayer
                 {...lesson}
-                width="100%"
-                height="100%"
                 userData={{
                   firstName: userFirstName || "",
                   lastName: userLastName || "",
@@ -1275,10 +1267,10 @@ const Player = () => {
                 public_url={playerUrl}
               />
             ) : (
-              <Box className="player-empty-state">{t("NO_CONTENT_TO_PLAY")}</Box>
+              <Box>{t("NO_CONTENT_TO_PLAY")}</Box>
             )}
           </Box>
-
+          
           {/* Navigation Buttons */}
           {courseHierarchy && courseId && (
             <Box
