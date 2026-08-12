@@ -416,7 +416,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
   };
 
   const isContentComplete = (contentId, progress) => {
-    if (!progress || progress.status !== 2) return false;
+    if (progress?.status !== 2) return false;
     if (!isAssessmentContent(contentId)) return true;
 
     return (
