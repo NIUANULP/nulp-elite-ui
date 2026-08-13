@@ -391,11 +391,11 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
     getUserData();
   }, []);
 
-  const checkCourseComplition = async (allContents, userProgress, requiredScore) => {
+  const checkCourseComplition = async (allContents, userProgress) => {
     const contentList = userProgress?.result?.contentList || [];
     const allContentComplete = allContents?.every((contentId) => {
       const progress = contentList.find((item) => item.contentId === contentId);
-      return isContentComplete(contentId, progress, requiredScore);
+      return isContentComplete(contentId, progress);
     });
 
     setIsCompleted(Boolean(allContents?.length && allContentComplete));
@@ -415,28 +415,18 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
     return findContent(courseContent)?.contentType === "SelfAssess";
   };
 
-  const isContentComplete = (contentId, progress, requiredScore) => {
+  const isContentComplete = (contentId, progress) => {
     if (progress?.status !== 2) return false;
     if (!isAssessmentContent(contentId)) return true;
 
-    if (!Array.isArray(progress.score) || progress.score.length === 0) {
-      return false;
-    }
-
-    const bestScoreData = findBestScore(progress.score);
-    const currentScore = Number.parseFloat(bestScoreData.totalScore);
-    const maxScore = Number.parseFloat(bestScoreData.totalMaxScore);
-
-    if (!Number.isFinite(currentScore) || !Number.isFinite(maxScore) || maxScore === 0) {
-      return false;
-    }
-
-    const scorePercentage = (currentScore / maxScore) * 100;
-    if (!Number.isFinite(requiredScore)) {
-      return true;
-    }
-
-    return scorePercentage >= requiredScore;
+    return (
+      Array.isArray(progress.score) &&
+      progress.score.some(
+        (attempt) =>
+          Number.isFinite(Number(attempt.totalScore)) &&
+          Number.isFinite(Number(attempt.totalMaxScore))
+      )
+    );
   };
 
   // Helper function to find best score from attempts
@@ -531,7 +521,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
         const requiredScore = batchDetail?.response?.certTemplates
           ? Number(getScoreCriteria(batchDetail))
           : 70; // Default to 70% if no criteria
-        checkCourseComplition(allContents, data, requiredScore);
+        checkCourseComplition(allContents, data);
 
         // Process assessment data
         if (data?.result?.contentList) {
@@ -555,7 +545,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
         const newCompletedContents = [];
 
         for (let content of data?.result?.contentList) {
-          if (isContentComplete(content.contentId, content, requiredScore)) {
+          if (isContentComplete(content.contentId, content)) {
             newCompletedContents.push(content.contentId);
           }
         }
@@ -571,7 +561,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
           for (let identifier of allContents) {
             const found = Array.isArray(contentList)
               ? contentList.find((item) =>
-                isContentComplete(identifier, item, requiredScore)
+                isContentComplete(identifier, item)
               )
               : undefined;
 
