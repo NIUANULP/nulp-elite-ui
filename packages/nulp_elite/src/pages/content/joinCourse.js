@@ -518,13 +518,14 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
         const response = await axios.post(url, request);
         const data = response.data;
         setCourseProgress(data);
+        const requiredScore = batchDetail?.response?.certTemplates
+          ? Number(getScoreCriteria(batchDetail))
+          : 70; // Default to 70% if no criteria
         checkCourseComplition(allContents, data);
 
         // Process assessment data
         if (data?.result?.contentList) {
-          const currentScore = batchDetail?.response?.certTemplates ?
-            getScoreCriteria(batchDetail) : 70; // Default to 70% if no criteria
-          processAssessmentData(data.result.contentList, currentScore);
+          processAssessmentData(data.result.contentList, requiredScore);
         }
 
         const contentIds =
@@ -626,7 +627,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
     };
     fetchChats();
     getCourseProgress();
-  }, [batchDetails, creatorId, allContents, courseData, userData]);
+  }, [batchDetails, batchDetail, creatorId, allContents, courseData, userData]);
 
   // Auto-enroll SSO users as soon as batch data is available
   useEffect(() => {
