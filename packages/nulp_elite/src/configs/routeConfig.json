@@ -8,7 +8,7 @@
     },
     "LEARNING_REPORT": "/dashBoard/allDashboard",
     "ADMIN": "/dashBoard/addusess",
-    "FORM_SERVICE": "/admin",
+    "FORM_SERVICE": "/registration-module/admin",
     "ALL_CONTENT_PAGE": {
       "ALL_CONTENT": "/webapp/all"
     },

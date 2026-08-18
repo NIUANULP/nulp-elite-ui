@@ -1086,7 +1086,7 @@ const Player = () => {
                   <Box
                     className="hybrid-mode-cta"
                     onClick={() =>
-                      window.open(`/forms/${hybridFormSlug}`, "_blank")
+                      window.open(`/registration-module/forms/${hybridFormSlug}`, "_blank")
                     }
                   >
                     <span className="hybrid-mode-cta__icon">🎓</span>
