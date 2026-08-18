@@ -47,6 +47,7 @@ const POLL_DASHBOARD_ROLES = new Set(["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"
 const EVENTS_ROLES = new Set(["ORG_ADMIN", "SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"]);
 const LEARNATHON_ROLES = new Set(["ORG_ADMIN", "SYSTEM_ADMINISTRATION"]);
 const ADMIN_ROLES = new Set(["ORG_ADMIN", "SYSTEM_ADMINISTRATION"]);
+const FORM_SERVICE_ROLES = new Set(["SYSTEM_ADMINISTRATION"]);
 
 // Helper function to check if user has any of the specified roles
 const hasAnyRole = (roleNames, allowedRoles) => {
@@ -794,6 +795,16 @@ function Header({ globalSearchQuery }) {
                   <MenuItem>{t("WORKSPACE")}</MenuItem>
                 </Link>
               )}
+              {hasRoleAccess(roleNames, FORM_SERVICE_ROLES) && (
+                <Link
+                  href={routeConfig.ROUTES.FORM_SERVICE}
+                  underline="none"
+                  textAlign="center"
+                  target="_blank"
+                >
+                  <MenuItem>Form Service</MenuItem>
+                </Link>
+              )}
               <PollSubmenu
                 roleNames={roleNames}
                 openSubmenu={openSubmenu}
@@ -1087,6 +1098,16 @@ function Header({ globalSearchQuery }) {
                       target="_blank"
                     >
                       <MenuItem>{t("ADMIN")}</MenuItem>
+                    </Link>
+                  )}
+                  {hasRoleAccess(roleNames, FORM_SERVICE_ROLES) && (
+                    <Link
+                      href={routeConfig.ROUTES.FORM_SERVICE}
+                      underline="none"
+                      textAlign="center"
+                      target="_blank"
+                    >
+                      <MenuItem>Form Service</MenuItem>
                     </Link>
                   )}
 
