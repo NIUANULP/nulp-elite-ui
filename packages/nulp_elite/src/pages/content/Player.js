@@ -59,6 +59,8 @@ const Player = () => {
   const [lesson, setLesson] = useState();
   const [isCompleted, setIsCompleted] = useState(false);
   const [openFeedBack, setOpenFeedBack] = useState(false);
+  const [hybridFormSlug, setHybridFormSlug] = useState(null);
+  const [hybridCtaVisible, setHybridCtaVisible] = useState(false);
   const [assessEvents, setAssessEvents] = useState([]);
   const [propLength, setPropLength] = useState();
   const [hasCalledUpdateAPI, setHasCalledUpdateAPI] = useState(false);
@@ -283,6 +285,7 @@ const Player = () => {
       };
       const response = await axios.patch(url, requestBody);
       console.log("Assessment state updated successfully");
+      setHybridCtaVisible(true);
     } catch (error) {
       console.error("Error updating content state:", error);
     }
@@ -339,6 +342,59 @@ const Player = () => {
       return () => clearTimeout(timeoutId);
     }
   }, [isEndEventReceived, assessEvents, propLength, _userId, updateContentStateForAssessment, hasCalledUpdateAPI]);
+
+  useEffect(() => {
+    const fetchHybridFormSlug = async () => {
+      try {
+        const url = `${urlConfig.URLS.PUBLIC_PREFIX}v1/admin/hybrid-registration/forms?nulpPublishedOnly=true`;
+        const response = await axios.get(url);
+        const slug = response.data?.data?.[0]?.slug;
+        if (slug) {
+          setHybridFormSlug(slug);
+        }
+      } catch (error) {
+        console.error("Error fetching hybrid registration form:", error);
+      }
+    };
+    fetchHybridFormSlug();
+  }, []);
+
+  useEffect(() => {
+    if (!_userId || !courseId || !batchId || !contentId) return;
+    const fetchAssessmentCompletion = async () => {
+      try {
+        const url = `${urlConfig.URLS.CONTENT_PREFIX}${urlConfig.URLS.COURSE.USER_CONTENT_STATE_READ}`;
+        const requestBody = {
+          request: {
+            userId: _userId,
+            courseId,
+            contentIds: [contentId],
+            batchId,
+            fields: ["progress", "score"],
+          },
+        };
+        const response = await axios.post(url, requestBody);
+        const contentList = response.data?.result?.contentList || [];
+        const progress = contentList.find(
+          (item) => item.contentId === contentId
+        );
+        const isCompleted =
+          progress?.status === 2 &&
+          Array.isArray(progress.score) &&
+          progress.score.some(
+            (attempt) =>
+              Number.isFinite(Number(attempt.totalScore)) &&
+              Number.isFinite(Number(attempt.totalMaxScore))
+          );
+        if (isCompleted) {
+          setHybridCtaVisible(true);
+        }
+      } catch (error) {
+        console.error("Error reading content state:", error);
+      }
+    };
+    fetchAssessmentCompletion();
+  }, [_userId, courseId, batchId, contentId]);
 
   const CheckfeedBackSubmitted = async () => {
     try {
@@ -1026,6 +1082,20 @@ const Player = () => {
                 >
                   {t("BACK")}
                 </Button>
+                {hybridCtaVisible && hybridFormSlug && (
+                  <Box
+                    className="hybrid-mode-cta"
+                    onClick={() =>
+                      window.open(`/forms/${hybridFormSlug}`, "_blank")
+                    }
+                  >
+                    <span className="hybrid-mode-cta__icon">🎓</span>
+                    <span className="hybrid-mode-cta__text">
+                      {t("Click here to enroll in-person hybrid training of this course")}
+                    </span>
+                    <span className="hybrid-mode-cta__arrow">➔</span>
+                  </Box>
+                )}
               </Box>
             </Grid>
             <Grid item xs={12} md={9} lg={9}>
