@@ -571,7 +571,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
           for (let identifier of allContents) {
             const found = Array.isArray(contentList)
               ? contentList.find((item) =>
-                isContentComplete(identifier, item)
+                item?.contentId === identifier && isContentComplete(identifier, item)
               )
               : undefined;
 
