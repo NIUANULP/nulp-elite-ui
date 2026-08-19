@@ -415,6 +415,16 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
     return findContent(courseContent)?.contentType === "SelfAssess";
   };
 
+  const hasGivenAssessment = () => {
+    const contentList = progress?.result?.contentList || [];
+    const assessment = contentList.find((item) => isAssessmentContent(item.contentId));
+    return Boolean(
+      assessment &&
+        Array.isArray(assessment.score) &&
+        assessment.score.length > 0
+    );
+  };
+
   const isContentComplete = (contentId, progress) => {
     if (progress?.status !== 2) return false;
     if (!isAssessmentContent(contentId)) return true;
@@ -782,6 +792,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
                 {!isCompleted && (
                   <Button
                     onClick={handleLeaveCourseClick} // Open confirmation dialog
+                    disabled={hasGivenAssessment()}
                     className="custom-btn-danger xs-mt-10"
                   >
                     {" "}
@@ -849,6 +860,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
                   {!isCompleted && (
                     <Button
                       onClick={handleLeaveCourseClick} // Open confirmation dialog
+                      disabled={hasGivenAssessment()}
                       className="custom-btn-danger xs-mt-10"
                     >
                       {" "}
