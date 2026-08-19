@@ -502,7 +502,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
   };
 
   const getCourseProgress = async () => {
-    if (batchDetails) {
+    if (batchDetails && (isEnrolled() || enrolled)) {
       const request = {
         request: {
           userId: _userId,
@@ -575,7 +575,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
           console.error("Error: allContents is not an array or is undefined");
         }
 
-        if (allFound) {
+        if (allFound && (isEnrolled() || enrolled)) {
           if (Array.isArray(allContents) && allContents?.length > 0) {
             notConsumedContent = allContents[0];
             try {
@@ -627,7 +627,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
     };
     fetchChats();
     getCourseProgress();
-  }, [batchDetails, batchDetail, creatorId, allContents, courseData, userData]);
+  }, [batchDetails, batchDetail, creatorId, allContents, courseData, userData, userCourseData, enrolled]);
 
   // Auto-enroll SSO users as soon as batch data is available
   useEffect(() => {
