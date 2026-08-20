@@ -1065,6 +1065,20 @@ const Player = () => {
   return (
     <div>
       <Header />
+      {hybridCtaVisible && hybridFormSlug && (
+        <Box
+          className="hybrid-mode-cta hybrid-banner"
+          onClick={() =>
+            window.open(`/registration-module/forms/${hybridFormSlug}`, "_blank")
+          }
+        >
+          <span className="hybrid-mode-cta__icon">🎓</span>
+          <span className="hybrid-mode-cta__text">
+            {t("Click here to enroll in-person hybrid training of this course")}
+          </span>
+          <span className="hybrid-mode-cta__arrow">➔</span>
+        </Box>
+      )}
       <Box>
         <Container maxWidth="xl" role="main" className="player mt-15">
           <Grid container spacing={2} className="mt-10 mb-30">
@@ -1082,20 +1096,6 @@ const Player = () => {
                 >
                   {t("BACK")}
                 </Button>
-                {hybridCtaVisible && hybridFormSlug && (
-                  <Box
-                    className="hybrid-mode-cta"
-                    onClick={() =>
-                      window.open(`/registration-module/forms/${hybridFormSlug}`, "_blank")
-                    }
-                  >
-                    <span className="hybrid-mode-cta__icon">🎓</span>
-                    <span className="hybrid-mode-cta__text">
-                      {t("Click here to enroll in-person hybrid training of this course")}
-                    </span>
-                    <span className="hybrid-mode-cta__arrow">➔</span>
-                  </Box>
-                )}
               </Box>
             </Grid>
             <Grid item xs={12} md={9} lg={9}>

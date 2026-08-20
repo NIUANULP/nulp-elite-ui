@@ -214,6 +214,8 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
 
   const [failedAssessments, setFailedAssessments] = useState([]);
   const [showAssessmentStatus, setShowAssessmentStatus] = useState(false);
+  const [hybridFormSlug, setHybridFormSlug] = useState(null);
+  const [hybridCtaVisible, setHybridCtaVisible] = useState(false);
 
   const style = {
     position: "absolute",
@@ -628,6 +630,63 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
     fetchChats();
     getCourseProgress();
   }, [batchDetails, batchDetail, creatorId, allContents, courseData, userData]);
+
+  useEffect(() => {
+    const fetchHybridFormSlug = async () => {
+      try {
+        const url = `${urlConfig.URLS.PUBLIC_PREFIX}v1/admin/hybrid-registration/forms?nulpPublishedOnly=true`;
+        const response = await axios.get(url);
+        const slug = response.data?.data?.[0]?.slug;
+        if (slug) {
+          setHybridFormSlug(slug);
+        }
+      } catch (error) {
+        console.error("Error fetching hybrid registration form:", error);
+      }
+    };
+    fetchHybridFormSlug();
+  }, []);
+
+  useEffect(() => {
+    if (!hybridFormSlug || !batchDetails) return;
+    const contentList = progress?.result?.contentList || [];
+    const hasAssessment =
+      Array.isArray(allContents) &&
+      allContents.some((identifier) => isAssessmentContent(identifier));
+
+    let showCta = false;
+    if (hasAssessment) {
+      showCta = contentList.some(
+        (item) =>
+          isAssessmentContent(item.contentId) &&
+          Array.isArray(item.score) &&
+          item.score.some(
+            (attempt) =>
+              Number.isFinite(Number(attempt.totalScore)) &&
+              Number.isFinite(Number(attempt.totalMaxScore))
+          )
+      );
+    } else {
+      showCta = Boolean(
+        Array.isArray(allContents) &&
+          allContents.length > 0 &&
+          allContents.every((identifier) =>
+            isContentComplete(
+              identifier,
+              contentList.find((item) => item.contentId === identifier)
+            )
+          )
+      );
+    }
+    setHybridCtaVisible(showCta);
+  }, [
+    hybridFormSlug,
+    batchDetails,
+    progress,
+    allContents,
+    courseData,
+    userData,
+  ]);
 
   // Auto-enroll SSO users as soon as batch data is available
   useEffect(() => {
@@ -1208,6 +1267,20 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
   return (
     <div>
       {!hideChrome && <Header />}
+      {hybridCtaVisible && hybridFormSlug && (
+        <Box
+          className="hybrid-mode-cta hybrid-banner"
+          onClick={() =>
+            window.open(`/registration-module/forms/${hybridFormSlug}`, "_blank")
+          }
+        >
+          <span className="hybrid-mode-cta__icon">🎓</span>
+          <span className="hybrid-mode-cta__text">
+            {t("Click here to enroll in-person hybrid training of this course")}
+          </span>
+          <span className="hybrid-mode-cta__arrow">➔</span>
+        </Box>
+      )}
       {toasterMessage && <ToasterCommon response={toasterMessage} />}
       <Box>
         <Snackbar
