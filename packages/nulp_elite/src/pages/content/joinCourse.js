@@ -417,6 +417,16 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
     return findContent(courseContent)?.contentType === "SelfAssess";
   };
 
+  const hasGivenAssessment = () => {
+    const contentList = progress?.result?.contentList || [];
+    const assessment = contentList.find((item) => isAssessmentContent(item.contentId));
+    return Boolean(
+      assessment &&
+        Array.isArray(assessment.score) &&
+        assessment.score.length > 0
+    );
+  };
+
   const isContentComplete = (contentId, progress) => {
     if (progress?.status !== 2) return false;
     if (!isAssessmentContent(contentId)) return true;
@@ -504,7 +514,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
   };
 
   const getCourseProgress = async () => {
-    if (batchDetails) {
+    if (batchDetails && (isEnrolled() || enrolled)) {
       const request = {
         request: {
           userId: _userId,
@@ -563,7 +573,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
           for (let identifier of allContents) {
             const found = Array.isArray(contentList)
               ? contentList.find((item) =>
-                isContentComplete(identifier, item)
+                item?.contentId === identifier && isContentComplete(identifier, item)
               )
               : undefined;
 
@@ -577,7 +587,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
           console.error("Error: allContents is not an array or is undefined");
         }
 
-        if (allFound) {
+        if (allFound && (isEnrolled() || enrolled)) {
           if (Array.isArray(allContents) && allContents?.length > 0) {
             notConsumedContent = allContents[0];
             try {
@@ -629,7 +639,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
     };
     fetchChats();
     getCourseProgress();
-  }, [batchDetails, batchDetail, creatorId, allContents, courseData, userData]);
+  }, [batchDetails, batchDetail, creatorId, allContents, courseData, userData, userCourseData, enrolled]);
 
   useEffect(() => {
     const fetchHybridFormSlug = async () => {
@@ -841,6 +851,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
                 {!isCompleted && (
                   <Button
                     onClick={handleLeaveCourseClick} // Open confirmation dialog
+                    disabled={hasGivenAssessment()}
                     className="custom-btn-danger xs-mt-10"
                   >
                     {" "}
@@ -908,6 +919,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
                   {!isCompleted && (
                     <Button
                       onClick={handleLeaveCourseClick} // Open confirmation dialog
+                      disabled={hasGivenAssessment()}
                       className="custom-btn-danger xs-mt-10"
                     >
                       {" "}
