@@ -289,9 +289,13 @@ const ContentList = (props) => {
         limit: 20,
         query: search.query || globalSearchQuery,
         offset: 20 * (currentPage - 1),
-        sort_by: {
-          lastUpdatedOn: "desc",
-        },
+        ...(search.query || globalSearchQuery
+          ? {}
+          : {
+              sort_by: {
+                lastUpdatedOn: "desc",
+              },
+            }),
       },
     };
 
