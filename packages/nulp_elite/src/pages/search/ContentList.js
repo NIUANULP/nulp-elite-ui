@@ -236,92 +236,56 @@ const ContentList = (props) => {
     setDomainfilter({ ...domainfilter, se_board: selectedValue });
   };
 
+  const buildRequestData = () => {
+    const primaryCategory = contentTypeFilter.length > 0
+      ? contentTypeFilter
+      : ["Collection","Resource","Course","eTextbook","Explanation Content","Learning Resource","Practice Question Set","ExplanationResource","Practice Resource","Exam Question","Good Practices","Reports","Manual/SOPs"];
+
+    const boardFilter = domainfilter.se_board
+      ? { se_boards: domainfilter.se_board }
+      : domainName
+      ? { se_boards: [domainName] }
+      : {};
+
+    const hasQuery = search.query || globalSearchQuery;
+
+    return {
+      request: {
+        filters: {
+          status: ["Live"],
+          primaryCategory,
+          ...boardFilter,
+          se_gradeLevels: subDomainFilter?.length > 0 ? subDomainFilter : [],
+        },
+        limit: 20,
+        query: search.query || globalSearchQuery,
+        offset: 20 * (currentPage - 1),
+        ...(!hasQuery && { sort_by: { lastUpdatedOn: "desc" } }),
+      },
+    };
+  };
+
+  const updatePagination = (count) => {
+    const total = Number(count);
+    setTotalPages(total <= 20 ? 1 : Math.ceil(total / 20));
+    setContentCount(total === 0 ? 0 : Math.min(total, 20));
+  };
+
   const fetchData = async () => {
     const newPath = location.pathname + "?" + currentPage;
     sessionStorage.setItem("previousRoutes", newPath);
     setIsLoading(true);
     setError(null);
 
-    let requestData = {
-      request: {
-        filters: {
-          status: ["Live"],
-          ...(contentTypeFilter.length > 0
-            ? { primaryCategory: contentTypeFilter }
-            : {
-                primaryCategory: [
-                  "Collection",
-                  "Resource",
-                  "Course",
-                  "eTextbook",
-                  "Explanation Content",
-                  "Learning Resource",
-                  "Practice Question Set",
-                  "ExplanationResource",
-                  "Practice Resource",
-                  "Exam Question",
-                  "Good Practices",
-                  "Reports",
-                  "Manual/SOPs",
-                ],
-              }),
-
-          // ...(domainfilter.se_board
-          //   ? { board: domainfilter.se_board }
-          //   : domainName
-          //   ? { board: [domainName] }
-          //   : {}),
-          // gradeLevel:
-          //   subDomainFilter && subDomainFilter.length > 0
-          //     ? subDomainFilter
-          //     : [],
-          ...(domainfilter.se_board
-            ? { se_boards: domainfilter.se_board }
-            : domainName
-            ? { se_boards: [domainName] }
-            : {}),
-
-          se_gradeLevels:
-            subDomainFilter && subDomainFilter.length > 0
-              ? subDomainFilter
-              : [],
-        },
-        limit: 20,
-        query: search.query || globalSearchQuery,
-        offset: 20 * (currentPage - 1),
-        sort_by: {
-          lastUpdatedOn: "desc",
-        },
-      },
-    };
-
-    let req = JSON.stringify(requestData);
-
-    const headers = {
-      "Content-Type": "application/json",
-    };
+    const requestData = buildRequestData();
+    const req = JSON.stringify(requestData);
+    const headers = { "Content-Type": "application/json" };
 
     try {
       const url = `${urlConfig.URLS.PUBLIC_PREFIX}${urlConfig.URLS.CONTENT.SEARCH}?orgdetails=${appConfig.ContentPlayer.contentApiQueryParams.orgdetails}&licenseDetails=${appConfig.ContentPlayer.contentApiQueryParams.licenseDetails}`;
       const response = await contentService.getAllContents(url, req, headers);
 
-      if (response.data.result.count <= 20) {
-        setTotalPages(1);
-        if (response.data.result.count === 0) {
-          setContentCount(0);
-        } else {
-          setContentCount(response.data.result.count);
-        }
-      } else if (response.data.result.count > 20) {
-        setTotalPages(Math.ceil(response.data.result.count / 20));
-        let count = Number(response.data.result.count);
-        if (count === 0) {
-          setContentCount(0);
-        } else {
-          setContentCount(20);
-        }
-      }
-
+      updatePagination(response.data.result.count);
       setData(response.data.result);
     } catch (error) {
       showErrorMessage(t("FAILED_TO_FETCH_DATA"));
