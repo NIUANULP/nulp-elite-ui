@@ -263,7 +263,7 @@ function Header({ globalSearchQuery }) {
       .then((res) => res.json())
       .then((data) => {
         const token = data.access_token;
-        Cookies.set("token", token, { path: "/", secure: window.location.protocol === "https:", sameSite: "Lax" });
+        Cookies.set("token", token, { path: "/", secure: false });
       })
       .catch((err) => {
         console.error("Fetch error:", err);

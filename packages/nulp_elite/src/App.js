@@ -307,11 +307,11 @@ function App() {
       };
       const response = await axios.post(url, requestBody);
       const Data = response.data;
-      Cookies.set("designation", Data?.result[0]?.designation, { path: "/webapp", sameSite: "Strict" });
+      Cookies.set("designation", Data?.result[0]?.designation, { path: "/" });
       Cookies.set(
         "location",
         `${Data?.result[0]?.district}, ${Data?.result[0]?.state}`,
-        { path: "/webapp", sameSite: "Strict" }
+        { path: "/" }
       );
 
       if (
