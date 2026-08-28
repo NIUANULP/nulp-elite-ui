@@ -11,7 +11,7 @@ const Forum = () => {
       .then((res) => res.json())
       .then((data) => {
         const token = data.access_token;
-        Cookies.set("token", token, { path: "/", secure: false });
+        Cookies.set("token", token, { path: "/discussion-forum", secure: window.location.protocol === "https:", sameSite: "Lax" });
         // Redirect to forum URL after token is saved
         window.location.href = urlConfig.FORUM.FORUM_URL;
       })
