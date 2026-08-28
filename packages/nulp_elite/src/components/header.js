@@ -263,7 +263,7 @@ function Header({ globalSearchQuery }) {
       .then((res) => res.json())
       .then((data) => {
         const token = data.access_token;
-        Cookies.set("token", token, { path: "/", secure: false });
+        Cookies.set("token", token, { path: "/discussion-forum", secure: window.location.protocol === "https:", sameSite: "Lax" });
       })
       .catch((err) => {
         console.error("Fetch error:", err);
@@ -450,15 +450,14 @@ function Header({ globalSearchQuery }) {
   };
   const handleLogout = () => {
     sessionStorage.setItem("isModalShown", "false");
-    // Use current domain/path to remove cookies dynamically
-
-    Cookies.remove("token");
-    Cookies.remove("express.sid");
     const domain = window.location.hostname;
-    Cookies.remove("token", { path: "/" });
-    Cookies.remove("token", { domain, path: "/" });
+    Cookies.remove("token");
+    Cookies.remove("token", { path: "/discussion-forum" });
+    Cookies.remove("token", { domain, path: "/discussion-forum" });
+    Cookies.remove("designation", { path: "/webapp" });
+    Cookies.remove("location", { path: "/webapp" });
+    Cookies.remove("express.sid");
     Cookies.remove("express.sid", { path: "/discussion-forum", domain });
-    console.log("Logout successful", domain);
   };
   return (
     <>
