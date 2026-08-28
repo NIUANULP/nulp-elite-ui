@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: PR Agent
-        uses: the-pr-agent/pr-agent@4ebd5c5333c6ef21509e7304d27969eb825e6f22 # v0.43.0
+        uses: the-pr-agent/pr-agent@db3f2a5a8c487c28efaf566bebabb1778fb08ed7 # main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GROQ.KEY: ${{ secrets.GROQ_API_KEY }}
