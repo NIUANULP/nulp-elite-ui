@@ -346,7 +346,7 @@ const Player = () => {
   useEffect(() => {
     const fetchHybridFormSlug = async () => {
       try {
-        const url = `${urlConfig.URLS.PUBLIC_PREFIX}v1/admin/hybrid-registration/forms?nulpPublishedOnly=true`;
+        const url = `/registration-module/api/v1/admin/hybrid-registration/forms?nulpPublishedOnly=true`;
         const response = await axios.get(url);
         const slug = response.data?.data?.[0]?.slug;
         if (slug) {
