@@ -724,7 +724,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
   };
 
   const handleGoBack = () => {
-    navigate(-1); // Go back to the previous page
+    navigate(routeConfig.ROUTES.DOMAINLIST_PAGE.DOMAINLIST);
   };
 
   const formatDate = (dateString) => {
