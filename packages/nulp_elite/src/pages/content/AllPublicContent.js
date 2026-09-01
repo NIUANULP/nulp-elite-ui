@@ -24,6 +24,7 @@ import LanguageIcon from "@mui/icons-material/Language";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SearchIcon from "@mui/icons-material/Search";
+import PersonIcon from "@mui/icons-material/Person";
 import { Badge } from "@mui/material";
 import { changeLanguage, t } from "i18next";
 import appConfig from "../../configs/appConfig.json";
@@ -53,6 +54,16 @@ const AllPublicContent = () => {
   const navigate = useNavigate();
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
+
+  const userData = (() => {
+    try {
+      const cached = sessionStorage.getItem("userData");
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  })();
+  const userInitial = userData?.result?.response?.firstName?.charAt(0)?.toUpperCase() || "";
 
   const [toasterMessage, setToasterMessage] = useState("");
   const routeConfig = require("../../configs/routeConfig.json");
@@ -502,7 +513,9 @@ const AllPublicContent = () => {
                 sx={{ p: 0 }}
                 className="profile-btn"
               >
-                <div className="profile-text-circle">G</div>
+                <div className="profile-text-circle">
+                  {userInitial || <PersonIcon sx={{ color: '#fff !important', fontSize: '1.4rem' }} />}
+                </div>
                 <ExpandMoreIcon />
               </IconButton>
             </Tooltip>
@@ -634,7 +647,9 @@ const AllPublicContent = () => {
                     sx={{ p: 0 }}
                     className="profile-btn"
                   >
-                    <div className="profile-text-circle">P</div>
+                    <div className="profile-text-circle">
+                      {userInitial || <PersonIcon sx={{ color: '#fff !important', fontSize: '1.4rem' }} />}
+                    </div>
                   </IconButton>
                 </Tooltip>
               </Box>

@@ -31,6 +31,7 @@ const routeConfig = require("../configs/routeConfig.json");
 import VideocamOutlinedIcon from "@mui/icons-material/VideocamOutlined";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import Groups2OutlinedIcon from "@mui/icons-material/Groups2Outlined";
+import PersonIcon from "@mui/icons-material/Person";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { Collapse, List } from "@mui/material";
 import NotificationPopup from "./Notification";
@@ -203,7 +204,14 @@ function Header({ globalSearchQuery }) {
 
   const [searchQuery, setSearchQuery] = useState(globalSearchQuery || "");
   const _userId = util.userId();
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem("userData");
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
   const [roles, setRoles] = useState([]);
   const [orgId, setOrgId] = useState();
   const [openSubmenu, setOpenSubmenu] = useState(false);
@@ -303,9 +311,17 @@ function Header({ globalSearchQuery }) {
     setAnchorElNav(event.currentTarget);
   };
   const handleOpenUserMenu = (event) => {
+    if (!_userId || _userId.trim() === "") {
+      window.location.href = `/webapp/joinCourse${window.location.search}`;
+      return;
+    }
     setAnchorElUser(event.currentTarget);
   };
   const handleOpenUserMenuMobile = (event) => {
+    if (!_userId || _userId.trim() === "") {
+      window.location.href = `/webapp/joinCourse${window.location.search}`;
+      return;
+    }
     setAnchorElUserMobile(event.currentTarget);
   };
   const handleOpenNotifyMenu = (event) => {
@@ -414,6 +430,7 @@ function Header({ globalSearchQuery }) {
       });
       const data = await response.json();
       setUserData(data);
+      sessionStorage.setItem("userData", JSON.stringify(data));
       const rootOrgId = data.result.response.rootOrgId;
       sessionStorage.setItem("rootOrgId", rootOrgId);
     } catch (error) {
@@ -450,6 +467,7 @@ function Header({ globalSearchQuery }) {
   };
   const handleLogout = () => {
     sessionStorage.setItem("isModalShown", "false");
+    sessionStorage.removeItem("userData");
     const domain = window.location.hostname;
     Cookies.remove("token");
     Cookies.remove("token", { path: "/discussion-forum" });
@@ -727,13 +745,9 @@ function Header({ globalSearchQuery }) {
                 className="profile-btn"
               >
                 <Box>
-                  {userData?.result?.response?.firstName?.[0] ? (
-                    <div className="profile-text-circle">
-                      {userData.result.response.firstName[0]}
-                    </div>
-                  ) : (
-                    <div className="profile-text-circle">G</div>
-                  )}
+                  <div className="profile-text-circle">
+                    {userData?.result?.response?.firstName?.charAt(0)?.toUpperCase() || <PersonIcon sx={{ color: '#fff !important', fontSize: '1.4rem' }} />}
+                  </div>
                 </Box>
                 <ExpandMoreIcon />
               </IconButton>
@@ -987,7 +1001,7 @@ function Header({ globalSearchQuery }) {
                     {userData && (
                       <>
                         <div className="profile-text-circle">
-                          {userData?.result?.response?.firstName[0]}
+                            {userData?.result?.response?.firstName?.charAt(0)?.toUpperCase() || <PersonIcon sx={{ color: '#fff !important', fontSize: '1.4rem' }} />}
                         </div>
                       </>
                     )}
@@ -1263,7 +1277,7 @@ function Header({ globalSearchQuery }) {
                   {userData && (
                     <>
                       <div className="profile-text-circle">
-                        {userData?.result?.response?.firstName[0]}
+                        {userData?.result?.response?.firstName?.charAt(0)?.toUpperCase() || <PersonIcon sx={{ color: '#fff !important', fontSize: '1.4rem' }} />}
                       </div>
                       <div
                         className="ellsp"
