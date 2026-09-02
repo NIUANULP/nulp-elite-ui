@@ -16,10 +16,9 @@ jobs:
         uses: the-pr-agent/pr-agent@db3f2a5a8c487c28efaf566bebabb1778fb08ed7 # main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GROQ.KEY: ${{ secrets.GROQ_API_KEY }}
-          config.model: "groq/llama3-70b-8192"
-          config.fallback_models: '["groq/llama3-70b-8192"]'
-          config.custom_model_max_tokens: "32000"
+          GOOGLE_AI_STUDIO.GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          config.model: "gemini/gemini-1.5-pro"
+          config.fallback_models: '["gemini/gemini-2.0-flash","gemini/gemini-1.5-pro"]'
           github_action_config.auto_review: "true"
           github_action_config.auto_describe: "true"
           github_action_config.auto_improve: "true"
