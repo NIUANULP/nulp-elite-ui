@@ -2,12 +2,11 @@ name: PR-Agent Reviewer
 
 on:
   pull_request_target:
-    types: [opened, reopened, synchronize]
+    types: [opened, reopened]
 
 permissions:
   contents: read
   pull-requests: write
-  issues: write
 
 jobs:
   pr_agent:
@@ -17,12 +16,13 @@ jobs:
         uses: the-pr-agent/pr-agent@db3f2a5a8c487c28efaf566bebabb1778fb08ed7 # main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GROQ.KEY: ${{ secrets.GROQ_API_KEY }}
-          config.model: "groq/llama3-70b-8192"
-          config.fallback_models: '["groq/llama3-70b-8192"]'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GOOGLE_AI_STUDIO.GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          config.model: "gemini/gemini-2.5-flash"
+          config.fallback_models: '["gemini/gemini-2.5-pro","gemini/gemini-2.5-flash"]'
           github_action_config.auto_review: "true"
           github_action_config.auto_describe: "true"
-          github_action_config.auto_improve: "true"
+          github_action_config.auto_improve: "false"
           pr_reviewer.num_code_suggestions: "4"
           pr_reviewer.inline_code_comments: "true"
           pr_reviewer.require_score_review: "true"
