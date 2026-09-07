@@ -144,10 +144,7 @@ const LearningHistory = () => {
                       items={course}
                       index={courseData.length}
                       onClick={() => {
-                        sessionStorage.setItem(
-                          "courseOrigin",
-                          location.pathname + location.search
-                        );
+                        util.setCourseOrigin();
                         navigate(
                           `${routeConfig.ROUTES.JOIN_COURSE_PAGE.JOIN_COURSE}?${course.content.identifier}`
                         );

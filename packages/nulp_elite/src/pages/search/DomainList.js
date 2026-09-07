@@ -473,10 +473,7 @@ const DomainList = ({ globalSearchQuery }) => {
   };
 
   const handleCardClick = (contentId, courseType) => {
-    sessionStorage.setItem(
-      "courseOrigin",
-      location.pathname + location.search
-    );
+    util.setCourseOrigin();
     if (courseType === "Course") {
       navigate(
         `${routeConfig.ROUTES.JOIN_COURSE_PAGE.JOIN_COURSE}?${contentId}`
