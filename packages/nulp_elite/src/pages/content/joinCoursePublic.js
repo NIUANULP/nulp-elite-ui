@@ -602,6 +602,10 @@ const JoinCourse = () => {
 
   const handleJoinAndOpenModal = useCallback(async () => {
     if (!_userId) {
+      sessionStorage.setItem(
+        "courseOrigin",
+        location.pathname + location.search
+      );
       window.location.href = `/webapp/joinCourse?${contentId}`;
       return;
     }
@@ -1225,6 +1229,10 @@ const JoinCourse = () => {
                 chat={state.chat}
                 handleDirectConnect={() => {
                   if (!_userId) {
+                    sessionStorage.setItem(
+                      "courseOrigin",
+                      location.pathname + location.search
+                    );
                     window.location.href = `/webapp/joinCourse?${contentId}`;
                     return;
                   }
@@ -1333,6 +1341,10 @@ const JoinCourse = () => {
                   chat={state.chat}
                   handleDirectConnect={() => {
                     if (!_userId) {
+                      sessionStorage.setItem(
+                        "courseOrigin",
+                        location.pathname + location.search
+                      );
                       window.location.href = `/webapp/joinCourse?${contentId}`;
                       return;
                     }

@@ -312,6 +312,10 @@ function Header({ globalSearchQuery }) {
   };
   const handleOpenUserMenu = (event) => {
     if (!_userId || _userId.trim() === "") {
+      sessionStorage.setItem(
+        "courseOrigin",
+        location.pathname + location.search
+      );
       window.location.href = `/webapp/joinCourse${window.location.search}`;
       return;
     }
@@ -319,6 +323,10 @@ function Header({ globalSearchQuery }) {
   };
   const handleOpenUserMenuMobile = (event) => {
     if (!_userId || _userId.trim() === "") {
+      sessionStorage.setItem(
+        "courseOrigin",
+        location.pathname + location.search
+      );
       window.location.href = `/webapp/joinCourse${window.location.search}`;
       return;
     }
