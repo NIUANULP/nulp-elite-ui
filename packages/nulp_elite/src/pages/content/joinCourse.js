@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Footer from "components/Footer";
 import Header from "components/header";
+import { Loading } from "@shiksha/common-lib";
 import Container from "@mui/material/Container";
 import FloatingChatIcon from "../../components/FloatingChatIcon";
 import Accordion from "@mui/material/Accordion";
@@ -160,12 +161,13 @@ const parseContentId = (ssoMode, queryString, searchParams) => {
   return raw?.endsWith("=") ? raw.slice(0, -1) : raw;
 };
 
-const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
+const JoinCourse = ({ hideChrome = false, ssoMode = false }) => { // NOSONAR
   const { t } = useTranslation();
   const [courseData, setCourseData] = useState();
   const [batchData, setBatchData] = useState();
   const [batchDetails, setBatchDetails] = useState();
   const [userCourseData, setUserCourseData] = useState({});
+  const [userCourseDataLoaded, setUserCourseDataLoaded] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState("");
   const [showConsentForm, setShowConsentForm] = useState(false);
   const [enrolled, setEnrolled] = useState(false);
@@ -213,6 +215,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
 
 
   const [failedAssessments, setFailedAssessments] = useState([]);
+  const [progressLoaded, setProgressLoaded] = useState(false);
   const [showAssessmentStatus, setShowAssessmentStatus] = useState(false);
   const [hybridFormSlug, setHybridFormSlug] = useState(null);
   const [hybridCtaVisible, setHybridCtaVisible] = useState(false);
@@ -367,6 +370,8 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
       } catch (error) {
         console.error("Error while fetching courses:", error);
         showErrorMessage(t("FAILED_TO_FETCH_DATA"));
+      } finally {
+        setUserCourseDataLoaded(true);
       }
     };
     const getBatchDetail = async (batchId) => {
@@ -513,8 +518,8 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
     setShowAssessmentStatus(failed.length > 0);
   };
 
-  const getCourseProgress = async () => {
-    if (batchDetails && (isEnrolled() || enrolled)) {
+  const getCourseProgress = async () => { // NOSONAR
+    if (batchDetails && (isEnrolled() || enrolled) && Array.isArray(allContents) && batchDetail) {
       const request = {
         request: {
           userId: _userId,
@@ -619,7 +624,9 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
         console.error("Error while fetching courses:", error);
         showErrorMessage(t("FAILED_TO_FETCH_DATA"));
       }
+      return true;
     }
+    return false;
   };
 
   useEffect(() => {
@@ -638,7 +645,16 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
       }
     };
     fetchChats();
-    getCourseProgress();
+    getCourseProgress().then((fetched) => {
+      if (
+        fetched ||
+        !_userId ||
+        (Object.keys(userCourseData).length > 0 &&
+          !(isEnrolled() || enrolled))
+      ) {
+        setProgressLoaded(true);
+      }
+    });
   }, [batchDetails, batchDetail, creatorId, allContents, courseData, userData, userCourseData, enrolled]);
 
   useEffect(() => {
@@ -724,7 +740,13 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
   };
 
   const handleGoBack = () => {
-    navigate(-1); // Go back to the previous page
+    const origin = sessionStorage.getItem("courseOrigin");
+    if (origin && origin !== location.pathname + "?" + contentId) {
+      sessionStorage.removeItem("courseOrigin");
+      navigate(origin);
+    } else {
+      navigate(routeConfig.ROUTES.DOMAINLIST_PAGE.DOMAINLIST);
+    }
   };
 
   const formatDate = (dateString) => {
@@ -825,7 +847,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
     }
   };
 
-  const renderActionButton = () => {
+  const renderActionButton = () => { // NOSONAR
     if (isEnrolled() || enrolled) {
       if (isNotStarted) {
         return (
@@ -1276,9 +1298,31 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
     );
   };
 
+  const isPageReady = () => {
+    if (!courseData?.result?.content || !Array.isArray(allContents)) return false;
+    if (!(batchDetails || activeBatch === false)) return false;
+    if (_userId && !userCourseDataLoaded) return false;
+    const enrolledUser = Boolean(isEnrolled() || enrolled);
+    if (enrolledUser && batchDetails && (!batchDetail || !progressLoaded)) return false;
+    return true;
+  };
+
   return (
     <div>
       {!hideChrome && <Header />}
+      {!isPageReady() ? (
+        <div
+          style={{
+            display: "flex",
+            minHeight: "100vh",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Loading message={t("LOADING")} />
+        </div>
+      ) : (
+        <>
       {hybridCtaVisible && hybridFormSlug && (
         <Box
           className="hybrid-mode-cta hybrid-banner"
@@ -2254,6 +2298,8 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
         {!hideChrome && <FloatingChatIcon />}
       </Box>
       {!hideChrome && <Footer />}
+      </>
+      )}
     </div>
   );
 };

@@ -143,11 +143,12 @@ const LearningHistory = () => {
                     <BoxCard
                       items={course}
                       index={courseData.length}
-                      onClick={() =>
+                      onClick={() => {
+                        util.setCourseOrigin();
                         navigate(
                           `${routeConfig.ROUTES.JOIN_COURSE_PAGE.JOIN_COURSE}?${course.content.identifier}`
-                        )
-                      }
+                        );
+                      }}
                       continueLearning={true}
                     />
                   </Box>

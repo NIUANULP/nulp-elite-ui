@@ -239,6 +239,7 @@ const CategoryPage = () => {
   }, [category]);
 
   const handleCardClick = (contentId, courseType) => {
+    util.setCourseOrigin();
     if (courseType === "Course") {
       navigate(
         `${routeConfig.ROUTES.JOIN_COURSE_PAGE.JOIN_COURSE}?${contentId}`
