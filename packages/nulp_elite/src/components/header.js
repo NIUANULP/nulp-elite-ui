@@ -313,7 +313,7 @@ function Header({ globalSearchQuery }) {
   const handleOpenUserMenu = (event) => {
     if (!_userId || _userId.trim() === "") {
       util.setCourseOrigin();
-      window.location.href = `/webapp/joinCourse${window.location.search}`;
+      window.location.href = `/public/login?redirectUri=${encodeURIComponent(window.location.pathname + window.location.search)}`;
       return;
     }
     setAnchorElUser(event.currentTarget);
@@ -321,7 +321,7 @@ function Header({ globalSearchQuery }) {
   const handleOpenUserMenuMobile = (event) => {
     if (!_userId || _userId.trim() === "") {
       util.setCourseOrigin();
-      window.location.href = `/webapp/joinCourse${window.location.search}`;
+      window.location.href = `/public/login?redirectUri=${encodeURIComponent(window.location.pathname + window.location.search)}`;
       return;
     }
     setAnchorElUserMobile(event.currentTarget);

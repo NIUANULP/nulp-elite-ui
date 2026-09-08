@@ -167,6 +167,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => { // NOSONAR
   const [batchData, setBatchData] = useState();
   const [batchDetails, setBatchDetails] = useState();
   const [userCourseData, setUserCourseData] = useState({});
+  const [userCourseDataLoaded, setUserCourseDataLoaded] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState("");
   const [showConsentForm, setShowConsentForm] = useState(false);
   const [enrolled, setEnrolled] = useState(false);
@@ -369,6 +370,8 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => { // NOSONAR
       } catch (error) {
         console.error("Error while fetching courses:", error);
         showErrorMessage(t("FAILED_TO_FETCH_DATA"));
+      } finally {
+        setUserCourseDataLoaded(true);
       }
     };
     const getBatchDetail = async (batchId) => {
@@ -1298,7 +1301,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => { // NOSONAR
   const isPageReady = () => {
     if (!courseData?.result?.content || !Array.isArray(allContents)) return false;
     if (!(batchDetails || activeBatch === false)) return false;
-    if (_userId && Object.keys(userCourseData).length === 0) return false;
+    if (_userId && !userCourseDataLoaded) return false;
     const enrolledUser = Boolean(isEnrolled() || enrolled);
     if (enrolledUser && batchDetails && (!batchDetail || !progressLoaded)) return false;
     return true;
