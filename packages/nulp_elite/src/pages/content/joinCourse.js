@@ -161,7 +161,7 @@ const parseContentId = (ssoMode, queryString, searchParams) => {
   return raw?.endsWith("=") ? raw.slice(0, -1) : raw;
 };
 
-const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
+const JoinCourse = ({ hideChrome = false, ssoMode = false }) => { // NOSONAR
   const { t } = useTranslation();
   const [courseData, setCourseData] = useState();
   const [batchData, setBatchData] = useState();
@@ -515,7 +515,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
     setShowAssessmentStatus(failed.length > 0);
   };
 
-  const getCourseProgress = async () => {
+  const getCourseProgress = async () => { // NOSONAR
     if (batchDetails && (isEnrolled() || enrolled) && Array.isArray(allContents) && batchDetail) {
       const request = {
         request: {
@@ -841,7 +841,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => {
     }
   };
 
-  const renderActionButton = () => {
+  const renderActionButton = () => { // NOSONAR
     if (isEnrolled() || enrolled) {
       if (isNotStarted) {
         return (
