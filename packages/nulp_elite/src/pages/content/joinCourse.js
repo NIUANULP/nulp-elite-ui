@@ -643,9 +643,12 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => { // NOSONAR
     };
     fetchChats();
     getCourseProgress().then((fetched) => {
-      if (fetched) {
-        setProgressLoaded(true);
-      } else if (!_userId || (Object.keys(userCourseData).length > 0 && !(isEnrolled() || enrolled))) {
+      if (
+        fetched ||
+        !_userId ||
+        (Object.keys(userCourseData).length > 0 &&
+          !(isEnrolled() || enrolled))
+      ) {
         setProgressLoaded(true);
       }
     });
