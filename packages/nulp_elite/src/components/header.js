@@ -310,18 +310,25 @@ function Header({ globalSearchQuery }) {
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
+  const redirectGuestToJoinCourse = () => {
+    util.setCourseOrigin();
+    const contentId = window.location.search.startsWith("?do_")
+      ? window.location.search.slice(1)
+      : null;
+    window.location.href = contentId
+      ? `/webapp/joinCourse?${contentId}`
+      : "/webapp/joinCourse";
+  };
   const handleOpenUserMenu = (event) => {
     if (!_userId || _userId.trim() === "") {
-      util.setCourseOrigin();
-      window.location.href = `/public/login?redirectUri=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+      redirectGuestToJoinCourse();
       return;
     }
     setAnchorElUser(event.currentTarget);
   };
   const handleOpenUserMenuMobile = (event) => {
     if (!_userId || _userId.trim() === "") {
-      util.setCourseOrigin();
-      window.location.href = `/public/login?redirectUri=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+      redirectGuestToJoinCourse();
       return;
     }
     setAnchorElUserMobile(event.currentTarget);
