@@ -28,6 +28,7 @@ import Chat from "pages/connections/chat";
 import SampleComponent from "components/SampleComponent";
 import EventList from "pages/events/eventList";
 import EventDetails from "pages/events/eventDetails";
+import ManualCertificate from "pages/events/manualCertificate";
 import Dashboard from "pages/events/dashboard";
 import VotingList from "pages/voting/votingList";
 import createForm from "pages/voting/createForm";
@@ -191,6 +192,11 @@ function App() {
       moduleName: "nulp_elite",
       path: routeConfig.ROUTES.EVENTS.EVENT_DETAILS,
       component: EventDetails,
+    },
+    {
+      moduleName: "nulp_elite",
+      path: routeConfig.ROUTES.MANUAL_CERT_PAGE.MANUAL_CERT,
+      component: ManualCertificate,
     },
     {
       moduleName: "nulp_elite",

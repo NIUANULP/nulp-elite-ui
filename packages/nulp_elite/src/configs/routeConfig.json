@@ -79,6 +79,9 @@
     "CHAT_PAGE": {
       "CHAT": "/webapp/chat"
     },
+    "MANUAL_CERT_PAGE": {
+      "MANUAL_CERT": "/webapp/manual-certificate"
+    },
     "EVENTS": {
       "EVENT_LIST": "/webapp/allevents",
       "EVENT_DETAILS": "/webapp/eventDetails",

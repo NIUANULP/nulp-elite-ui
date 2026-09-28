@@ -794,6 +794,15 @@ function Header({ globalSearchQuery }) {
                   <MenuItem>{t("ADMIN_DASHBOARD")}</MenuItem>
                 </Link>
               )}
+              {hasRoleAccess(roleNames, ADMIN_ROLES) && (
+                <Link
+                  href={routeConfig.ROUTES.MANUAL_CERT_PAGE.MANUAL_CERT}
+                  underline="none"
+                  textAlign="center"
+                >
+                  <MenuItem>Manual Certificate Issue</MenuItem>
+                </Link>
+              )}
               {hasRoleAccess(roleNames, DASHBOARD_ROLES) && (
                 <Link
                   href={routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}
