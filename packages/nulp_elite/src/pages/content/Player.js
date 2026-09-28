@@ -610,8 +610,12 @@ const Player = () => {
         "sessionStorage.getItem(previousRoutes) - ",
         sessionStorage.getItem("previousRoutes")
       );
-      if (sessionStorage.getItem("previousRoutes")) {
-        navigate(sessionStorage.getItem("previousRoutes"));
+      const back =
+        sessionStorage.getItem("courseOrigin") ||
+        sessionStorage.getItem("previousRoutes");
+      if (back) {
+        sessionStorage.removeItem("courseOrigin");
+        navigate(back);
         window.location.reload();
       } else {
         navigate(-1); // Navigate back in history

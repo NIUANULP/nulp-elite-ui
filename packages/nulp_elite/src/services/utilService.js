@@ -21,6 +21,10 @@ export const sessionId = () => {
   return sessionId;
 };
 
+export const setCourseOrigin = () => {
+  sessionStorage.setItem("courseOrigin", location.pathname + location.search);
+};
+
 export const userData=()=>{
   const userIdElement = document.getElementById("userId");
   const userId = userIdElement ? userIdElement.value : "";

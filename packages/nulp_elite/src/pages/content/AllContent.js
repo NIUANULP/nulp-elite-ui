@@ -303,8 +303,8 @@ const AllContent = () => {
     ));
   };
   const handleCardClick = (item, courseType) => {
+    util.setCourseOrigin();
     if (courseType === "Course") {
-      // navigate("/joinCourse", { state: { contentId: item.identifier } });
       navigate(
         `${routeConfig.ROUTES.JOIN_COURSE_PAGE.JOIN_COURSE}?${item.identifier}`
       );
