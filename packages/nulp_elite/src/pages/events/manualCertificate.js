@@ -28,12 +28,10 @@ import Stack from "@mui/material/Stack";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
-import StepContent from "@mui/material/StepContent";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
-import SearchIcon from "@mui/icons-material/Search";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
@@ -50,7 +48,7 @@ import Unauthorized from "../Unauthorized";
 
 const urlConfig = require("../../configs/urlConfig.json");
 
-const ADMIN_ROLES = new Set(["ORG_ADMIN", "SYSTEM_ADMINISTRATION"]);
+const ADMIN_ROLES = new Set(["SYSTEM_ADMINISTRATION"]);
 
 const STEPS = [
   "Select User",
@@ -101,6 +99,7 @@ const ManualCertificate = () => {
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [previewError, setPreviewError] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const [isIssuing, setIsIssuing] = useState(false);
 
@@ -303,7 +302,7 @@ const ManualCertificate = () => {
         },
         templateUrl: template.url,
         status: "ACTIVE",
-        signatoryList: template.signatoryList,
+        signatory: template.signatoryList || template.signatory,
         certificateLabel: template.name || selectedCourse.name,
         issuedOn: new Date().toISOString(),
       };
@@ -410,31 +409,20 @@ const ManualCertificate = () => {
 
   const renderUserStep = () => (
     <Box>
-      <Stack direction="row" spacing={1} mb={1}>
-        <TextField
-          fullWidth
-          size="small"
-          placeholder="Search user by name or ID (auto-search)"
-          value={userQuery}
-          onChange={(e) => setUserQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") searchUsers(true);
-          }}
-          InputProps={{
-            endAdornment: searchingUsers ? (
-              <CircularProgress size={18} />
-            ) : null,
-          }}
-        />
-        <Button
-          variant="contained"
-          onClick={() => searchUsers(true)}
-          disabled={searchingUsers || !userQuery}
-          startIcon={<SearchIcon />}
-        >
-          Search
-        </Button>
-      </Stack>
+      <TextField
+        fullWidth
+        size="small"
+        placeholder="Search user by name or ID"
+        value={userQuery}
+        onChange={(e) => setUserQuery(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") searchUsers(true);
+        }}
+        sx={{ mb: 1 }}
+        InputProps={{
+          endAdornment: searchingUsers ? <CircularProgress size={18} /> : null,
+        }}
+      />
       {selectedUser && (
         <Chip
           sx={{ mb: 1 }}
@@ -511,31 +499,22 @@ const ManualCertificate = () => {
 
   const renderCourseStep = () => (
     <Box>
-      <Stack direction="row" spacing={1} mb={1}>
-        <TextField
-          fullWidth
-          size="small"
-          placeholder="Search course by name (auto-search)"
-          value={courseQuery}
-          onChange={(e) => setCourseQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") searchCourses(true);
-          }}
-          InputProps={{
-            endAdornment: searchingCourses ? (
-              <CircularProgress size={18} />
-            ) : null,
-          }}
-        />
-        <Button
-          variant="contained"
-          onClick={() => searchCourses(true)}
-          disabled={searchingCourses || !courseQuery}
-          startIcon={<SearchIcon />}
-        >
-          Search
-        </Button>
-      </Stack>
+      <TextField
+        fullWidth
+        size="small"
+        placeholder="Search course by name"
+        value={courseQuery}
+        onChange={(e) => setCourseQuery(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") searchCourses(true);
+        }}
+        sx={{ mb: 1 }}
+        InputProps={{
+          endAdornment: searchingCourses ? (
+            <CircularProgress size={18} />
+          ) : null,
+        }}
+      />
       {selectedCourse && (
         <Chip
           sx={{ mb: 1 }}
@@ -747,6 +726,8 @@ const ManualCertificate = () => {
                       src={selectedTemplate.url}
                       alt={selectedTemplate.name || "Certificate template"}
                       onError={() => setPreviewError(true)}
+                      onClick={() => setPreviewOpen(true)}
+                      title="Click to open preview"
                       sx={{
                         width: "100%",
                         maxHeight: 150,
@@ -754,6 +735,7 @@ const ManualCertificate = () => {
                         border: "1px solid",
                         borderColor: "divider",
                         borderRadius: 1,
+                        cursor: "zoom-in",
                       }}
                     />
                   ) : (
@@ -847,20 +829,25 @@ const ManualCertificate = () => {
           sub={selectedCourse?.identifier}
         />
         <Divider />
-        <SelectionRow
-          label="Certificate"
-          icon={
-            <BadgeOutlinedIcon
-              color={selectedTemplate ? "primary" : "disabled"}
-            />
-          }
-          value={
-            selectedTemplate
-              ? selectedTemplate.name || selectedTemplate.id
-              : "Not selected"
-          }
-          sub={selectedBatchId || undefined}
-        />
+        <Box
+          onClick={() => selectedTemplate && setPreviewOpen(true)}
+          sx={{ cursor: selectedTemplate ? "zoom-in" : "default" }}
+        >
+          <SelectionRow
+            label="Certificate"
+            icon={
+              <BadgeOutlinedIcon
+                color={selectedTemplate ? "primary" : "disabled"}
+              />
+            }
+            value={
+              selectedTemplate
+                ? selectedTemplate.name || selectedTemplate.id
+                : "Not selected"
+            }
+            sub={selectedBatchId || undefined}
+          />
+        </Box>
         <Divider />
         <SelectionRow
           label="Will be issued on"
@@ -885,61 +872,67 @@ const ManualCertificate = () => {
           </Button>
         </Box>
       )}
-      <Stepper activeStep={activeStep} orientation="vertical">
+      <Stepper activeStep={activeStep} orientation="horizontal">
         {STEPS.map((label, index) => (
           <Step key={label} completed={activeStep > index || !!issued}>
             <StepLabel>{label}</StepLabel>
-            {activeStep === index && (
-              <StepContent>
-                {index === 0 && renderUserStep()}
-                {index === 1 && renderCourseStep()}
-                {index === 2 && renderBatchStep()}
-                {index === 3 && renderReviewStep()}
-                <Box sx={{ mt: 2 }}>
-                  <Stack direction="row" spacing={1} justifyContent="flex-end">
-                    {index > 0 && (
-                      <Button
-                        variant="outlined"
-                        startIcon={<ArrowBackIcon />}
-                        onClick={handleBack}
-                      >
-                        Back
-                      </Button>
-                    )}
-                    {index < STEPS.length - 1 && (
-                      <Button
-                        variant="contained"
-                        endIcon={<ArrowForwardIcon />}
-                        disabled={!canNext()}
-                        onClick={handleNext}
-                      >
-                        Continue
-                      </Button>
-                    )}
-                    {index === STEPS.length - 1 && (
-                      <Button
-                        variant="contained"
-                        color="success"
-                        startIcon={
-                          isIssuing ? (
-                            <CircularProgress size={18} color="inherit" />
-                          ) : (
-                            <VerifiedUserOutlinedIcon />
-                          )
-                        }
-                        disabled={isIssuing || !canNext()}
-                        onClick={() => setConfirmOpen(true)}
-                      >
-                        {isIssuing ? "Issuing..." : "Issue Certificate"}
-                      </Button>
-                    )}
-                  </Stack>
-                </Box>
-              </StepContent>
-            )}
           </Step>
         ))}
       </Stepper>
+      <Box
+        sx={{
+          mt: 3,
+          p: 2,
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: 2,
+        }}
+      >
+        {activeStep === 0 && renderUserStep()}
+        {activeStep === 1 && renderCourseStep()}
+        {activeStep === 2 && renderBatchStep()}
+        {activeStep === 3 && renderReviewStep()}
+        <Box sx={{ mt: 2 }}>
+          <Stack direction="row" spacing={1} justifyContent="flex-end">
+            {activeStep > 0 && (
+              <Button
+                variant="outlined"
+                startIcon={<ArrowBackIcon />}
+                onClick={handleBack}
+              >
+                Back
+              </Button>
+            )}
+            {activeStep < STEPS.length - 1 && (
+              <Button
+                variant="contained"
+                endIcon={<ArrowForwardIcon />}
+                disabled={!canNext()}
+                onClick={handleNext}
+              >
+                Continue
+              </Button>
+            )}
+            {activeStep === STEPS.length - 1 && (
+              <Button
+                variant="contained"
+                color="success"
+                startIcon={
+                  isIssuing ? (
+                    <CircularProgress size={18} color="inherit" />
+                  ) : (
+                    <VerifiedUserOutlinedIcon />
+                  )
+                }
+                disabled={isIssuing || !canNext()}
+                onClick={() => setConfirmOpen(true)}
+              >
+                {isIssuing ? "Issuing..." : "Issue Certificate"}
+              </Button>
+            )}
+          </Stack>
+        </Box>
+      </Box>
     </React.Fragment>
   );
 
@@ -947,9 +940,12 @@ const ManualCertificate = () => {
     <div>
       <Header />
       <Container
-        maxWidth="md"
         role="main"
         className="xs-pb-20 mt-12 dashboard mt-32 pt-121"
+        sx={{
+          maxWidth: "md !important",
+          pb: "3rem",
+        }}
       >
         <Box className="mb-20">
           <Typography variant="h5" fontWeight={600} gutterBottom>
@@ -959,8 +955,7 @@ const ManualCertificate = () => {
             Manual Certificate Issue
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Issue a certificate directly to a user without the automatic
-            criteria pipeline.
+            Issue certificates manually to learners.
           </Typography>
         </Box>
 
@@ -1082,6 +1077,41 @@ const ManualCertificate = () => {
           >
             Confirm & Issue
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle>
+          {selectedTemplate?.name ||
+            selectedTemplate?.id ||
+            "Certificate preview"}
+        </DialogTitle>
+        <DialogContent
+          dividers
+          sx={{ textAlign: "center", bgcolor: "#fafafa" }}
+        >
+          {previewError || !selectedTemplate?.url ? (
+            <Box sx={{ py: 6, color: "text.secondary" }}>
+              <ImageNotSupportedOutlinedIcon sx={{ fontSize: 48, mb: 1 }} />
+              <Typography variant="body2">Preview unavailable</Typography>
+            </Box>
+          ) : (
+            <Box
+              component="img"
+              src={selectedTemplate.url}
+              alt={selectedTemplate.name || "Certificate preview"}
+              onError={() => setPreviewError(true)}
+              sx={{ width: "100%", maxHeight: "70vh", objectFit: "contain" }}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPreviewOpen(false)}>Close</Button>
         </DialogActions>
       </Dialog>
 

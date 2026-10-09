@@ -82,6 +82,9 @@
     "MANUAL_CERT_PAGE": {
       "MANUAL_CERT": "/webapp/manual-certificate"
     },
+    "CERT_EDITOR_PAGE": {
+      "CERT_EDITOR": "/webapp/certificate-editor"
+    },
     "EVENTS": {
       "EVENT_LIST": "/webapp/allevents",
       "EVENT_DETAILS": "/webapp/eventDetails",

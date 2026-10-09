@@ -48,6 +48,9 @@ const POLL_DASHBOARD_ROLES = new Set(["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"
 const EVENTS_ROLES = new Set(["ORG_ADMIN", "SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"]);
 const LEARNATHON_ROLES = new Set(["ORG_ADMIN", "SYSTEM_ADMINISTRATION"]);
 const ADMIN_ROLES = new Set(["ORG_ADMIN", "SYSTEM_ADMINISTRATION"]);
+
+// Certificate Management feature is restricted to system administrators only.
+const CERTIFICATE_ADMIN_ROLES = new Set(["SYSTEM_ADMINISTRATION"]);
 const FORM_SERVICE_ROLES = new Set(["SYSTEM_ADMINISTRATION"]);
 
 // Helper function to check if user has any of the specified roles
@@ -69,6 +72,52 @@ const hasPrivilegedPollAccess = (roleNames) => {
 // Helper function to check if user can create polls
 const canCreatePoll = (roleNames) => {
   return hasRoleAccess(roleNames, POLL_CREATOR_ROLES);
+};
+
+// Certificate Management submenu: links to the editor and the manual issue flow.
+const CertificateSubmenu = ({ roleNames }) => {
+  const [open, setOpen] = React.useState(false);
+  const submenuStyle = { background: "#f9fafc", color: "#1976d2" };
+  const listStyle = { background: "#f9fafc" };
+
+  if (!hasRoleAccess(roleNames, CERTIFICATE_ADMIN_ROLES)) {
+    return null;
+  }
+
+  return (
+    <>
+      <MenuItem onClick={() => setOpen((o) => !o)} style={submenuStyle}>
+        Certificate Management
+        {open ? <ExpandLess /> : <ExpandMore />}
+      </MenuItem>
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <List component="div" disablePadding style={listStyle}>
+          <MenuItem
+            className="ml-10"
+            component="a"
+            href={routeConfig.ROUTES.CERT_EDITOR_PAGE.CERT_EDITOR}
+            style={{ ...listStyle, color: "#1976d2", textDecoration: "none" }}
+            onClick={() => setOpen(false)}
+          >
+            Editor
+          </MenuItem>
+          <MenuItem
+            className="ml-10"
+            component="a"
+            href={routeConfig.ROUTES.MANUAL_CERT_PAGE.MANUAL_CERT}
+            style={{ ...listStyle, color: "#1976d2", textDecoration: "none" }}
+            onClick={() => setOpen(false)}
+          >
+            Manual Issue
+          </MenuItem>
+        </List>
+      </Collapse>
+    </>
+  );
+};
+
+CertificateSubmenu.propTypes = {
+  roleNames: PropTypes.arrayOf(PropTypes.string),
 };
 
 // Reusable POLL_LIST link component
@@ -794,15 +843,7 @@ function Header({ globalSearchQuery }) {
                   <MenuItem>{t("ADMIN_DASHBOARD")}</MenuItem>
                 </Link>
               )}
-              {hasRoleAccess(roleNames, ADMIN_ROLES) && (
-                <Link
-                  href={routeConfig.ROUTES.MANUAL_CERT_PAGE.MANUAL_CERT}
-                  underline="none"
-                  textAlign="center"
-                >
-                  <MenuItem>Manual Certificate Issue</MenuItem>
-                </Link>
-              )}
+              <CertificateSubmenu roleNames={roleNames} />
               {hasRoleAccess(roleNames, DASHBOARD_ROLES) && (
                 <Link
                   href={routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}
