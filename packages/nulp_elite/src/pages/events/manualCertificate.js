@@ -93,7 +93,6 @@ const ManualCertificate = () => {
 
   const [batches, setBatches] = useState([]);
   const [selectedBatchId, setSelectedBatchId] = useState("");
-  const [selectedBatch, setSelectedBatch] = useState(null);
   const [loadingBatches, setLoadingBatches] = useState(false);
 
   const [templates, setTemplates] = useState([]);
@@ -129,7 +128,7 @@ const ManualCertificate = () => {
 
   const setCourse = (course) => {
     setSelectedCourse(course);
-    loadBatches(course?.identifier);
+    void loadBatches(course?.identifier);
     clearFeedback();
   };
 
@@ -416,7 +415,7 @@ const ManualCertificate = () => {
         value={userQuery}
         onChange={(e) => setUserQuery(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === "Enter") searchUsers(true);
+          if (e.key === "Enter") void searchUsers(true);
         }}
         sx={{ mb: 1 }}
         InputProps={{
@@ -506,7 +505,7 @@ const ManualCertificate = () => {
         value={courseQuery}
         onChange={(e) => setCourseQuery(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === "Enter") searchCourses(true);
+          if (e.key === "Enter") void searchCourses(true);
         }}
         sx={{ mb: 1 }}
         InputProps={{
@@ -701,59 +700,67 @@ const ManualCertificate = () => {
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={5}>
-                  {previewError ? (
-                    <Box
-                      sx={{
-                        width: "100%",
-                        height: 150,
-                        borderRadius: 1,
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        bgcolor: "#f5f5f5",
-                        color: "text.secondary",
-                      }}
-                    >
-                      <ImageNotSupportedOutlinedIcon sx={{ fontSize: 36, mb: 1 }} />
-                      <Typography variant="caption">
-                        Preview unavailable
-                      </Typography>
-                    </Box>
-                  ) : selectedTemplate.url ? (
-                    <CardMedia
-                      component="img"
-                      src={selectedTemplate.url}
-                      alt={selectedTemplate.name || "Certificate template"}
-                      onError={() => setPreviewError(true)}
-                      onClick={() => setPreviewOpen(true)}
-                      title="Click to open preview"
-                      sx={{
-                        width: "100%",
-                        maxHeight: 150,
-                        objectFit: "contain",
-                        border: "1px solid",
-                        borderColor: "divider",
-                        borderRadius: 1,
-                        cursor: "zoom-in",
-                      }}
-                    />
-                  ) : (
-                    <Box
-                      sx={{
-                        width: "100%",
-                        height: 150,
-                        borderRadius: 1,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        bgcolor: "#f5f5f5",
-                        color: "text.secondary",
-                      }}
-                    >
-                      <ImageNotSupportedOutlinedIcon />
-                    </Box>
-                  )}
+                  {(() => {
+                    if (previewError) {
+                      return (
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: 150,
+                            borderRadius: 1,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            bgcolor: "#f5f5f5",
+                            color: "text.secondary",
+                          }}
+                        >
+                          <ImageNotSupportedOutlinedIcon sx={{ fontSize: 36, mb: 1 }} />
+                          <Typography variant="caption">
+                            Preview unavailable
+                          </Typography>
+                        </Box>
+                      );
+                    }
+                    if (selectedTemplate.url) {
+                      return (
+                        <CardMedia
+                          component="img"
+                          src={selectedTemplate.url}
+                          alt={selectedTemplate.name || "Certificate template"}
+                          onError={() => setPreviewError(true)}
+                          onClick={() => setPreviewOpen(true)}
+                          title="Click to open preview"
+                          sx={{
+                            width: "100%",
+                            maxHeight: 150,
+                            objectFit: "contain",
+                            border: "1px solid",
+                            borderColor: "divider",
+                            borderRadius: 1,
+                            cursor: "zoom-in",
+                          }}
+                        />
+                      );
+                    }
+                    return (
+                      <Box
+                        sx={{
+                          width: "100%",
+                          height: 150,
+                          borderRadius: 1,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          bgcolor: "#f5f5f5",
+                          color: "text.secondary",
+                        }}
+                      >
+                        <ImageNotSupportedOutlinedIcon />
+                      </Box>
+                    );
+                  })()}
                 </Grid>
                 <Grid item xs={12} sm={7}>
                   <Stack spacing={1}>

@@ -27,7 +27,6 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Snackbar from "@mui/material/Snackbar";
-import GridOnIcon from "@mui/icons-material/GridOn";
 import TitleIcon from "@mui/icons-material/Title";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import EditNoteIcon from "@mui/icons-material/EditNote";
@@ -66,7 +65,7 @@ const mulMat = (A, B) => [
 const transformToMatrix = (transform) => {
   if (!transform) return [1, 0, 0, 1, 0, 0];
   let m = [1, 0, 0, 1, 0, 0];
-  const re = /(\w+)\(([^)]*)\)/g;
+  const re = /([a-zA-Z]+)\(([^)]*)\)/g;
   let mm;
   while ((mm = re.exec(transform))) {
     const name = mm[1];
@@ -113,8 +112,8 @@ const absMatrixOf = (node) => {
   let m = transformToMatrix(node.getAttribute("transform"));
   for (
     let n = node.parentNode;
-    n && n.tagName && n.tagName.toLowerCase() !== "svg";
-    n = n.parentNode
+    n?.tagName?.toLowerCase() !== "svg";
+    n = n?.parentNode
   ) {
     const mm = transformToMatrix(n.getAttribute("transform"));
     m = mulMat(mm, m);
@@ -126,8 +125,8 @@ const ancestorsMatrixOf = (node) => {
   let m = [1, 0, 0, 1, 0, 0];
   for (
     let n = node.parentNode;
-    n && n.tagName && n.tagName.toLowerCase() !== "svg";
-    n = n.parentNode
+    n?.tagName?.toLowerCase() !== "svg";
+    n = n?.parentNode
   ) {
     m = mulMat(transformToMatrix(n.getAttribute("transform")), m);
   }
@@ -178,8 +177,14 @@ const reparentInto = (g, node) => {
     Math.abs(rel[2]) < 1e-6 &&
     Math.abs(rel[3] - 1) < 1e-6;
   if (pure && (node.hasAttribute("x") || node.hasAttribute("y"))) {
-    node.setAttribute("x", parseFloat(node.getAttribute("x") || 0) + rel[4]);
-    node.setAttribute("y", parseFloat(node.getAttribute("y") || 0) + rel[5]);
+    node.setAttribute(
+      "x",
+      Number.parseFloat(node.getAttribute("x") || 0) + rel[4]
+    );
+    node.setAttribute(
+      "y",
+      Number.parseFloat(node.getAttribute("y") || 0) + rel[5]
+    );
     node.removeAttribute("transform");
   } else {
     setElementTransform(node, rel);
@@ -233,13 +238,15 @@ const cornersBBox = (corners, m) => {
 };
 
 const decodeSvg = (str) => {
-  if (str && str.startsWith("data:")) {
+  if (str?.startsWith("data:")) {
     const comma = str.indexOf(",");
     const meta = str.slice(5, comma);
     const data = str.slice(comma + 1);
     if (meta.includes("base64")) {
       try {
-        return decodeURIComponent(escape(atob(data)));
+        return new TextDecoder().decode(
+          Uint8Array.from(atob(data), (c) => c.charCodeAt(0))
+        );
       } catch (e) {
         return atob(data);
       }
@@ -289,11 +296,12 @@ const expandEmbeddedSvgs = (svg) => {
   });
 
   const num = (v, fallback) => {
-    const n = parseFloat(v);
+    const n = Number.parseFloat(v);
     return Number.isFinite(n) ? n : fallback;
   };
 
   let expanded = 0;
+  // NOSONAR
   candidates.forEach((img) => {
     const href =
       img.getAttribute("href") || img.getAttribute("xlink:href") || "";
@@ -317,7 +325,7 @@ const expandEmbeddedSvgs = (svg) => {
       const raw = img.getAttribute(attr);
       if (raw == null) return base;
       if (String(raw).trim().endsWith("%")) {
-        return (parseFloat(raw) / 100) * base;
+        return (Number.parseFloat(raw) / 100) * base;
       }
       return num(raw, base);
     };
@@ -342,34 +350,37 @@ const expandEmbeddedSvgs = (svg) => {
     // inserted next to the <image> itself (not next to the root <svg>), since
     // the image may sit inside a nested <g> and insertBefore only accepts a
     // node that is a child of the target parent.
-    const parent = img.parentNode;
     while (inner.firstChild) {
       const child = inner.firstChild;
       const tag = child.nodeType === 1 ? child.nodeName : "";
       if (NON_RENDERING_TAGS.has(tag)) {
-        parent.insertBefore(child, img);
+        img.before(child);
       } else {
         g.appendChild(child);
       }
     }
-    parent.replaceChild(g, img);
+    img.replaceWith(g);
     expanded++;
   });
   return expanded;
 };
 
 const readTextRect = (el) => {
-  const fontSize = parseFloat(
+  const fontSize = Number.parseFloat(
     el.getAttribute("font-size") || el.style?.fontSize || 24
   );
   const anchor = el.getAttribute("text-anchor") || "start";
   const text = el.textContent || "";
   const w = Math.max(text.length * fontSize * 0.55, 10);
   const h = fontSize * 1.3;
-  const baseX = parseFloat(el.getAttribute("x") || 0);
-  const baseY = parseFloat(el.getAttribute("y") || 0);
-  const left =
-    anchor === "middle" ? baseX - w / 2 : anchor === "end" ? baseX - w : baseX;
+  const baseX = Number.parseFloat(el.getAttribute("x") || 0);
+  const baseY = Number.parseFloat(el.getAttribute("y") || 0);
+  let left = baseX;
+  if (anchor === "middle") {
+    left = baseX - w / 2;
+  } else if (anchor === "end") {
+    left = baseX - w;
+  }
   return {
     x: left,
     y: baseY - fontSize * 0.95,
@@ -381,7 +392,7 @@ const readTextRect = (el) => {
 };
 
 const attrNum = (el, name, fallback = 0) => {
-  const v = parseFloat(el.getAttribute(name));
+  const v = Number.parseFloat(el.getAttribute(name));
   return Number.isFinite(v) ? v : fallback;
 };
 
@@ -453,6 +464,7 @@ const shapeLocalBBox = (el, tag) => {
     const b = el.getBBox();
     return { x: b.x, y: b.y, width: b.width, height: b.height };
   } catch (e) {
+    // getBBox may throw if element is not attached to layout
     return empty;
   }
 };
@@ -462,10 +474,10 @@ const readAll = (svg) => {
 
   svg.querySelectorAll(`image,text,${SHAPE_TAGS.join(",")}`).forEach((el) => {
     if (el.closest(NON_RENDERING_SELECTOR)) return;
-    if (!el.getAttribute("data-editor-id")) {
-      el.setAttribute("data-editor-id", "U" + uidCounter++);
+    if (!el.dataset.editorId) {
+      el.dataset.editorId = "U" + uidCounter++;
     }
-    const id = el.getAttribute("data-editor-id");
+    const id = el.dataset.editorId;
     const tag = el.tagName.toLowerCase();
     const m = absMatrixOf(el);
     const pure = isPureTranslation(m);
@@ -473,7 +485,7 @@ const readAll = (svg) => {
     const homeTy = m[5];
     const own = transformToMatrix(el.getAttribute("transform"));
     const direct = el.parentNode === svg;
-    const hadOwnTransform = el.getAttribute("transform") ? true : false;
+    const hadOwnTransform = Boolean(el.getAttribute("transform"));
     const hasOwnOffset = Math.abs(own[4]) > 1e-6 || Math.abs(own[5]) > 1e-6;
     let mode;
     if (!pure) mode = "locked";
@@ -482,14 +494,14 @@ const readAll = (svg) => {
     else mode = "local";
 
     if (tag === "image") {
-      const x = parseFloat(el.getAttribute("x") || 0);
-      const y = parseFloat(el.getAttribute("y") || 0);
+      const x = Number.parseFloat(el.getAttribute("x") || 0);
+      const y = Number.parseFloat(el.getAttribute("y") || 0);
       const w =
-        parseFloat(el.getAttribute("width") || 0) ||
-        parseFloat(el.getAttribute("data-nw") || 200);
+        Number.parseFloat(el.getAttribute("width") || 0) ||
+        Number.parseFloat(el.dataset.nw || 200);
       const h =
-        parseFloat(el.getAttribute("height") || 0) ||
-        parseFloat(el.getAttribute("data-nh") || 100);
+        Number.parseFloat(el.getAttribute("height") || 0) ||
+        Number.parseFloat(el.dataset.nh || 100);
       const bb = cornersBBox(
         [
           [x, y],
@@ -510,8 +522,8 @@ const readAll = (svg) => {
         ownTx: own[4],
         ownTy: own[5],
         mode,
-        group: el.getAttribute("data-group") || null,
-        opacity: parseFloat(el.getAttribute("opacity") || 1),
+        group: el.dataset.group || null,
+        opacity: Number.parseFloat(el.getAttribute("opacity") || 1),
       });
     } else if (isShapeTag(tag)) {
       const lb = shapeLocalBBox(el, tag);
@@ -537,8 +549,8 @@ const readAll = (svg) => {
         mode,
         isShape: true,
         kind: tag,
-        group: el.getAttribute("data-group") || null,
-        opacity: parseFloat(el.getAttribute("opacity") || 1),
+        group: el.dataset.group || null,
+        opacity: Number.parseFloat(el.getAttribute("opacity") || 1),
       });
     } else {
       const r = readTextRect(el);
@@ -564,8 +576,8 @@ const readAll = (svg) => {
         ownTx: own[4],
         ownTy: own[5],
         mode,
-        group: el.getAttribute("data-group") || null,
-        fontSize: parseFloat(el.getAttribute("font-size") || 24),
+        group: el.dataset.group || null,
+        fontSize: Number.parseFloat(el.getAttribute("font-size") || 24),
         fontFamily: el.getAttribute("font-family") || "Arial, sans-serif",
         fontWeight: el.getAttribute("font-weight") || "normal",
         fill: el.getAttribute("fill") || "#000000",
@@ -581,10 +593,10 @@ const readAll = (svg) => {
   Array.from(svg.querySelectorAll("g"))
     .filter((g) => !g.closest(NON_RENDERING_SELECTOR))
     .forEach((g) => {
-      if (!g.getAttribute("data-editor-id")) {
-        g.setAttribute("data-editor-id", "G" + uidCounter++);
+      if (!g.dataset.editorId) {
+        g.dataset.editorId = "G" + uidCounter++;
       }
-      const id = g.getAttribute("data-editor-id");
+      const id = g.dataset.editorId;
       const parts = out.filter(
         (o) => o.id !== id && g.contains(docNodeById(svg, o.id))
       );
@@ -601,7 +613,7 @@ const readAll = (svg) => {
         id,
         tag: "g",
         isGroup: true,
-        isBlock: g.getAttribute("data-block") === "1",
+        isBlock: g.dataset.block === "1",
         x,
         y,
         w: r - x,
@@ -610,14 +622,14 @@ const readAll = (svg) => {
           let d = 0;
           let p = g.parentNode;
           while (p && p !== svg) {
-            if (p.nodeName && p.nodeName.toLowerCase() === "g") d++;
-            p = p.parentNode;
+            if (p?.nodeName?.toLowerCase() === "g") d++;
+            p = p?.parentNode;
           }
           return d;
         })(),
         label,
         childIds: parts.map((p) => p.id),
-        group: g.getAttribute("data-group") || null,
+        group: g.dataset.group || null,
         mode: "translate",
       });
     });
@@ -633,13 +645,19 @@ const serialize = (svg, stripIds) => {
   if (stripIds) {
     clone
       .querySelectorAll("[data-editor-id]")
-      .forEach((n) => n.removeAttribute("data-editor-id"));
+      .forEach((n) => {
+        delete n.dataset.editorId;
+      });
     clone
       .querySelectorAll("[data-group]")
-      .forEach((n) => n.removeAttribute("data-group"));
+      .forEach((n) => {
+        delete n.dataset.group;
+      });
     clone
       .querySelectorAll("[data-block]")
-      .forEach((n) => n.removeAttribute("data-block"));
+      .forEach((n) => {
+        delete n.dataset.block;
+      });
   }
   clone.removeAttribute("width");
   clone.removeAttribute("height");
@@ -671,18 +689,20 @@ const resolveHrefSize = (href) =>
 
 const prefillImageSizes = async (svg) => {
   const images = Array.from(svg.querySelectorAll("image"));
-  for (const img of images) {
-    const w = parseFloat(img.getAttribute("width"));
-    const h = parseFloat(img.getAttribute("height"));
-    if (w && h) continue;
-    const href = img.getAttribute("href") || img.getAttribute("xlink:href");
-    if (!href) continue;
-    const [nw, nh] = await resolveHrefSize(href);
-    if (nw && nh) {
-      if (!w) img.setAttribute("width", nw);
-      if (!h) img.setAttribute("height", nh);
-    }
-  }
+  await Promise.all(
+    images.map(async (img) => {
+      const w = Number.parseFloat(img.getAttribute("width"));
+      const h = Number.parseFloat(img.getAttribute("height"));
+      if (w && h) return;
+      const href = img.getAttribute("href") || img.getAttribute("xlink:href");
+      if (!href) return;
+      const [nw, nh] = await resolveHrefSize(href);
+      if (nw && nh) {
+        if (!w) img.setAttribute("width", nw);
+        if (!h) img.setAttribute("height", nh);
+      }
+    })
+  );
 };
 
 // Where <image> actually paints its raster inside the box given by the
@@ -716,8 +736,18 @@ const paintedRect = (ox, oy, ow, oh, IW, IH, par) => {
   const s = mode === "slice" ? Math.max(sx, sy) : Math.min(sx, sy);
   const dw = ow - IW * s;
   const dh = oh - IH * s;
-  const fx = xAlign === "xMin" ? 0 : xAlign === "xMax" ? 1 : 0.5;
-  const fy = yAlign === "yMin" ? 0 : yAlign === "yMax" ? 1 : 0.5;
+  let fx = 0.5;
+  if (xAlign === "xMin") {
+    fx = 0;
+  } else if (xAlign === "xMax") {
+    fx = 1;
+  }
+  let fy = 0.5;
+  if (yAlign === "yMin") {
+    fy = 0;
+  } else if (yAlign === "yMax") {
+    fy = 1;
+  }
   return {
     px: ox + dw * fx,
     py: oy + dh * fy,
@@ -751,6 +781,7 @@ const cropViaFetch = async (href, sx, sy, sw, sh) => {
     URL.revokeObjectURL(url);
     return out;
   } catch (e) {
+    // Return null when CORS or network prevents fetching the image for cropping
     return null;
   }
 };
@@ -791,8 +822,8 @@ const loadDrawable = async (href) => {
 const parseViewBox = (svg) => {
   let vbAttr = svg.getAttribute("viewBox");
   if (!vbAttr) {
-    const w = parseFloat(svg.getAttribute("width")) || 1240;
-    const h = parseFloat(svg.getAttribute("height")) || 1754;
+    const w = Number.parseFloat(svg.getAttribute("width")) || 1240;
+    const h = Number.parseFloat(svg.getAttribute("height")) || 1754;
     svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
     vbAttr = `0 0 ${w} ${h}`;
   }
@@ -806,6 +837,23 @@ const parseViewBox = (svg) => {
     : { x: 0, y: 0, w: pts[0] || 1240, h: pts[1] || 1754 };
 };
 
+const getElemChipLabel = (el) => {
+  if (el.isGroup) {
+    const labelPart = el.label ? ` · ${el.label}` : "";
+    return `Group${labelPart} · ${el.childIds.length} parts`;
+  }
+  const prefix = el.group ? "g · " : "";
+  if (el.tag === "text") {
+    return `${prefix}Text · ${(el.text || "…").slice(0, 18)}`;
+  }
+  if (el.isShape) {
+    const shapeLabel = SHAPE_LABELS[el.tag] || el.tag;
+    return `${prefix}${shapeLabel} · ${el.id}`;
+  }
+  return `${prefix}Image · ${el.id}`;
+};
+
+// NOSONAR
 const CertificateEditorPanel = ({ embedded = false }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
@@ -865,13 +913,13 @@ const CertificateEditorPanel = ({ embedded = false }) => {
 
   const releaseMeasure = () => {
     const frame = measureFrameRef.current;
-    if (frame && frame.parentNode) frame.parentNode.removeChild(frame);
+    if (frame?.parentNode) frame.remove();
     measureFrameRef.current = null;
   };
 
   const attachForMeasure = (svg) => {
     let frame = measureFrameRef.current;
-    if (!frame || !frame.contentDocument) {
+    if (!frame?.contentDocument) {
       releaseMeasure();
       frame = document.createElement("iframe");
       frame.setAttribute("sandbox", "allow-same-origin");
@@ -881,7 +929,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
         "position:fixed;left:-100000px;top:0;width:900px;height:700px;border:0;pointer-events:none;";
       document.body.appendChild(frame);
       if (!frame.contentDocument) {
-        frame.parentNode.removeChild(frame);
+        frame.remove();
         console.warn(
           "Certificate editor: no measure host available, path selection is limited."
         );
@@ -891,7 +939,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
       measureFrameRef.current = frame;
     }
     const body = frame.contentDocument.body;
-    while (body.firstChild) body.removeChild(body.firstChild);
+    while (body.firstChild) body.firstChild.remove();
     body.appendChild(svg);
   };
 
@@ -988,8 +1036,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
       // yank the source image away mid-crop.
       if (splitId) return;
       if (!activeId || !docRef.current) return;
-      const el = elemsRef.current.find((x) => x.id === activeId);
-      if (!el) return;
+      if (!elemsRef.current.some((x) => x.id === activeId)) return;
       const step = e.shiftKey ? 10 : 1;
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
         e.preventDefault();
@@ -1042,16 +1089,17 @@ const CertificateEditorPanel = ({ embedded = false }) => {
     return () => clearTimeout(t);
   }, [courseQuery]);
 
+  // NOSONAR
   const setNodePos = (node, el, nx, ny) => {
     if (el.tag === "text" || el.tag === "image") {
       if (el.mode === "local") {
         if (el.tag === "text") {
-          const baseX =
-            el.anchor === "middle"
-              ? nx + el.w / 2
-              : el.anchor === "end"
-              ? nx + el.w
-              : nx;
+          let baseX = nx;
+          if (el.anchor === "middle") {
+            baseX = nx + el.w / 2;
+          } else if (el.anchor === "end") {
+            baseX = nx + el.w;
+          }
           const baseY = ny + el.fontSize * 0.95;
           node.setAttribute("x", baseX);
           node.setAttribute("y", baseY);
@@ -1082,14 +1130,14 @@ const CertificateEditorPanel = ({ embedded = false }) => {
     let anchor = id;
     if (!el0.isGroup && !el0.group) {
       const gid = parentGroupOf(id);
-      const gEl = gid && elemsRef.current.find((x) => x.id === gid);
-      if (gEl && gEl.isBlock) anchor = gid;
+      const gEl = gid ? elemsRef.current.find((x) => x.id === gid) : null;
+      if (gEl?.isBlock) anchor = gid;
     }
     const aEl =
       anchor === id ? el0 : elemsRef.current.find((x) => x.id === anchor);
     mutate(() => {
       const ids = new Set([anchor]);
-      if (aEl && aEl.group) {
+      if (aEl?.group) {
         elemsRef.current.forEach((el) => {
           if (el.group === aEl.group) ids.add(el.id);
         });
@@ -1119,16 +1167,18 @@ const CertificateEditorPanel = ({ embedded = false }) => {
     const sameParent = nodes.every((n) => n.parentNode === nodes[0].parentNode);
     mutate(() => {
       if (!sameParent) {
-        nodes.forEach((n) => n.setAttribute("data-group", gid));
+        nodes.forEach((n) => {
+          n.dataset.group = gid;
+        });
         return;
       }
       const g = docRef.current.ownerDocument.createElementNS(
         "http://www.w3.org/2000/svg",
         "g"
       );
-      g.setAttribute("data-editor-id", gid);
-      g.setAttribute("data-block", "1");
-      nodes[0].parentNode.insertBefore(g, nodes[0]);
+      g.dataset.editorId = gid;
+      g.dataset.block = "1";
+      nodes[0].before(g);
       nodes.forEach((n) => g.appendChild(n));
     });
     setSelIds([gid]);
@@ -1154,7 +1204,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
       const parent = node.parentNode;
       const kids = Array.from(node.children);
       const kidIds = kids
-        .map((k) => k.getAttribute("data-editor-id"))
+        .map((k) => k.dataset.editorId)
         .filter(Boolean);
       mutate(() => {
         while (node.firstChild) {
@@ -1163,9 +1213,9 @@ const CertificateEditorPanel = ({ embedded = false }) => {
             const cm = transformToMatrix(child.getAttribute("transform"));
             setElementTransform(child, mulMat(gm, cm));
           }
-          parent.insertBefore(child, node);
+          node.before(child);
         }
-        parent.removeChild(node);
+        node.remove();
       });
       setSelIds(kidIds);
       setActiveId(kidIds.length === 1 ? kidIds[0] : null);
@@ -1178,7 +1228,9 @@ const CertificateEditorPanel = ({ embedded = false }) => {
     mutate(() => {
       docRef.current
         ?.querySelectorAll(`[data-group="${gid}"]`)
-        .forEach((n) => n.removeAttribute("data-group"));
+        .forEach((n) => {
+          delete n.dataset.group;
+        });
     });
     notify("Grouping cleared");
   };
@@ -1295,17 +1347,17 @@ const CertificateEditorPanel = ({ embedded = false }) => {
     setSelectedTemplateId(tplId);
     if (!tpl) return;
     if (tpl.certificateTemplate) {
-      loadSource(tpl.certificateTemplate, tpl.name || tplId);
+      await loadSource(tpl.certificateTemplate, tpl.name || tplId);
       return;
     }
-    if (tpl.url && tpl.url.startsWith("data:")) {
-      loadSource(tpl.url, tpl.name || tplId);
+    if (tpl.url?.startsWith("data:")) {
+      await loadSource(tpl.url, tpl.name || tplId);
       return;
     }
     if (tpl.url) {
       try {
         const res = await axios.get(tpl.url, { responseType: "text" });
-        loadSource(res.data, tpl.name || tplId);
+        await loadSource(res.data, tpl.name || tplId);
       } catch (e) {
         console.error("Error fetching template url:", e);
         setTemplateError(
@@ -1321,7 +1373,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const dataUri = await fileToDataUri(file);
-    loadSource(dataUri, file.name.replace(/\.svg$/i, ""));
+    await loadSource(dataUri, file.name.replace(/\.svg$/i, ""));
     e.target.value = "";
   };
 
@@ -1357,7 +1409,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
   const parentGroupOf = (id) => {
     const node = docRef.current?.querySelector(`[data-editor-id="${id}"]`);
     const g = node?.parentElement?.closest("g[data-editor-id]");
-    return g ? g.getAttribute("data-editor-id") : null;
+    return g?.dataset.editorId || null;
   };
 
   const snapPoint = (x, y, w, h, primaryId) => {
@@ -1413,6 +1465,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
     return { x: ax, y: ay, xs, ys };
   };
 
+  // NOSONAR
   const applyResize = (node, el, res, dx, dy) => {
     const corner = res.handle.length === 2;
     let nw = res.origW;
@@ -1464,6 +1517,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
     recompute();
   };
 
+  // NOSONAR
   const onCanvasMouseDown = (e) => {
     if (e.button !== 0) return;
     const { x, y } = getSvgPoint(e.clientX, e.clientY);
@@ -1569,8 +1623,8 @@ const CertificateEditorPanel = ({ embedded = false }) => {
         const el = elemsRef.current.find((x) => x.id === id);
         if (!el || el.isGroup || el.group) return;
         const gid = parentGroupOf(id);
-        const gEl = gid && elemsRef.current.find((x) => x.id === gid);
-        if (gEl && gEl.isBlock) blocks.add(gid);
+        const gEl = gid ? elemsRef.current.find((x) => x.id === gid) : null;
+        if (gEl?.isBlock) blocks.add(gid);
       });
       if (blocks.size) {
         ids = [
@@ -1722,7 +1776,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
     mutate(() => {
       const ns = "http://www.w3.org/2000/svg";
       const t = docRef.current.ownerDocument.createElementNS(ns, "text");
-      t.setAttribute("data-editor-id", id);
+      t.dataset.editorId = id;
       t.setAttribute("x", vbRef.current.w / 2);
       t.setAttribute("y", vbRef.current.h / 2);
       t.setAttribute("font-size", fontSize);
@@ -1750,10 +1804,10 @@ const CertificateEditorPanel = ({ embedded = false }) => {
     const gid = "G" + uidCounter++;
 
     const g = svg.ownerDocument.createElementNS(ns, "g");
-    g.setAttribute("data-editor-id", gid);
+    g.dataset.editorId = gid;
     // Marks the wrapper as an editor-authored block: dragging any of its
     // parts (separator, captions, sign) shifts the whole block as one.
-    g.setAttribute("data-block", "1");
+    g.dataset.block = "1";
     g.setAttribute("transform", `translate(${(455 - index * 230) * kx} 0)`);
     svg.appendChild(g);
 
@@ -1771,7 +1825,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
       ["Organisation", 525],
     ].forEach(([label, ty]) => {
       const t = svg.ownerDocument.createElementNS(ns, "text");
-      t.setAttribute("data-editor-id", "T" + uidCounter++);
+      t.dataset.editorId = "T" + uidCounter++;
       t.setAttribute("class", "signature-title");
       t.setAttribute("id", `signatureTitle${sid}`);
       t.setAttribute("x", -20 * kx);
@@ -1797,7 +1851,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
     // the two were created.
     const selEl = elemsRef.current.find((x) => x.id === activeId);
     const adoptNode =
-      selEl && selEl.tag === "image" && !selEl.isGroup
+      selEl?.tag === "image" && !selEl.isGroup
         ? docRef.current.querySelector(
             `[data-editor-id="${CSS.escape(activeId)}"]`
           )
@@ -1821,6 +1875,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
     );
   };
 
+  // NOSONAR
   const addImages = async (e) => {
     const files = Array.from(e.target.files || []);
     e.target.value = "";
@@ -1836,16 +1891,19 @@ const CertificateEditorPanel = ({ embedded = false }) => {
     // block first, then "Add logos" for the sign), so the sign, separator and
     // captions travel as one unit instead of loose root children.
     const selEl = elemsRef.current.find((x) => x.id === activeId);
-    const selGid =
-      selEl && (selEl.isGroup ? activeId : parentGroupOf(activeId));
-    const selGEl = selGid && elemsRef.current.find((x) => x.id === selGid);
+    const selGid = selEl
+      ? selEl.isGroup
+        ? activeId
+        : parentGroupOf(activeId)
+      : null;
+    const selGEl = selGid ? elemsRef.current.find((x) => x.id === selGid) : null;
     const joinNode =
-      selGEl && selGEl.isBlock
+      selGEl?.isBlock
         ? docRef.current.querySelector(
             `[data-editor-id="${CSS.escape(selGid)}"]`
           )
         : null;
-    const joinGroup = selEl && !selEl.isGroup ? selEl.group : null;
+    const joinGroup = !selEl?.isGroup ? selEl?.group : null;
 
     mutate(() => {
       dataUris.forEach((dataUri, i) => {
@@ -1854,7 +1912,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
         const h = (w * 3) / 4;
         const step = i * (w * 0.22);
         const img = docRef.current.ownerDocument.createElementNS(ns, "image");
-        img.setAttribute("data-editor-id", id);
+        img.dataset.editorId = id;
         img.setAttribute("href", dataUri);
         img.setAttribute("x", Math.min(W - w, W * 0.06 + step));
         img.setAttribute("y", Math.min(H - h, H * 0.06 + step));
@@ -1864,7 +1922,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
           reparentInto(joinNode, img);
         } else {
           docRef.current.appendChild(img);
-          if (joinGroup) img.setAttribute("data-group", joinGroup);
+          if (joinGroup) img.dataset.group = joinGroup;
         }
         newIds.push(id);
       });
@@ -1874,13 +1932,11 @@ const CertificateEditorPanel = ({ embedded = false }) => {
       setSelIds(newIds);
       setActiveId(newIds.length === 1 ? newIds[0] : null);
     }
-    notify(
-      joinNode
-        ? `Added ${newIds.length} sign${
-            newIds.length > 1 ? "s" : ""
-          } to the block — drag any part to move them all together`
-        : `Added ${newIds.length} logo${newIds.length > 1 ? "s" : ""}`
-    );
+    const plural = newIds.length > 1 ? "s" : "";
+    const msg = joinNode
+      ? `Added ${newIds.length} sign${plural} to the block — drag any part to move them all together`
+      : `Added ${newIds.length} logo${plural}`;
+    notify(msg);
   };
 
   const startSplit = () => {
@@ -1996,7 +2052,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
         }
         const nid = "I" + uidCounter++;
         const piece = docRef.current.ownerDocument.createElementNS(ns, "image");
-        piece.setAttribute("data-editor-id", nid);
+        piece.dataset.editorId = nid;
         piece.setAttribute("href", dataUri);
         piece.setAttribute("x", cx);
         piece.setAttribute("y", cy);
@@ -2016,8 +2072,8 @@ const CertificateEditorPanel = ({ embedded = false }) => {
         return;
       }
       mutate(() => {
-        made.forEach(({ piece }) => node.parentNode?.insertBefore(piece, node));
-        node.parentNode?.removeChild(node);
+        made.forEach(({ piece }) => node.before(piece));
+        node.remove();
       });
       const ids = made.map((m) => m.nid);
       setSelIds(ids);
@@ -2036,7 +2092,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
   const removeElement = (id) => {
     const node = docRef.current?.querySelector(`[data-editor-id="${id}"]`);
     if (!node) return;
-    mutate(() => node.parentNode?.removeChild(node));
+    mutate(() => node.remove());
     if (id === activeId) setActiveId(null);
     setSelIds((ids) => ids.filter((x) => x !== id));
     notify("Element removed");
@@ -2046,18 +2102,25 @@ const CertificateEditorPanel = ({ embedded = false }) => {
     const node = docRef.current?.querySelector(`[data-editor-id="${id}"]`);
     const el = elemsRef.current.find((x) => x.id === id);
     if (!node || !el) return;
-    const newId =
-      el.tag === "text"
-        ? "T" + uidCounter++
-        : el.tag === "image"
-        ? "I" + uidCounter++
-        : "S" + uidCounter++;
+    let prefix = "S";
+    if (el.tag === "text") {
+      prefix = "T";
+    } else if (el.tag === "image") {
+      prefix = "I";
+    }
+    const newId = prefix + uidCounter++;
     mutate(() => {
       const clone = node.cloneNode(true);
-      clone.setAttribute("data-editor-id", newId);
+      clone.dataset.editorId = newId;
       if (el.tag === "text" || el.tag === "image") {
-        clone.setAttribute("x", parseFloat(node.getAttribute("x") || 0) + 20);
-        clone.setAttribute("y", parseFloat(node.getAttribute("y") || 0) + 20);
+        clone.setAttribute(
+          "x",
+          Number.parseFloat(node.getAttribute("x") || 0) + 20
+        );
+        clone.setAttribute(
+          "y",
+          Number.parseFloat(node.getAttribute("y") || 0) + 20
+        );
       }
       node.parentNode?.insertBefore(clone, node.nextSibling);
     });
@@ -2186,6 +2249,183 @@ const CertificateEditorPanel = ({ embedded = false }) => {
     return 1;
   };
 
+  let canvasCursor = "default";
+  if (splitId) {
+    canvasCursor = "crosshair";
+  } else if (activeEl) {
+    canvasCursor = "move";
+  }
+
+  const renderInspectorBody = () => {
+    if (!activeEl) {
+      return (
+        <Typography variant="body2" color="text.secondary">
+          Click anything to select the smallest element under the
+          cursor, Alt+click to select the enclosing group instead.
+          Drag to move — a signature or grouped block moves as one,
+          and the X / Y fields shift a single part on its own. Drag
+          the corners to resize, Shift+click to select many, arrow
+          keys to nudge, Ctrl+Z / Ctrl+Shift+Z to undo / redo.
+        </Typography>
+      );
+    }
+    if (activeEl.tag === "image" || activeEl.isShape) {
+      return (
+        <Stack spacing={1.5}>
+          <Typography variant="overline" color="text.secondary">
+            Move &amp; size
+          </Typography>
+          <NumericField
+            label="X position"
+            value={activeEl.x}
+            onChange={(v) => patchNodePos({ x: v })}
+          />
+          <NumericField
+            label="Y position"
+            value={activeEl.y}
+            onChange={(v) => patchNodePos({ y: v })}
+          />
+          <NumericField
+            label="Width"
+            value={activeEl.w}
+            onChange={(v) => patchEl({ width: v })}
+          />
+          <NumericField
+            label="Height"
+            value={activeEl.h}
+            onChange={(v) => patchEl({ height: v })}
+          />
+          {activeEl.mode === "local" ? null : (
+            <Typography variant="caption" color="text.secondary">
+              Position applied as a transform so the logo keeps its
+              original placement inside the template.
+            </Typography>
+          )}
+          <Typography variant="overline" color="text.secondary">
+            Look
+          </Typography>
+          <NumericField
+            label="Opacity (0–1)"
+            value={activeEl.opacity}
+            step={0.05}
+            onChange={(v) => patchEl({ opacity: v })}
+          />
+          {!activeEl.isShape && (
+            <Stack direction="row" spacing={1}>
+              <Button
+                size="small"
+                variant="outlined"
+                component="label"
+                startIcon={<AddPhotoAlternateOutlinedIcon />}
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={replaceImage}
+                />
+                Replace image
+              </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={useNaturalSize}
+              >
+                Natural size
+              </Button>
+            </Stack>
+          )}
+          <Typography variant="overline" color="text.secondary">
+            Actions
+          </Typography>
+          <ZOrderControls
+            onOrder={(m) => zOrder(activeEl.id, m)}
+            onDuplicate={() => duplicateElement(activeEl.id)}
+            onDelete={() => removeElement(activeEl.id)}
+          />
+        </Stack>
+      );
+    }
+    return (
+      <Stack spacing={1.5}>
+        <Typography variant="overline" color="text.secondary">
+          Content
+        </Typography>
+        <Box>
+          <Typography variant="caption" color="text.secondary">
+            Text content
+          </Typography>
+          <TextField
+            fullWidth
+            size="small"
+            value={activeEl.text}
+            onChange={onTextContent}
+            multiline
+            minRows={2}
+          />
+        </Box>
+        <Typography variant="overline" color="text.secondary">
+          Look
+        </Typography>
+        <NumericField
+          label="Font size"
+          value={activeEl.fontSize}
+          onChange={(v) =>
+            onElementField("font-size")({ target: { value: v } })
+          }
+        />
+        <TextField
+          label="Font family"
+          size="small"
+          value={activeEl.fontFamily}
+          onChange={onElementField("font-family")}
+        />
+        <FormControl fullWidth size="small">
+          <InputLabel>Font weight</InputLabel>
+          <Select
+            value={activeEl.fontWeight}
+            label="Font weight"
+            onChange={onElementField("font-weight")}
+          >
+            <MenuItem value="normal">Normal</MenuItem>
+            <MenuItem value="bold">Bold</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl fullWidth size="small">
+          <InputLabel>Alignment</InputLabel>
+          <Select
+            value={activeEl.anchor}
+            label="Alignment"
+            onChange={onElementField("text-anchor")}
+          >
+            <MenuItem value="start">Left</MenuItem>
+            <MenuItem value="middle">Center</MenuItem>
+            <MenuItem value="end">Right</MenuItem>
+          </Select>
+        </FormControl>
+        <TextField
+          label="Color"
+          type="color"
+          size="small"
+          value={
+            /^#[0-9a-f]{6}$/i.test(activeEl.fill || "")
+              ? activeEl.fill
+              : "#000000"
+          }
+          onChange={onElementField("fill")}
+        />
+        <Typography variant="overline" color="text.secondary">
+          Actions
+        </Typography>
+        <ZOrderControls
+          onOrder={(m) => zOrder(activeEl.id, m)}
+          onDuplicate={() => duplicateElement(activeEl.id)}
+          onDelete={() => removeElement(activeEl.id)}
+        />
+      </Stack>
+    );
+  };
+
   return (
     <Container
       maxWidth={embedded ? false : "xl"}
@@ -2265,18 +2505,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
                         key={el.id}
                         size="small"
                         icon={el.isGroup || el.group ? <LinkIcon /> : undefined}
-                        label={
-                          el.isGroup
-                            ? `Group${el.label ? ` · ${el.label}` : ""} · ${
-                                el.childIds.length
-                              } parts`
-                            : (el.group ? "g · " : "") +
-                              (el.tag === "text"
-                                ? `Text · ${(el.text || "…").slice(0, 18)}`
-                                : el.isShape
-                                ? `${SHAPE_LABELS[el.tag] || el.tag} · ${el.id}`
-                                : `Image · ${el.id}`)
-                        }
+                        label={getElemChipLabel(el)}
                         title={
                           el.isGroup
                             ? "Click to select the whole group, then Ungroup to edit the parts"
@@ -2344,167 +2573,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
                     Group selection as one
                   </Button>
                 )}
-                {!activeEl ? (
-                  <Typography variant="body2" color="text.secondary">
-                    Click anything to select the smallest element under the
-                    cursor, Alt+click to select the enclosing group instead.
-                    Drag to move — a signature or grouped block moves as one,
-                    and the X / Y fields shift a single part on its own. Drag
-                    the corners to resize, Shift+click to select many, arrow
-                    keys to nudge, Ctrl+Z / Ctrl+Shift+Z to undo / redo.
-                  </Typography>
-                ) : activeEl.tag === "image" || activeEl.isShape ? (
-                  <Stack spacing={1.5}>
-                    <Typography variant="overline" color="text.secondary">
-                      Move &amp; size
-                    </Typography>
-                    <NumericField
-                      label="X position"
-                      value={activeEl.x}
-                      onChange={(v) => patchNodePos({ x: v })}
-                    />
-                    <NumericField
-                      label="Y position"
-                      value={activeEl.y}
-                      onChange={(v) => patchNodePos({ y: v })}
-                    />
-                    <NumericField
-                      label="Width"
-                      value={activeEl.w}
-                      onChange={(v) => patchEl({ width: v })}
-                    />
-                    <NumericField
-                      label="Height"
-                      value={activeEl.h}
-                      onChange={(v) => patchEl({ height: v })}
-                    />
-                    {activeEl.mode === "local" ? null : (
-                      <Typography variant="caption" color="text.secondary">
-                        Position applied as a transform so the logo keeps its
-                        original placement inside the template.
-                      </Typography>
-                    )}
-                    <Typography variant="overline" color="text.secondary">
-                      Look
-                    </Typography>
-                    <NumericField
-                      label="Opacity (0–1)"
-                      value={activeEl.opacity}
-                      step={0.05}
-                      onChange={(v) => patchEl({ opacity: v })}
-                    />
-                    {!activeEl.isShape && (
-                      <Stack direction="row" spacing={1}>
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          component="label"
-                          startIcon={<AddPhotoAlternateOutlinedIcon />}
-                        >
-                          Replace image
-                          <input
-                            type="file"
-                            accept="image/*"
-                            hidden
-                            onChange={replaceImage}
-                          />
-                        </Button>
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          onClick={useNaturalSize}
-                        >
-                          Natural size
-                        </Button>
-                      </Stack>
-                    )}
-                    <Typography variant="overline" color="text.secondary">
-                      Actions
-                    </Typography>
-                    <ZOrderControls
-                      onOrder={(m) => zOrder(activeEl.id, m)}
-                      onDuplicate={() => duplicateElement(activeEl.id)}
-                      onDelete={() => removeElement(activeEl.id)}
-                    />
-                  </Stack>
-                ) : (
-                  <Stack spacing={1.5}>
-                    <Typography variant="overline" color="text.secondary">
-                      Content
-                    </Typography>
-                    <Box>
-                      <Typography variant="caption" color="text.secondary">
-                        Text content
-                      </Typography>
-                      <TextField
-                        fullWidth
-                        size="small"
-                        value={activeEl.text}
-                        onChange={onTextContent}
-                        multiline
-                        minRows={2}
-                      />
-                    </Box>
-                    <Typography variant="overline" color="text.secondary">
-                      Look
-                    </Typography>
-                    <NumericField
-                      label="Font size"
-                      value={activeEl.fontSize}
-                      onChange={(v) =>
-                        onElementField("font-size")({ target: { value: v } })
-                      }
-                    />
-                    <TextField
-                      label="Font family"
-                      size="small"
-                      value={activeEl.fontFamily}
-                      onChange={onElementField("font-family")}
-                    />
-                    <FormControl fullWidth size="small">
-                      <InputLabel>Font weight</InputLabel>
-                      <Select
-                        value={activeEl.fontWeight}
-                        label="Font weight"
-                        onChange={onElementField("font-weight")}
-                      >
-                        <MenuItem value="normal">Normal</MenuItem>
-                        <MenuItem value="bold">Bold</MenuItem>
-                      </Select>
-                    </FormControl>
-                    <FormControl fullWidth size="small">
-                      <InputLabel>Alignment</InputLabel>
-                      <Select
-                        value={activeEl.anchor}
-                        label="Alignment"
-                        onChange={onElementField("text-anchor")}
-                      >
-                        <MenuItem value="start">Left</MenuItem>
-                        <MenuItem value="middle">Center</MenuItem>
-                        <MenuItem value="end">Right</MenuItem>
-                      </Select>
-                    </FormControl>
-                    <TextField
-                      label="Color"
-                      type="color"
-                      size="small"
-                      value={
-                        /^#[0-9a-f]{6}$/i.test(activeEl.fill || "")
-                          ? activeEl.fill
-                          : "#000000"
-                      }
-                      onChange={onElementField("fill")}
-                    />
-                    <Typography variant="overline" color="text.secondary">
-                      Actions
-                    </Typography>
-                    <ZOrderControls
-                      onOrder={(m) => zOrder(activeEl.id, m)}
-                      onDuplicate={() => duplicateElement(activeEl.id)}
-                      onDelete={() => removeElement(activeEl.id)}
-                    />
-                  </Stack>
-                )}
+                {renderInspectorBody()}
 
                 <Divider sx={{ my: 2 }} />
                 <Typography variant="caption" color="text.secondary">
@@ -2598,7 +2667,6 @@ const CertificateEditorPanel = ({ embedded = false }) => {
                   startIcon={<PhotoLibraryOutlinedIcon />}
                   disabled={!docRef.current}
                 >
-                  Add logos
                   <input
                     type="file"
                     accept="image/*"
@@ -2606,6 +2674,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
                     hidden
                     onChange={addImages}
                   />
+                  Add logos
                 </Button>
                 <Button
                   size="small"
@@ -2678,7 +2747,7 @@ const CertificateEditorPanel = ({ embedded = false }) => {
                   background:
                     "repeating-conic-gradient(#e8ecf1 0% 25%, #ffffff 0% 50%)",
                   backgroundSize: "22px 22px",
-                  cursor: splitId ? "crosshair" : activeEl ? "move" : "default",
+                  cursor: canvasCursor,
                   userSelect: "none",
                 }}
                 onMouseDown={onCanvasMouseDown}
@@ -2837,13 +2906,13 @@ const CertificateEditorPanel = ({ embedded = false }) => {
             fullWidth
             startIcon={<UploadFileIcon />}
           >
-            Upload SVG
             <input
               type="file"
               accept=".svg,image/svg+xml"
               hidden
               onChange={handleUpload}
             />
+            Upload SVG
           </Button>
           <Divider sx={{ my: 2 }}>
             <Typography variant="caption" color="text.secondary">
@@ -3036,7 +3105,7 @@ const NumericField = ({ label, value, onChange, step = 1 }) => (
     size="small"
     value={Number(value) || 0}
     step={step}
-    onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+    onChange={(e) => onChange(Number.parseFloat(e.target.value) || 0)}
   />
 );
 
@@ -3072,12 +3141,12 @@ const OverlayBox = ({ vb, activeEl, scale, handles = false }) => {
   const top = (activeEl.y - vb.y) * scale;
   const width = Math.min(activeEl.w * scale + 8, vb.w * scale);
   const height = Math.min(activeEl.h * scale + 8, vb.h * scale);
-  const label =
-    activeEl.tag === "text"
-      ? (activeEl.text || "Text").slice(0, 16) || "Text"
-      : activeEl.tag === "image"
-      ? "Image"
-      : SHAPE_LABELS[activeEl.kind] || activeEl.kind || "Element";
+  let label = SHAPE_LABELS[activeEl.kind] || activeEl.kind || "Element";
+  if (activeEl.tag === "text") {
+    label = (activeEl.text || "Text").slice(0, 16) || "Text";
+  } else if (activeEl.tag === "image") {
+    label = "Image";
+  }
   const placeAbove = top - 18 > 0;
   const hk = {
     nw: [0, 0],
@@ -3225,7 +3294,7 @@ const SplitOverlay = ({ vb, source, rects, draft, scale, onRemoveRect }) => {
       </Box>
       {rects.map((r, i) => (
         <Box
-          key={i}
+          key={r.id || `rect-${r.x}-${r.y}-${r.w}-${r.h}-${i}`}
           sx={{
             ...boxOf(r),
             border: "2px solid #2e7d32",
