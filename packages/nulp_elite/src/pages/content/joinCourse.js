@@ -360,13 +360,13 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => { // NOSONAR
         }
         const data = await response.json();
         setUserCourseData(data.result);
-        if (
-          data?.result?.courses?.some(
-            (course) => course?.contentId === contentId
-          )
-        ) {
+        const enrolledCourse = data?.result?.courses?.find(
+          (course) => course?.contentId === contentId
+        );
+        if (enrolledCourse) {
           setIsEnroll(true);
         }
+        return enrolledCourse;
       } catch (error) {
         console.error("Error while fetching courses:", error);
         showErrorMessage(t("FAILED_TO_FETCH_DATA"));
@@ -374,6 +374,58 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => { // NOSONAR
         setUserCourseDataLoaded(true);
       }
     };
+
+    // Invite-only batches are not returned by the open batch search (fetchBatchData),
+    // so a learner enrolled in one gets their batch from batch read.
+    const fetchInviteOnlyBatch = async (batchId) => {
+      try {
+        const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.BATCH.GET_DETAILS}/${batchId}`;
+        const response = await fetch(url);
+        if (!response.ok) {
+          return false;
+        }
+        const data = await response.json();
+        const batch = data?.result?.response;
+        if (!batch) {
+          return false;
+        }
+        // batch read returns certTemplates; the rest of this page reads cert_templates (batch search shape)
+        const inviteBatch = {
+          ...batch,
+          batchId: batch.batchId || batchId,
+          cert_templates: batch.cert_templates || batch.certTemplates,
+        };
+        setBatchData({
+          startDate: inviteBatch.startDate,
+          endDate: inviteBatch.endDate,
+          enrollmentEndDate: inviteBatch.enrollmentEndDate,
+          batchId: inviteBatch.batchId,
+        });
+        setBatchDetails(inviteBatch);
+        // same as getBatchDetail, reusing this response
+        setBatchDetail(data.result);
+        getScoreCriteria(data.result);
+        checkCertTemplate(data.result);
+        return true;
+      } catch (error) {
+        console.error("Error fetching invite-only batch:", error);
+        return false;
+      }
+    };
+
+    const loadBatch = async () => {
+      const enrolledCourse = await checkEnrolledCourse();
+      if (
+        enrolledCourse?.batchId &&
+        enrolledCourse?.batch?.enrollmentType === "invite-only" &&
+        (await fetchInviteOnlyBatch(enrolledCourse.batchId))
+      ) {
+        return;
+      }
+      // open batch flow (unchanged)
+      fetchBatchData();
+    };
+
     const getBatchDetail = async (batchId) => {
       try {
         const url = `${urlConfig.URLS.LEARNER_PREFIX}${urlConfig.URLS.BATCH.GET_DETAILS}/${batchId}`;
@@ -393,8 +445,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => { // NOSONAR
     };
 
     fetchData();
-    fetchBatchData();
-    checkEnrolledCourse();
+    loadBatch();
     getUserData();
   }, []);
 
