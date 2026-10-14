@@ -423,7 +423,7 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => { // NOSONAR
         return;
       }
       // open batch flow (unchanged)
-      fetchBatchData();
+      void fetchBatchData();
     };
 
     const getBatchDetail = async (batchId) => {
@@ -444,9 +444,9 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => { // NOSONAR
       }
     };
 
-    fetchData();
-    loadBatch();
-    getUserData();
+    void fetchData();
+    void loadBatch();
+    void getUserData();
   }, []);
 
   const checkCourseComplition = async (allContents, userProgress) => {
