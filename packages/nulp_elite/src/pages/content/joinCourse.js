@@ -161,6 +161,50 @@ const parseContentId = (ssoMode, queryString, searchParams) => {
   return raw?.endsWith("=") ? raw.slice(0, -1) : raw;
 };
 
+const toTimestamp = (value) => {
+  if (!value) return null;
+  const time = new Date(value).getTime();
+  return Number.isNaN(time) ? null : time;
+};
+
+const endOfDayTimestamp = (value) => {
+  const time = toTimestamp(value);
+  if (time === null) return null;
+  const date = new Date(time);
+  date.setHours(23, 59, 59, 999);
+  return date.getTime();
+};
+
+// Pick the learner's most relevant enrolment for a course. If one of the
+// learner's batches for this course is currently running, prefer it (most
+// recently accessed first, then latest start date). Otherwise keep the API's
+// original first match so no other course/batch selection changes.
+const selectPreferredEnrolledCourse = (courses, courseId) => {
+  const matching = (courses || []).filter((course) => course?.contentId === courseId);
+  if (matching.length <= 1) return matching[0];
+
+  const now = Date.now();
+  const startOf = (course) => toTimestamp(course?.batch?.startDate);
+  const endOf = (course) => endOfDayTimestamp(course?.batch?.endDate);
+  const lastAccess = (course) => toTimestamp(course?.lastContentAccessTime) || 0;
+
+  const ongoing = matching.filter((course) => {
+    const start = startOf(course);
+    const end = endOf(course);
+    return start !== null && start <= now && (end === null || now <= end);
+  });
+
+  if (!ongoing.length) {
+    return matching[0];
+  }
+
+  return ongoing.reduce((best, current) => {
+    const accessDiff = lastAccess(current) - lastAccess(best);
+    if (accessDiff !== 0) return accessDiff > 0 ? current : best;
+    return (startOf(current) || 0) > (startOf(best) || 0) ? current : best;
+  });
+};
+
 const JoinCourse = ({ hideChrome = false, ssoMode = false }) => { // NOSONAR
   const { t } = useTranslation();
   const [courseData, setCourseData] = useState();
@@ -360,8 +404,9 @@ const JoinCourse = ({ hideChrome = false, ssoMode = false }) => { // NOSONAR
         }
         const data = await response.json();
         setUserCourseData(data.result);
-        const enrolledCourse = data?.result?.courses?.find(
-          (course) => course?.contentId === contentId
+        const enrolledCourse = selectPreferredEnrolledCourse(
+          data?.result?.courses,
+          contentId
         );
         if (enrolledCourse) {
           setIsEnroll(true);
