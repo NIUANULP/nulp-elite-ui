@@ -18,6 +18,7 @@ import Alert from "@mui/material/Alert";
 import ToasterCommon from "../ToasterCommon";
 import { useNavigate } from "react-router-dom";
 import html2pdf from "html2pdf.js";
+import QRCode from "qrcode";
 const routeConfig = require("../../configs/routeConfig.json");
 import { Loading } from "@shiksha/common-lib";
 
@@ -50,6 +51,27 @@ const getLatestCertificates = (certificates) => {
       return key ? latestByKey.get(key)?.cert === cert : true;
     })
     .sort((a, b) => getCertTimestamp(b) - getCertTimestamp(a));
+};
+
+// RC's {{qrCode}} can encode a very long link, which renders too dense to scan.
+// Replace it with a QR for the short verify link (/certs/<osid>?t=1).
+const replaceQrWithShortLink = async (svgString, osid) => {
+  if (typeof svgString !== "string" || !osid) return svgString;
+  try {
+    const doc = new DOMParser().parseFromString(svgString, "image/svg+xml");
+    const qrImage = doc.querySelector("image.qr-code, image#QrCode");
+    if (!qrImage || doc.querySelector("parsererror")) return svgString;
+    const dataUrl = await QRCode.toDataURL(
+      `${window.location.origin}/certs/${osid}?t=1`,
+      { errorCorrectionLevel: "M", margin: 1, width: 400 }
+    );
+    qrImage.setAttribute("xlink:href", dataUrl);
+    qrImage.setAttribute("href", dataUrl);
+    return new XMLSerializer().serializeToString(doc.documentElement);
+  } catch (e) {
+    console.error("Failed to generate short QR, using template QR:", e);
+    return svgString;
+  }
 };
 
 const Certificate = () => {
@@ -162,7 +184,7 @@ const Certificate = () => {
 
       const response = await axios.request(config);
       if (response.data) {
-        setSvgData(response.data);
+        setSvgData(await replaceQrWithShortLink(response.data, osid));
         setShowSvgContainer(true); // Show SVG container before downloading
         await handleDownloadPdf(certificateName);
         setShowSvgContainer(false); // Hide SVG container after downloading
@@ -237,7 +259,7 @@ const Certificate = () => {
         jsPDF: { unit: "in", format: "letter", orientation: "landscape" },
       };
 
-      html2pdf().set(opt).from(element).save();
+      await html2pdf().set(opt).from(element).save();
     }
   };
   return (
@@ -476,10 +498,17 @@ const Certificate = () => {
           </Card>
         </Box>
         {showSvgContainer && (
+          // Rendered off-screen: html2pdf only needs it in the DOM, not visible.
+          // The offset is on the wrapper so html2pdf's clone of the inner div stays in view.
           <div
-            ref={svgContainerRef}
-            dangerouslySetInnerHTML={{ __html: svgData }}
-          />
+            aria-hidden="true"
+            style={{ position: "fixed", top: 0, left: "-10000px" }}
+          >
+            <div
+              ref={svgContainerRef}
+              dangerouslySetInnerHTML={{ __html: svgData }}
+            />
+          </div>
         )}
       </Container>
       <FloatingChatIcon />
