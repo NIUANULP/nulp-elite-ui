@@ -259,7 +259,7 @@ const Certificate = () => {
         jsPDF: { unit: "in", format: "letter", orientation: "landscape" },
       };
 
-      html2pdf().set(opt).from(element).save();
+      await html2pdf().set(opt).from(element).save();
     }
   };
   return (
@@ -498,10 +498,17 @@ const Certificate = () => {
           </Card>
         </Box>
         {showSvgContainer && (
+          // Rendered off-screen: html2pdf only needs it in the DOM, not visible.
+          // The offset is on the wrapper so html2pdf's clone of the inner div stays in view.
           <div
-            ref={svgContainerRef}
-            dangerouslySetInnerHTML={{ __html: svgData }}
-          />
+            aria-hidden="true"
+            style={{ position: "fixed", top: 0, left: "-10000px" }}
+          >
+            <div
+              ref={svgContainerRef}
+              dangerouslySetInnerHTML={{ __html: svgData }}
+            />
+          </div>
         )}
       </Container>
       <FloatingChatIcon />
