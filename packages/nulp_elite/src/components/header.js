@@ -48,6 +48,9 @@ const POLL_DASHBOARD_ROLES = new Set(["SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"
 const EVENTS_ROLES = new Set(["ORG_ADMIN", "SYSTEM_ADMINISTRATION", "CONTENT_CREATOR"]);
 const LEARNATHON_ROLES = new Set(["ORG_ADMIN", "SYSTEM_ADMINISTRATION"]);
 const ADMIN_ROLES = new Set(["ORG_ADMIN", "SYSTEM_ADMINISTRATION"]);
+
+// Certificate Management feature is restricted to system administrators only.
+const CERTIFICATE_ADMIN_ROLES = new Set(["SYSTEM_ADMINISTRATION"]);
 const FORM_SERVICE_ROLES = new Set(["SYSTEM_ADMINISTRATION"]);
 
 // Helper function to check if user has any of the specified roles
@@ -69,6 +72,89 @@ const hasPrivilegedPollAccess = (roleNames) => {
 // Helper function to check if user can create polls
 const canCreatePoll = (roleNames) => {
   return hasRoleAccess(roleNames, POLL_CREATOR_ROLES);
+};
+
+// Reusable Certificate Submenu component
+const CertificateSubmenu = ({
+  roleNames,
+  openSubmenu,
+  onToggle,
+  isMobile = false,
+}) => {
+  const submenuStyle = { background: "#f9fafc", color: "#1976d2" };
+  const listStyle = { background: "#f9fafc" };
+
+  if (!hasRoleAccess(roleNames, CERTIFICATE_ADMIN_ROLES)) {
+    return null;
+  }
+
+  return (
+    <>
+      <MenuItem onClick={onToggle} style={submenuStyle}>
+        Certificate Management
+        <Link primary="Submenu" />
+        {openSubmenu ? <ExpandLess /> : <ExpandMore />}
+      </MenuItem>
+      <Collapse
+        in={openSubmenu}
+        timeout="auto"
+        unmountOnExit
+        style={isMobile ? listStyle : undefined}
+      >
+        <List component="div" disablePadding style={listStyle}>
+          {isMobile ? (
+            <Link
+              href={routeConfig.ROUTES.CERT_EDITOR_PAGE.CERT_EDITOR}
+              underline="none"
+              textAlign="center"
+            >
+              <MenuItem className="ml-10">Editor</MenuItem>
+            </Link>
+          ) : (
+            <MenuItem className="ml-10" style={listStyle}>
+              <Link
+                href={routeConfig.ROUTES.CERT_EDITOR_PAGE.CERT_EDITOR}
+                underline="none"
+                textAlign="center"
+              >
+                Editor
+              </Link>
+            </MenuItem>
+          )}
+          {isMobile ? (
+            <Link
+              href={routeConfig.ROUTES.MANUAL_CERT_PAGE.MANUAL_CERT}
+              underline="none"
+              textAlign="center"
+            >
+              <MenuItem className="ml-10">Manual Issue</MenuItem>
+            </Link>
+          ) : (
+            <MenuItem className="ml-10">
+              <Link
+                href={routeConfig.ROUTES.MANUAL_CERT_PAGE.MANUAL_CERT}
+                underline="none"
+                textAlign="center"
+              >
+                Manual Issue
+              </Link>
+            </MenuItem>
+          )}
+        </List>
+      </Collapse>
+    </>
+  );
+};
+
+CertificateSubmenu.propTypes = {
+  roleNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+  openSubmenu: PropTypes.bool.isRequired,
+  onToggle: PropTypes.func.isRequired,
+  isMobile: PropTypes.bool,
+};
+
+CertificateSubmenu.defaultProps = {
+  isMobile: false,
 };
 
 // Reusable POLL_LIST link component
@@ -216,6 +302,7 @@ function Header({ globalSearchQuery }) {
   const [orgId, setOrgId] = useState();
   const [openSubmenu, setOpenSubmenu] = useState(false);
   const [openDashboardmenu, setopenDashboardmenu] = useState(false);
+  const [openCertificateSubmenu, setOpenCertificateSubmenu] = useState(false);
   const [open, setOpen] = useState(false);
   const [show, setShow] = React.useState(false);
   const [openNotification, setOpenNotification] = useState(false);
@@ -227,6 +314,9 @@ function Header({ globalSearchQuery }) {
   };
   const handleDashboardmenuToggle = () => {
     setopenDashboardmenu(!openDashboardmenu);
+  };
+  const handleCertificateSubmenuToggle = () => {
+    setOpenCertificateSubmenu(!openCertificateSubmenu);
   };
 
   const checkAccess = async (roles) => {
@@ -794,6 +884,12 @@ function Header({ globalSearchQuery }) {
                   <MenuItem>{t("ADMIN_DASHBOARD")}</MenuItem>
                 </Link>
               )}
+              <CertificateSubmenu
+                roleNames={roleNames}
+                openSubmenu={openCertificateSubmenu}
+                onToggle={handleCertificateSubmenuToggle}
+                isMobile={false}
+              />
               {hasRoleAccess(roleNames, DASHBOARD_ROLES) && (
                 <Link
                   href={routeConfig.ROUTES.DASHBOARD_PAGE.DASHBOARD}
@@ -1145,6 +1241,13 @@ function Header({ globalSearchQuery }) {
                     )}
                   {/* <NotificationsNoneOutlinedIcon />
                     ekta */}
+
+                  <CertificateSubmenu
+                    roleNames={roleNames}
+                    openSubmenu={openCertificateSubmenu}
+                    onToggle={handleCertificateSubmenuToggle}
+                    isMobile={true}
+                  />
 
                   <PollSubmenu
                     roleNames={roleNames}

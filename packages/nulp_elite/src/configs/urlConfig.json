@@ -147,7 +147,8 @@
       "ATTACH_CERTIFICATE": "v1/template/add",
       "CREATE_CERT_TEMPLATE": "asset/v1/create",
       "UPLOAD_CERT_TEMPLATE": "asset/v1/upload",
-      "CUSTOM_CERTIFICATE_CREATE": "/custom_event/certificate/create"
+      "CUSTOM_CERTIFICATE_CREATE": "/custom_event/certificate/create",
+      "CUSTOM_CERTIFICATE_CREATE_MANUAL": "/custom_event/certificate/manual-create"
     },
     "COMPOSITE": {
       "SEARCH": "composite/v1/search",

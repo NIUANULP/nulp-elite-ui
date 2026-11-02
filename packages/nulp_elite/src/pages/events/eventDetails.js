@@ -531,7 +531,7 @@ const formatTimeWithTimezone = (date) => {
       templateUrl:
         certificateDetails?.url, 
       status: "ACTIVE",
-      signatoryList:
+      signatory:
         certificateDetails?.signatoryList,
       certificateLabel: "test",
       issuedOn: new Date().toISOString(),
