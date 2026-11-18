@@ -301,11 +301,17 @@ const Certificate = () => {
     const element = svgContainerRef.current;
 
     if (element) {
-      // Size the page to the certificate itself. A fixed Letter page has a different
-      // aspect ratio from the (A4-shaped) templates and left a blank band at the bottom.
+      // Give the page the certificate's own shape. A fixed Letter page has a different
+      // aspect ratio from the templates and left a blank band at the bottom.
+      // The long side is fixed at A4 (1123px = 842pt) and both sides are whole pixels:
+      // templates with fractional sizes (e.g. 841.9 x 595.3) otherwise overflow
+      // html2pdf's page by a pixel and get a blank second page.
+      const LONG_SIDE_PX = 1123;
       const viewBox = element.querySelector("svg")?.viewBox?.baseVal;
-      const width = viewBox?.width || 1123;
-      const height = viewBox?.height || 794;
+      const ratio =
+        viewBox?.width && viewBox?.height ? viewBox.height / viewBox.width : 794 / 1123;
+      const width = ratio <= 1 ? LONG_SIDE_PX : Math.round(LONG_SIDE_PX / ratio);
+      const height = ratio <= 1 ? Math.round(LONG_SIDE_PX * ratio) : LONG_SIDE_PX;
       element.style.width = `${width}px`;
       element.style.height = `${height}px`;
 
@@ -321,7 +327,18 @@ const Certificate = () => {
         },
       };
 
-      await html2pdf().set(opt).from(element).save();
+      await html2pdf()
+        .set(opt)
+        .from(element)
+        .toPdf()
+        .get("pdf")
+        .then((pdf) => {
+          // A certificate is one page; drop any sliver page left by rounding.
+          for (let page = pdf.internal.getNumberOfPages(); page > 1; page--) {
+            pdf.deletePage(page);
+          }
+        })
+        .save();
     }
   };
   return (
