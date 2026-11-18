@@ -74,6 +74,41 @@ const replaceQrWithShortLink = async (svgString, osid) => {
   }
 };
 
+// RC only puts recipientName, trainingName and trainingId into credentialSubject,
+// so template slots for the learner's details or the certificate ID come back empty.
+// Templates mark those slots with classes; fill them from the NULP profile and osid.
+const fillRecipientDetails = (svgString, osid, profile) => {
+  if (typeof svgString !== "string") return svgString;
+  try {
+    const doc = new DOMParser().parseFromString(svgString, "image/svg+xml");
+    if (doc.querySelector("parsererror")) return svgString;
+    const detailsEl = doc.querySelector(".cert-recipient-details");
+    const idEl = doc.querySelector(".cert-id");
+    if (!detailsEl && !idEl) return svgString;
+
+    if (detailsEl) {
+      const designation =
+        profile?.designation?.toLowerCase() === "other"
+          ? profile?.customDesignation
+          : profile?.designation;
+      detailsEl.textContent = [
+        designation,
+        profile?.organisation,
+        profile?.district,
+        profile?.state,
+      ]
+        .map((part) => (typeof part === "string" ? part.trim() : ""))
+        .filter(Boolean)
+        .join(", ");
+    }
+    if (idEl && osid) idEl.textContent = osid;
+    return new XMLSerializer().serializeToString(doc.documentElement);
+  } catch (e) {
+    console.error("Failed to fill recipient details on certificate:", e);
+    return svgString;
+  }
+};
+
 const Certificate = () => {
   const { t } = useTranslation();
   const [certData, setCertData] = useState(null);
@@ -167,6 +202,19 @@ const Certificate = () => {
     fetchData();
   }, []);
 
+  // Certificates listed here are the logged-in user's own, so their profile is the recipient's.
+  const getRecipientProfile = async () => {
+    try {
+      const response = await axios.post(urlConfig.URLS.POFILE_PAGE.USER_READ, {
+        user_ids: [util.userId()],
+      });
+      return response?.data?.result?.[0] || null;
+    } catch (error) {
+      console.error("Error fetching profile for certificate:", error);
+      return null;
+    }
+  };
+
   const getCertificate = async (template, osid, certificateName) => {
     setError(null);
     try {
@@ -184,7 +232,9 @@ const Certificate = () => {
 
       const response = await axios.request(config);
       if (response.data) {
-        setSvgData(await replaceQrWithShortLink(response.data, osid));
+        const profile = await getRecipientProfile();
+        const svg = fillRecipientDetails(response.data, osid, profile);
+        setSvgData(await replaceQrWithShortLink(svg, osid));
         setShowSvgContainer(true); // Show SVG container before downloading
         await handleDownloadPdf(certificateName);
         setShowSvgContainer(false); // Hide SVG container after downloading
@@ -251,12 +301,24 @@ const Certificate = () => {
     const element = svgContainerRef.current;
 
     if (element) {
+      // Size the page to the certificate itself. A fixed Letter page has a different
+      // aspect ratio from the (A4-shaped) templates and left a blank band at the bottom.
+      const viewBox = element.querySelector("svg")?.viewBox?.baseVal;
+      const width = viewBox?.width || 1123;
+      const height = viewBox?.height || 794;
+      element.style.width = `${width}px`;
+      element.style.height = `${height}px`;
+
       const opt = {
         margin: 0,
         filename: `${certificateName}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "letter", orientation: "landscape" },
+        jsPDF: {
+          unit: "pt",
+          format: [width * 0.75, height * 0.75], // CSS px → pt
+          orientation: width > height ? "landscape" : "portrait",
+        },
       };
 
       await html2pdf().set(opt).from(element).save();
