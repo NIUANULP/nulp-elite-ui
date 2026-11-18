@@ -301,12 +301,24 @@ const Certificate = () => {
     const element = svgContainerRef.current;
 
     if (element) {
+      // Size the page to the certificate itself. A fixed Letter page has a different
+      // aspect ratio from the (A4-shaped) templates and left a blank band at the bottom.
+      const viewBox = element.querySelector("svg")?.viewBox?.baseVal;
+      const width = viewBox?.width || 1123;
+      const height = viewBox?.height || 794;
+      element.style.width = `${width}px`;
+      element.style.height = `${height}px`;
+
       const opt = {
         margin: 0,
         filename: `${certificateName}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "letter", orientation: "landscape" },
+        jsPDF: {
+          unit: "pt",
+          format: [width * 0.75, height * 0.75], // CSS px → pt
+          orientation: width > height ? "landscape" : "portrait",
+        },
       };
 
       await html2pdf().set(opt).from(element).save();
